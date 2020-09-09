@@ -50,16 +50,15 @@ public class CommercePriceListUpgradeStepRegistrator
 		}
 
 		registry.register(
-			_SCHEMA_VERSION_1_0_0, _SCHEMA_VERSION_1_1_0,
+			"1.0.0", "1.1.0",
 			new CommercePriceEntryUpgradeProcess(
 				_cpDefinitionLocalService, _cpInstanceLocalService));
 
 		registry.register(
-			_SCHEMA_VERSION_1_1_0, _SCHEMA_VERSION_1_2_0,
-			new CommercePriceListAccountRelUpgradeProcess());
+			"1.1.0", "1.2.0", new CommercePriceListAccountRelUpgradeProcess());
 
 		registry.register(
-			_SCHEMA_VERSION_1_2_0, _SCHEMA_VERSION_2_0_0,
+			"1.2.0", "2.0.0",
 			new com.liferay.commerce.price.list.internal.upgrade.v2_0_0.
 				CommercePriceEntryUpgradeProcess(),
 			new com.liferay.commerce.price.list.internal.upgrade.v2_0_0.
@@ -68,7 +67,7 @@ public class CommercePriceListUpgradeStepRegistrator
 			new CommerceTierPriceEntryUpgradeProcess());
 
 		registry.register(
-			_SCHEMA_VERSION_2_0_0, _SCHEMA_VERSION_2_1_0,
+			"2.0.0", "2.1.0",
 			new com.liferay.commerce.price.list.internal.upgrade.v2_1_0.
 				CommercePriceEntryUpgradeProcess(),
 			new com.liferay.commerce.price.list.internal.upgrade.v2_1_0.
@@ -79,40 +78,22 @@ public class CommercePriceListUpgradeStepRegistrator
 			new CommercePriceListDiscountRelUpgradeProcess());
 
 		registry.register(
-			_SCHEMA_VERSION_2_1_0, _SCHEMA_VERSION_2_1_1,
+			"2.1.0", "2.1.1",
 			new com.liferay.commerce.price.list.internal.upgrade.v2_1_1.
 				CommercePriceListUpgradeProcess());
 
 		registry.register(
-			_SCHEMA_VERSION_2_1_1, _SCHEMA_VERSION_2_1_2,
+			"2.1.1", "2.1.2",
 			new com.liferay.commerce.price.list.internal.upgrade.v2_1_2.
 				CommercePriceListUpgradeProcess(
 					_resourceActionLocalService, _resourceLocalService));
 
-		registry.register(
-			_SCHEMA_VERSION_2_1_2, _SCHEMA_VERSION_2_1_3,
-			new DummyUpgradeProcess());
+		registry.register("2.1.2", "2.1.3", new DummyUpgradeProcess());
 
 		if (_log.isInfoEnabled()) {
 			_log.info("COMMERCE PRICE LIST UPGRADE STEP REGISTRATOR FINISHED");
 		}
 	}
-
-	private static final String _SCHEMA_VERSION_1_0_0 = "1.0.0";
-
-	private static final String _SCHEMA_VERSION_1_1_0 = "1.1.0";
-
-	private static final String _SCHEMA_VERSION_1_2_0 = "1.2.0";
-
-	private static final String _SCHEMA_VERSION_2_0_0 = "2.0.0";
-
-	private static final String _SCHEMA_VERSION_2_1_0 = "2.1.0";
-
-	private static final String _SCHEMA_VERSION_2_1_1 = "2.1.1";
-
-	private static final String _SCHEMA_VERSION_2_1_2 = "2.1.2";
-
-	private static final String _SCHEMA_VERSION_2_1_3 = "2.1.3";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CommercePriceListUpgradeStepRegistrator.class);
