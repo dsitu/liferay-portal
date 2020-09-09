@@ -14,7 +14,7 @@
 
 package com.liferay.commerce.product.type.virtual.internal.upgrade;
 
-import com.liferay.commerce.product.type.virtual.internal.upgrade.v1_1_0.CPDefinitionVirtualSettingUpgradeProcess;
+import com.liferay.commerce.product.type.virtual.internal.upgrade.v2_0_0.CPDefinitionVirtualSettingUpgradeProcess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
@@ -39,7 +39,7 @@ public class CommerceProductTypeVirtualUpgradeStepRegistrator
 		}
 
 		registry.register(
-			"1.0.0", "1.1.0", new CPDefinitionVirtualSettingUpgradeProcess());
+			"1.0.0", "2.0.0", new CPDefinitionVirtualSettingUpgradeProcess());
 
 		if (_log.isInfoEnabled()) {
 			_log.info(

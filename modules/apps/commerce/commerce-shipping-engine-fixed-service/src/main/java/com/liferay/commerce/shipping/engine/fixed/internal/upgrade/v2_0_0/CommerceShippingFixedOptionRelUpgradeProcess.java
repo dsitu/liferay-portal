@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.commerce.shipping.engine.fixed.internal.upgrade.v1_1_0;
+package com.liferay.commerce.shipping.engine.fixed.internal.upgrade.v2_0_0;
 
 import com.liferay.commerce.shipping.engine.fixed.model.impl.CommerceShippingFixedOptionRelImpl;
 import com.liferay.portal.kernel.log.Log;

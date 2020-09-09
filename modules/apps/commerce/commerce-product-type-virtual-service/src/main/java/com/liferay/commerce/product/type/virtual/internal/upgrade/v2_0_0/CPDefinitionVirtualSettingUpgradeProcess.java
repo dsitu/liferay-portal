@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.commerce.product.type.virtual.internal.upgrade.v1_1_0;
+package com.liferay.commerce.product.type.virtual.internal.upgrade.v2_0_0;
 
 import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.product.type.virtual.model.impl.CPDefinitionVirtualSettingImpl;
