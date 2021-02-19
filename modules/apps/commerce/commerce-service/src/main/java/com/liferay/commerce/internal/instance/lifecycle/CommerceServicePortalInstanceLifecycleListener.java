@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.resource.bundle.AggregateResourceBundleLoader;
 import com.liferay.portal.kernel.resource.bundle.ClassResourceBundleLoader;
 import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
@@ -98,6 +99,9 @@ public class CommerceServicePortalInstanceLifecycleListener
 			new AggregateResourceBundleLoader(
 				new ClassResourceBundleLoader(
 					"content.Language", clazz.getClassLoader()),
+				ResourceBundleLoaderUtil.
+					getResourceBundleLoaderByBundleSymbolicName(
+						"com.liferay.commerce.lang"),
 				LanguageResources.PORTAL_RESOURCE_BUNDLE_LOADER);
 
 		for (String[] sapEntryObjectArray :
