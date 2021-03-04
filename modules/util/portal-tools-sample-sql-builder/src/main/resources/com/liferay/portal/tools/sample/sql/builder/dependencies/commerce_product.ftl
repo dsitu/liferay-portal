@@ -1,36 +1,112 @@
 <#assign
-	commerceCurrencyModel = dataFactory.newCommerceCurrencyModel()
+	cpOptionModel = dataFactory.newCPOptionModel("select", 1)
 
-	commerceCatalogModel = dataFactory.newCommerceCatalogModel(commerceCurrencyModel)
+	cpOptionCategoryModels = dataFactory.newCPOptionCategoryModels()
 
-	commerceCatalogGroupModel = dataFactory.newCommerceCatalogGroupModel(commerceCatalogModel)
-	commerceChannelModel = dataFactory.newCommerceChannelModel(commerceCurrencyModel)
+	cpSpecificationOptionModels = dataFactory.newCPSpecificationOptionModels(cpOptionCategoryModels)
+
 	cpTaxCategoryModel = dataFactory.newCPTaxCategoryModel()
+
+	defaultCPInstanceModel = dataFactory.newCPInstanceModel(dataFactory.newCPDefinitionModel(cpTaxCategoryModel, dataFactory.newCProductModel(0), 1), 1)
+
+	defaultCommercePriceEntryModel = dataFactory.newCommercePriceEntryModel(0, "", 0)
 />
 
-${dataFactory.toInsertSQL(commerceCatalogModel)}
+${dataFactory.toInsertSQL(cpOptionModel)}
 
-${dataFactory.toInsertSQL(dataFactory.newCommerceCatalogResourcePermissionModel(commerceCatalogModel))}
+${dataFactory.toInsertSQL(dataFactory.newCPOptionValueModel(cpOptionModel.CPOptionId, 1))}
 
-${dataFactory.toInsertSQL(commerceChannelModel)}
+<#list cpOptionCategoryModels as cpOptionCategoryModel>
+	${dataFactory.toInsertSQL(cpOptionCategoryModel)}
+</#list>
 
-${dataFactory.toInsertSQL(commerceCurrencyModel)}
+<#list cpSpecificationOptionModels as cpSpecificationOptionModel>
+	${dataFactory.toInsertSQL(cpSpecificationOptionModel)}
+</#list>
 
-<#list dataFactory.getSequence(dataFactory.maxCommerceProductCount) as commerceProductCount>
-	<#assign cProductModel = dataFactory.newCProductModel(commerceCatalogGroupModel) />
+${dataFactory.toInsertSQL(cpTaxCategoryModel)}
 
-	<#list dataFactory.getSequence(dataFactory.maxCommerceProductDefinitionCount) as commerceProductDefinitionCount>
+<#list commerceCatalogGroupModels as commerceCatalogGroupModel>
+	<#assign
+		commercePriceListModel = dataFactory.newCommercePriceListModel(commerceCatalogGroupModel.groupId, commerceCurrencyModel.commerceCurrencyId, true, true, "price-list")
+
+		commerceProductDLFolderModel = dataFactory.newDLFolderModel(commerceCatalogGroupModel.groupId, 0, "Commerce Product")
+
+		cpDefinitionDLFolderModel = dataFactory.newDLFolderModel(commerceCatalogGroupModel.groupId, commerceProductDLFolderModel.folderId, "Commerce Product Definition")
+	/>
+
+	${dataFactory.toInsertSQL(commercePriceListModel)}
+
+	${dataFactory.toInsertSQL(commerceProductDLFolderModel)}
+
+	${dataFactory.toInsertSQL(cpDefinitionDLFolderModel)}
+
+	<#list dataFactory.newCProductModels(commerceCatalogGroupModel.groupId) as cProductModel>
 		<#assign
-			cpDefinitionModel = dataFactory.newCPDefinitionModel(cpTaxCategoryModel, cProductModel, commerceCatalogGroupModel, commerceProductDefinitionCount)
+			cpDefinitionModels = dataFactory.newCPDefinitionModels(cpTaxCategoryModel, cProductModel)
 
-			cProductModel = dataFactory.setCProductModelPublishedCPDefinitionId(cProductModel, commerceProductDefinitionCount, cpDefinitionModel.CPDefinitionId)
+			cProductModel = dataFactory.setCProductModelPublishedCPDefinitionId(cProductModel, cpDefinitionModels)
 
-			friendlyURLEntryModel = dataFactory.newFriendlyURLEntryModel(cProductModel.groupId, dataFactory.CProductClassNameId, cProductModel.CProductId)
+			friendlyURLEntryModel = dataFactory.newFriendlyURLEntryModel(globalGroupModel.groupId, dataFactory.CProductClassNameId, cProductModel.CProductId)
 
 			friendlyURLEntryLocalizationModel = dataFactory.newFriendlyURLEntryLocalizationModel(friendlyURLEntryModel, "definition-" + cProductModel.publishedCPDefinitionId)
 		/>
 
-		${dataFactory.toInsertSQL(cpDefinitionModel)}
+		${dataFactory.toInsertSQL(cProductModel)}
+
+		<#list cpDefinitionModels as cpDefinitionModel>
+			${dataFactory.toInsertSQL(cpDefinitionModel)}
+
+			<#list commerceChannelModels as commerceChannelModel>
+				${dataFactory.toInsertSQL(dataFactory.newCommerceChannelRelModel(dataFactory.CPDefinitionClassNameId, cpDefinitionModel.CPDefinitionId, commerceChannelModel.commerceChannelId))}
+			</#list>
+
+			${dataFactory.toInsertSQL(dataFactory.newCPDefinitionModelAssetEntryModel(cpDefinitionModel, cpDefinitionModel.groupId))}
+
+			<#assign
+				cpDefinitionLocalizationModel = dataFactory.newCPDefinitionLocalizationModel(cpDefinitionModel)
+			/>
+
+			${dataFactory.toInsertSQL(cpDefinitionLocalizationModel)}
+
+			${csvFileWriter.write("cpDefinitionLocalization", cpDefinitionLocalizationModel.name + ", " + cpDefinitionLocalizationModel.description + "\n")}
+
+			<#list dataFactory.getSequence(dataFactory.maxCPDefinitionSpecificationOptionValueCount) as cpDefinitionSpecificationOptionValueCount>
+				<#assign
+					cpSpecificationOptionModel = cpSpecificationOptionModels[cpDefinitionSpecificationOptionValueCount - 1]
+
+					cpDefinitionSpecificationOptionValueModel = dataFactory.newCPDefinitionSpecificationOptionValueModel(cpDefinitionModel.CPDefinitionId, cpSpecificationOptionModel.CPSpecificationOptionId, cpSpecificationOptionModel.CPOptionCategoryId, cpDefinitionSpecificationOptionValueCount)
+				/>
+
+				${dataFactory.toInsertSQL(cpDefinitionSpecificationOptionValueModel)}
+			</#list>
+
+			<#assign
+				cpInstanceModels = dataFactory.newCPInstanceModels(cpDefinitionModel)
+			/>
+
+			<#list cpInstanceModels as cpInstanceModel>
+				${dataFactory.toInsertSQL(cpInstanceModel)}
+
+				<#list commerceInventoryWarehouseModels as commerceInventoryWarehouseModel>
+					${dataFactory.toInsertSQL(dataFactory.newCommerceInventoryWarehouseItemModel(commerceInventoryWarehouseModel, cpInstanceModel))}
+				</#list>
+
+				<#assign
+					defaultCPInstanceModel = cpInstanceModel
+
+					commercePriceEntryModel = dataFactory.newCommercePriceEntryModel(commercePriceListModel.commercePriceListId, cpInstanceModel.CPInstanceUuid, cpDefinitionModel.CProductId)
+
+					defaultCommercePriceEntryModel = commercePriceEntryModel
+				/>
+
+				${dataFactory.toInsertSQL(commercePriceEntryModel)}
+
+				${csvFileWriter.write("cpInstance", cpInstanceModel.sku + "\n")}
+			</#list>
+
+			<#include "commerce_product_attachment_file_entries.ftl">
+		</#list>
 
 		${dataFactory.toInsertSQL(friendlyURLEntryModel)}
 
@@ -39,21 +115,7 @@ ${dataFactory.toInsertSQL(commerceCurrencyModel)}
 		${dataFactory.toInsertSQL(dataFactory.newFriendlyURLEntryMapping(friendlyURLEntryModel))}
 
 		${csvFileWriter.write("cpFriendlyURLEntry", friendlyURLEntryLocalizationModel.urlTitle + "\n")}
-
-		${dataFactory.toInsertSQL(dataFactory.newCPDefinitionModelAssetEntryModel(cpDefinitionModel, commerceCatalogGroupModel))}
-
-		${dataFactory.toInsertSQL(dataFactory.newCPDefinitionLocalizationModel(cpDefinitionModel))}
-
-		<#list dataFactory.getSequence(dataFactory.maxCommerceProductInstanceCount) as commerceProductInstanceCount>
-			${dataFactory.toInsertSQL(dataFactory.newCPInstanceModel(cpDefinitionModel, commerceCatalogGroupModel, commerceProductInstanceCount))}
-		</#list>
 	</#list>
-
-	${dataFactory.toInsertSQL(cProductModel)}
 </#list>
 
-${dataFactory.toInsertSQL(cpTaxCategoryModel)}
-
-<@insertGroup _groupModel=commerceCatalogGroupModel />
-
-<@insertGroup _groupModel=dataFactory.newCommerceChannelGroupModel(commerceChannelModel) />
+<#include "commerce_orders.ftl">
