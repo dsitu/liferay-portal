@@ -18,6 +18,8 @@
 	${dataFactory.toInsertSQL(dlFileVersionModel)}
 
 	<@insertAssetEntry _entry=dlFileEntryModel />
+
+	${csvFileWriter.write("documentLibrary", dlFileEntryModel.uuid + "," + dlFolderModel.folderId + "," + dlFileEntryModel.name + "," + dlFileEntryModel.fileEntryId + "\n")}
 </#list>
 
 <#list dataFactory.getSequence(dataFactory.maxCPDefinitionAttachmentTypePDFCount) as cpDefinitionAttachmentTypePDFCount>
@@ -40,4 +42,6 @@
 	${dataFactory.toInsertSQL(dlFileVersionModel)}
 
 	<@insertAssetEntry _entry=dlFileEntryModel />
+
+	${csvFileWriter.write("documentLibrary", dlFileEntryModel.uuid + "," + dlFolderModel.folderId + "," + dlFileEntryModel.name + "," + dlFileEntryModel.fileEntryId + "\n")}
 </#list>
