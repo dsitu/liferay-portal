@@ -96,6 +96,8 @@ public class BatchPlannerPlanCacheModel
 		sb.append(modifiedDate);
 		sb.append(", active=");
 		sb.append(active);
+		sb.append(", export=");
+		sb.append(export);
 		sb.append(", externalType=");
 		sb.append(externalType);
 		sb.append(", externalURL=");
@@ -104,8 +106,6 @@ public class BatchPlannerPlanCacheModel
 		sb.append(internalClassName);
 		sb.append(", name=");
 		sb.append(name);
-		sb.append(", export=");
-		sb.append(export);
 		sb.append("}");
 
 		return sb.toString();
@@ -142,6 +142,7 @@ public class BatchPlannerPlanCacheModel
 		}
 
 		batchPlannerPlanImpl.setActive(active);
+		batchPlannerPlanImpl.setExport(export);
 
 		if (externalType == null) {
 			batchPlannerPlanImpl.setExternalType("");
@@ -171,8 +172,6 @@ public class BatchPlannerPlanCacheModel
 			batchPlannerPlanImpl.setName(name);
 		}
 
-		batchPlannerPlanImpl.setExport(export);
-
 		batchPlannerPlanImpl.resetOriginalValues();
 
 		return batchPlannerPlanImpl;
@@ -192,12 +191,12 @@ public class BatchPlannerPlanCacheModel
 		modifiedDate = objectInput.readLong();
 
 		active = objectInput.readBoolean();
+
+		export = objectInput.readBoolean();
 		externalType = objectInput.readUTF();
 		externalURL = objectInput.readUTF();
 		internalClassName = objectInput.readUTF();
 		name = objectInput.readUTF();
-
-		export = objectInput.readBoolean();
 	}
 
 	@Override
@@ -221,6 +220,8 @@ public class BatchPlannerPlanCacheModel
 		objectOutput.writeLong(modifiedDate);
 
 		objectOutput.writeBoolean(active);
+
+		objectOutput.writeBoolean(export);
 
 		if (externalType == null) {
 			objectOutput.writeUTF("");
@@ -249,8 +250,6 @@ public class BatchPlannerPlanCacheModel
 		else {
 			objectOutput.writeUTF(name);
 		}
-
-		objectOutput.writeBoolean(export);
 	}
 
 	public long mvccVersion;
@@ -261,10 +260,10 @@ public class BatchPlannerPlanCacheModel
 	public long createDate;
 	public long modifiedDate;
 	public boolean active;
+	public boolean export;
 	public String externalType;
 	public String externalURL;
 	public String internalClassName;
 	public String name;
-	public boolean export;
 
 }

@@ -200,11 +200,11 @@ public class ObjectLayoutTabUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	public static ObjectLayoutTab findByUuid_First(
 			String uuid, OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutTabException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutTabException {
 
 		return getPersistence().findByUuid_First(uuid, orderByComparator);
 	}
@@ -228,11 +228,11 @@ public class ObjectLayoutTabUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	public static ObjectLayoutTab findByUuid_Last(
 			String uuid, OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutTabException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutTabException {
 
 		return getPersistence().findByUuid_Last(uuid, orderByComparator);
 	}
@@ -257,12 +257,12 @@ public class ObjectLayoutTabUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	public static ObjectLayoutTab[] findByUuid_PrevAndNext(
 			long objectLayoutTabId, String uuid,
 			OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutTabException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutTabException {
 
 		return getPersistence().findByUuid_PrevAndNext(
 			objectLayoutTabId, uuid, orderByComparator);
@@ -372,12 +372,12 @@ public class ObjectLayoutTabUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	public static ObjectLayoutTab findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutTabException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutTabException {
 
 		return getPersistence().findByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -406,12 +406,12 @@ public class ObjectLayoutTabUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	public static ObjectLayoutTab findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutTabException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutTabException {
 
 		return getPersistence().findByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -441,12 +441,12 @@ public class ObjectLayoutTabUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	public static ObjectLayoutTab[] findByUuid_C_PrevAndNext(
 			long objectLayoutTabId, String uuid, long companyId,
 			OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutTabException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutTabException {
 
 		return getPersistence().findByUuid_C_PrevAndNext(
 			objectLayoutTabId, uuid, companyId, orderByComparator);
@@ -506,10 +506,10 @@ public class ObjectLayoutTabUtil {
 	 *
 	 * @param objectLayoutTabId the primary key of the object layout tab
 	 * @return the object layout tab that was removed
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	public static ObjectLayoutTab remove(long objectLayoutTabId)
-		throws com.liferay.object.exception.NoSuchLayoutTabException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutTabException {
 
 		return getPersistence().remove(objectLayoutTabId);
 	}
@@ -519,14 +519,14 @@ public class ObjectLayoutTabUtil {
 	}
 
 	/**
-	 * Returns the object layout tab with the primary key or throws a <code>NoSuchLayoutTabException</code> if it could not be found.
+	 * Returns the object layout tab with the primary key or throws a <code>NoSuchObjectLayoutTabException</code> if it could not be found.
 	 *
 	 * @param objectLayoutTabId the primary key of the object layout tab
 	 * @return the object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	public static ObjectLayoutTab findByPrimaryKey(long objectLayoutTabId)
-		throws com.liferay.object.exception.NoSuchLayoutTabException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutTabException {
 
 		return getPersistence().findByPrimaryKey(objectLayoutTabId);
 	}

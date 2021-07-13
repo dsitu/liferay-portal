@@ -210,11 +210,12 @@ public class UpdatePasswordAction implements Action {
 		Map<String, String[]> parameterMap =
 			httpServletRequest.getParameterMap();
 
-		StringBundler sb = new StringBundler(7 + (parameterMap.size() * 5));
+		StringBundler sb = new StringBundler(8 + (parameterMap.size() * 5));
 
 		sb.append("<html><body onload=\"document.fm.submit();\">");
 		sb.append("<form action=\"");
 		sb.append(PortalUtil.getPortalURL(httpServletRequest));
+		sb.append(PortalUtil.getPathContext());
 		sb.append("/c/portal/update_password\" method=\"post\" name=\"fm\">");
 
 		for (String name : parameterMap.keySet()) {

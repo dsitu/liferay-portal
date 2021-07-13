@@ -14,6 +14,7 @@
 
 import {openModal} from 'frontend-js-web';
 
+import {config} from '../config/index';
 import {selectPageContents} from './selectPageContents';
 
 export const selectPageContentDropdownItems = (classPK, label = '') => (
@@ -27,8 +28,14 @@ export const selectPageContentDropdownItems = (classPK, label = '') => (
 		return null;
 	}
 
-	const {addItems, editURL, permissionsURL, viewItemsURL, viewUsagesURL} =
-		pageContent.actions || {};
+	const {
+		addItems,
+		editImage,
+		editURL,
+		permissionsURL,
+		viewItemsURL,
+		viewUsagesURL,
+	} = pageContent.actions || {};
 
 	const dropdownItems = [];
 
@@ -38,6 +45,13 @@ export const selectPageContentDropdownItems = (classPK, label = '') => (
 			label: label
 				? Liferay.Util.sub(Liferay.Language.get('edit-x'), label)
 				: Liferay.Language.get('edit'),
+		});
+	}
+
+	if (config.contentBrowsingEnabled && editImage) {
+		dropdownItems.push({
+			...editImage,
+			label: Liferay.Language.get('edit-image'),
 		});
 	}
 

@@ -12,7 +12,9 @@
  * details.
  */
 
+import ClayAlert from '@clayui/alert';
 import ClayBadge from '@clayui/badge';
+import ClayButton from '@clayui/button';
 import ClayLayout from '@clayui/layout';
 import ClayList from '@clayui/list';
 import ClayPanel from '@clayui/panel';
@@ -24,6 +26,7 @@ import {SET_SELECTED_ISSUE} from '../constants/actionTypes';
 import {StoreDispatchContext, StoreStateContext} from '../context/StoreContext';
 import getPageSpeedProgress from '../utils/getPageSpeedProgress';
 import BasicInformation from './BasicInformation';
+import NoIssuesLoaded from './NoIssuesLoaded';
 
 export default function IssuesList() {
 	const {data, error, languageId, loading} = useContext(StoreStateContext);
@@ -31,6 +34,8 @@ export default function IssuesList() {
 	const {defaultLanguageId, imagesPath, layoutReportsIssues, pageURLs} = data;
 
 	const [percentage, setPercentage] = useState(0);
+
+	const localizedIssues = layoutReportsIssues?.[languageId];
 
 	useEffect(() => {
 		if (loading && !error) {
@@ -52,29 +57,41 @@ export default function IssuesList() {
 	const successImage = `${imagesPath}/issues_success.gif`;
 
 	return (
-		<div className="c-p-3">
-			<BasicInformation
-				defaultLanguageId={defaultLanguageId}
-				pageURLs={pageURLs}
-				selectedLanguageId={languageId}
-			/>
+		<>
+			{localizedIssues && !loading && (
+				<ClayAlert className="mb-4" displayType="info" variant="stripe">
+					{Liferay.Util.sub(
+						Liferay.Language.get(
+							'showing-data-from-x-relaunch-to-update-data'
+						),
+						localizedIssues.date
+					)}
+				</ClayAlert>
+			)}
+			<div className="pb-3 px-3">
+				<BasicInformation
+					defaultLanguageId={defaultLanguageId}
+					pageURLs={pageURLs}
+					selectedLanguageId={languageId}
+				/>
 
-			{loading ? (
-				<LoadingProgressBar percentage={percentage} />
-			) : (
-				layoutReportsIssues && (
+				{loading ? (
+					<LoadingProgressBar percentage={percentage} />
+				) : localizedIssues ? (
 					<Issues
-						layoutReportsIssues={layoutReportsIssues}
+						layoutReportsIssues={localizedIssues.issues}
 						successImage={successImage}
 					/>
-				)
-			)}
-		</div>
+				) : (
+					<NoIssuesLoaded />
+				)}
+			</div>
+		</>
 	);
 }
 
 const LoadingProgressBar = ({percentage}) => (
-	<div className="c-my-4 text-secondary">
+	<div className="my-4 text-secondary">
 		{Liferay.Language.get('connecting-with-google-pagespeed')}
 		<ClayProgressBar value={percentage} />
 	</div>
@@ -90,14 +107,14 @@ const Issues = ({layoutReportsIssues, successImage}) => {
 	}, [layoutReportsIssues]);
 
 	return (
-		<div className="c-my-4">
+		<div className="my-4">
 			{!hasIssues && (
 				<div className="pb-5 text-center">
 					<img
 						alt={Liferay.Language.get(
 							'success-page-audit-image-alt-description'
 						)}
-						className="c-my-4"
+						className="my-4"
 						src={successImage}
 						width="120px"
 					/>
@@ -134,7 +151,6 @@ const Section = ({section}) => {
 	return (
 		<ClayPanel
 			collapsable
-			collapseClassNames="c-mb-4 c-mt-3"
 			defaultExpanded={sectionTotal > 0}
 			displayTitle={
 				<span className="c-inner" tabIndex="-1">
@@ -198,20 +214,23 @@ const Issue = ({issue}) => {
 
 	return (
 		issueTotal > 0 && (
-			<ClayList.Item
-				action
-				className="border-0 lfr-layout-reports-panel__issue rounded-0"
-				flex
-				onClick={() => dispatch({issue, type: SET_SELECTED_ISSUE})}
-			>
-				<ClayList.ItemField expand>{issue.title}</ClayList.ItemField>
-
-				<ClayList.ItemField>
-					<ClayBadge
-						displayType={issueTotal === 0 ? 'success' : 'info'}
-						label={issueTotal}
-					/>
-				</ClayList.ItemField>
+			<ClayList.Item action className="border-0 issue rounded-0" flex>
+				<ClayButton
+					className="w-100"
+					displayType="unstyled"
+					onClick={() => dispatch({issue, type: SET_SELECTED_ISSUE})}
+				>
+					<span
+						className="align-items-center c-inner d-flex justify-content-between m-0 px-2 text-secondary w-100"
+						tabIndex="-1"
+					>
+						{issue.title}
+						<ClayBadge
+							displayType={issueTotal === 0 ? 'success' : 'info'}
+							label={issueTotal}
+						/>
+					</span>
+				</ClayButton>
 			</ClayList.Item>
 		)
 	);

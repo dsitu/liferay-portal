@@ -18,6 +18,7 @@
 
 <%
 DLAdminDisplayContext dlAdminDisplayContext = (DLAdminDisplayContext)request.getAttribute(DLAdminDisplayContext.class.getName());
+DLAdminManagementToolbarDisplayContext dlAdminManagementToolbarDisplayContext = (DLAdminManagementToolbarDisplayContext)request.getAttribute(DLAdminManagementToolbarDisplayContext.class.getName());
 
 DLViewDisplayContext dlViewDisplayContext = new DLViewDisplayContext(dlAdminDisplayContext, request, renderRequest, renderResponse);
 %>
@@ -49,6 +50,8 @@ DLViewDisplayContext dlViewDisplayContext = new DLViewDisplayContext(dlAdminDisp
 		<clay:management-toolbar
 			additionalProps='<%=
 				HashMapBuilder.<String, Object>put(
+					"collectDigitalSignaturePortlet", DigitalSignaturePortletKeys.COLLECT_DIGITAL_SIGNATURE
+				).put(
 					"downloadEntryURL", dlViewDisplayContext.getDownloadEntryURL()
 				).put(
 					"editEntryURL", dlViewDisplayContext.getEditEntryURL()
@@ -78,7 +81,7 @@ DLViewDisplayContext dlViewDisplayContext = new DLViewDisplayContext(dlAdminDisp
 					"viewFileEntryURL", dlViewDisplayContext.getViewFileEntryURL()
 				).build()
 			%>'
-			managementToolbarDisplayContext="<%= (DLAdminManagementToolbarDisplayContext)request.getAttribute(DLAdminManagementToolbarDisplayContext.class.getName()) %>"
+			managementToolbarDisplayContext="<%= dlAdminManagementToolbarDisplayContext %>"
 			propsTransformer="document_library/js/DLManagementToolbarPropsTransformer"
 		/>
 

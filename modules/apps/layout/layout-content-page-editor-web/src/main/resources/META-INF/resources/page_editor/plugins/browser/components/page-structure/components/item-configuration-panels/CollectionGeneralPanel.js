@@ -17,6 +17,7 @@ import ClayForm, {
 	ClaySelect,
 	ClaySelectWithOption,
 } from '@clayui/form';
+import classNames from 'classnames';
 import React, {useEffect, useState} from 'react';
 
 import {config} from '../../../../../../app/config/index';
@@ -39,6 +40,12 @@ const LAYOUT_OPTIONS = [
 	{label: Liferay.Util.sub(Liferay.Language.get('x-columns'), 6), value: '6'},
 ];
 
+const PAGINATION_TYPE_OPTIONS = [
+	{label: Liferay.Language.get('none'), value: ''},
+	{label: Liferay.Language.get('regular'), value: 'regular'},
+	{label: Liferay.Language.get('simple'), value: 'simple'},
+];
+
 const LIST_STYLE_GRID = '';
 
 const DEFAULT_LIST_STYLE = {
@@ -50,9 +57,22 @@ export const CollectionGeneralPanel = ({item}) => {
 	const collectionLayoutId = useId();
 	const collectionListItemStyleId = useId();
 	const collectionNumberOfItemsId = useId();
+	const collectionNumberOfItemsPerPageId = useId();
+	const collectionPaginationTypeId = useId();
 	const dispatch = useDispatch();
 	const listStyleId = useId();
 	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
+
+	const [numberOfItemsNextValue, setNumberOfItemsNextValue] = useState(
+		item.config.numberOfItems
+	);
+	const [
+		numberOfItemsPerPageNextValue,
+		setNumberOfItemsPerPageNextValue,
+	] = useState(item.config.numberOfItemsPerPage);
+
+	const numberOfItemsPerPageError =
+		item.config.numberOfItemsPerPage > config.searchContainerPageMaxDelta;
 
 	const handleConfigurationChanged = (itemConfig) => {
 		dispatch(
@@ -265,22 +285,108 @@ export const CollectionGeneralPanel = ({item}) => {
 							</ClayForm.Group>
 						)}
 
+					{config.collectionDisplayFragmentPaginationEnabled && (
+						<ClayForm.Group small>
+							<label htmlFor={collectionPaginationTypeId}>
+								{Liferay.Language.get('pagination')}
+							</label>
+							<ClaySelectWithOption
+								aria-label={Liferay.Language.get('pagination')}
+								id={collectionPaginationTypeId}
+								onChange={({target: {value}}) =>
+									handleConfigurationChanged({
+										paginationType: value,
+									})
+								}
+								options={PAGINATION_TYPE_OPTIONS}
+								value={item.config.paginationType}
+							/>
+						</ClayForm.Group>
+					)}
+
 					<ClayForm.Group small>
 						<label htmlFor={collectionNumberOfItemsId}>
 							{Liferay.Language.get('max-number-of-items')}
 						</label>
 						<ClayInput
 							id={collectionNumberOfItemsId}
-							min={1}
+							onBlur={({target: {value}}) => {
+								if (
+									numberOfItemsNextValue !==
+									item.config.numberOfItems
+								) {
+									handleConfigurationChanged({
+										numberOfItems: value,
+									});
+								}
+							}}
 							onChange={({target: {value}}) =>
-								handleConfigurationChanged({
-									numberOfItems: value,
-								})
+								setNumberOfItemsNextValue(value)
 							}
 							type="number"
-							value={item.config.numberOfItems}
+							value={numberOfItemsNextValue}
 						/>
 					</ClayForm.Group>
+
+					{config.collectionDisplayFragmentPaginationEnabled &&
+						item.config.paginationType && (
+							<ClayForm.Group small>
+								<label
+									htmlFor={collectionNumberOfItemsPerPageId}
+								>
+									{Liferay.Language.get(
+										'max-number-of-items-per-page'
+									)}
+								</label>
+								<ClayInput
+									id={collectionNumberOfItemsPerPageId}
+									onBlur={({target: {value}}) => {
+										if (
+											numberOfItemsPerPageNextValue !==
+											item.config.numberOfItemsPerPage
+										) {
+											handleConfigurationChanged({
+												numberOfItemsPerPage: value,
+											});
+										}
+									}}
+									onChange={({target: {value}}) =>
+										setNumberOfItemsPerPageNextValue(value)
+									}
+									type="number"
+									value={numberOfItemsPerPageNextValue}
+								/>
+								<p
+									className={classNames(
+										'mt-2 page-editor__collection-general-panel__pagination-label',
+										{
+											error: numberOfItemsPerPageError,
+										}
+									)}
+								>
+									<span
+										className={classNames('mr-1', {
+											'font-weight-bold': numberOfItemsPerPageError,
+										})}
+									>
+										{Liferay.Util.sub(
+											Liferay.Language.get(
+												'x-items-maximum'
+											),
+											config.searchContainerPageMaxDelta
+										)}
+									</span>
+
+									{numberOfItemsPerPageError &&
+										Liferay.Util.sub(
+											Liferay.Language.get(
+												'only-x-items-will-be-displayed'
+											),
+											config.searchContainerPageMaxDelta
+										)}
+								</p>
+							</ClayForm.Group>
+						)}
 				</>
 			)}
 		</>

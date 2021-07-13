@@ -33,7 +33,7 @@ const getEditableTitle = (editable, languageId) => {
 		editable[config.defaultLanguageId] ||
 		editable.defaultValue;
 
-	return div.textContent;
+	return div.textContent.trim();
 };
 
 const getEditableValues = (fragmentEntryLinks, segmentsExperienceId) =>
@@ -64,6 +64,7 @@ const getEditableValues = (fragmentEntryLinks, segmentsExperienceId) =>
 				.map(([key, value]) => ({
 					...value,
 					editableId: `${fragmentEntryLink.fragmentEntryLinkId}-${key}`,
+					type: fragmentEntryLink.editableTypes[key],
 				}));
 		})
 		.reduce(
@@ -101,10 +102,11 @@ export default function ContentsSidebar() {
 
 	const inlineTextContents = useMemo(
 		() =>
-			getEditableValues(
-				fragmentEntryLinks,
-				segmentsExperienceId
-			).map((editable) => normalizeEditableValues(editable, languageId)),
+			getEditableValues(fragmentEntryLinks, segmentsExperienceId)
+				.map((editable) =>
+					normalizeEditableValues(editable, languageId)
+				)
+				.filter((editable) => editable.title),
 		[fragmentEntryLinks, languageId, segmentsExperienceId]
 	);
 

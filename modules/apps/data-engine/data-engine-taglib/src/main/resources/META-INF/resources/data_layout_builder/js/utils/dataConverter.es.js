@@ -55,8 +55,8 @@ export function getDDMFormField({
 	const visitor = new PagesVisitor(settingsContext.pages);
 
 	visitor.mapFields((field) => {
-		const {fieldName, localizable, value} = field;
-		if (fieldName === 'options' && value) {
+		const {fieldName, localizable, type, value} = field;
+		if (type === 'options' && value) {
 			ddmFormField[fieldName] = value[editingLanguageId];
 		}
 		else if (fieldName === 'name') {
@@ -96,13 +96,7 @@ export function getDDMFormFieldSettingsContext({
 				_fromDDMFormToDataDefinitionPropertyName(fieldName)
 			);
 
-			let value = propertyValue ?? field.value;
-
-			if (localizable && propertyValue && fieldName !== 'label') {
-				value =
-					propertyValue[editingLanguageId] ||
-					propertyValue[defaultLanguageId];
-			}
+			const value = propertyValue ?? field.value;
 
 			let localizedValue = {};
 

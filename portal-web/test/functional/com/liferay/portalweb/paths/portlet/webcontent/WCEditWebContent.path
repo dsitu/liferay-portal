@@ -2,11 +2,13 @@
 <head>
 <title>WCEditWebContent</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">WCEditWebContent</td></tr>
 </thead>
+
 <tbody>
 <tr>
 	<td>ANY_TEXT_INPUT</td>
@@ -21,11 +23,6 @@
 <tr>
 	<td>AUTOGENERATEID</td>
 	<td>//input[contains(@id,'autoArticleId')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>CLEAR_BUTTON</td>
-	<td>//label[normalize-space(text())='${key_fieldFieldLabel}']//following-sibling::div[contains(@class,'form')]//button[normalize-space()='Clear']</td>
 	<td></td>
 </tr>
 <tr>
@@ -79,11 +76,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>PREVIEW_TEMPLATE</td>
-	<td>//button[contains(@id,'previewWithTemplate')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>FEATURED_IMAGE_URL_INPUT</td>
 	<td>//div[contains(@class,'input-String-wrapper')]/input[contains(@id,'URL')]</td>
 	<td></td>
@@ -91,11 +83,6 @@
 <tr>
 	<td>IMAGE_DESCRIPTION</td>
 	<td>//label[normalize-space(text())='${key_fieldFieldLabel}']/following-sibling::div[contains(@class,'form-group')]//input[contains(@name,'description')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>SELECT_BUTTON</td>
-	<td>//label[normalize-space(text())='${key_fieldFieldLabel}']//following-sibling::div[contains(@class,'form')]//button[normalize-space()='Select']</td>
 	<td></td>
 </tr>
 <tr>
@@ -119,16 +106,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>SELECT_STRUCTURE</td>
-	<td>//button[contains(.,'Select')]/span</td>
-	<td></td>
-</tr>
-<tr>
-	<td>SELECT_TEMPLATE</td>
-	<td>//button[contains(@id,'selectDDMTemplate')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>SELECTED_IMAGE</td>
 	<td>//input[contains(@id,'JournalPortlet_Image')]</td>
 	<td></td>
@@ -136,11 +113,6 @@
 <tr>
 	<td>SELECTED_STRUCTURE</td>
 	<td>//p[@class='article-structure']</td>
-	<td></td>
-</tr>
-<tr>
-	<td>SELECTED_TEMPLATE</td>
-	<td>//input[contains(@id,'TemplateName')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -207,50 +179,6 @@
 <tr>
 	<td></td>
 	<td></td>
-	<td></td>
-</tr>
-<!--DISPLAY_PAGE-->
-<tr>
-	<td>DISPLAY_PAGE_SELECT</td>
-	<td>//select[contains(@id,'displayPageType')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>DISPLAY_PAGE_DEFAULT_SELECTION</td>
-	<td>//input[contains(@id,'defaultDisplayPageNameInput')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>DISPLAY_PAGE_SPECIFIC_SELECTION</td>
-	<td>//input[contains(@id,'specificDisplayPageNameInput')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>DISPLAY_PAGE_CHOOSE_BUTTON</td>
-	<td>//button[contains(@id,'chooseSpecificDisplayPage')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>DISPLAY_PAGE_SELECT_PAGE_IFRAME</td>
-	<td>//iframe[contains(@id,'selectDisplayPage')]</td>
-	<td></td>
-</tr>
-<!--IMAGE_FIELD-->
-<tr>
-	<td>IMAGE_FIELD_SELECT</td>
-	<td>//label[contains(.,'Image')]/..//button[contains(.,'Select')]</td>
-	<td></td>
-</tr>
-<!--LINK TO PAGE_FIELD-->
-<tr>
-	<td>LINK_TO_PAGE_SELECT</td>
-	<td>//label[contains(.,'Link to Page')]/..//button[contains(.,'Select')]</td>
-	<td></td>
-</tr>
-<!--WC_FIELD-->
-<tr>
-	<td>WC_FIELD_SELECT</td>
-	<td>//label[contains(.,'Web Content')]/..//button[contains(.,'Select')]</td>
 	<td></td>
 </tr>
 <!--REPEATED FIELD ON WEB CONTENT-->

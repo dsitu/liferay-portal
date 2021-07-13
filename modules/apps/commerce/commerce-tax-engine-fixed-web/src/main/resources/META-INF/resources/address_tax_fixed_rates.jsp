@@ -31,7 +31,7 @@ CommerceTaxFixedRateAddressRelsDisplayContext commerceTaxFixedRateAddressRelsDis
 	<commerce-ui:panel
 		title='<%= LanguageUtil.get(resourceBundle, "taxed-address") %>'
 	>
-		<aui:select name="applyTaxTo" onChange='<%= liferayPortletResponse.getNamespace() + "selectApplyTaxTo();" %>'>
+		<aui:select id="applyTaxTo" name="applyTaxTo">
 			<aui:option label="shipping-address" selected="<%= commerceTaxFixedRateAddressRelsDisplayContext.isTaxAppliedToShippingAddress() %>" value="<%= true %>" />
 			<aui:option label="billing-address" selected="<%= !commerceTaxFixedRateAddressRelsDisplayContext.isTaxAppliedToShippingAddress() %>" value="<%= false %>" />
 		</aui:select>
@@ -64,10 +64,6 @@ CommerceTaxFixedRateAddressRelsDisplayContext commerceTaxFixedRateAddressRelsDis
 	</aui:button-row>
 </aui:form>
 
-<aui:script>
-	function <portlet:namespace />selectApplyTaxTo() {
-		var fm = window.document.querySelector(document.<portlet:namespace />fm);
-
-		submitForm(fm);
-	}
-</aui:script>
+<liferay-frontend:component
+	module="js/addressTaxFixedRates"
+/>

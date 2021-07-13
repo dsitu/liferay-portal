@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence;
 
-import com.liferay.object.exception.NoSuchRelationshipException;
+import com.liferay.object.exception.NoSuchObjectRelationshipException;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
@@ -108,13 +108,13 @@ public interface ObjectRelationshipPersistence
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object relationship
-	 * @throws NoSuchRelationshipException if a matching object relationship could not be found
+	 * @throws NoSuchObjectRelationshipException if a matching object relationship could not be found
 	 */
 	public ObjectRelationship findByUuid_First(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectRelationship>
 				orderByComparator)
-		throws NoSuchRelationshipException;
+		throws NoSuchObjectRelationshipException;
 
 	/**
 	 * Returns the first object relationship in the ordered set where uuid = &#63;.
@@ -134,13 +134,13 @@ public interface ObjectRelationshipPersistence
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object relationship
-	 * @throws NoSuchRelationshipException if a matching object relationship could not be found
+	 * @throws NoSuchObjectRelationshipException if a matching object relationship could not be found
 	 */
 	public ObjectRelationship findByUuid_Last(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectRelationship>
 				orderByComparator)
-		throws NoSuchRelationshipException;
+		throws NoSuchObjectRelationshipException;
 
 	/**
 	 * Returns the last object relationship in the ordered set where uuid = &#63;.
@@ -161,13 +161,13 @@ public interface ObjectRelationshipPersistence
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object relationship
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	public ObjectRelationship[] findByUuid_PrevAndNext(
 			long objectRelationshipId, String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectRelationship>
 				orderByComparator)
-		throws NoSuchRelationshipException;
+		throws NoSuchObjectRelationshipException;
 
 	/**
 	 * Removes all the object relationships where uuid = &#63; from the database.
@@ -257,13 +257,13 @@ public interface ObjectRelationshipPersistence
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object relationship
-	 * @throws NoSuchRelationshipException if a matching object relationship could not be found
+	 * @throws NoSuchObjectRelationshipException if a matching object relationship could not be found
 	 */
 	public ObjectRelationship findByUuid_C_First(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectRelationship>
 				orderByComparator)
-		throws NoSuchRelationshipException;
+		throws NoSuchObjectRelationshipException;
 
 	/**
 	 * Returns the first object relationship in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -285,13 +285,13 @@ public interface ObjectRelationshipPersistence
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object relationship
-	 * @throws NoSuchRelationshipException if a matching object relationship could not be found
+	 * @throws NoSuchObjectRelationshipException if a matching object relationship could not be found
 	 */
 	public ObjectRelationship findByUuid_C_Last(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectRelationship>
 				orderByComparator)
-		throws NoSuchRelationshipException;
+		throws NoSuchObjectRelationshipException;
 
 	/**
 	 * Returns the last object relationship in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -314,13 +314,13 @@ public interface ObjectRelationshipPersistence
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object relationship
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	public ObjectRelationship[] findByUuid_C_PrevAndNext(
 			long objectRelationshipId, String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectRelationship>
 				orderByComparator)
-		throws NoSuchRelationshipException;
+		throws NoSuchObjectRelationshipException;
 
 	/**
 	 * Removes all the object relationships where uuid = &#63; and companyId = &#63; from the database.
@@ -367,22 +367,22 @@ public interface ObjectRelationshipPersistence
 	 *
 	 * @param objectRelationshipId the primary key of the object relationship
 	 * @return the object relationship that was removed
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	public ObjectRelationship remove(long objectRelationshipId)
-		throws NoSuchRelationshipException;
+		throws NoSuchObjectRelationshipException;
 
 	public ObjectRelationship updateImpl(ObjectRelationship objectRelationship);
 
 	/**
-	 * Returns the object relationship with the primary key or throws a <code>NoSuchRelationshipException</code> if it could not be found.
+	 * Returns the object relationship with the primary key or throws a <code>NoSuchObjectRelationshipException</code> if it could not be found.
 	 *
 	 * @param objectRelationshipId the primary key of the object relationship
 	 * @return the object relationship
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	public ObjectRelationship findByPrimaryKey(long objectRelationshipId)
-		throws NoSuchRelationshipException;
+		throws NoSuchObjectRelationshipException;
 
 	/**
 	 * Returns the object relationship with the primary key or returns <code>null</code> if it could not be found.

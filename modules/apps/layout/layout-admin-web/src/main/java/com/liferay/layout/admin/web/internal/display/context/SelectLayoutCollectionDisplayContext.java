@@ -19,11 +19,9 @@ import com.liferay.asset.list.service.AssetListEntryServiceUtil;
 import com.liferay.asset.list.util.AssetListPortletUtil;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.NavigationItem;
+import com.liferay.info.collection.provider.InfoCollectionProvider;
 import com.liferay.info.item.InfoItemServiceTracker;
 import com.liferay.info.item.provider.InfoItemFormProvider;
-import com.liferay.info.list.provider.DefaultInfoListProviderContext;
-import com.liferay.info.list.provider.InfoListProvider;
-import com.liferay.info.list.provider.InfoListProviderTracker;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -59,12 +57,10 @@ public class SelectLayoutCollectionDisplayContext {
 
 	public SelectLayoutCollectionDisplayContext(
 		InfoItemServiceTracker infoItemServiceTracker,
-		InfoListProviderTracker infoListProviderTracker,
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse) {
 
 		_infoItemServiceTracker = infoItemServiceTracker;
-		_infoListProviderTracker = infoListProviderTracker;
 		_liferayPortletRequest = liferayPortletRequest;
 		_liferayPortletResponse = liferayPortletResponse;
 
@@ -77,22 +73,23 @@ public class SelectLayoutCollectionDisplayContext {
 			_httpServletRequest);
 	}
 
-	public SearchContainer<InfoListProvider<?>>
+	public SearchContainer<InfoCollectionProvider<?>>
 		getCollectionProvidersSearchContainer() {
 
-		SearchContainer<InfoListProvider<?>> searchContainer =
+		SearchContainer<InfoCollectionProvider<?>> searchContainer =
 			new SearchContainer<>(
 				_liferayPortletRequest, getPortletURL(), null,
 				LanguageUtil.get(
 					_httpServletRequest, "there-are-no-collection-providers"));
 
-		List<InfoListProvider<?>> infoListProviders = _getInfoListProviders();
+		List<InfoCollectionProvider<?>> infoCollectionProviders =
+			_getInfoCollectionProviders();
 
 		searchContainer.setResults(
 			ListUtil.subList(
-				infoListProviders, searchContainer.getStart(),
+				infoCollectionProviders, searchContainer.getStart(),
 				searchContainer.getEnd()));
-		searchContainer.setTotal(infoListProviders.size());
+		searchContainer.setTotal(infoCollectionProviders.size());
 
 		return searchContainer;
 	}
@@ -229,39 +226,21 @@ public class SelectLayoutCollectionDisplayContext {
 		return true;
 	}
 
-	private List<String> _getInfoItemFormProviderClassNames() {
-		List<String> infoItemClassNames =
-			_infoItemServiceTracker.getInfoItemClassNames(
-				InfoItemFormProvider.class);
-
-		if (infoItemClassNames.contains(FileEntry.class.getName())) {
-			infoItemClassNames.add(DLFileEntryConstants.getClassName());
-			infoItemClassNames.remove(FileEntry.class.getName());
-		}
-
-		return infoItemClassNames;
-	}
-
-	private List<InfoListProvider<?>> _getInfoListProviders() {
-		List<InfoListProvider<?>> infoListProviders =
-			_infoListProviderTracker.getInfoListProviders();
-
-		DefaultInfoListProviderContext defaultInfoListProviderContext =
-			new DefaultInfoListProviderContext(
-				_themeDisplay.getScopeGroup(), _themeDisplay.getUser());
-
-		defaultInfoListProviderContext.setLayout(_themeDisplay.getLayout());
+	private List<InfoCollectionProvider<?>> _getInfoCollectionProviders() {
+		List<InfoCollectionProvider<?>> infoCollectionProviders =
+			(List<InfoCollectionProvider<?>>)
+				(List<?>)_infoItemServiceTracker.getAllInfoItemServices(
+					InfoCollectionProvider.class);
 
 		return ListUtil.filter(
-			infoListProviders,
-			infoListProvider -> {
+			infoCollectionProviders,
+			infoCollectionProvider -> {
 				try {
-					String label = infoListProvider.getLabel(
+					String label = infoCollectionProvider.getLabel(
 						_themeDisplay.getLocale());
 
 					if (Validator.isNotNull(label) &&
-						infoListProvider.isAvailable(
-							defaultInfoListProviderContext)) {
+						infoCollectionProvider.isAvailable()) {
 
 						return true;
 					}
@@ -278,6 +257,19 @@ public class SelectLayoutCollectionDisplayContext {
 					return false;
 				}
 			});
+	}
+
+	private List<String> _getInfoItemFormProviderClassNames() {
+		List<String> infoItemClassNames =
+			_infoItemServiceTracker.getInfoItemClassNames(
+				InfoItemFormProvider.class);
+
+		if (infoItemClassNames.contains(FileEntry.class.getName())) {
+			infoItemClassNames.add(DLFileEntryConstants.getClassName());
+			infoItemClassNames.remove(FileEntry.class.getName());
+		}
+
+		return infoItemClassNames;
 	}
 
 	private String _getKeywords() {
@@ -348,7 +340,6 @@ public class SelectLayoutCollectionDisplayContext {
 	private final GroupDisplayContextHelper _groupDisplayContextHelper;
 	private final HttpServletRequest _httpServletRequest;
 	private final InfoItemServiceTracker _infoItemServiceTracker;
-	private final InfoListProviderTracker _infoListProviderTracker;
 	private String _keywords;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;

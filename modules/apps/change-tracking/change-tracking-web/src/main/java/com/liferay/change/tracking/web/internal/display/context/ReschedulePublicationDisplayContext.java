@@ -17,6 +17,7 @@ package com.liferay.change.tracking.web.internal.display.context;
 import com.liferay.change.tracking.model.CTCollection;
 import com.liferay.change.tracking.web.internal.scheduler.ScheduledPublishInfo;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -25,7 +26,6 @@ import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -87,10 +87,9 @@ public class ReschedulePublicationDisplayContext {
 		).put(
 			"scheduledDate",
 			StringBundler.concat(
-				String.valueOf(calendar.get(Calendar.YEAR)), StringPool.DASH,
-				String.valueOf(calendar.get(Calendar.MONTH) + 1),
-				StringPool.DASH,
-				String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)))
+				calendar.get(Calendar.YEAR), StringPool.DASH,
+				calendar.get(Calendar.MONTH) + 1, StringPool.DASH,
+				calendar.get(Calendar.DAY_OF_MONTH))
 		).put(
 			"scheduledTime",
 			JSONUtil.put(

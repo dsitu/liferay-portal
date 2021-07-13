@@ -64,16 +64,17 @@ import java.rmi.RemoteException;
 public class KBFolderServiceSoap {
 
 	public static com.liferay.knowledge.base.model.KBFolderSoap addKBFolder(
-			long groupId, long parentResourceClassNameId,
-			long parentResourcePrimKey, String name, String description,
+			String externalReferenceCode, long groupId,
+			long parentResourceClassNameId, long parentResourcePrimKey,
+			String name, String description,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 
 		try {
 			com.liferay.knowledge.base.model.KBFolder returnValue =
 				KBFolderServiceUtil.addKBFolder(
-					groupId, parentResourceClassNameId, parentResourcePrimKey,
-					name, description, serviceContext);
+					externalReferenceCode, groupId, parentResourceClassNameId,
+					parentResourcePrimKey, name, description, serviceContext);
 
 			return com.liferay.knowledge.base.model.KBFolderSoap.toSoapModel(
 				returnValue);

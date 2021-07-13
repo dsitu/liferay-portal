@@ -2,20 +2,17 @@
 <head>
 <title>DataEngineRenderer</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">DataEngineRenderer</td></tr>
 </thead>
+
 <tbody>
 <tr>
 	<td>REPEATABLE_FIELD_ADD_BUTTON_INDEXED</td>
 	<td>xpath=((//label[normalize-space(text())='${key_fieldLabel}']/parent::div/preceding-sibling::div[contains(@class,'repeatable-toolbar')]//button[contains(@class,'repeatable-add-button')]) | (//label[normalize-space(text())='${key_fieldLabel}']/preceding-sibling::div[contains(@class,'repeatable-toolbar')]//button[contains(@class,'repeatable-add-button')]))[${index}]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>UPLOAD_MEDIA_REPEATED_FIELD</td>
-	<td>xpath=(//div[contains(@class,'ddm-field')]//label[normalize-space(text())='${key_fieldName}'])[${key_index}]</td>
 	<td></td>
 </tr>
 <tr>

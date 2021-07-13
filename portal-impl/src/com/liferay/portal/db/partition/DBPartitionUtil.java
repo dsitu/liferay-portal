@@ -113,8 +113,8 @@ public class DBPartitionUtil {
 		}
 
 		for (long companyId : PortalInstances.getCompanyIdsBySQL()) {
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+			try (SafeCloseable safeCloseable = CompanyThreadLocal.lock(
+					companyId)) {
 
 				unsafeConsumer.accept(companyId);
 			}
@@ -290,6 +290,11 @@ public class DBPartitionUtil {
 
 				return super.createStatement(
 					resultSetType, resultSetConcurrency, resultSetHoldability);
+			}
+
+			@Override
+			public String getCatalog() throws SQLException {
+				return _getSchemaName(CompanyThreadLocal.getCompanyId());
 			}
 
 			@Override

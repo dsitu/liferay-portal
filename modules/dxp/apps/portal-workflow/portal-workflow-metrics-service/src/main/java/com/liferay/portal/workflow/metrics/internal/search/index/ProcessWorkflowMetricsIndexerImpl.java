@@ -16,10 +16,14 @@ package com.liferay.portal.workflow.metrics.internal.search.index;
 
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalRunMode;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.document.Document;
 import com.liferay.portal.search.document.DocumentBuilder;
 import com.liferay.portal.search.engine.adapter.document.BulkDocumentRequest;
 import com.liferay.portal.search.engine.adapter.document.IndexDocumentRequest;
+import com.liferay.portal.search.engine.adapter.document.UpdateDocumentRequest;
+import com.liferay.portal.search.script.ScriptBuilder;
+import com.liferay.portal.search.script.ScriptType;
 import com.liferay.portal.workflow.metrics.internal.search.index.util.WorkflowMetricsIndexerUtil;
 import com.liferay.portal.workflow.metrics.search.index.ProcessWorkflowMetricsIndexer;
 
@@ -98,6 +102,17 @@ public class ProcessWorkflowMetricsIndexerImpl
 		Date modifiedDate, String name, long processId, String title,
 		Map<Locale, String> titleMap, String version) {
 
+		return addProcess(
+			active, companyId, createDate, description, modifiedDate, name,
+			processId, title, titleMap, version, new String[] {version});
+	}
+
+	@Override
+	public Document addProcess(
+		boolean active, long companyId, Date createDate, String description,
+		Date modifiedDate, String name, long processId, String title,
+		Map<Locale, String> titleMap, String version, String[] versions) {
+
 		DocumentBuilder documentBuilder = documentBuilderFactory.builder();
 
 		documentBuilder.setValue(
@@ -122,6 +137,8 @@ public class ProcessWorkflowMetricsIndexerImpl
 			"uid", digest(companyId, processId)
 		).setString(
 			"version", version
+		).setStrings(
+			"versions", versions
 		);
 
 		setLocalizedField(documentBuilder, "title", titleMap);
@@ -199,7 +216,31 @@ public class ProcessWorkflowMetricsIndexerImpl
 
 		Document document = documentBuilder.build();
 
-		workflowMetricsPortalExecutor.execute(() -> updateDocument(document));
+		workflowMetricsPortalExecutor.execute(
+			() -> {
+				updateDocument(document);
+
+				ScriptBuilder scriptBuilder = scripts.builder();
+
+				searchEngineAdapter.execute(
+					new UpdateDocumentRequest(
+						getIndexName(companyId),
+						WorkflowMetricsIndexerUtil.digest(
+							_processWorkflowMetricsIndex.getIndexType(),
+							companyId, processId),
+						scriptBuilder.idOrCode(
+							StringUtil.read(
+								getClass(),
+								"dependencies/workflow-metrics-update-" +
+									"process-versions-script.painless")
+						).language(
+							"painless"
+						).putParameter(
+							"version", version
+						).scriptType(
+							ScriptType.INLINE
+						).build()));
+			});
 
 		return document;
 	}

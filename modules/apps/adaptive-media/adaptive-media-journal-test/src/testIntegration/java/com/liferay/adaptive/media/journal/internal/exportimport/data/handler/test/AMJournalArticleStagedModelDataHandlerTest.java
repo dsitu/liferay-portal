@@ -244,6 +244,16 @@ public class AMJournalArticleStagedModelDataHandlerTest
 			String content, ServiceContext serviceContext)
 		throws Exception {
 
+		JournalFolder journalFolder = _journalFolderLocalService.addFolder(
+			serviceContext.getUserId(), serviceContext.getScopeGroupId(),
+			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString(), "This is a test folder.",
+			serviceContext);
+
+		Map<Locale, String> titleMap = HashMapBuilder.put(
+			LocaleUtil.getSiteDefault(), "Test Article"
+		).build();
+
 		DDMForm ddmForm = DDMStructureTestUtil.getSampleDDMForm(
 			"content", "string", "text", true, "textarea",
 			new Locale[] {LocaleUtil.getSiteDefault()},
@@ -260,24 +270,14 @@ public class AMJournalArticleStagedModelDataHandlerTest
 			ddmStructure.getStructureId(),
 			PortalUtil.getClassNameId(JournalArticle.class));
 
-		JournalFolder journalFolder = _journalFolderLocalService.addFolder(
-			serviceContext.getUserId(), serviceContext.getScopeGroupId(),
-			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			RandomTestUtil.randomString(), "This is a test folder.",
-			serviceContext);
-
 		return _journalArticleLocalService.addArticle(
-			serviceContext.getUserId(), serviceContext.getScopeGroupId(),
+			null, serviceContext.getUserId(), serviceContext.getScopeGroupId(),
 			journalFolder.getFolderId(),
 			JournalArticleConstants.CLASS_NAME_ID_DEFAULT, 0, StringPool.BLANK,
-			true, 0,
-			HashMapBuilder.put(
-				LocaleUtil.getSiteDefault(), "Test Article"
-			).build(),
-			null, content, ddmStructure.getStructureKey(),
-			ddmTemplate.getTemplateKey(), null, 1, 1, 1965, 0, 0, 0, 0, 0, 0, 0,
-			true, 0, 0, 0, 0, 0, true, true, false, null, null, null, null,
-			serviceContext);
+			true, 0, titleMap, null, titleMap, content,
+			ddmStructure.getStructureKey(), ddmTemplate.getTemplateKey(), null,
+			1, 1, 1965, 0, 0, 0, 0, 0, 0, 0, true, 0, 0, 0, 0, 0, true, true,
+			false, null, null, null, null, serviceContext);
 	}
 
 	private void _assertContentEquals(

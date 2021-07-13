@@ -16,17 +16,17 @@ import ClayBadge from '@clayui/badge';
 import {ClayButtonWithIcon} from '@clayui/button';
 import ClayLabel from '@clayui/label';
 import {createResourceURL, fetch} from 'frontend-js-web';
+import moment from 'moment';
 import React, {useContext} from 'react';
 import {Link} from 'react-router-dom';
 
 import {AppContext} from '../../AppContext';
 import ListView from '../../components/list-view/ListView';
 import {DOCUSIGN_STATUS} from '../../utils/contants';
-import {getDateFromNow} from '../../utils/moment';
+import {toDateFromNow} from '../../utils/moment';
 const COLUMNS = [
 	{
 		key: 'name',
-		sortable: true,
 		value: Liferay.Language.get('name'),
 	},
 	{
@@ -46,8 +46,83 @@ const COLUMNS = [
 		value: Liferay.Language.get('status'),
 	},
 	{
-		key: 'createdAt',
+		key: 'createdLocalDateTime',
+		sortable: true,
 		value: Liferay.Language.get('create-date'),
+	},
+];
+
+const FILTERS = [
+	{
+		defaultText: Liferay.Language.get('all'),
+		items: [
+			{
+				label: Liferay.Util.sub(
+					Liferay.Language.get('last-x-months'),
+					12
+				),
+				value: moment()
+					.subtract(12, 'months')
+					.format('YYYY-MM-DD')
+					.toString(),
+			},
+			{
+				label: Liferay.Util.sub(
+					Liferay.Language.get('last-x-months'),
+					6
+				),
+				value: moment()
+					.subtract(6, 'months')
+					.format('YYYY-MM-DD')
+					.toString(),
+			},
+			{
+				label: Liferay.Util.sub(
+					Liferay.Language.get('last-x-days'),
+					30
+				),
+				value: moment()
+					.subtract(1, 'months')
+					.format('YYYY-MM-DD')
+					.toString(),
+			},
+			{
+				label: Liferay.Language.get('last-week'),
+				value: moment()
+					.subtract(7, 'days')
+					.format('YYYY-MM-DD')
+					.toString(),
+			},
+			{
+				label: Liferay.Util.sub(
+					Liferay.Language.get('last-x-hours'),
+					24
+				),
+				value: moment()
+					.subtract(1, 'days')
+					.format('YYYY-MM-DD')
+					.toString(),
+			},
+		],
+		key: 'from_date',
+		name: Liferay.Language.get('filter-by-date'),
+	},
+	{
+		items: [
+			{label: 'Completed', value: 'completed'},
+			{label: 'Created', value: 'created'},
+			{label: 'Declined', value: 'declined'},
+			{label: 'Deleted', value: 'deleted'},
+			{label: 'Delivered', value: 'delivered'},
+			{label: 'Processing', value: 'processing'},
+			{label: 'Sent', value: 'sent'},
+			{label: 'Signed', value: 'signed'},
+			{label: 'Template', value: 'template'},
+			{label: 'Voided', value: 'voided'},
+		],
+		key: 'status',
+		multiple: false,
+		name: Liferay.Language.get('filter-by-status'),
 	},
 ];
 const getEnvelopeStatus = (status) =>
@@ -70,10 +145,7 @@ const EnvelopeList = ({history}) => {
 								'_blank'
 							);
 						},
-						name: Liferay.Language.get('download-files'),
-					},
-					{
-						name: Liferay.Language.get('move'),
+						name: Liferay.Language.get('download'),
 					},
 				]}
 				addButton={() => (
@@ -95,6 +167,8 @@ const EnvelopeList = ({history}) => {
 
 					return response.json();
 				}}
+				defaultSort="desc"
+				filters={FILTERS}
 				history={history}
 			>
 				{({
@@ -106,7 +180,7 @@ const EnvelopeList = ({history}) => {
 					status,
 					recipients: {signers = []},
 				}) => ({
-					createdAt: getDateFromNow(createdLocalDateTime),
+					createdLocalDateTime: toDateFromNow(createdLocalDateTime),
 					emailSubject,
 					envelopeId,
 					name: <Link to={`/envelope/${envelopeId}`}>{name}</Link>,

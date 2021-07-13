@@ -1639,7 +1639,8 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 				PropsValues.MODULE_FRAMEWORK_STATIC_JARS) {
 
 			Path staticJarPath = Paths.get(
-				PropsValues.LIFERAY_LIB_PORTAL_DIR, staticJarFileName);
+				PropsValues.LIFERAY_SHIELDED_CONTAINER_LIB_PORTAL_DIR,
+				staticJarFileName);
 
 			if (Files.exists(staticJarPath)) {
 				jarPaths.add(staticJarPath);
@@ -1815,11 +1816,13 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		if (PropsValues.MODULE_FRAMEWORK_CONCURRENT_STARTUP_ENABLED) {
 			Runtime runtime = Runtime.getRuntime();
 
+			Thread currentThread = Thread.currentThread();
+
 			ExecutorService executorService = Executors.newFixedThreadPool(
 				runtime.availableProcessors(),
 				new NamedThreadFactory(
 					"ModuleFramework-Static-Bundles", Thread.NORM_PRIORITY,
-					ModuleFrameworkImpl.class.getClassLoader()));
+					currentThread.getContextClassLoader()));
 
 			List<Future<Void>> futures = new ArrayList<>(bundles.size());
 

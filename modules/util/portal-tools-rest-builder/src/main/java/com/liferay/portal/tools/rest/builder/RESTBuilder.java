@@ -68,6 +68,7 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -236,9 +237,11 @@ public class RESTBuilder {
 
 			context.put("globalEnumSchemas", globalEnumSchemas);
 
-			context.put(
-				"javaDataTypeMap",
-				OpenAPIParserUtil.getJavaDataTypeMap(_configYAML, openAPIYAML));
+			Map<String, String> javaDataTypeMap =
+				OpenAPIParserUtil.getJavaDataTypeMap(_configYAML, openAPIYAML);
+
+			context.put("javaDataTypeMap", javaDataTypeMap);
+
 			context.put("openAPIYAML", openAPIYAML);
 
 			if (_configYAML.isGenerateGraphQL() &&
@@ -269,7 +272,9 @@ public class RESTBuilder {
 				Schema schema = entry.getValue();
 				String schemaName = entry.getKey();
 
-				_putSchema(context, schema, schemaName, new HashSet<>());
+				_putSchema(
+					context, escapedVersion, javaDataTypeMap, schema,
+					schemaName, new HashSet<>());
 
 				_createDTOFile(context, escapedVersion, schemaName);
 
@@ -284,7 +289,8 @@ public class RESTBuilder {
 					globalEnumSchemas.entrySet()) {
 
 				_putSchema(
-					context, entry.getValue(), entry.getKey(), new HashSet<>());
+					context, escapedVersion, javaDataTypeMap, entry.getValue(),
+					entry.getKey(), new HashSet<>());
 
 				_createEnumFile(context, escapedVersion, entry.getKey());
 
@@ -311,7 +317,8 @@ public class RESTBuilder {
 				Schema schema = entry.getValue();
 
 				_putSchema(
-					context, schema, schemaName,
+					context, escapedVersion, javaDataTypeMap, schema,
+					schemaName,
 					_getRelatedSchemaNames(allSchemas, javaMethodSignatures));
 
 				_createBaseResourceImplFile(
@@ -382,18 +389,22 @@ public class RESTBuilder {
 			return yamlString;
 		}
 
+		OpenAPIYAML openAPIYAML = _loadOpenAPIYAML(yamlString);
+
+		Info info = openAPIYAML.getInfo();
+
+		String description = info.getDescription();
+
+		if (description == null) {
+			return yamlString;
+		}
+
 		String clientVersion = clientVersionOptional.get();
 
 		String clientMessage = StringBundler.concat(
 			"A Java client JAR is available for use with the group ID '",
 			clientMavenGroupId, "', artifact ID '",
 			_configYAML.getApiPackagePath(), ".client', and version '");
-
-		OpenAPIYAML openAPIYAML = _loadOpenAPIYAML(yamlString);
-
-		Info info = openAPIYAML.getInfo();
-
-		String description = info.getDescription();
 
 		if (description.contains(clientMessage)) {
 			description = StringUtil.removeSubstring(
@@ -897,7 +908,10 @@ public class RESTBuilder {
 		for (Map.Entry<String, Schema> entry : allExternalSchemas.entrySet()) {
 			String schemaName = entry.getKey();
 
-			_putSchema(context, entry.getValue(), schemaName, new HashSet<>());
+			_putSchema(
+				context, escapedVersion,
+				Collections.singletonMap(schemaName, schemaName),
+				entry.getValue(), schemaName, new HashSet<>());
 
 			if (Validator.isNotNull(_configYAML.getClientDir())) {
 				_createClientDTOFile(context, escapedVersion, schemaName);
@@ -1916,10 +1930,27 @@ public class RESTBuilder {
 	}
 
 	private void _putSchema(
-		Map<String, Object> context, Schema schema, String schemaName,
+		Map<String, Object> context, String escapedVersion,
+		Map<String, String> javaDataTypeMap, Schema schema, String schemaName,
 		Set<String> relatedSchemaNames) {
 
 		context.put("schema", schema);
+
+		String javaType = javaDataTypeMap.get(schemaName);
+
+		if (javaType == null) {
+			context.put("schemaClientJavaType", "Object");
+			context.put("schemaJavaType", "Object");
+		}
+		else {
+			context.put(
+				"schemaClientJavaType",
+				StringBundler.concat(
+					_configYAML.getApiPackagePath(), ".client.dto.",
+					escapedVersion, ".", schemaName));
+			context.put("schemaJavaType", javaType);
+		}
+
 		context.put("schemaName", schemaName);
 		context.put("schemaNames", TextFormatter.formatPlural(schemaName));
 		context.put(

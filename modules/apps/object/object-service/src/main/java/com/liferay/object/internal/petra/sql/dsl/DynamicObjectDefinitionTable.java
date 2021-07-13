@@ -48,7 +48,7 @@ public class DynamicObjectDefinitionTable
 
 		_objectFields = objectFields;
 
-		_primaryKeyColumnName = objectDefinition.getDBPrimaryKeyColumnName();
+		_primaryKeyColumnName = objectDefinition.getPKObjectFieldDBColumnName();
 		_tableName = objectDefinition.getDBTableName();
 
 		createColumn(

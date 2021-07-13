@@ -50,7 +50,10 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Alessio Antonio Rendina
  * @generated
  */
-@Component(immediate = true, service = WarehouseItemResource.Factory.class)
+@Component(
+	enabled = false, immediate = true,
+	service = WarehouseItemResource.Factory.class
+)
 @Generated("")
 public class WarehouseItemResourceFactoryImpl
 	implements WarehouseItemResource.Factory {

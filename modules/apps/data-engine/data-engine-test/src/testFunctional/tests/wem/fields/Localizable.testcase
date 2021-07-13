@@ -488,6 +488,8 @@ definition {
 	@description = "This test ensures that is possible to translate fields with Localizable set as true."
 	@priority = "5"
 	test TranslateLocalizable {
+		property portal.upstream = "quarantine";
+
 		DataEngine.addField(
 			fieldFieldLabel = "Text",
 			fieldName = "Text");

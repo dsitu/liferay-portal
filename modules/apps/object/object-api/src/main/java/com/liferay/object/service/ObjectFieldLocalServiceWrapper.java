@@ -35,14 +35,14 @@ public class ObjectFieldLocalServiceWrapper
 
 	@Override
 	public com.liferay.object.model.ObjectField addObjectField(
-			long userId, long objectDefinitionId, boolean indexed,
-			boolean indexedAsKeyword, String indexedLanguageId, String name,
-			String type)
+			long userId, long objectDefinitionId, String dbColumnName,
+			boolean indexed, boolean indexedAsKeyword, String indexedLanguageId,
+			String name, boolean required, String type)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _objectFieldLocalService.addObjectField(
-			userId, objectDefinitionId, indexed, indexedAsKeyword,
-			indexedLanguageId, name, type);
+			userId, objectDefinitionId, dbColumnName, indexed, indexedAsKeyword,
+			indexedLanguageId, name, required, type);
 	}
 
 	/**
@@ -296,6 +296,15 @@ public class ObjectFieldLocalServiceWrapper
 		return _objectFieldLocalService.getObjectField(objectFieldId);
 	}
 
+	@Override
+	public com.liferay.object.model.ObjectField getObjectField(
+			long objectDefinitionId, String name)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectFieldLocalService.getObjectField(
+			objectDefinitionId, name);
+	}
+
 	/**
 	 * Returns the object field with the matching UUID and company.
 	 *
@@ -384,6 +393,13 @@ public class ObjectFieldLocalServiceWrapper
 		com.liferay.object.model.ObjectField objectField) {
 
 		return _objectFieldLocalService.updateObjectField(objectField);
+	}
+
+	@Override
+	public void validateType(String type)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_objectFieldLocalService.validateType(type);
 	}
 
 	@Override

@@ -33,6 +33,11 @@ public class CommercePricingClassServiceWrapper
 		_commercePricingClassService = commercePricingClassService;
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), use {@link
+	 #addCommercePricingClass(String, Map, Map, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public com.liferay.commerce.pricing.model.CommercePricingClass
 			addCommercePricingClass(
@@ -45,6 +50,11 @@ public class CommercePricingClassServiceWrapper
 			userId, titleMap, descriptionMap, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), use {@link
+	 #addCommercePricingClass(String, Map, Map, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public com.liferay.commerce.pricing.model.CommercePricingClass
 			addCommercePricingClass(
@@ -57,6 +67,19 @@ public class CommercePricingClassServiceWrapper
 		return _commercePricingClassService.addCommercePricingClass(
 			externalReferenceCode, userId, titleMap, descriptionMap,
 			serviceContext);
+	}
+
+	@Override
+	public com.liferay.commerce.pricing.model.CommercePricingClass
+			addCommercePricingClass(
+				String externalReferenceCode,
+				java.util.Map<java.util.Locale, String> titleMap,
+				java.util.Map<java.util.Locale, String> descriptionMap,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _commercePricingClassService.addCommercePricingClass(
+			externalReferenceCode, titleMap, descriptionMap, serviceContext);
 	}
 
 	@Override

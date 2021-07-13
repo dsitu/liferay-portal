@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.ThemeLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -109,6 +110,44 @@ public class FragmentEntryProcessorFreemarkerTest {
 		_company = _companyLocalService.getCompany(_group.getCompanyId());
 
 		_layout = LayoutTestUtil.addLayout(_group);
+	}
+
+	@Test
+	public void testAddFragmentEntryWithFreemarkerVariable() throws Exception {
+		FragmentEntry fragmentEntry = _addFragmentEntry(
+			"fragment_entry_with_freemarker_variable.html", null);
+
+		Assert.assertNotNull(fragmentEntry);
+	}
+
+	@Test(expected = AssertionError.class)
+	public void testAddFragmentEntryWithInvalidFreemarkerVariable()
+		throws Exception {
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		serviceContext.setRequest(_getMockHttpServletRequest());
+
+		FragmentCollection fragmentCollection =
+			_fragmentCollectionService.addFragmentCollection(
+				_group.getGroupId(), "Fragment Collection", StringPool.BLANK,
+				serviceContext);
+
+		FragmentEntry draftFragmentEntry =
+			_fragmentEntryService.addFragmentEntry(
+				_group.getGroupId(),
+				fragmentCollection.getFragmentCollectionId(), "fragment-entry",
+				"Fragment Entry", null,
+				_readFileToString(
+					"fragment_entry_with_invalid_freemarker_variable.html"),
+				null, null, 0, 0, WorkflowConstants.STATUS_DRAFT,
+				serviceContext);
+
+		ServiceContextThreadLocal.pushServiceContext(serviceContext);
+
+		_fragmentEntryService.publishDraft(draftFragmentEntry);
 	}
 
 	@Test

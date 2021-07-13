@@ -22,6 +22,7 @@ import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormRule;
 import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldTypeSettings;
+import com.liferay.dynamic.data.mapping.form.field.type.constants.DDMFormFieldTypeConstants;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 
 /**
@@ -33,7 +34,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 			actions = {
 				"setVisible('dataType', false)",
 				"setVisible('layout', contains(getValue('visibleFields'), \"city\") OR contains(getValue('visibleFields'), \"country\") OR contains(getValue('visibleFields'), \"postal-code\") OR contains(getValue('visibleFields'), \"state\"))",
-				"setVisible('requiredErrorMessage', false)"
+				"setVisible('requiredErrorMessage', getValue('required'))"
 			},
 			condition = "TRUE"
 		)
@@ -68,6 +69,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 							size = 12,
 							value = {
 								"dataType", "name", "fieldReference",
+								"showLabel", "repeatable",
 								"visibilityExpression", "fieldNamespace",
 								"labelAtStructureLevel", "localizable",
 								"nativeField", "readOnly", "type"
@@ -89,7 +91,8 @@ public interface SearchLocationDDMFormFieldTypeSettings
 	@DDMFormField(
 		label = "%layout", optionLabels = {"%one-column", "%two-columns"},
 		optionValues = {"one-column", "two-columns"},
-		predefinedValue = "[\"one-column\"]", type = "select"
+		predefinedValue = "[\"one-column\"]",
+		properties = "showEmptyOption=false", type = "select"
 	)
 	public LocalizedValue layout();
 
@@ -110,7 +113,8 @@ public interface SearchLocationDDMFormFieldTypeSettings
 		},
 		optionValues = {"address", "city", "state", "postal-code", "country"},
 		predefinedValue = "[\"address\",\"city\",\"state\",\"postal-code\",\"country\"]",
-		properties = "multiple=true", type = "select"
+		properties = "multiple=true",
+		type = DDMFormFieldTypeConstants.MULTI_LANGUAGE_OPTION_SELECT
 	)
 	public LocalizedValue visibleFields();
 

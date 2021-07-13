@@ -808,6 +808,148 @@ public abstract class BaseAccountResourceTestCase {
 			"This method needs to be implemented");
 	}
 
+	@Test
+	public void testPatchOrganizationMoveAccounts() throws Exception {
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		Account account = testPatchOrganizationMoveAccounts_addAccount();
+
+		assertHttpResponseStatusCode(
+			204,
+			accountResource.patchOrganizationMoveAccountsHttpResponse(
+				null, null, null));
+
+		assertHttpResponseStatusCode(
+			404,
+			accountResource.patchOrganizationMoveAccountsHttpResponse(
+				null, null, null));
+	}
+
+	protected Account testPatchOrganizationMoveAccounts_addAccount()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testPatchOrganizationMoveAccountsByExternalReferenceCode()
+		throws Exception {
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		Account account =
+			testPatchOrganizationMoveAccountsByExternalReferenceCode_addAccount();
+
+		assertHttpResponseStatusCode(
+			204,
+			accountResource.
+				patchOrganizationMoveAccountsByExternalReferenceCodeHttpResponse(
+					null, null, null));
+
+		assertHttpResponseStatusCode(
+			404,
+			accountResource.
+				patchOrganizationMoveAccountsByExternalReferenceCodeHttpResponse(
+					null, null, null));
+	}
+
+	protected Account
+			testPatchOrganizationMoveAccountsByExternalReferenceCode_addAccount()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testDeleteOrganizationAccounts() throws Exception {
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		Account account = testDeleteOrganizationAccounts_addAccount();
+
+		assertHttpResponseStatusCode(
+			204,
+			accountResource.deleteOrganizationAccountsHttpResponse(null, null));
+	}
+
+	protected Account testDeleteOrganizationAccounts_addAccount()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testPostOrganizationAccounts() throws Exception {
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		Account account = testPostOrganizationAccounts_addAccount();
+
+		assertHttpResponseStatusCode(
+			204,
+			accountResource.postOrganizationAccountsHttpResponse(null, null));
+
+		assertHttpResponseStatusCode(
+			404,
+			accountResource.postOrganizationAccountsHttpResponse(null, null));
+	}
+
+	protected Account testPostOrganizationAccounts_addAccount()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testDeleteOrganizationAccountsByExternalReferenceCode()
+		throws Exception {
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		Account account =
+			testDeleteOrganizationAccountsByExternalReferenceCode_addAccount();
+
+		assertHttpResponseStatusCode(
+			204,
+			accountResource.
+				deleteOrganizationAccountsByExternalReferenceCodeHttpResponse(
+					null, null));
+	}
+
+	protected Account
+			testDeleteOrganizationAccountsByExternalReferenceCode_addAccount()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testPostOrganizationAccountsByExternalReferenceCode()
+		throws Exception {
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		Account account =
+			testPostOrganizationAccountsByExternalReferenceCode_addAccount();
+
+		assertHttpResponseStatusCode(
+			204,
+			accountResource.
+				postOrganizationAccountsByExternalReferenceCodeHttpResponse(
+					null, null));
+
+		assertHttpResponseStatusCode(
+			404,
+			accountResource.
+				postOrganizationAccountsByExternalReferenceCodeHttpResponse(
+					null, null));
+	}
+
+	protected Account
+			testPostOrganizationAccountsByExternalReferenceCode_addAccount()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
 	@Rule
 	public SearchTestRule searchTestRule = new SearchTestRule();
 
@@ -873,6 +1015,14 @@ public abstract class BaseAccountResourceTestCase {
 
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals("actions", additionalAssertFieldName)) {
+				if (account.getActions() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
 
 			if (Objects.equals("description", additionalAssertFieldName)) {
 				if (account.getDescription() == null) {
@@ -1020,6 +1170,17 @@ public abstract class BaseAccountResourceTestCase {
 
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals("actions", additionalAssertFieldName)) {
+				if (!equals(
+						(Map)account1.getActions(),
+						(Map)account2.getActions())) {
+
+					return false;
+				}
+
+				continue;
+			}
 
 			if (Objects.equals("description", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
@@ -1198,6 +1359,11 @@ public abstract class BaseAccountResourceTestCase {
 		sb.append(" ");
 		sb.append(operator);
 		sb.append(" ");
+
+		if (entityFieldName.equals("actions")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
 
 		if (entityFieldName.equals("description")) {
 			sb.append("'");

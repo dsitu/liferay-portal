@@ -20,6 +20,7 @@ import com.eatthepath.pushy.apns.PushNotificationResponse;
 import com.eatthepath.pushy.apns.util.SimpleApnsPayloadBuilder;
 import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -28,7 +29,6 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBus;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.push.notifications.constants.PushNotificationsConstants;
 import com.liferay.push.notifications.constants.PushNotificationsDestinationNames;
@@ -278,7 +278,7 @@ public class ApplePushNotificationsSender implements PushNotificationsSender {
 			PushNotificationsConstants.KEY_SILENT);
 
 		if (silent) {
-			simpleApnsPayloadBuilder.setSound(null);
+			simpleApnsPayloadBuilder.setContentAvailable(true);
 		}
 
 		String sound = payloadJSONObject.getString(
@@ -353,6 +353,6 @@ public class ApplePushNotificationsSender implements PushNotificationsSender {
 	@Reference
 	private MessageBus _messageBus;
 
-	private String _topic;
+	private volatile String _topic;
 
 }

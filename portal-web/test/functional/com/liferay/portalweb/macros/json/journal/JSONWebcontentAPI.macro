@@ -50,6 +50,7 @@ definition {
 		var curl = '''
 			${portalURL}/api/jsonws/journal.journalarticle/add-article \
 				-u ${userEmailAddress}:${userPassword} \
+				-d externalReferenceCode= \
 				-d groupId=${groupId} \
 				-d folderId=${folderId} \
 				-d titleMap=${titleMap} \
@@ -83,12 +84,14 @@ definition {
 	macro _getArticleIdByURLTitle {
 		Variables.assertDefined(parameterList = "${groupName},${urlTitle}");
 
-		var groupId = JSONCategorySetter.setGroupId(groupName = "${groupName}");
+		var groupId = JSONCategorySetter.setGroupId(
+			site = "${site}",
+			groupName = "${groupName}");
 
 		var portalURL = JSONCompany.getPortalURL();
 
 		var curl = '''
-			${portalURL}/api/jsonws/journal.journalarticle/get-display-article-by-url-title \
+			${portalURL}/api/jsonws/journal.journalarticle/get-article-by-url-title \
 				-u test@liferay.com:test \
 				-d groupId=${groupId} \
 				-d "urlTitle=${urlTitle}"
@@ -113,7 +116,7 @@ definition {
 
 		var folderId = JSONCurlUtil.post("${curl}", "$.[?(@['name'] == '${folderName}')]['folderId']");
 
-		if ("${folderId}" == "[]") {
+		if ("${folderId}" == "") {
 			fail("FAIL. Cannot find folder.");
 		}
 		else {
@@ -138,6 +141,22 @@ definition {
 		var resourcePrimKey = JSONCurlUtil.post("${curl}", "$.[?(@['urlTitle'] == '${urlTitle}')]['resourcePrimKey']");
 
 		return "${resourcePrimKey}";
+	}
+
+	@summary = "Helper function to move a WC Article to the trash via JSON"
+	macro _moveWebContentToTrash {
+		Variables.assertDefined(parameterList = "${articleId},${groupId}");
+
+		var portalURL = JSONCompany.getPortalURL();
+
+		var curl = '''
+			${portalURL}/api/jsonws/journal.journalarticle/move-article-to-trash \
+				-u test@liferay.com:test \
+				-d groupId=${groupId} \
+				-d articleId=${articleId}
+		''';
+
+		com.liferay.poshi.runner.util.JSONCurlUtil.post("${curl}");
 	}
 
 	@summary = "Helper function to update status of WC Article via JSON"

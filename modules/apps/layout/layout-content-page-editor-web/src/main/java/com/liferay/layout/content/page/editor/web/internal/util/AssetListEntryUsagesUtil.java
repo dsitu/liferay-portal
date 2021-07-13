@@ -26,18 +26,16 @@ import com.liferay.asset.util.AssetPublisherAddItemHolder;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalServiceUtil;
+import com.liferay.info.collection.provider.InfoCollectionProvider;
+import com.liferay.info.collection.provider.RelatedInfoItemCollectionProvider;
 import com.liferay.info.item.InfoItemServiceTracker;
-import com.liferay.info.list.provider.InfoItemRelatedListProvider;
-import com.liferay.info.list.provider.InfoListProvider;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
 import com.liferay.layout.content.page.editor.web.internal.info.item.InfoItemServiceTrackerUtil;
-import com.liferay.layout.content.page.editor.web.internal.info.list.provider.InfoListProviderTrackerUtil;
 import com.liferay.layout.content.page.editor.web.internal.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.layout.content.page.editor.web.internal.util.layout.structure.LayoutStructureUtil;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
-import com.liferay.petra.reflect.GenericUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -47,6 +45,7 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
@@ -54,8 +53,10 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -140,12 +141,12 @@ public class AssetListEntryUsagesUtil {
 
 	private static JSONObject _getAssetListEntryActionsJSONObject(
 		AssetListEntry assetListEntry, HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse) {
+		HttpServletResponse httpServletResponse, String redirect) {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
 		String editURL = _getAssetListEntryEditURL(
-			assetListEntry, httpServletRequest);
+			assetListEntry, httpServletRequest, redirect);
 
 		if (Validator.isNotNull(editURL)) {
 			jsonObject.put("editURL", editURL);
@@ -159,7 +160,7 @@ public class AssetListEntryUsagesUtil {
 		}
 
 		String viewItemsURL = _getAssetListEntryViewItemsURL(
-			assetListEntry, httpServletRequest);
+			assetListEntry, httpServletRequest, redirect);
 
 		if (Validator.isNotNull(viewItemsURL)) {
 			jsonObject.put("viewItemsURL", viewItemsURL);
@@ -211,7 +212,8 @@ public class AssetListEntryUsagesUtil {
 	}
 
 	private static String _getAssetListEntryEditURL(
-		AssetListEntry assetListEntry, HttpServletRequest httpServletRequest) {
+		AssetListEntry assetListEntry, HttpServletRequest httpServletRequest,
+		String redirect) {
 
 		PortletURL portletURL = null;
 
@@ -230,12 +232,8 @@ public class AssetListEntryUsagesUtil {
 			return StringPool.BLANK;
 		}
 
-		ThemeDisplay themeDisplay =
-			(ThemeDisplay)httpServletRequest.getAttribute(
-				WebKeys.THEME_DISPLAY);
-
-		portletURL.setParameter("redirect", themeDisplay.getURLCurrent());
-		portletURL.setParameter("backURL", themeDisplay.getURLCurrent());
+		portletURL.setParameter("redirect", redirect);
+		portletURL.setParameter("backURL", redirect);
 
 		portletURL.setParameter(
 			"assetListEntryId",
@@ -277,7 +275,8 @@ public class AssetListEntryUsagesUtil {
 	}
 
 	private static String _getAssetListEntryViewItemsURL(
-		AssetListEntry assetListEntry, HttpServletRequest httpServletRequest) {
+		AssetListEntry assetListEntry, HttpServletRequest httpServletRequest,
+		String redirect) {
 
 		PortletURL portletURL = null;
 
@@ -290,11 +289,7 @@ public class AssetListEntryUsagesUtil {
 				return StringPool.BLANK;
 			}
 
-			ThemeDisplay themeDisplay =
-				(ThemeDisplay)httpServletRequest.getAttribute(
-					WebKeys.THEME_DISPLAY);
-
-			portletURL.setParameter("redirect", themeDisplay.getURLCurrent());
+			portletURL.setParameter("redirect", redirect);
 
 			portletURL.setParameter(
 				"collectionPK",
@@ -328,14 +323,14 @@ public class AssetListEntryUsagesUtil {
 			getAssetRendererFactoryByClassName(className);
 	}
 
-	private static JSONObject _getInfoListProviderActionsJSONObject(
-		InfoListProvider<?> infoListProvider,
-		HttpServletRequest httpServletRequest) {
+	private static JSONObject _getInfoCollectionProviderActionsJSONObject(
+		InfoCollectionProvider<?> infoCollectionProvider,
+		HttpServletRequest httpServletRequest, String redirect) {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
-		String viewItemsURL = _getInfoListProviderViewItemsURL(
-			infoListProvider, httpServletRequest);
+		String viewItemsURL = _getInfoCollectionProviderViewItemsURL(
+			infoCollectionProvider, httpServletRequest, redirect);
 
 		if (Validator.isNotNull(viewItemsURL)) {
 			jsonObject.put("viewItemsURL", viewItemsURL);
@@ -344,9 +339,9 @@ public class AssetListEntryUsagesUtil {
 		return jsonObject;
 	}
 
-	private static String _getInfoListProviderViewItemsURL(
-		InfoListProvider<?> infoListProvider,
-		HttpServletRequest httpServletRequest) {
+	private static String _getInfoCollectionProviderViewItemsURL(
+		InfoCollectionProvider<?> infoCollectionProvider,
+		HttpServletRequest httpServletRequest, String redirect) {
 
 		PortletURL portletURL = null;
 
@@ -359,14 +354,11 @@ public class AssetListEntryUsagesUtil {
 				return StringPool.BLANK;
 			}
 
-			ThemeDisplay themeDisplay =
-				(ThemeDisplay)httpServletRequest.getAttribute(
-					WebKeys.THEME_DISPLAY);
-
-			portletURL.setParameter("redirect", themeDisplay.getURLCurrent());
+			portletURL.setParameter("redirect", redirect);
 
 			portletURL.setParameter(
-				"collectionPK", String.valueOf(infoListProvider.getKey()));
+				"collectionPK",
+				String.valueOf(infoCollectionProvider.getKey()));
 			portletURL.setParameter(
 				"collectionType",
 				InfoListProviderItemSelectorReturnType.class.getName());
@@ -406,6 +398,8 @@ public class AssetListEntryUsagesUtil {
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
+		String redirect = _getRedirect(httpServletRequest);
+
 		JSONObject mappedContentJSONObject = JSONUtil.put(
 			"className", assetListEntryUsage.getClassName()
 		).put(
@@ -430,7 +424,8 @@ public class AssetListEntryUsagesUtil {
 				mappedContentJSONObject.put(
 					"actions",
 					_getAssetListEntryActionsJSONObject(
-						assetListEntry, httpServletRequest, httpServletResponse)
+						assetListEntry, httpServletRequest, httpServletResponse,
+						redirect)
 				).put(
 					"subtype",
 					_getAssetEntryListSubtypeLabel(
@@ -443,45 +438,67 @@ public class AssetListEntryUsagesUtil {
 
 		if (Objects.equals(
 				assetListEntryUsage.getClassName(),
-				InfoListProvider.class.getName())) {
+				InfoCollectionProvider.class.getName())) {
 
-			InfoListProvider<?> infoListProvider =
-				InfoListProviderTrackerUtil.getInfoListProvider(
-					assetListEntryUsage.getKey());
+			InfoItemServiceTracker infoItemServiceTracker =
+				InfoItemServiceTrackerUtil.getInfoItemServiceTracker();
 
-			if (infoListProvider != null) {
+			InfoCollectionProvider<?> infoCollectionProvider =
+				infoItemServiceTracker.getInfoItemService(
+					InfoCollectionProvider.class, assetListEntryUsage.getKey());
+
+			if (infoCollectionProvider == null) {
+				infoCollectionProvider =
+					infoItemServiceTracker.getInfoItemService(
+						RelatedInfoItemCollectionProvider.class,
+						assetListEntryUsage.getKey());
+			}
+
+			if (infoCollectionProvider != null) {
+				if (!(infoCollectionProvider instanceof
+						RelatedInfoItemCollectionProvider)) {
+
+					mappedContentJSONObject.put(
+						"actions",
+						_getInfoCollectionProviderActionsJSONObject(
+							infoCollectionProvider, httpServletRequest,
+							redirect));
+				}
+
 				mappedContentJSONObject.put(
-					"actions",
-					_getInfoListProviderActionsJSONObject(
-						infoListProvider, httpServletRequest)
-				).put(
 					"subtype",
 					ResourceActionsUtil.getModelResource(
 						themeDisplay.getLocale(),
-						GenericUtil.getGenericClassName(infoListProvider))
+						infoCollectionProvider.getCollectionItemClassName())
 				).put(
-					"title", infoListProvider.getLabel(themeDisplay.getLocale())
+					"title",
+					infoCollectionProvider.getLabel(themeDisplay.getLocale())
 				);
-			}
-			else {
-				InfoItemServiceTracker infoItemServiceTracker =
-					InfoItemServiceTrackerUtil.getInfoItemServiceTracker();
-
-				InfoItemRelatedListProvider infoItemRelatedListProvider =
-					infoItemServiceTracker.getInfoItemService(
-						InfoItemRelatedListProvider.class,
-						assetListEntryUsage.getKey());
-
-				if (infoItemRelatedListProvider != null) {
-					mappedContentJSONObject.put(
-						"title",
-						infoItemRelatedListProvider.getLabel(
-							themeDisplay.getLocale()));
-				}
 			}
 		}
 
 		return mappedContentJSONObject;
+	}
+
+	private static String _getRedirect(HttpServletRequest httpServletRequest) {
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		Layout layout = themeDisplay.getLayout();
+
+		try {
+			return HttpUtil.setParameter(
+				PortalUtil.getLayoutRelativeURL(layout, themeDisplay),
+				"p_l_mode", Constants.EDIT);
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception, exception);
+			}
+		}
+
+		return themeDisplay.getURLCurrent();
 	}
 
 	private static String _getSubtypeLabel(

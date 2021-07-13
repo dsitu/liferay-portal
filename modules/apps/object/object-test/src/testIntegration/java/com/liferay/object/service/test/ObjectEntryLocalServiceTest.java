@@ -17,7 +17,7 @@ package com.liferay.object.service.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.asset.kernel.service.persistence.AssetEntryQuery;
-import com.liferay.object.exception.NoSuchEntryException;
+import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.exception.ObjectEntryValuesException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
@@ -84,27 +84,29 @@ public class ObjectEntryLocalServiceTest {
 	@Before
 	public void setUp() throws Exception {
 		_irrelevantObjectDefinition =
-			ObjectDefinitionLocalServiceUtil.addObjectDefinition(
+			ObjectDefinitionLocalServiceUtil.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), "Irrelevant",
 				Collections.<ObjectField>emptyList());
 
 		List<ObjectField> objectFields = Arrays.asList(
-			_createObjectField(true, false, "ageOfDeath", "Long"),
-			_createObjectField(true, false, "authorOfGospel", "Boolean"),
-			_createObjectField(true, false, "birthday", "Date"),
-			_createObjectField(true, true, "emailAddress", "String"),
-			_createObjectField(true, true, "emailAddressDomain", "String"),
-			_createObjectField(true, false, "firstName", "String"),
-			_createObjectField(true, false, "height", "Double"),
-			_createObjectField(true, false, "lastName", "String"),
-			_createObjectField(true, false, "middleName", "String"),
-			_createObjectField(true, false, "numberOfBooksWritten", "Integer"),
-			_createObjectField(false, false, "portrait", "Blob"),
-			_createObjectField(true, false, "speed", "BigDecimal"),
-			_createObjectField(true, false, "weight", "Double"));
+			_createObjectField(true, false, "ageOfDeath", false, "Long"),
+			_createObjectField(true, false, "authorOfGospel", false, "Boolean"),
+			_createObjectField(true, false, "birthday", false, "Date"),
+			_createObjectField(true, true, "emailAddress", true, "String"),
+			_createObjectField(
+				true, true, "emailAddressDomain", false, "String"),
+			_createObjectField(true, false, "firstName", false, "String"),
+			_createObjectField(true, false, "height", false, "Double"),
+			_createObjectField(true, false, "lastName", false, "String"),
+			_createObjectField(true, false, "middleName", false, "String"),
+			_createObjectField(
+				true, false, "numberOfBooksWritten", false, "Integer"),
+			_createObjectField(false, false, "portrait", false, "Blob"),
+			_createObjectField(true, false, "speed", false, "BigDecimal"),
+			_createObjectField(true, false, "weight", false, "Double"));
 
 		_objectDefinition =
-			ObjectDefinitionLocalServiceUtil.addObjectDefinition(
+			ObjectDefinitionLocalServiceUtil.addCustomObjectDefinition(
 				TestPropsValues.getUserId(), "Test", objectFields);
 	}
 
@@ -138,6 +140,21 @@ public class ObjectEntryLocalServiceTest {
 			).build());
 
 		_assertCount(3);
+
+		try {
+			_addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"firstName", "Judas"
+				).build());
+
+			Assert.fail();
+		}
+		catch (ObjectEntryValuesException objectEntryValuesException) {
+			Assert.assertEquals(
+				"No value was provided for required object field " +
+					"\"emailAddress\"",
+				objectEntryValuesException.getMessage());
+		}
 	}
 
 	@Test
@@ -172,11 +189,11 @@ public class ObjectEntryLocalServiceTest {
 
 			Assert.fail();
 		}
-		catch (NoSuchEntryException noSuchEntryException) {
+		catch (NoSuchObjectEntryException noSuchObjectEntryException) {
 			Assert.assertEquals(
 				"No ObjectEntry exists with the primary key " +
 					objectEntry1.getObjectEntryId(),
-				noSuchEntryException.getMessage());
+				noSuchObjectEntryException.getMessage());
 		}
 
 		try {
@@ -194,11 +211,11 @@ public class ObjectEntryLocalServiceTest {
 
 			Assert.fail();
 		}
-		catch (NoSuchEntryException noSuchEntryException) {
+		catch (NoSuchObjectEntryException noSuchObjectEntryException) {
 			Assert.assertEquals(
 				"No ObjectEntry exists with the primary key " +
 					objectEntry1.getObjectEntryId(),
-				noSuchEntryException.getMessage());
+				noSuchObjectEntryException.getMessage());
 		}
 
 		_assertCount(2);
@@ -338,7 +355,7 @@ public class ObjectEntryLocalServiceTest {
 		Assert.assertEquals(null, values.get("speed"));
 		Assert.assertEquals(0D, values.get("weight"));
 		Assert.assertEquals(
-			objectEntry.getObjectEntryId(), values.get("testId"));
+			objectEntry.getObjectEntryId(), values.get("c_testId"));
 		Assert.assertEquals(values.toString(), 14, values.size());
 
 		try {
@@ -346,10 +363,10 @@ public class ObjectEntryLocalServiceTest {
 
 			Assert.fail();
 		}
-		catch (NoSuchEntryException noSuchEntryException) {
+		catch (NoSuchObjectEntryException noSuchObjectEntryException) {
 			Assert.assertEquals(
 				"No ObjectEntry exists with the primary key 0",
-				noSuchEntryException.getMessage());
+				noSuchObjectEntryException.getMessage());
 		}
 	}
 
@@ -617,7 +634,7 @@ public class ObjectEntryLocalServiceTest {
 		Assert.assertEquals(null, values.get("speed"));
 		Assert.assertEquals(0D, values.get("weight"));
 		Assert.assertEquals(
-			objectEntry.getObjectEntryId(), values.get("testId"));
+			objectEntry.getObjectEntryId(), values.get("c_testId"));
 		Assert.assertEquals(values.toString(), 14, values.size());
 
 		Calendar calendar = new GregorianCalendar();
@@ -668,7 +685,7 @@ public class ObjectEntryLocalServiceTest {
 		Assert.assertEquals(_getBigDecimal(45L), values.get("speed"));
 		Assert.assertEquals(60D, values.get("weight"));
 		Assert.assertEquals(
-			objectEntry.getObjectEntryId(), values.get("testId"));
+			objectEntry.getObjectEntryId(), values.get("c_testId"));
 		Assert.assertEquals(values.toString(), 14, values.size());
 
 		ObjectEntryLocalServiceUtil.updateObjectEntry(
@@ -697,7 +714,7 @@ public class ObjectEntryLocalServiceTest {
 		Assert.assertEquals(_getBigDecimal(45L), values.get("speed"));
 		Assert.assertEquals(65D, values.get("weight"));
 		Assert.assertEquals(
-			objectEntry.getObjectEntryId(), values.get("testId"));
+			objectEntry.getObjectEntryId(), values.get("c_testId"));
 		Assert.assertEquals(values.toString(), 14, values.size());
 
 		try {
@@ -719,9 +736,9 @@ public class ObjectEntryLocalServiceTest {
 			ObjectEntryLocalServiceUtil.updateObjectEntry(
 				TestPropsValues.getUserId(), objectEntry.getObjectEntryId(),
 				HashMapBuilder.<String, Serializable>put(
-					"invalidName", ""
+					"c_testId", ""
 				).put(
-					"testId", ""
+					"invalidName", ""
 				).build(),
 				ServiceContextTestUtil.getServiceContext());
 
@@ -798,7 +815,8 @@ public class ObjectEntryLocalServiceTest {
 	}
 
 	private ObjectField _createObjectField(
-		boolean indexed, boolean indexedAsKeyword, String name, String type) {
+		boolean indexed, boolean indexedAsKeyword, String name,
+		boolean required, String type) {
 
 		ObjectField objectField = ObjectFieldLocalServiceUtil.createObjectField(
 			0);
@@ -806,6 +824,7 @@ public class ObjectEntryLocalServiceTest {
 		objectField.setIndexed(indexed);
 		objectField.setIndexedAsKeyword(indexedAsKeyword);
 		objectField.setName(name);
+		objectField.setRequired(required);
 		objectField.setType(type);
 
 		return objectField;

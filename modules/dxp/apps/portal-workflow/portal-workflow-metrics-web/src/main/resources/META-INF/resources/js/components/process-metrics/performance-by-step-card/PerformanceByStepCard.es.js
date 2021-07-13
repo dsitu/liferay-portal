@@ -17,27 +17,40 @@ import PanelHeaderWithOptions from '../../../shared/components/panel-header-with
 import PromisesResolver from '../../../shared/components/promises-resolver/PromisesResolver.es';
 import {useFetch} from '../../../shared/hooks/useFetch.es';
 import {useFilter} from '../../../shared/hooks/useFilter.es';
+import ProcessVersionFilter from '../../filter/ProcessVersionFilter.es';
 import TimeRangeFilter from '../../filter/TimeRangeFilter.es';
 import {getTimeRangeParams} from '../../filter/util/timeRangeUtil.es';
 import {Body, Footer} from './PerformanceByStepCardBody.es';
 
-function Header({disableFilters, prefixKey, totalCount}) {
+function Header({disableFilters, prefixKey, processId}) {
 	return (
 		<PanelHeaderWithOptions
-			className="dashboard-panel-header"
+			className="tabs-panel-header"
 			description={Liferay.Language.get(
 				'performance-by-step-description'
 			)}
 			title={Liferay.Language.get('performance-by-step')}
 		>
 			<ClayLayout.ContentCol className="m-0 management-bar management-bar-light navbar">
-				<ul className="navbar-nav">
+				<div className="navbar-nav">
+					<ProcessVersionFilter
+						disabled={disableFilters}
+						options={{
+							hideControl: true,
+							multiple: false,
+							withAllVersions: true,
+							withSelectionTitle: true,
+						}}
+						prefixKey={prefixKey}
+						processId={processId}
+					/>
+
 					<TimeRangeFilter
-						disabled={!totalCount || disableFilters}
-						options={{position: 'right'}}
+						className="pl-3"
+						disabled={disableFilters}
 						prefixKey={prefixKey}
 					/>
-				</ul>
+				</div>
 			</ClayLayout.ContentCol>
 		</PanelHeaderWithOptions>
 	);
@@ -45,18 +58,24 @@ function Header({disableFilters, prefixKey, totalCount}) {
 
 function PerformanceByStepCard({routeParams}) {
 	const {processId} = routeParams;
-	const filterKeys = ['timeRange'];
+	const filterKeys = ['processVersion', 'timeRange'];
 	const prefixKey = 'step';
 	const prefixKeys = [prefixKey];
 
 	const {
-		filterValues: {stepDateEnd, stepDateStart, stepTimeRange: [key] = []},
+		filterValues: {
+			stepDateEnd,
+			stepDateStart,
+			stepProcessVersion: [version] = ['allVersions'],
+			stepTimeRange: [key] = [],
+		},
 		filtersError,
 	} = useFilter({
 		filterKeys,
 		prefixKeys,
 	});
 
+	const processVersion = version !== 'allVersions' ? [version] : undefined;
 	const timeRange = useMemo(
 		() => getTimeRangeParams(stepDateStart, stepDateEnd),
 		[stepDateEnd, stepDateStart]
@@ -67,6 +86,7 @@ function PerformanceByStepCard({routeParams}) {
 			completed: true,
 			page: 1,
 			pageSize: 10,
+			processVersion,
 			sort: 'durationAvg:desc',
 			...timeRange,
 		},
@@ -82,11 +102,12 @@ function PerformanceByStepCard({routeParams}) {
 	}, [fetchData, filtersError, timeRange.dateEnd, timeRange.dateStart]);
 
 	return (
-		<ClayPanel className="dashboard-card mt-4">
+		<ClayPanel className="mt-4 tabs-card">
 			<PromisesResolver promises={promises}>
 				<PerformanceByStepCard.Header
 					disableFilters={filtersError}
 					prefixKey={prefixKey}
+					processId={processId}
 					totalCount={data.totalCount}
 				/>
 
@@ -95,6 +116,7 @@ function PerformanceByStepCard({routeParams}) {
 				{data.totalCount > 0 && (
 					<PerformanceByStepCard.Footer
 						processId={processId}
+						processVersion={processVersion}
 						timeRange={{key, ...timeRange}}
 						totalCount={data.totalCount}
 					/>

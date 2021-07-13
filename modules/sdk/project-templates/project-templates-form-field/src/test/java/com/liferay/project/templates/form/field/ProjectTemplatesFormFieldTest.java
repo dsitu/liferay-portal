@@ -59,7 +59,7 @@ public class ProjectTemplatesFormFieldTest
 
 	@Test
 	public void testBuildTemplateFormField70() throws Exception {
-		String liferayVersion = "7.0.6";
+		String liferayVersion = "7.0.6-2";
 		String name = "foobar";
 		String template = "form-field";
 
@@ -67,7 +67,8 @@ public class ProjectTemplatesFormFieldTest
 			temporaryFolder, liferayVersion);
 
 		writeGradlePropertiesInWorkspace(
-			gradleWorkspaceDir, "liferay.workspace.product=portal-7.0-ga7");
+			gradleWorkspaceDir,
+			"liferay.workspace.target.platform.version=7.0.6-2");
 
 		File gradleProjectDir = buildTemplateWithGradle(
 			new File(gradleWorkspaceDir, "modules"), template, name,
@@ -133,7 +134,7 @@ public class ProjectTemplatesFormFieldTest
 
 	@Test
 	public void testBuildTemplateFormField71() throws Exception {
-		String liferayVersion = "7.1.3";
+		String liferayVersion = "7.1.3-1";
 		String name = "foobar";
 		String template = "form-field";
 
@@ -141,7 +142,8 @@ public class ProjectTemplatesFormFieldTest
 			temporaryFolder, liferayVersion);
 
 		writeGradlePropertiesInWorkspace(
-			gradleWorkspaceDir, "liferay.workspace.product=portal-7.1-ga4");
+			gradleWorkspaceDir,
+			"liferay.workspace.target.platform.version=7.1.3-1");
 
 		File gradleProjectDir = buildTemplateWithGradle(
 			new File(gradleWorkspaceDir, "modules"), template, name,
@@ -222,7 +224,7 @@ public class ProjectTemplatesFormFieldTest
 
 	@Test
 	public void testBuildTemplateFormField71WithHyphen() throws Exception {
-		String liferayVersion = "7.1.3";
+		String liferayVersion = "7.1.3-1";
 		String name = "foo-bar";
 		String template = "form-field";
 
@@ -230,7 +232,8 @@ public class ProjectTemplatesFormFieldTest
 			temporaryFolder, liferayVersion);
 
 		writeGradlePropertiesInWorkspace(
-			gradleWorkspaceDir, "liferay.workspace.product=portal-7.1-ga4");
+			gradleWorkspaceDir,
+			"liferay.workspace.target.platform.version=7.1.3-1");
 
 		File gradleProjectDir = buildTemplateWithGradle(
 			new File(gradleWorkspaceDir, "modules"), template, name,
@@ -311,13 +314,13 @@ public class ProjectTemplatesFormFieldTest
 
 	@Test
 	public void testBuildTemplateFormField72CustomPackage() throws Exception {
-		String liferayVersion = "7.2.1";
+		String liferayVersion = "7.2.1-1";
 		String name = "foobar";
 
 		File workspaceDir = buildWorkspace(temporaryFolder, liferayVersion);
 
 		writeGradlePropertiesInWorkspace(
-			workspaceDir, "liferay.workspace.product=portal-7.2-ga2");
+			workspaceDir, "liferay.workspace.target.platform.version=7.2.1-1");
 
 		File gradleProjectDir = buildTemplateWithGradle(
 			new File(workspaceDir, "modules"), "form-field", name,

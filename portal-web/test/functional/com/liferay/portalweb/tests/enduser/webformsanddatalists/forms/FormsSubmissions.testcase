@@ -272,14 +272,52 @@ definition {
 	}
 
 	@description = "Verify that a Form can redirect a user after being submitted"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CanRedirectUserAfterFormSubmission {
-		property forms.functional = "true";
+		property forms.functional = "false";
 		property portal.acceptance = "false";
 
-		// TODO LPS-131026 CanRedirectUserAfterFormSubmission pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
 
+		SitePages.addPublicPage(
+			pageName = "Form Page 1",
+			sitePageType = "Widget Page");
+
+		var friendlyURL = SitePages.getFriendlyUrl();
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Text");
+
+		FormsAdminNavigator.gotoSettings();
+
+		Form.configureRedirectURL(URL = "${friendlyURL}");
+
+		Button.clickDone();
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormFields.editText(
+			fieldName = "Text",
+			fieldValue = "test");
+
+		FormPortlet.submit();
+
+		Form.viewRedirectedURL(friendlyURL = "${friendlyURL}");
 	}
 
 	@description = "Verify that a Form can require user authentication before being accessed"
@@ -342,14 +380,20 @@ definition {
 	}
 
 	@description = "Verify that a Form's Success Page can be restored"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test DefaultSuccessPageCanBeRestored {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
 
-		// TODO LPS-131035 DefaultSuccessPageCanBeRestored pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.deleteSuccessPage(formPageNumber = "2");
+
+		Form.addSuccessPageForm();
 	}
 
 	@description = "Verify that the Submit button's default value is restored if the Submit Button Label is left blank"
@@ -391,8 +435,6 @@ definition {
 		FormsAdminNavigator.gotoSettings();
 
 		Form.configureSubmitLabel(submitLabel = " ");
-
-		Button.clickDone();
 
 		Form.save();
 
@@ -515,6 +557,8 @@ definition {
 
 		Form.configureSubmitLabel(submitLabel = "123456789");
 
+		Button.clickDone();
+
 		Form.save();
 
 		Form.publishForm();
@@ -557,6 +601,10 @@ definition {
 		Form.viewSubmitButtonText(key_buttonText = "!@#$%^&*()+?");
 
 		FormPortlet.submitLocalizedSuccessfully(buttonName = "!@#$%^&*()+?");
+
+		FormPortlet.viewSuccessPage(
+			successPageDescription = "Your information was successfully received. Thank you for filling out the form.",
+			successPageTitle = "Thank you.");
 	}
 
 	@description = "Verify that a Form's Success Page can be deleted"

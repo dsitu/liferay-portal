@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence.impl;
 
-import com.liferay.object.exception.NoSuchRelationshipException;
+import com.liferay.object.exception.NoSuchObjectRelationshipException;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.model.ObjectRelationshipTable;
 import com.liferay.object.model.impl.ObjectRelationshipImpl;
@@ -285,13 +285,13 @@ public class ObjectRelationshipPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object relationship
-	 * @throws NoSuchRelationshipException if a matching object relationship could not be found
+	 * @throws NoSuchObjectRelationshipException if a matching object relationship could not be found
 	 */
 	@Override
 	public ObjectRelationship findByUuid_First(
 			String uuid,
 			OrderByComparator<ObjectRelationship> orderByComparator)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		ObjectRelationship objectRelationship = fetchByUuid_First(
 			uuid, orderByComparator);
@@ -309,7 +309,7 @@ public class ObjectRelationshipPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchRelationshipException(sb.toString());
+		throw new NoSuchObjectRelationshipException(sb.toString());
 	}
 
 	/**
@@ -339,13 +339,13 @@ public class ObjectRelationshipPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object relationship
-	 * @throws NoSuchRelationshipException if a matching object relationship could not be found
+	 * @throws NoSuchObjectRelationshipException if a matching object relationship could not be found
 	 */
 	@Override
 	public ObjectRelationship findByUuid_Last(
 			String uuid,
 			OrderByComparator<ObjectRelationship> orderByComparator)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		ObjectRelationship objectRelationship = fetchByUuid_Last(
 			uuid, orderByComparator);
@@ -363,7 +363,7 @@ public class ObjectRelationshipPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchRelationshipException(sb.toString());
+		throw new NoSuchObjectRelationshipException(sb.toString());
 	}
 
 	/**
@@ -400,13 +400,13 @@ public class ObjectRelationshipPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object relationship
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	@Override
 	public ObjectRelationship[] findByUuid_PrevAndNext(
 			long objectRelationshipId, String uuid,
 			OrderByComparator<ObjectRelationship> orderByComparator)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -839,13 +839,13 @@ public class ObjectRelationshipPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object relationship
-	 * @throws NoSuchRelationshipException if a matching object relationship could not be found
+	 * @throws NoSuchObjectRelationshipException if a matching object relationship could not be found
 	 */
 	@Override
 	public ObjectRelationship findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectRelationship> orderByComparator)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		ObjectRelationship objectRelationship = fetchByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -866,7 +866,7 @@ public class ObjectRelationshipPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchRelationshipException(sb.toString());
+		throw new NoSuchObjectRelationshipException(sb.toString());
 	}
 
 	/**
@@ -899,13 +899,13 @@ public class ObjectRelationshipPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object relationship
-	 * @throws NoSuchRelationshipException if a matching object relationship could not be found
+	 * @throws NoSuchObjectRelationshipException if a matching object relationship could not be found
 	 */
 	@Override
 	public ObjectRelationship findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectRelationship> orderByComparator)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		ObjectRelationship objectRelationship = fetchByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -926,7 +926,7 @@ public class ObjectRelationshipPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchRelationshipException(sb.toString());
+		throw new NoSuchObjectRelationshipException(sb.toString());
 	}
 
 	/**
@@ -966,13 +966,13 @@ public class ObjectRelationshipPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object relationship
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	@Override
 	public ObjectRelationship[] findByUuid_C_PrevAndNext(
 			long objectRelationshipId, String uuid, long companyId,
 			OrderByComparator<ObjectRelationship> orderByComparator)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -1339,11 +1339,11 @@ public class ObjectRelationshipPersistenceImpl
 	 *
 	 * @param objectRelationshipId the primary key of the object relationship
 	 * @return the object relationship that was removed
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	@Override
 	public ObjectRelationship remove(long objectRelationshipId)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		return remove((Serializable)objectRelationshipId);
 	}
@@ -1353,11 +1353,11 @@ public class ObjectRelationshipPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object relationship
 	 * @return the object relationship that was removed
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	@Override
 	public ObjectRelationship remove(Serializable primaryKey)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		Session session = null;
 
@@ -1373,13 +1373,13 @@ public class ObjectRelationshipPersistenceImpl
 					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
-				throw new NoSuchRelationshipException(
+				throw new NoSuchObjectRelationshipException(
 					_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			return remove(objectRelationship);
 		}
-		catch (NoSuchRelationshipException noSuchEntityException) {
+		catch (NoSuchObjectRelationshipException noSuchEntityException) {
 			throw noSuchEntityException;
 		}
 		catch (Exception exception) {
@@ -1518,11 +1518,11 @@ public class ObjectRelationshipPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object relationship
 	 * @return the object relationship
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	@Override
 	public ObjectRelationship findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		ObjectRelationship objectRelationship = fetchByPrimaryKey(primaryKey);
 
@@ -1531,7 +1531,7 @@ public class ObjectRelationshipPersistenceImpl
 				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			throw new NoSuchRelationshipException(
+			throw new NoSuchObjectRelationshipException(
 				_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 		}
 
@@ -1539,15 +1539,15 @@ public class ObjectRelationshipPersistenceImpl
 	}
 
 	/**
-	 * Returns the object relationship with the primary key or throws a <code>NoSuchRelationshipException</code> if it could not be found.
+	 * Returns the object relationship with the primary key or throws a <code>NoSuchObjectRelationshipException</code> if it could not be found.
 	 *
 	 * @param objectRelationshipId the primary key of the object relationship
 	 * @return the object relationship
-	 * @throws NoSuchRelationshipException if a object relationship with the primary key could not be found
+	 * @throws NoSuchObjectRelationshipException if a object relationship with the primary key could not be found
 	 */
 	@Override
 	public ObjectRelationship findByPrimaryKey(long objectRelationshipId)
-		throws NoSuchRelationshipException {
+		throws NoSuchObjectRelationshipException {
 
 		return findByPrimaryKey((Serializable)objectRelationshipId);
 	}

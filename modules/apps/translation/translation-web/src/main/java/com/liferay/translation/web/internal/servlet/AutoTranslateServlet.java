@@ -20,11 +20,15 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.translation.exception.TranslatorException;
 import com.liferay.translation.translator.JSONTranslatorPacket;
 import com.liferay.translation.translator.Translator;
 import com.liferay.translation.translator.TranslatorPacket;
@@ -71,16 +75,24 @@ public class AutoTranslateServlet extends HttpServlet {
 			_writeJSON(
 				httpServletResponse, _toJSON(translatedTranslatorPacket));
 		}
+		catch (TranslatorException translatorException) {
+			_log.error(translatorException, translatorException);
+
+			_writeErrorJSON(
+				httpServletResponse,
+				StringUtil.replace(
+					translatorException.getMessage(), CharPool.QUOTE, "\\\""));
+		}
 		catch (Exception exception) {
 			_log.error(exception, exception);
 
-			_writeJSON(
+			_writeErrorJSON(
 				httpServletResponse,
-				StringBundler.concat(
-					"{\"error\": {\"message\": \"",
-					StringUtil.replace(
-						exception.getMessage(), CharPool.QUOTE, "\\\""),
-					"\"}}"));
+				_language.get(
+					_resourceBundleLoader.loadResourceBundle(
+						_portal.getLocale(httpServletRequest)),
+					"there-is-a-problem-with-the-translation-service.-please-" +
+						"contact-your-administrator"));
 		}
 	}
 
@@ -104,6 +116,16 @@ public class AutoTranslateServlet extends HttpServlet {
 		).toString();
 	}
 
+	private void _writeErrorJSON(
+			HttpServletResponse httpServletResponse, String message)
+		throws IOException {
+
+		_writeJSON(
+			httpServletResponse,
+			StringBundler.concat(
+				"{\"error\": {\"message\": \"", message, "\"}}"));
+	}
+
 	private void _writeJSON(
 			HttpServletResponse httpServletResponse, String json)
 		throws IOException {
@@ -117,6 +139,15 @@ public class AutoTranslateServlet extends HttpServlet {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		AutoTranslateServlet.class);
+
+	@Reference
+	private Language _language;
+
+	@Reference
+	private Portal _portal;
+
+	@Reference(target = "(bundle.symbolic.name=com.liferay.translation.web)")
+	private ResourceBundleLoader _resourceBundleLoader;
 
 	@Reference
 	private Translator _translator;

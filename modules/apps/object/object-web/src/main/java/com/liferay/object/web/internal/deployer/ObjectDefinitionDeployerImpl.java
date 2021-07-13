@@ -44,6 +44,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = ObjectDefinitionDeployer.class)
 public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
+	@Override
 	public List<ServiceRegistration<?>> deploy(
 		ObjectDefinition objectDefinition) {
 
@@ -72,7 +73,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				HashMapDictionaryBuilder.<String, Object>put(
 					"com.liferay.portlet.display-category", "category.hidden"
 				).put(
-					"javax.portlet.display-name", objectDefinition.getName()
+					"javax.portlet.display-name",
+					objectDefinition.getShortName()
 				).put(
 					"javax.portlet.name", objectDefinition.getPortletId()
 				).put(

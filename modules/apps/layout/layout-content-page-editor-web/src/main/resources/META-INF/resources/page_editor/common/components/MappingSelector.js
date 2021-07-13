@@ -34,6 +34,8 @@ import itemSelectorValueToInfoItem from '../../app/utils/item-selector-value/ite
 import {useId} from '../../app/utils/useId';
 import ItemSelector from './ItemSelector';
 
+const COLLECTION_TYPE_DIVIDER = ' - ';
+
 const MAPPING_SOURCE_TYPES = {
 	content: 'content',
 	structure: 'structure',
@@ -110,12 +112,12 @@ export default function MappingSelectorWrapper({
 }) {
 	const collectionConfig = useCollectionConfig();
 	const [collectionFields, setCollectionFields] = useState([]);
-	const [
-		collectionItemSubtypeLabel,
-		setCollectionItemSubtypeLabel,
-	] = useState('');
-	const [collectionItemTypeLabel, setCollectionItemTypeLabel] = useState('');
+	const [collectionTypeLabels, setCollectionItemTypeLabels] = useState({
+		itemSubtype: '',
+		itemType: '',
+	});
 	const mappingFields = useSelector((state) => state.mappingFields);
+	const pageContents = useSelector(selectPageContents);
 
 	useEffect(() => {
 		if (!collectionConfig) {
@@ -138,43 +140,71 @@ export default function MappingSelectorWrapper({
 	}, [collectionConfig, mappingFields, fieldType]);
 
 	useEffect(() => {
-		if (!collectionConfig) {
+		if (!collectionConfig?.collection?.itemType) {
 			return;
 		}
 
-		CollectionService.getCollectionMappingFields({
-			itemSubtype: collectionConfig.collection.itemSubtype || '',
-			itemType: collectionConfig.collection.itemType,
-			onNetworkStatus: () => {},
-		})
-			.then((response) => {
-				setCollectionItemSubtypeLabel(response.itemSubtypeLabel);
-				setCollectionItemTypeLabel(response.itemTypeLabel);
+		if (config.contentBrowsingEnabled) {
+			const {
+				classNameId,
+				classPK,
+				key: collectionKey,
+			} = collectionConfig.collection;
+
+			const collection = pageContents.find((content) =>
+				collectionKey
+					? content.classPK === collectionKey
+					: content.classNameId === classNameId &&
+					  content.classPK === classPK
+			);
+
+			if (collection) {
+				const [typeLabel, subtypeLabel] =
+					collection?.subtype?.split(COLLECTION_TYPE_DIVIDER) || [];
+
+				setCollectionItemTypeLabels({
+					itemSubtype: subtypeLabel,
+					itemType: typeLabel,
+				});
+			}
+		}
+		else {
+			CollectionService.getCollectionMappingFields({
+				itemSubtype: collectionConfig.collection.itemSubtype || '',
+				itemType: collectionConfig.collection.itemType,
+				onNetworkStatus: () => {},
 			})
-			.catch((error) => {
-				if (process.env.NODE_ENV === 'development') {
-					console.error(error);
-				}
-			});
-	});
+				.then((response) => {
+					setCollectionItemTypeLabels({
+						itemSubtype: response.itemSubtypeLabel,
+						itemType: response.itemTypeLabel,
+					});
+				})
+				.catch((error) => {
+					if (process.env.NODE_ENV === 'development') {
+						console.error(error);
+					}
+				});
+		}
+	}, [collectionConfig, pageContents]);
 
 	return collectionConfig ? (
 		<>
-			{collectionItemTypeLabel && (
+			{collectionTypeLabels.itemType && (
 				<p className="mb-2 page-editor__mapping-panel__type-label">
 					<span className="mr-1">
 						{Liferay.Language.get('type')}:
 					</span>
-					{collectionItemTypeLabel}
+					{collectionTypeLabels.itemType}
 				</p>
 			)}
 
-			{collectionItemSubtypeLabel && (
+			{collectionTypeLabels.itemSubtype && (
 				<p className="mb-2 page-editor__mapping-panel__type-label">
 					<span className="mr-1">
 						{Liferay.Language.get('subtype')}:
 					</span>
-					{collectionItemSubtypeLabel}
+					{collectionTypeLabels.itemSubtype}
 				</p>
 			)}
 

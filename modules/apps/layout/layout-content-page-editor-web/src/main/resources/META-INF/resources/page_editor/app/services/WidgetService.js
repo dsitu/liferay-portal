@@ -51,4 +51,12 @@ export default {
 			{requestGenerateDraft: true}
 		);
 	},
+
+	getWidgets(segmentsExperienceId) {
+		return serviceFetch(
+			config.getWidgetsURL,
+			{body: {segmentsExperienceId}},
+			() => {}
+		);
+	},
 };

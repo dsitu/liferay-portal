@@ -41,11 +41,11 @@ public class BatchPlannerPlanSoap implements Serializable {
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
 		soapModel.setActive(model.isActive());
+		soapModel.setExport(model.isExport());
 		soapModel.setExternalType(model.getExternalType());
 		soapModel.setExternalURL(model.getExternalURL());
 		soapModel.setInternalClassName(model.getInternalClassName());
 		soapModel.setName(model.getName());
-		soapModel.setExport(model.isExport());
 
 		return soapModel;
 	}
@@ -175,6 +175,18 @@ public class BatchPlannerPlanSoap implements Serializable {
 		_active = active;
 	}
 
+	public boolean getExport() {
+		return _export;
+	}
+
+	public boolean isExport() {
+		return _export;
+	}
+
+	public void setExport(boolean export) {
+		_export = export;
+	}
+
 	public String getExternalType() {
 		return _externalType;
 	}
@@ -207,18 +219,6 @@ public class BatchPlannerPlanSoap implements Serializable {
 		_name = name;
 	}
 
-	public boolean getExport() {
-		return _export;
-	}
-
-	public boolean isExport() {
-		return _export;
-	}
-
-	public void setExport(boolean export) {
-		_export = export;
-	}
-
 	private long _mvccVersion;
 	private long _batchPlannerPlanId;
 	private long _companyId;
@@ -227,10 +227,10 @@ public class BatchPlannerPlanSoap implements Serializable {
 	private Date _createDate;
 	private Date _modifiedDate;
 	private boolean _active;
+	private boolean _export;
 	private String _externalType;
 	private String _externalURL;
 	private String _internalClassName;
 	private String _name;
-	private boolean _export;
 
 }

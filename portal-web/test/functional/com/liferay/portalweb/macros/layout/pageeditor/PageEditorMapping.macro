@@ -4,7 +4,7 @@ definition {
 		PageEditor.gotoTab(tabName = "Mapping");
 
 		AssertElementNotPresent(
-			key_fieldLabel = "Content",
+			key_fieldLabel = "Item",
 			key_text = "plus",
 			locator1 = "Icon#ANY_ITEM_SELECTOR");
 	}
@@ -65,6 +65,10 @@ definition {
 	}
 
 	macro mapEditableFieldToAsset {
+		WaitForElementPresent(
+			key_fieldLabel = "Item",
+			locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT_WITH_LABEL");
+
 		var itemSelectorContentInputValue = selenium.getElementValue("//label[normalize-space(text())='Item']/following-sibling::div//input[contains(@class,'item-selector__content-input')]");
 
 		if ("${itemSelectorContentInputValue}" == "") {
@@ -131,8 +135,6 @@ definition {
 	}
 
 	macro mapEditableFieldToCollectionItems {
-		var lowerCase = StringUtil.lowerCase("${fragmentName}");
-
 		Click(locator1 = "PageEditor#CONTENT_PAGE_DISABLED_HEADER");
 
 		Click.clickNoWaitForVisible(
@@ -144,7 +146,7 @@ definition {
 
 		Click(
 			key_colPosition = "1",
-			key_element = "//*[contains(@class,'${lowerCase}') and contains(@data-lfr-editable-id,'${id}')]",
+			key_element = "//div[contains(@class,'page-editor__topper__bar') and contains(.,'${fragmentName}')]//following-sibling::div[contains(@class,'page-editor__topper__content')]//*[contains(@data-lfr-editable-id,'${id}')]",
 			key_fragmentName = "Collection Display",
 			key_rowPosition = "1",
 			locator1 = "PageEditor#COLLECTION_CELL_NESTED_ELEMENT");

@@ -1,0 +1,325 @@
+@component-name = "data-engine"
+definition {
+
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Data Engine";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+
+		User.firstLoginPG();
+
+		JSONGroup.addGroup(groupName = "Test Site Name");
+
+		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
+		}
+	}
+
+	@description = "This is a test for LRQA-68540. This test verifies that is possible to delete the field."
+	@priority = "5"
+	test CanBeDeleted {
+		NavItem.gotoStructures();
+
+		WebContentStructures.addCP(structureName = "WC Structure Title");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Text",
+			fieldName = "Text");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.delete(fieldFieldLabel = "Select from List");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.assertFieldNotPresent(fieldFieldLabel = "Select from List");
+	}
+
+	@description = "This is a test for LRQA-68540. This test verifies that is possible to duplicate the field."
+	@priority = "4"
+	test CanBeDuplicated {
+		NavItem.gotoStructures();
+
+		WebContentStructures.addCP(structureName = "WC Structure Title");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.duplicate(fieldFieldLabel = "Select from List");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.viewField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.viewField(
+			fieldFieldLabel = "Copy of Select from List",
+			fieldName = "Select from List");
+	}
+
+	@description = "This is a test for LRQA-68540. This test verifies that is possible to delete Options from the field."
+	@priority = "5"
+	test CanDeleteOptions {
+		NavItem.gotoStructures();
+
+		WebContentStructures.addCP(structureName = "WC Structure Title");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		for (var index : list "1,2,3,4,5") {
+			DataEngine.addFieldOption(
+				fieldFieldLabel = "Select from List",
+				index = "${index}",
+				optionValue = "Option ${index}");
+		}
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.viewField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.assertFieldOptionLabels(
+			fieldFieldLabel = "Select from List",
+			optionLabelList = "Option 1,Option 2,Option 3,Option 4,Option 5");
+
+		DataEngine.removeFieldOption(
+			fieldFieldLabel = "Select from List",
+			index = "5");
+
+		DataEngine.removeFieldOption(
+			fieldFieldLabel = "Select from List",
+			index = "4");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.assertFieldOptionLabels(
+			fieldFieldLabel = "Select from List",
+			optionLabelList = "Option 1,Option 2,Option 3");
+
+		DataEngine.assertFieldOptionLabelsNotPresent(
+			fieldFieldLabel = "Select from List",
+			optionLabelList = "Option 4,Option 5");
+	}
+
+	@description = "This is a test for LRQA-68540. This test verifies that Label and Help text can be edited."
+	@priority = "5"
+	test CanEditLabelAndHelpText {
+		NavItem.gotoStructures();
+
+		WebContentStructures.addCP(structureName = "WC Structure Title");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.editFieldTip(
+			fieldFieldLabel = "Select from List",
+			fieldHelp = "Help Text");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.editFieldLabel(
+			fieldFieldLabel = "Select from List",
+			fieldFieldLabelEdit = "Select from List Edited");
+
+		DataEngine.editFieldTip(
+			fieldFieldLabel = "Select from List Edited",
+			fieldHelp = "Help Text Edited");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.viewField(
+			fieldFieldLabel = "Select from List Edited",
+			fieldHelp = "Help Text Edited",
+			fieldName = "Select from List");
+	}
+
+	@description = "This is a test for LRQA-68540. This test verifies that Default Searchable property is 'Disable' when System Setting is left unchecked"
+	@priority = "3"
+	test CanSetDefaultSearchablePropertyToDisable {
+		property test.name.skip.portal.instance = "DESelectFromListField#CanSetDefaultSearchablePropertyToDisable";
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "System Settings");
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Web Content",
+			configurationName = "Administration",
+			configurationScope = "System Scope");
+
+		FormFields.disableCheckbox(fieldName = "Structure Fields Indexable Enable");
+
+		SystemSettings.saveConfiguration();
+
+		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+		NavItem.gotoStructures();
+
+		WebContentStructures.addCP(structureName = "WC Structure Title");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.viewFieldSearchable(
+			fieldFieldLabel = "Select from List",
+			searchableType = "Disable");
+	}
+
+	@description = "This is a test for LRQA-68540. This test verifies that Default Searchable property is 'Keyword' when System Setting is checked"
+	@priority = "3"
+	test CanSetDefaultSearchablePropertyToKeyword {
+		property test.name.skip.portal.instance = "DESelectFromListField#CanSetDefaultSearchablePropertyToKeyword";
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "System Settings");
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Web Content",
+			configurationName = "Administration",
+			configurationScope = "System Scope");
+
+		FormFields.enableCheckbox(fieldName = "Structure Fields Indexable Enable");
+
+		SystemSettings.saveConfiguration();
+
+		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+		NavItem.gotoStructures();
+
+		WebContentStructures.addCP(structureName = "WC Structure Title");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.viewFieldSearchable(
+			fieldFieldLabel = "Select from List",
+			searchableType = "Keyword");
+	}
+
+	@description = "This is a test for LRQA-68540. This test verifies that Label and Help text can be set."
+	@priority = "5"
+	test CanSetLabelAndHelpText {
+		NavItem.gotoStructures();
+
+		WebContentStructures.addCP(structureName = "WC Structure Title");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.editFieldTip(
+			fieldFieldLabel = "Select from List",
+			fieldHelp = "Help Text");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.viewField(
+			fieldFieldLabel = "Select from List",
+			fieldHelp = "Help Text",
+			fieldName = "Select from List");
+	}
+
+	@description = "This is a test for LRQA-68540. This test verifies that Label can be shown or hidden."
+	@priority = "3"
+	test CanSetLabelToShownOrHidden {
+		NavItem.gotoStructures();
+
+		WebContentStructures.addCP(structureName = "WC Structure Title");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.toggleShowLabel(fieldLabel = "Select from List");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.assertFieldNotPresent(fieldFieldLabel = "Select from List");
+
+		DataEngine.toggleShowLabel();
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.viewField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+	}
+
+	@description = "This is a test for LRQA-68540. This test verifies that multiple options can be set."
+	@priority = "5"
+	test CanSetMultipleOptions {
+		NavItem.gotoStructures();
+
+		WebContentStructures.addCP(structureName = "WC Structure Title");
+
+		DataEngine.addField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		for (var index : list "1,2,3") {
+			DataEngine.addFieldOption(
+				fieldFieldLabel = "Select from List",
+				index = "${index}",
+				optionValue = "Option ${index}");
+		}
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
+
+		DataEngine.viewField(
+			fieldFieldLabel = "Select from List",
+			fieldName = "Select from List");
+
+		DataEngine.assertFieldOptionLabels(
+			fieldFieldLabel = "Select from List",
+			optionLabelList = "Option 1,Option 2,Option 3");
+	}
+
+}

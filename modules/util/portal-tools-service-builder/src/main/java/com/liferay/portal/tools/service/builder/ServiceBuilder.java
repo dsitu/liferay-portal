@@ -714,6 +714,9 @@ public class ServiceBuilder {
 
 			_mvccEnabled = GetterUtil.getBoolean(
 				rootElement.attributeValue("mvcc-enabled"));
+			_shortNoSuchExceptionEnabled = GetterUtil.getBoolean(
+				rootElement.attributeValue("short-no-such-exception-enabled"),
+				true);
 
 			Element authorElement = rootElement.element("author");
 
@@ -1365,14 +1368,16 @@ public class ServiceBuilder {
 	public String getNoSuchEntityException(Entity entity) {
 		String noSuchEntityException = entity.getName();
 
-		String portletShortName = entity.getPortletShortName();
+		if (_shortNoSuchExceptionEnabled) {
+			String portletShortName = entity.getPortletShortName();
 
-		if (Validator.isNull(portletShortName) ||
-			(noSuchEntityException.startsWith(portletShortName) &&
-			 !noSuchEntityException.equals(portletShortName))) {
+			if (Validator.isNull(portletShortName) ||
+				(noSuchEntityException.startsWith(portletShortName) &&
+				 !noSuchEntityException.equals(portletShortName))) {
 
-			noSuchEntityException = noSuchEntityException.substring(
-				portletShortName.length());
+				noSuchEntityException = noSuchEntityException.substring(
+					portletShortName.length());
+			}
 		}
 
 		return "NoSuch" + noSuchEntityException;
@@ -2559,14 +2564,14 @@ public class ServiceBuilder {
 		if (changeTrackingEnabled) {
 			entityColumns.add(
 				new EntityColumn(
-					this, "ctCollectionId", null, "ctCollectionId", "long",
-					true, false, false, null, null, true, true, false, null,
-					null, false, null, null, true, true, false, false,
+					this, "ctCollectionId", null, "ctCollectionId", null,
+					"long", true, false, false, null, null, true, true, false,
+					null, null, false, null, null, true, true, false, false,
 					CTColumnResolutionType.STRICT, false, false, null, false));
 
 			entityColumns.add(
 				new EntityColumn(
-					this, "ctChangeType", null, "ctChangeType", "boolean",
+					this, "ctChangeType", null, "ctChangeType", null, "boolean",
 					false, false, false, null, null, true, true, false, null,
 					null, false, null, null, true, true, false, false,
 					CTColumnResolutionType.STRICT, false, false, null, false));
@@ -6255,6 +6260,8 @@ public class ServiceBuilder {
 				}
 			}
 
+			String columnMethodName = columnElement.attributeValue(
+				"method-name");
 			String columnType = columnElement.attributeValue("type");
 			boolean primary = GetterUtil.getBoolean(
 				columnElement.attributeValue("primary"));
@@ -6336,12 +6343,12 @@ public class ServiceBuilder {
 			}
 
 			EntityColumn entityColumn = new EntityColumn(
-				this, columnName, columnPluralName, columnDBName, columnType,
-				primary, accessor, filterPrimary, columnEntityName,
-				mappingTableName, idType, idParam, convertNull, lazy, localized,
-				colJsonEnabled, ctColumnResolutionType, containerModel,
-				parentContainerModel, uadAnonymizeFieldName,
-				uadNonanonymizable);
+				this, columnName, columnPluralName, columnDBName,
+				columnMethodName, columnType, primary, accessor, filterPrimary,
+				columnEntityName, mappingTableName, idType, idParam,
+				convertNull, lazy, localized, colJsonEnabled,
+				ctColumnResolutionType, containerModel, parentContainerModel,
+				uadAnonymizeFieldName, uadNonanonymizable);
 
 			if (primary) {
 				if (!columnType.equals("int") && !columnType.equals("long") &&
@@ -6807,21 +6814,6 @@ public class ServiceBuilder {
 						" for entity ", entityName, " on column ",
 						pkEntityColumn.getName()));
 			}
-
-			for (EntityFinder entityFinder : entityFinders) {
-				for (EntityColumn entityColumn :
-						entityFinder.getEntityColumns()) {
-
-					if (entityColumn.isChangeTrackingMerge()) {
-						throw new ServiceBuilderException(
-							StringBundler.concat(
-								"Illegal change-tracking-resolution-type ",
-								entityColumn.getCTColumnResolutionType(),
-								" for entity ", entityName, " on column ",
-								pkEntityColumn.getName()));
-					}
-				}
-			}
 		}
 
 		_entities.add(entity);
@@ -6855,8 +6847,8 @@ public class ServiceBuilder {
 
 		if (versioned) {
 			EntityColumn headEntityColumn = new EntityColumn(
-				this, "head", null, "head", "boolean", false, false, false,
-				null, null, null, null, true, false, false, false,
+				this, "head", null, "head", null, "boolean", false, false,
+				false, null, null, null, null, true, false, false, false,
 				CTColumnResolutionType.STRICT, false, false, null, false);
 
 			headEntityColumn.setComparator("=");
@@ -7981,6 +7973,7 @@ public class ServiceBuilder {
 	private Set<String> _resourceActionModels = new HashSet<>();
 	private String _resourcesDirName;
 	private String _serviceOutputPath;
+	private boolean _shortNoSuchExceptionEnabled;
 	private String _springFileName;
 	private String[] _springNamespaces;
 	private String _sqlDirName;

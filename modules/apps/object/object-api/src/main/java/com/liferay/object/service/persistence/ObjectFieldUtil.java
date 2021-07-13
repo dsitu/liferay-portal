@@ -200,11 +200,11 @@ public class ObjectFieldUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public static ObjectField findByUuid_First(
 			String uuid, OrderByComparator<ObjectField> orderByComparator)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByUuid_First(uuid, orderByComparator);
 	}
@@ -228,11 +228,11 @@ public class ObjectFieldUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public static ObjectField findByUuid_Last(
 			String uuid, OrderByComparator<ObjectField> orderByComparator)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByUuid_Last(uuid, orderByComparator);
 	}
@@ -257,12 +257,12 @@ public class ObjectFieldUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	public static ObjectField[] findByUuid_PrevAndNext(
 			long objectFieldId, String uuid,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByUuid_PrevAndNext(
 			objectFieldId, uuid, orderByComparator);
@@ -370,12 +370,12 @@ public class ObjectFieldUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public static ObjectField findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -404,12 +404,12 @@ public class ObjectFieldUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public static ObjectField findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -439,12 +439,12 @@ public class ObjectFieldUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	public static ObjectField[] findByUuid_C_PrevAndNext(
 			long objectFieldId, String uuid, long companyId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByUuid_C_PrevAndNext(
 			objectFieldId, uuid, companyId, orderByComparator);
@@ -552,12 +552,12 @@ public class ObjectFieldUtil {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public static ObjectField findByObjectDefinitionId_First(
 			long objectDefinitionId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByObjectDefinitionId_First(
 			objectDefinitionId, orderByComparator);
@@ -584,12 +584,12 @@ public class ObjectFieldUtil {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public static ObjectField findByObjectDefinitionId_Last(
 			long objectDefinitionId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByObjectDefinitionId_Last(
 			objectDefinitionId, orderByComparator);
@@ -617,12 +617,12 @@ public class ObjectFieldUtil {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	public static ObjectField[] findByObjectDefinitionId_PrevAndNext(
 			long objectFieldId, long objectDefinitionId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByObjectDefinitionId_PrevAndNext(
 			objectFieldId, objectDefinitionId, orderByComparator);
@@ -648,15 +648,15 @@ public class ObjectFieldUtil {
 	}
 
 	/**
-	 * Returns the object field where objectDefinitionId = &#63; and name = &#63; or throws a <code>NoSuchFieldException</code> if it could not be found.
+	 * Returns the object field where objectDefinitionId = &#63; and name = &#63; or throws a <code>NoSuchObjectFieldException</code> if it could not be found.
 	 *
 	 * @param objectDefinitionId the object definition ID
 	 * @param name the name
 	 * @return the matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public static ObjectField findByODI_N(long objectDefinitionId, String name)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByODI_N(objectDefinitionId, name);
 	}
@@ -698,7 +698,7 @@ public class ObjectFieldUtil {
 	 */
 	public static ObjectField removeByODI_N(
 			long objectDefinitionId, String name)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().removeByODI_N(objectDefinitionId, name);
 	}
@@ -747,10 +747,10 @@ public class ObjectFieldUtil {
 	 *
 	 * @param objectFieldId the primary key of the object field
 	 * @return the object field that was removed
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	public static ObjectField remove(long objectFieldId)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().remove(objectFieldId);
 	}
@@ -760,14 +760,14 @@ public class ObjectFieldUtil {
 	}
 
 	/**
-	 * Returns the object field with the primary key or throws a <code>NoSuchFieldException</code> if it could not be found.
+	 * Returns the object field with the primary key or throws a <code>NoSuchObjectFieldException</code> if it could not be found.
 	 *
 	 * @param objectFieldId the primary key of the object field
 	 * @return the object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	public static ObjectField findByPrimaryKey(long objectFieldId)
-		throws com.liferay.object.exception.NoSuchFieldException {
+		throws com.liferay.object.exception.NoSuchObjectFieldException {
 
 		return getPersistence().findByPrimaryKey(objectFieldId);
 	}

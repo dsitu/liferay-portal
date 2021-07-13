@@ -77,7 +77,7 @@ public class ObjectFieldCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(29);
+		StringBundler sb = new StringBundler(33);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -97,6 +97,8 @@ public class ObjectFieldCacheModel
 		sb.append(modifiedDate);
 		sb.append(", objectDefinitionId=");
 		sb.append(objectDefinitionId);
+		sb.append(", dbColumnName=");
+		sb.append(dbColumnName);
 		sb.append(", indexed=");
 		sb.append(indexed);
 		sb.append(", indexedAsKeyword=");
@@ -105,6 +107,8 @@ public class ObjectFieldCacheModel
 		sb.append(indexedLanguageId);
 		sb.append(", name=");
 		sb.append(name);
+		sb.append(", required=");
+		sb.append(required);
 		sb.append(", type=");
 		sb.append(type);
 		sb.append("}");
@@ -151,6 +155,14 @@ public class ObjectFieldCacheModel
 		}
 
 		objectFieldImpl.setObjectDefinitionId(objectDefinitionId);
+
+		if (dbColumnName == null) {
+			objectFieldImpl.setDBColumnName("");
+		}
+		else {
+			objectFieldImpl.setDBColumnName(dbColumnName);
+		}
+
 		objectFieldImpl.setIndexed(indexed);
 		objectFieldImpl.setIndexedAsKeyword(indexedAsKeyword);
 
@@ -167,6 +179,8 @@ public class ObjectFieldCacheModel
 		else {
 			objectFieldImpl.setName(name);
 		}
+
+		objectFieldImpl.setRequired(required);
 
 		if (type == null) {
 			objectFieldImpl.setType("");
@@ -195,12 +209,15 @@ public class ObjectFieldCacheModel
 		modifiedDate = objectInput.readLong();
 
 		objectDefinitionId = objectInput.readLong();
+		dbColumnName = objectInput.readUTF();
 
 		indexed = objectInput.readBoolean();
 
 		indexedAsKeyword = objectInput.readBoolean();
 		indexedLanguageId = objectInput.readUTF();
 		name = objectInput.readUTF();
+
+		required = objectInput.readBoolean();
 		type = objectInput.readUTF();
 	}
 
@@ -233,6 +250,13 @@ public class ObjectFieldCacheModel
 
 		objectOutput.writeLong(objectDefinitionId);
 
+		if (dbColumnName == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(dbColumnName);
+		}
+
 		objectOutput.writeBoolean(indexed);
 
 		objectOutput.writeBoolean(indexedAsKeyword);
@@ -251,6 +275,8 @@ public class ObjectFieldCacheModel
 			objectOutput.writeUTF(name);
 		}
 
+		objectOutput.writeBoolean(required);
+
 		if (type == null) {
 			objectOutput.writeUTF("");
 		}
@@ -268,10 +294,12 @@ public class ObjectFieldCacheModel
 	public long createDate;
 	public long modifiedDate;
 	public long objectDefinitionId;
+	public String dbColumnName;
 	public boolean indexed;
 	public boolean indexedAsKeyword;
 	public String indexedLanguageId;
 	public String name;
+	public boolean required;
 	public String type;
 
 }

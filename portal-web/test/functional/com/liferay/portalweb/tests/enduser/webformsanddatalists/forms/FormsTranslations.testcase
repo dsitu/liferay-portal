@@ -255,14 +255,46 @@ definition {
 	}
 
 	@description = "Verify that a translation can be previewed"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CanBePreviewed {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
 
-		// TODO LPS-133520 CanBePreviewed pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Text");
+
+		Form.addTranslation(localizedLanguage = "Spanish (Spain)");
+
+		Form.editFieldLabelMetal(fieldValue = "Text ES");
+
+		Form.save();
+
+		FormsAdminNavigator.gotoPreviewForm();
+
+		Navigator.selectSpecificWindow(windowTitle = "Form - Forms");
+
+		FormPortletConfiguration.viewTranslationLanguage(language = "en-US");
+
+		FormFields.viewLabel(
+			fieldLabel = "Text",
+			fieldName = "Text");
+
+		FormPortletConfiguration.changeLanguage(
+			currentLanguage = "en-US",
+			newLanguage = "español-España");
+
+		FormFields.viewLabel(
+			fieldLabel = "Text ES",
+			fieldName = "Text ES");
 	}
 
 	@description = "Verify that a translation can be published"
@@ -478,14 +510,62 @@ definition {
 	}
 
 	@description = "Verify that Forms submitted in different languages show the appropriate country flags in View Entries"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test EntriesDisplayTheCorrectLanguageFlag {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
 
-		// TODO LPS-133523 EntriesDisplayTheCorrectLanguageFlag pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Text");
+
+		Form.addTranslation(localizedLanguage = "Spanish (Spain)");
+
+		Click(
+			key_name = "Text",
+			locator1 = "FormFields#FIELD_TARGET_LABEL");
+
+		Form.editFieldLabelMetal(fieldValue = "Text ES");
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "en-US");
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "español-España");
+
+		FormViewBuilder.validateFieldLabel(fieldLabel = "Text ES");
+
+		Pause(locator1 = "6000");
+
+		Refresh();
+
+		FormViewBuilder.editText(
+			fieldName = "Text ES",
+			fieldValue = "Text ES");
+
+		FormPortlet.submitLocalizedSuccessfully(buttonName = "Enviar");
+
+		Navigator.openURL();
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoViewEntries();
+
+		AssertElementPresent(locator1 = "Icon#FLAG_1");
 	}
 
 	@description = "Verify that a field that is added in a translation is also added to the default language"
@@ -888,25 +968,133 @@ definition {
 	}
 
 	@description = "Verify that a Paragraph field's Label and Body Text can be translated"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test ParagraphFieldCanBeTranslated {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
 
-		// TODO LPS-133479 ParagraphFieldCanBeTranslated pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Paragraph");
+
+		FormFields.editParagraphBody(content = "Paragraph body text.");
+
+		Form.addTranslation(localizedLanguage = "Spanish (Spain)");
+
+		Form.editFieldLabelMetal(fieldValue = "Párrafo");
+
+		FormFields.editParagraphBody(content = "Texto de Párrafo");
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormViewBuilder.viewTranslationLanguage(symbolName = "en-US");
+
+		FormFields.viewParagraphField(
+			fieldName = "Paragraph",
+			fieldTitle = "Paragraph",
+			fieldValue = "Paragraph body text.");
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "en-US");
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "español-España");
+
+		FormViewBuilder.viewTranslationLanguage(symbolName = "es-ES");
+
+		FormFields.viewParagraphField(
+			fieldName = "Paragraph",
+			fieldTitle = "Párrafo",
+			fieldValue = "Texto de Párrafo");
 	}
 
 	@description = "Verify that a Rich Text field's Label, Help Text and Predefined Value can be translated"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test RichTextFieldCanBeTranslated {
-		property forms.functional = "true";
+		property forms.functional = "false";
 		property portal.acceptance = "false";
 
-		// TODO LPS-133509 RichTextFieldCanBeTranslated pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Rich Text");
+
+		Form.gotoAdvancedTab();
+
+		FormFields.addRichTextContent(
+			content = "Test Predefined Value",
+			fieldLabel = "Predefined Value");
+
+		Form.gotoBasicTab();
+
+		FormFields.editHelpText(
+			fieldHelpText = "Test Help Text",
+			fieldName = "tip");
+
+		Form.addTranslation(localizedLanguage = "Spanish (Spain)");
+
+		Form.editFieldLabelMetal(fieldValue = "Texto Rico");
+
+		Form.gotoAdvancedTab();
+
+		FormFields.addRichTextContent(
+			content = "Valor Predefinido",
+			fieldLabel = "Predefined Value");
+
+		Form.gotoBasicTab();
+
+		FormFields.editHelpText(
+			fieldHelpText = "Texto de Ayuda",
+			fieldName = "tip");
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormPortletConfiguration.viewTranslationLanguage(language = "en-US");
+
+		FormFields.viewLabel(
+			fieldLabel = "Rich Text",
+			fieldName = "Rich Text");
+
+		FormFields.viewRichTextPredefinedValue(fieldValue = "Test Predefined Value");
+
+		FormFields.viewFieldHelpText(
+			fieldHelpText = "Test Help Text",
+			fieldName = "Rich Text");
+
+		FormPortletConfiguration.changeLanguage(
+			currentLanguage = "en-US",
+			newLanguage = "español-España");
+
+		FormFields.viewLabel(
+			fieldLabel = "Texto Rico",
+			fieldName = "Texto Rico");
+
+		FormFields.viewRichTextPredefinedValue(fieldValue = "Valor Predefinido");
+
+		FormFields.viewFieldHelpText(
+			fieldHelpText = "Texto de Ayuda",
+			fieldName = "Texto Rico");
 	}
 
 	@description = "Verify that a Select From List field's Label, Help Text and Options can be translated"
@@ -1135,36 +1323,158 @@ definition {
 	}
 
 	@description = "Verify that a Text field's Autocomplete Options can be translated"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test TextFieldAutocompleteOptionsCanBeTranslated {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
 
-		// TODO LPS-133497 TextFieldAutocompleteOptionsCanBeTranslated pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Text");
+
+		Form.gotoAutocompleteTab();
+
+		FormViewBuilder.editAutoComplete(key_optionValue = "Manually");
+
+		FormFields.addSingleSelectionOption(
+			optionName = "Apple",
+			optionValue = "1");
+
+		Form.addTranslation(localizedLanguage = "Spanish (Spain)");
+
+		FormFields.addSingleSelectionOption(
+			optionName = "Manzana",
+			optionValue = "1");
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "en-US");
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "español-España");
+
+		Refresh();
+
+		FormViewBuilder.editText(
+			fieldName = "Text",
+			fieldValue = "Man");
+
+		FormFields.viewAutoCompleteOption(autocompleteOption = "Manzana");
+
+		FormFields.selectAutoCompleteOption(autocompleteOption = "Manzana");
+
+		Button.click(button = "Enviar");
+
+		FormPortlet.viewSuccessPage(
+			successPageDescription = "Your information was successfully received. Thank you for filling out the form.",
+			successPageTitle = "Thank you.");
 	}
 
 	@description = "Verify that a Text field's Label, Placeholder Text and Help Text can be translated"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test TextFieldBasicPropertiesCanBeTranslated {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
 
-		// TODO LPS-133481 TextFieldBasicPropertiesCanBeTranslated pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form1");
+
+		Form.addTextField(fieldPositionNumber = "0");
+
+		FormViewBuilder.setPlaceholder(fieldValue = "Test Placeholder Text");
+
+		FormViewBuilder.setFieldHelpText(fieldLabel = "Test Help Text");
+
+		Form.addTranslation(localizedLanguage = "Spanish (Spain)");
+
+		FormViewBuilder.editFieldLabel(
+			fieldLabel = "Text",
+			label = "Texto");
+
+		FormViewBuilder.setPlaceholder(fieldValue = "Texto del Marcador");
+
+		FormViewBuilder.setFieldHelpText(fieldLabel = "Texto de Ayuda");
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormViewBuilder.viewTranslationLanguage(symbolName = "en-US");
+
+		FormViewBuilder.validateFieldLabel(fieldLabel = "Text");
+
+		Form.viewFormPlaceholderText(fieldPlaceholderText = "Test Placeholder Text");
+
+		FormFields.viewFieldHelpText(
+			fieldHelpText = "Test Help Text",
+			fieldName = "Text");
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "en-US");
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "español-España");
+
+		FormViewBuilder.validateFieldLabel(fieldLabel = "Texto");
+
+		Form.viewFormPlaceholderText(fieldPlaceholderText = "Texto del Marcador");
+
+		FormFields.viewFieldHelpText(
+			fieldHelpText = "Texto de Ayuda",
+			fieldName = "Texto");
 	}
 
 	@description = "Verify that a Text field's Predefined Value can be translated"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test TextFieldPredefinedValueCanBeTranslated {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
 
-		// TODO LPS-133494 TextFieldPredefinedValueCanBeTranslated pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.addTextField(fieldPositionNumber = "0");
+
+		FormFields.editPredefinedValueInput(fieldValue = "Predefined value");
+
+		Form.addTranslation(localizedLanguage = "Spanish (Spain)");
+
+		FormFields.editPredefinedValueInput(fieldValue = "Valor predefinido");
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "en-US");
+
+		FormViewBuilder.changeAppLanguageTo(changeAppLanguageTo = "español-España");
+
+		FormViewBuilder.validatePredefinedText(
+			fieldValue = "Valor predefinido",
+			key_fieldName = "Text");
 	}
 
 	@description = "Verify that an Upload field's Label and Help Text can be translated"

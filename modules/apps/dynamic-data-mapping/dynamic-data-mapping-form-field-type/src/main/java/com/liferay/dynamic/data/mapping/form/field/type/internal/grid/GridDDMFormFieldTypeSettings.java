@@ -36,8 +36,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 				"setVisible('indexType', false)",
 				"setVisible('predefinedValue', false)",
 				"setVisible('repeatable', false)",
-				"setVisible('requiredErrorMessage', false)",
-				"setVisible('validation', false)"
+				"setVisible('requiredErrorMessage', getValue('required'))"
 			},
 			condition = "TRUE"
 		)
@@ -71,11 +70,10 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 						@DDMFormLayoutColumn(
 							size = 12,
 							value = {
-								"name", "fieldReference",
+								"name", "fieldReference", "objectFieldName",
 								"visibilityExpression", "showLabel",
 								"repeatable", "fieldNamespace", "indexType",
-								"localizable", "readOnly", "dataType", "type",
-								"validation"
+								"localizable", "readOnly", "dataType", "type"
 							}
 						)
 					}

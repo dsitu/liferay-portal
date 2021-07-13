@@ -14,8 +14,6 @@
 
 package com.liferay.object.model.impl;
 
-import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
 
@@ -25,38 +23,50 @@ import com.liferay.portal.kernel.util.TextFormatter;
  */
 public class ObjectDefinitionImpl extends ObjectDefinitionBaseImpl {
 
+	public static String getShortName(String name) {
+		String shortName = name;
+
+		if (shortName.startsWith("C_")) {
+			shortName = shortName.substring(2);
+		}
+
+		return shortName;
+	}
+
 	public ObjectDefinitionImpl() {
 	}
 
 	@Override
 	public String getClassName() {
+		if (isSystem()) {
+			throw new UnsupportedOperationException();
+		}
+
 		return getDBTableName();
-	}
-
-	@Override
-	public String getDBPrimaryKeyColumnName() {
-		return getPrimaryKeyColumnName() + StringPool.UNDERLINE;
-	}
-
-	@Override
-	public String getDBTableName() {
-		return StringBundler.concat(
-			"O_", getCompanyId(), StringPool.UNDERLINE, getName());
 	}
 
 	@Override
 	public String getPortletId() {
+		if (isSystem()) {
+			throw new UnsupportedOperationException();
+		}
+
 		return getDBTableName();
 	}
 
 	@Override
-	public String getPrimaryKeyColumnName() {
-		return TextFormatter.format(getName() + "Id", TextFormatter.I);
+	public String getRESTContextPath() {
+		if (isSystem()) {
+			throw new UnsupportedOperationException();
+		}
+
+		return TextFormatter.formatPlural(
+			StringUtil.toLowerCase(getShortName()));
 	}
 
 	@Override
-	public String getRESTContextPath() {
-		return TextFormatter.formatPlural(StringUtil.toLowerCase(getName()));
+	public String getShortName() {
+		return getShortName(getName());
 	}
 
 }

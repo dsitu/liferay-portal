@@ -24,6 +24,8 @@ import com.liferay.batch.engine.internal.item.BatchEngineTaskItemDelegateExecuto
 import com.liferay.batch.engine.internal.reader.BatchEngineImportTaskItemReader;
 import com.liferay.batch.engine.internal.reader.BatchEngineImportTaskItemReaderFactory;
 import com.liferay.batch.engine.internal.reader.BatchEngineImportTaskItemReaderUtil;
+import com.liferay.batch.engine.internal.task.progress.BatchEngineTaskProgress;
+import com.liferay.batch.engine.internal.task.progress.BatchEngineTaskProgressFactory;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.service.BatchEngineImportTaskLocalService;
 import com.liferay.petra.string.StringPool;
@@ -64,6 +66,16 @@ public class BatchEngineImportTaskExecutorImpl
 				BatchEngineTaskExecuteStatus.STARTED.toString());
 			batchEngineImportTask.setStartTime(new Date());
 
+			BatchEngineTaskProgress batchEngineTaskProgress =
+				_batchEngineTaskProgressFactory.create(
+					BatchEngineTaskContentType.valueOf(
+						batchEngineImportTask.getContentType()));
+
+			batchEngineImportTask.setTotalItemsCount(
+				batchEngineTaskProgress.getTotalItemsCount(
+					_batchEngineImportTaskLocalService.openContentInputStream(
+						batchEngineImportTask.getBatchEngineImportTaskId())));
+
 			_batchEngineImportTaskLocalService.updateBatchEngineImportTask(
 				batchEngineImportTask);
 
@@ -101,6 +113,8 @@ public class BatchEngineImportTaskExecutorImpl
 					batchEngineTaskConfiguration.csvFileColumnDelimiter(),
 					StringPool.COMMA));
 
+		_batchEngineTaskProgressFactory = new BatchEngineTaskProgressFactory();
+
 		_batchEngineTaskItemDelegateExecutorFactory =
 			new BatchEngineTaskItemDelegateExecutorFactory(
 				_batchEngineTaskMethodRegistry, null, null, null);
@@ -120,6 +134,10 @@ public class BatchEngineImportTaskExecutorImpl
 					BatchEngineTaskOperation.valueOf(
 						batchEngineImportTask.getOperation()),
 					items);
+
+				batchEngineImportTask.setProcessedItemsCount(
+					batchEngineImportTask.getProcessedItemsCount() +
+						items.size());
 
 				_batchEngineImportTaskLocalService.updateBatchEngineImportTask(
 					batchEngineImportTask);
@@ -223,6 +241,8 @@ public class BatchEngineImportTaskExecutorImpl
 
 	@Reference
 	private BatchEngineTaskMethodRegistry _batchEngineTaskMethodRegistry;
+
+	private BatchEngineTaskProgressFactory _batchEngineTaskProgressFactory;
 
 	@Reference
 	private CompanyLocalService _companyLocalService;

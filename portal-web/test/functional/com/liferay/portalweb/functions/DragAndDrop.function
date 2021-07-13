@@ -56,17 +56,47 @@ definition {
 
 		selenium.mouseDown("${locator1}");
 
-		selenium.mouseMoveAt("${locator2}", "0,50");
+		selenium.mouseMoveAt("${locator2}", "0,80");
 
-		selenium.mouseMoveAt("${locator2}", "0,-50");
+		selenium.mouseMoveAt("${locator2}", "0,-80");
 
-		selenium.mouseMoveAt("${locator2}", "0,50");
+		selenium.mouseMoveAt("${locator2}", "0,80");
 
 		selenium.mouseMove("${locator2}");
 
 		selenium.pause("3000");
 
 		selenium.mouseRelease("${locator2}");
+
+		selenium.assertJavaScriptErrors();
+
+		selenium.assertLiferayErrors();
+	}
+
+	function dragAndDropPortletToPortlet {
+		WaitForSPARefresh();
+
+		selenium.waitForElementPresent("${locator1}");
+
+		selenium.mouseOver("${locator1}");
+
+		selenium.waitForVisible("${locator1}");
+
+		selenium.waitForTextCaseInsensitive("${locator1}", "${value1}");
+
+		selenium.waitForVisible("${locator2}");
+
+		ScrollWebElementIntoView.scrollWebElementIntoView(locator1 = "${locator2}");
+
+		selenium.mouseOver("${locator2}");
+
+		selenium.mouseDown("${locator1}");
+
+		selenium.mouseMove("${locator2}");
+
+		selenium.pause("3000");
+
+		selenium.mouseRelease();
 
 		selenium.assertJavaScriptErrors();
 
@@ -113,6 +143,28 @@ definition {
 		selenium.mouseOver("${locator2}");
 
 		selenium.dragAndDropToObject("${locator1}", "${locator2}");
+
+		selenium.assertJavaScriptErrors();
+
+		selenium.assertLiferayErrors();
+	}
+
+	function dragAndDropWithMouseMove {
+		WaitForSPARefresh();
+
+		selenium.waitForElementPresent("${locator1}");
+
+		selenium.mouseOver("${locator1}");
+
+		selenium.waitForVisible("${locator1}");
+
+		selenium.mouseDown("${locator1}");
+
+		selenium.mouseMove("${locator2}");
+
+		selenium.mouseMoveAt("${locator2}", "0,0");
+
+		selenium.mouseRelease();
 
 		selenium.assertJavaScriptErrors();
 

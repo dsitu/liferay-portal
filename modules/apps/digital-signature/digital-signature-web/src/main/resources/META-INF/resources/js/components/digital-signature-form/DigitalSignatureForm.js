@@ -26,7 +26,13 @@ import {
 import React, {useContext} from 'react';
 
 import {AppContext} from '../../AppContext';
-import {isEmail, maxLength, required, validate} from '../form/FormValidation';
+import {
+	isEmail,
+	maxLength,
+	required,
+	validate,
+	withInvalidExtensions,
+} from '../form/FormValidation';
 import DigitalSignatureFormBase from './DigitalSignatureFormBase';
 
 const defaultRecipient = {
@@ -34,12 +40,12 @@ const defaultRecipient = {
 	fullName: '',
 };
 
-const DigitalSignatureForm = ({
-	fileEntryId,
-	history,
-	showDocumentLibraryInput,
-}) => {
-	const {baseResourceURL, portletNamespace} = useContext(AppContext);
+const DigitalSignatureForm = ({fileEntries = [], history}) => {
+	const {
+		allowedFileExtensions,
+		baseResourceURL,
+		portletNamespace,
+	} = useContext(AppContext);
 	const urlParams = new URLSearchParams(window.location.href);
 	const backURL = urlParams.get(`${portletNamespace}backURL`);
 
@@ -52,11 +58,15 @@ const DigitalSignatureForm = ({
 	};
 
 	const onSubmit = async (values) => {
+		const fileEntryIds = values.fileEntries.map(
+			({fileEntryId}) => fileEntryId
+		);
+
 		const formDataValues = {
 			[`${portletNamespace}emailMessage`]: values.emailMessage,
 			[`${portletNamespace}emailSubject`]: values.emailSubject,
 			[`${portletNamespace}envelopeName`]: values.envelopeName,
-			[`${portletNamespace}fileEntryId`]: values.fileEntryId,
+			[`${portletNamespace}fileEntryIds`]: fileEntryIds,
 			[`${portletNamespace}recipients`]: JSON.stringify(
 				values.recipients
 			),
@@ -96,6 +106,17 @@ const DigitalSignatureForm = ({
 		onGoBack();
 	};
 
+	const getInitialErrors = () => {
+		if (fileEntries.length) {
+			return {
+				fileEntries: withInvalidExtensions(
+					fileEntries,
+					allowedFileExtensions
+				),
+			};
+		}
+	};
+
 	const onValidate = (values) => {
 		let errorList = {};
 
@@ -105,7 +126,9 @@ const DigitalSignatureForm = ({
 					emailMessage: [(v) => maxLength(v, 10000)],
 					emailSubject: [(v) => maxLength(v, 100), required],
 					envelopeName: [(v) => maxLength(v, 100), required],
-					fileEntryId: [required],
+					fileEntries: [
+						(v) => withInvalidExtensions(v, allowedFileExtensions),
+					],
 				},
 				values
 			),
@@ -141,11 +164,12 @@ const DigitalSignatureForm = ({
 		setFieldValue,
 		values,
 	} = useFormik({
+		initialErrors: getInitialErrors(),
 		initialValues: {
 			emailMessage: '',
 			emailSubject: '',
 			envelopeName: '',
-			fileEntryId,
+			fileEntries,
 			recipients: [defaultRecipient],
 		},
 		onSubmit,
@@ -168,17 +192,18 @@ const DigitalSignatureForm = ({
 							errors={errors}
 							handleChange={handleChange}
 							setFieldValue={setFieldValue}
-							showDocumentLibraryInput={showDocumentLibraryInput}
 							values={values}
 						/>
 
 						<ClayButton
 							disabled={
-								!isValid || isSubmitting || !values.envelopeName
+								!isValid ||
+								isSubmitting ||
+								!values.fileEntries.length
 							}
 							type="submit"
 						>
-							{Liferay.Language.get('save')}
+							{Liferay.Language.get('send')}
 						</ClayButton>
 						<ClayButton
 							className="ml-2"

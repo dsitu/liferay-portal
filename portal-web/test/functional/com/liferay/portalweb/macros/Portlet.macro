@@ -145,6 +145,7 @@ definition {
 	macro clickPortletPlusIconPG {
 		var browserType = PropsUtil.get("browser.type");
 		var key_portletName = "${portletName}";
+
 		if ("${browserType}" == "safari") {
 			Click.javaScriptClick(locator1 = "Portlet#ICON_PLUS_SIGN");
 
@@ -168,6 +169,76 @@ definition {
 		Select(
 			locator1 = "Portlet#APPLICATION_DECORATOR_SELECT",
 			value1 = "${applicationDecorator}");
+	}
+
+	macro configureCustomBorderStylesViaLookandfeelPG {
+		Navigator.gotoNavTab(navTab = "Border Styles");
+
+		if (isSet(sameForAllFieldsetLabelList)) {
+			for (var sameForAllFieldsetLabel : list "${sameForAllFieldsetLabelList}") {
+				Check.checkToggleSwitch(
+					key_fieldLabel = "Same for All",
+					key_fieldsetLabel = "${sameForAllFieldsetLabel}",
+					locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH_IN_FIELDSET");
+			}
+		}
+
+		if (isSet(borderWidthAttributeList)) {
+			for (var borderWidthAttribute : list "${borderWidthAttributeList}") {
+				var fieldLabel = StringUtil.extractFirst("${borderWidthAttribute}", "-");
+
+				var value = StringUtil.extractLast("${borderWidthAttribute}", "-");
+
+				Type(
+					inputFieldId = "${fieldLabel}",
+					locator1 = "TextInput#INPUT_ID",
+					value1 = "${value}");
+			}
+		}
+
+		if (isSet(borderWidthUnitList)) {
+			for (var borderWidthUnit : list "${borderWidthUnitList}") {
+				var fieldLabel = StringUtil.extractFirst("${borderWidthUnit}", "-");
+
+				var value = StringUtil.extractLast("${borderWidthUnit}", "-");
+
+				Select(
+					locator1 = "Select#SELECT_ID",
+					selectFieldId = "${fieldLabel}",
+					value1 = "${value}");
+			}
+		}
+
+		if (isSet(borderStyleAttributeList)) {
+			for (var borderStyleAttribute : list "${borderStyleAttributeList}") {
+				var fieldLabel = StringUtil.extractFirst("${borderStyleAttribute}", "-");
+
+				var value = StringUtil.extractLast("${borderStyleAttribute}", "-");
+
+				Select(
+					locator1 = "Select#SELECT_ID",
+					selectFieldId = "${fieldLabel}",
+					value1 = "${value}");
+			}
+		}
+
+		if (isSet(borderColorAttributeList)) {
+			for (var borderColorAttribute : list "${borderColorAttributeList}") {
+				var fieldLabel = StringUtil.extractFirst("${borderColorAttribute}", "-");
+
+				var value = StringUtil.extractLast("${borderColorAttribute}", "-");
+
+				Click(
+					key_fieldLabel = "${fieldLabel}",
+					locator1 = "PageEditor#ITEM_SELECTOR_DROPDOWN_TOGGLE");
+
+				Click(
+					key_colorSwatchItem = "${value}",
+					locator1 = "Button#COLOR_SWATCH_ITEM");
+			}
+		}
+
+		PortletEntry.save();
 	}
 
 	macro configureCustomStylesViaLookandfeelPG {

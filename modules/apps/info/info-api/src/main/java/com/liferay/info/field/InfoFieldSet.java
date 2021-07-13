@@ -169,8 +169,8 @@ public class InfoFieldSet implements InfoFieldSetEntry {
 		public Builder infoFieldSetEntries(
 			Collection<InfoFieldSetEntry> infoFieldSetEntries) {
 
-			for (InfoFieldSetEntry fieldSetEntry : infoFieldSetEntries) {
-				infoFieldSetEntry(fieldSetEntry);
+			for (InfoFieldSetEntry infoFieldSetEntry : infoFieldSetEntries) {
+				infoFieldSetEntry(infoFieldSetEntry);
 			}
 
 			return this;

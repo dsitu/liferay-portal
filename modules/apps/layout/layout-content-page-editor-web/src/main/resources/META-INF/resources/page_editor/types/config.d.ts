@@ -118,6 +118,7 @@ export interface Config {
 	getAvailableListItemRenderersURL: string;
 	getAvailableTemplatesURL: string;
 	getCollectionFieldURL: string;
+	getCollectionFiltersURL: string;
 	getCollectionMappingFieldsURL: string;
 	getExperienceUsedPortletsURL: string;
 	getIframeContentCssURL: string;
@@ -126,6 +127,7 @@ export interface Config {
 	getInfoItemMappingFieldsURL: string;
 	getLayoutFriendlyURL: string;
 	getPageContentsURL: string;
+	getWidgetsURL: string;
 	imageSelectorURL: string;
 	infoItemPreviewSelectorURL: string;
 	infoItemSelectorURL: string;
@@ -154,6 +156,7 @@ export interface Config {
 	previewPageURL: string;
 	publishURL: string;
 	redirectURL: string;
+	relatedItemCollectionProvidersEnabled: boolean;
 	renderFragmentEntryURL: string;
 	selectedSegmentsEntryId: string;
 

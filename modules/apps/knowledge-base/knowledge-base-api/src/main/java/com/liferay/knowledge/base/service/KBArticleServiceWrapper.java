@@ -32,17 +32,17 @@ public class KBArticleServiceWrapper
 
 	@Override
 	public com.liferay.knowledge.base.model.KBArticle addKBArticle(
-			String portletId, long parentResourceClassNameId,
-			long parentResourcePrimKey, String title, String urlTitle,
-			String content, String description, String sourceURL,
-			String[] sections, String[] selectedFileNames,
+			String externalReferenceCode, String portletId,
+			long parentResourceClassNameId, long parentResourcePrimKey,
+			String title, String urlTitle, String content, String description,
+			String sourceURL, String[] sections, String[] selectedFileNames,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kbArticleService.addKBArticle(
-			portletId, parentResourceClassNameId, parentResourcePrimKey, title,
-			urlTitle, content, description, sourceURL, sections,
-			selectedFileNames, serviceContext);
+			externalReferenceCode, portletId, parentResourceClassNameId,
+			parentResourcePrimKey, title, urlTitle, content, description,
+			sourceURL, sections, selectedFileNames, serviceContext);
 	}
 
 	@Override
@@ -126,6 +126,16 @@ public class KBArticleServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kbArticleService.fetchLatestKBArticle(resourcePrimKey, status);
+	}
+
+	@Override
+	public com.liferay.knowledge.base.model.KBArticle
+			fetchLatestKBArticleByExternalReferenceCode(
+				long groupId, String externalReferenceCode)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _kbArticleService.fetchLatestKBArticleByExternalReferenceCode(
+			groupId, externalReferenceCode);
 	}
 
 	@Override
@@ -308,6 +318,16 @@ public class KBArticleServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kbArticleService.getLatestKBArticle(resourcePrimKey, status);
+	}
+
+	@Override
+	public com.liferay.knowledge.base.model.KBArticle
+			getLatestKBArticleByExternalReferenceCode(
+				long groupId, String externalReferenceCode)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _kbArticleService.getLatestKBArticleByExternalReferenceCode(
+			groupId, externalReferenceCode);
 	}
 
 	/**

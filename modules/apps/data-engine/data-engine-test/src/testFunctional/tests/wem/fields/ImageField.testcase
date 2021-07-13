@@ -396,29 +396,23 @@ definition {
 			fieldFieldLabel = "Image",
 			fieldName = "Image");
 
-		DataEngine.editShowOrHideLabel(
-			fieldFieldLabel = "Image",
-			showLabel = "true");
+		DataEngine.toggleShowLabel(fieldLabel = "Image");
 
 		WebContentStructures.saveCP();
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
 
-		AssertElementPresent(
-			key_fieldFieldLabel = "Image",
-			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		DataEngine.assertFieldNotPresent(fieldFieldLabel = "Image");
 
-		DataEngine.editShowOrHideLabel(
-			fieldFieldLabel = "Image",
-			showLabel = "false");
+		DataEngine.toggleShowLabel();
 
 		WebContentStructures.saveCP(structureName = "WC Structure Name");
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
 
-		AssertElementNotPresent(
-			key_fieldFieldLabel = "Image",
-			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		DataEngine.viewField(
+			fieldFieldLabel = "Image",
+			fieldName = "Image");
 	}
 
 	@description = "This test ensures that a user can upload an image from Liferay Documents and Media."

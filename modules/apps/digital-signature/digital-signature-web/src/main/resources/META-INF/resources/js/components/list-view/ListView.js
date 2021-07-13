@@ -31,6 +31,7 @@ const ListView = ({
 	customFetch,
 	columns,
 	defaultDelta = 20,
+	defaultSort = 'asc',
 	emptyState,
 	endpoint,
 	filters = [],
@@ -42,6 +43,7 @@ const ListView = ({
 	const [query, setQuery] = useQuery(
 		history,
 		{
+			defaultSort,
 			filters: {},
 			keywords: '',
 			page: 1,

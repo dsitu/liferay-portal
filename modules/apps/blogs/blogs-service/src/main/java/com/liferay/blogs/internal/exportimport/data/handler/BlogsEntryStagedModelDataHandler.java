@@ -42,9 +42,11 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
 
@@ -170,6 +172,9 @@ public class BlogsEntryStagedModelDataHandler
 				}
 			}
 		}
+		else if (Validator.isNotNull(entry.getSmallImageURL())) {
+			entry.setSmallImage(true);
+		}
 
 		if (entry.getCoverImageFileEntryId() != 0) {
 			FileEntry fileEntry = _portletFileRepository.getPortletFileEntry(
@@ -267,10 +272,10 @@ public class BlogsEntryStagedModelDataHandler
 			}
 
 			importedEntry = _blogsEntryLocalService.addEntry(
-				userId, entry.getTitle(), entry.getSubtitle(), urlTitle,
-				entry.getDescription(), entry.getContent(),
-				entry.getDisplayDate(), entry.isAllowPingbacks(),
-				entry.isAllowTrackbacks(), trackbacks,
+				entry.getExternalReferenceCode(), userId, entry.getTitle(),
+				entry.getSubtitle(), urlTitle, entry.getDescription(),
+				entry.getContent(), entry.getDisplayDate(),
+				entry.isAllowPingbacks(), entry.isAllowTrackbacks(), trackbacks,
 				entry.getCoverImageCaption(), null, null, serviceContext);
 		}
 		else {
@@ -321,7 +326,11 @@ public class BlogsEntryStagedModelDataHandler
 
 			importedEntry.setSmallImageFileEntryId(smallImageFileEntryId);
 
-			if (smallImageFileEntryId == 0) {
+			importedEntry.setSmallImageURL(entry.getSmallImageURL());
+
+			if ((smallImageFileEntryId == 0) &&
+				Validator.isNull(importedEntry.getSmallImageURL())) {
+
 				importedEntry.setSmallImage(false);
 			}
 			else {
@@ -432,6 +441,21 @@ public class BlogsEntryStagedModelDataHandler
 
 		articleNewPrimaryKeys.put(
 			entry.getEntryId(), importedEntry.getEntryId());
+
+		if (ListUtil.isEmpty(assetDisplayPageEntryElements)) {
+			AssetDisplayPageEntry existingAssetDisplayPageEntry =
+				_assetDisplayPageEntryLocalService.fetchAssetDisplayPageEntry(
+					importedEntry.getGroupId(),
+					_portal.getClassNameId(BlogsEntry.class.getName()),
+					importedEntry.getEntryId());
+
+			if (existingAssetDisplayPageEntry != null) {
+				_assetDisplayPageEntryLocalService.deleteAssetDisplayPageEntry(
+					existingAssetDisplayPageEntry);
+			}
+
+			return;
+		}
 
 		for (Element assetDisplayPageEntryElement :
 				assetDisplayPageEntryElements) {

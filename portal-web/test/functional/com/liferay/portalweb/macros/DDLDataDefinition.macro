@@ -7,7 +7,7 @@ definition {
 	macro _add {
 		if (IsTextNotEqual(locator1 = "Portlet#HEADER", value1 = "Data Definitions")) {
 			AssertTextEquals(
-				locator1 = "Portlet#MODAL_TITLE",
+				locator1 = "DataEngineModal#MODAL_TITLE",
 				value1 = "Data Definitions");
 
 			SelectFrame(

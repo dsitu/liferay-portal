@@ -1,0 +1,167 @@
+@component-name = "portal-analytics-cloud"
+definition {
+
+	property analytics.cloud.enabled = "true";
+	property minimum.slave.ram = "32";
+	property portal.release = "false";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Analytics Cloud";
+
+	setUp {
+		ACUtils.launchAC();
+
+		ACSettings.takeTokenFromAnalyticsCloud();
+
+		TestCase.setUpPortalInstance();
+
+		ACUtils.launchDXP();
+
+		ACUtils.addSiteAndPage();
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		ACUtils.tearDownDXP();
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+
+		ACUtils.tearDownAC();
+	}
+
+	@description = "Assert an Individual's Segments"
+	@priority = "5"
+	test CanAssertIndividualSegment {
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud();
+
+		Navigator.openURL();
+
+		Pause(locator1 = "5000");
+
+		User.logoutAndLoginPG(
+			userLoginEmailAddress = "userea@liferay.com",
+			userLoginFullName = "userfn userln");
+
+		ACUtils.launchAC();
+
+		ACProperties.switchProperty(propertyName = "${propertyName}");
+
+		ACNavigation.goToSegments();
+
+		ACSegments.createStaticSegment();
+
+		ACSegments.nameSegment(segmentName = "Static Segment Test");
+
+		ACSegments.addStaticMember(tableMember = "userfn userln");
+
+		ACSegments.saveSegment();
+
+		ACNavigation.goToIndividuals();
+
+		ACNavigation.switchTab(tabName = "Known Individuals");
+
+		ACIndividualsDashboard.goToKnownIndividualDetails(individualName = "userfn userln");
+
+		ACNavigation.switchTab(tabName = "Segments");
+
+		ACIndividualsDashboard.assertIndividualAttribute(individualAttribute = "Static Segment Test");
+	}
+
+	@description = "Set custom range filter with data for individual activity"
+	@priority = "5"
+	test CanSetDataWithCustomRangeOnIndividualActivitiesCard {
+		ACUtils.createDMAndAddToPage();
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+
+		for (var n : list "1,2,3,4") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
+		}
+
+		ACUtils.closeAllSessions();
+
+		Pause(locator1 = "30000");
+
+		ACUtils.launchAC();
+
+		ACProperties.switchProperty(propertyName = "${propertyName}");
+
+		ACNavigation.goToIndividuals();
+
+		var displayDateDay = DateUtil.getCurrentDate();
+		var displayMonth = DateUtil.getCurrentMonth();
+		var displayDateMonth = DateUtil.getCurrentMonthName();
+		var displayDateYear = DateUtil.getCurrentYear();
+		var previousDay = DateUtil.getFormattedDate("-1", "d");
+		var previousMonth = DateUtil.getFormattedDate("-1", "MMMM");
+		var previousYear = DateUtil.getFormattedDate("-1", "yyyy");
+
+		ACTimeFilter.setCustomRange(
+			endDay = "${displayDateDay}",
+			endMonth = "${displayDateMonth}",
+			endYear = "${displayDateYear}",
+			startDay = "${previousDay}",
+			startMonth = "${previousMonth}",
+			startYear = "${previousYear}");
+
+		AssertElementPresent(locator1 = "ACIndividualsDashboard#ACTIVE_INDIVIDUAL_CHART");
+	}
+
+	@description = "Set custom range filter with empty data for individual activity"
+	@priority = "5"
+	test CanSetEmptyDataCustomRangeOnIndividualActivitiesCard {
+		ACUtils.createDMAndAddToPage();
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+
+		for (var n : list "1,2,3,4") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
+		}
+
+		ACUtils.closeAllSessions();
+
+		Pause(locator1 = "30000");
+
+		ACUtils.launchAC();
+
+		ACProperties.switchProperty(propertyName = "${propertyName}");
+
+		ACNavigation.goToIndividuals();
+
+		ACTimeFilter.setCustomRange(
+			endDay = "13",
+			endMonth = "July",
+			endYear = "2020",
+			startDay = "1",
+			startMonth = "July",
+			startYear = "2020");
+
+		ACTimeFilter.assertCurrentTimeFilterRange(timeFilterRange = "Jul 1, 2020 - Jul 13, 2020");
+
+		AssertElementNotPresent(locator1 = "ACIndividualsDashboard#ACTIVE_INDIVIDUAL_CHART");
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8139 | Test Summary: Active individual graph shows activities from today when switched to the 24hr filter"
+	@ignore = "true"
+	@priority = "5"
+	test GraphShowsActivitiesFromTodayWhenSwitchedTo24HrFilter {
+
+		// TODO LRAC-8139 GraphShowsActivitiesFromTodayWhenSwitchedTo24HrFilter pending implementation
+
+	}
+
+}

@@ -68,7 +68,7 @@ public class SegmentsContextVocabularyConfigurationFactoryDisplayContext {
 		).setActionName(
 			"/delete_segments_context_vocabulary_configuration"
 		).setRedirect(
-			String.valueOf(_getRedirect())
+			_getRedirect()
 		).setParameter(
 			"factoryPid", configuration.getFactoryPid()
 		).setParameter(
@@ -102,7 +102,7 @@ public class SegmentsContextVocabularyConfigurationFactoryDisplayContext {
 		return PortletURLBuilder.createRenderURL(
 			_renderResponse
 		).setMVCRenderCommandName(
-			"/view_configuration_screen"
+			"/configuration_admin/view_configuration_screen"
 		).setParameter(
 			"configurationScreenKey",
 			"segments-context-vocabulary-configuration-name"
@@ -130,7 +130,7 @@ public class SegmentsContextVocabularyConfigurationFactoryDisplayContext {
 		return PortletURLBuilder.createRenderURL(
 			_renderResponse
 		).setMVCRenderCommandName(
-			"/view_configuration_screen"
+			"/configuration_admin/view_configuration_screen"
 		).setParameter(
 			"configurationScreenKey",
 			"segments-context-vocabulary-configuration-name"

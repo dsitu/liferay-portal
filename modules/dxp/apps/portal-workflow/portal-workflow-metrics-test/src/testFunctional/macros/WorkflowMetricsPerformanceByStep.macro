@@ -24,6 +24,12 @@ definition {
 		Click(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN_OPTION");
 	}
 
+	macro viewPerformanceByStepTooltip {
+		Click(locator1 = "WorkflowMetrics#METRICS_PERFORMANCE_TAB");
+
+		AssertElementPresent(locator1 = "WorkflowMetrics#METRICS_PERFORMANCE_BY_STEP_TOOLTIP");
+	}
+
 	macro viewPerformanceByStepValues {
 		var key_stepName = "${stepName}";
 

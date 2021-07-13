@@ -4,6 +4,10 @@ $font-weight-semi-bold: 600;
 	margin-top: 0 !important;
 	padding-top: 0;
 
+	.alert {
+		margin-top: 1.5rem;
+	}
+
 	.alert-container {
 		height: auto;
 		margin-left: auto;
@@ -55,10 +59,6 @@ $font-weight-semi-bold: 600;
 
 .container-nav {
 	margin-top: 30px;
-}
-
-.control-menu-level-1-nav .dropdown-menu-header .dropdown-item {
-	color: #6b6c7e;
 }
 
 .font-weight-semi-bold {
@@ -130,14 +130,6 @@ $font-weight-semi-bold: 600;
 
 .modal-open .modal {
 	overflow: auto !important;
-}
-
-.dropdown-item {
-	cursor: pointer;
-
-	&.active {
-		font-weight: normal;
-	}
 }
 
 .custom-time-select {
@@ -236,7 +228,7 @@ $font-weight-semi-bold: 600;
 }
 
 @media screen and (max-width: 530px) {
-	.panel .dashboard-panel-header .autofit-row .management-bar {
+	.panel .tabs-panel-header .autofit-row .management-bar {
 		.navbar-nav {
 			flex-direction: column;
 			li {

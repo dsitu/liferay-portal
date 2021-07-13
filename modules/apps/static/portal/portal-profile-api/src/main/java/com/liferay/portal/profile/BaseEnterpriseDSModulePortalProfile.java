@@ -80,7 +80,9 @@ public class BaseEnterpriseDSModulePortalProfile implements PortalProfile {
 			return;
 		}
 
-		if (!_startedBundleSymbolicNames.add(bundle.getSymbolicName())) {
+		if (!_startingBundleSymbolicNames.add(bundle.getSymbolicName())) {
+			_startingBundleSymbolicNames.remove(bundle.getSymbolicName());
+
 			return;
 		}
 
@@ -103,7 +105,7 @@ public class BaseEnterpriseDSModulePortalProfile implements PortalProfile {
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseEnterpriseDSModulePortalProfile.class);
 
-	private static final Set<String> _startedBundleSymbolicNames =
+	private static final Set<String> _startingBundleSymbolicNames =
 		Collections.newSetFromMap(new ConcurrentHashMap<>());
 
 	static {

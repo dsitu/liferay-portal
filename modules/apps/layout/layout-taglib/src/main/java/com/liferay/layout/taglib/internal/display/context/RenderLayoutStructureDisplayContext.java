@@ -46,6 +46,7 @@ import com.liferay.layout.list.retriever.ListObjectReference;
 import com.liferay.layout.list.retriever.ListObjectReferenceFactory;
 import com.liferay.layout.list.retriever.ListObjectReferenceFactoryTracker;
 import com.liferay.layout.responsive.ResponsiveLayoutStructureUtil;
+import com.liferay.layout.taglib.internal.FFRenderLayoutStructureConfigurationUtil;
 import com.liferay.layout.util.constants.LayoutDataItemTypeConstants;
 import com.liferay.layout.util.structure.CollectionStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.ContainerStyledLayoutStructureItem;
@@ -70,7 +71,6 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -78,6 +78,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.util.PropsValues;
 import com.liferay.segments.SegmentsEntryRetriever;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.segments.constants.SegmentsWebKeys;
@@ -86,14 +87,11 @@ import com.liferay.style.book.model.StyleBookEntry;
 import com.liferay.style.book.util.DefaultStyleBookEntryUtil;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -102,6 +100,12 @@ import javax.servlet.http.HttpServletResponse;
  * @author Rubén Pulido
  */
 public class RenderLayoutStructureDisplayContext {
+
+	public static final String PAGE_NUMBER_PARAM_PREFIX = "page_number_";
+
+	public static final String PAGINATION_TYPE_REGULAR = "regular";
+
+	public static final String PAGINATION_TYPE_SIMPLE = "simple";
 
 	public RenderLayoutStructureDisplayContext(
 		Map<String, Object> fieldValues,
@@ -172,17 +176,113 @@ public class RenderLayoutStructureDisplayContext {
 		DefaultLayoutListRetrieverContext defaultLayoutListRetrieverContext =
 			new DefaultLayoutListRetrieverContext();
 
-		defaultLayoutListRetrieverContext.setAssetCategoryIds(
-			_getAssetCategoryIds());
 		defaultLayoutListRetrieverContext.setContextObject(
-			_httpServletRequest.getAttribute(InfoDisplayWebKeys.INFO_ITEM));
+			Optional.ofNullable(
+				_httpServletRequest.getAttribute(
+					InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT)
+			).orElse(
+				_httpServletRequest.getAttribute(InfoDisplayWebKeys.INFO_ITEM)
+			));
+		defaultLayoutListRetrieverContext.setHttpServletRequest(
+			_httpServletRequest);
 		defaultLayoutListRetrieverContext.setSegmentsEntryIds(
 			_getSegmentsEntryIds());
+
+		int end = collectionStyledLayoutStructureItem.getNumberOfItems();
+		int start = 0;
+
+		String paginationType =
+			collectionStyledLayoutStructureItem.getPaginationType();
+
+		if (FFRenderLayoutStructureConfigurationUtil.
+				collectionDisplayFragmentPaginationEnabled() &&
+			(Objects.equals(paginationType, PAGINATION_TYPE_REGULAR) ||
+			 Objects.equals(paginationType, PAGINATION_TYPE_SIMPLE))) {
+
+			int currentPage = ParamUtil.getInteger(
+				_httpServletRequest,
+				PAGE_NUMBER_PARAM_PREFIX +
+					collectionStyledLayoutStructureItem.getItemId());
+
+			if (currentPage < 1) {
+				currentPage = 1;
+			}
+
+			int numberOfItems =
+				collectionStyledLayoutStructureItem.getNumberOfItems();
+
+			int numberOfItemsPerPage =
+				collectionStyledLayoutStructureItem.getNumberOfItemsPerPage();
+
+			if (numberOfItemsPerPage >
+					PropsValues.SEARCH_CONTAINER_PAGE_MAX_DELTA) {
+
+				numberOfItemsPerPage =
+					PropsValues.SEARCH_CONTAINER_PAGE_MAX_DELTA;
+			}
+
+			int listCount = layoutListRetriever.getListCount(
+				listObjectReference, defaultLayoutListRetrieverContext);
+
+			end = Math.min(
+				Math.min(currentPage * numberOfItemsPerPage, numberOfItems),
+				listCount);
+
+			start = (currentPage - 1) * numberOfItemsPerPage;
+		}
+
 		defaultLayoutListRetrieverContext.setPagination(
-			Pagination.of(
-				collectionStyledLayoutStructureItem.getNumberOfItems(), 0));
+			Pagination.of(end, start));
 
 		return layoutListRetriever.getList(
+			listObjectReference, defaultLayoutListRetrieverContext);
+	}
+
+	public int getCollectionCount(
+		CollectionStyledLayoutStructureItem
+			collectionStyledLayoutStructureItem) {
+
+		JSONObject collectionJSONObject =
+			collectionStyledLayoutStructureItem.getCollectionJSONObject();
+
+		if ((collectionJSONObject == null) ||
+			(collectionJSONObject.length() <= 0)) {
+
+			return 0;
+		}
+
+		ListObjectReference listObjectReference = _getListObjectReference(
+			collectionJSONObject);
+
+		if (listObjectReference == null) {
+			return 0;
+		}
+
+		LayoutListRetriever<?, ListObjectReference> layoutListRetriever =
+			(LayoutListRetriever<?, ListObjectReference>)
+				_layoutListRetrieverTracker.getLayoutListRetriever(
+					collectionJSONObject.getString("type"));
+
+		if (layoutListRetriever == null) {
+			return 0;
+		}
+
+		DefaultLayoutListRetrieverContext defaultLayoutListRetrieverContext =
+			new DefaultLayoutListRetrieverContext();
+
+		defaultLayoutListRetrieverContext.setContextObject(
+			Optional.ofNullable(
+				_httpServletRequest.getAttribute(
+					InfoDisplayWebKeys.INFO_LIST_DISPLAY_OBJECT)
+			).orElse(
+				_httpServletRequest.getAttribute(InfoDisplayWebKeys.INFO_ITEM)
+			));
+		defaultLayoutListRetrieverContext.setHttpServletRequest(
+			_httpServletRequest);
+		defaultLayoutListRetrieverContext.setSegmentsEntryIds(
+			_getSegmentsEntryIds());
+
+		return layoutListRetriever.getListCount(
 			listObjectReference, defaultLayoutListRetrieverContext);
 	}
 
@@ -474,44 +574,48 @@ public class RenderLayoutStructureDisplayContext {
 			}
 		}
 
-		if (styledLayoutStructureItem.getMarginBottom() != -1L) {
+		if (Validator.isNotNull(styledLayoutStructureItem.getMarginBottom())) {
 			cssClassSB.append(" mb-lg-");
 			cssClassSB.append(styledLayoutStructureItem.getMarginBottom());
 		}
 
 		if (addHorizontalMargin) {
-			if (styledLayoutStructureItem.getMarginLeft() != -1L) {
+			if (Validator.isNotNull(
+					styledLayoutStructureItem.getMarginLeft())) {
+
 				cssClassSB.append(" ml-lg-");
 				cssClassSB.append(styledLayoutStructureItem.getMarginLeft());
 			}
 
-			if (styledLayoutStructureItem.getMarginRight() != -1L) {
+			if (Validator.isNotNull(
+					styledLayoutStructureItem.getMarginRight())) {
+
 				cssClassSB.append(" mr-lg-");
 				cssClassSB.append(styledLayoutStructureItem.getMarginRight());
 			}
 		}
 
-		if (styledLayoutStructureItem.getMarginTop() != -1L) {
+		if (Validator.isNotNull(styledLayoutStructureItem.getMarginTop())) {
 			cssClassSB.append(" mt-lg-");
 			cssClassSB.append(styledLayoutStructureItem.getMarginTop());
 		}
 
-		if (styledLayoutStructureItem.getPaddingBottom() != -1L) {
+		if (Validator.isNotNull(styledLayoutStructureItem.getPaddingBottom())) {
 			cssClassSB.append(" pb-lg-");
 			cssClassSB.append(styledLayoutStructureItem.getPaddingBottom());
 		}
 
-		if (styledLayoutStructureItem.getPaddingLeft() != -1L) {
+		if (Validator.isNotNull(styledLayoutStructureItem.getPaddingLeft())) {
 			cssClassSB.append(" pl-lg-");
 			cssClassSB.append(styledLayoutStructureItem.getPaddingLeft());
 		}
 
-		if (styledLayoutStructureItem.getPaddingRight() != -1L) {
+		if (Validator.isNotNull(styledLayoutStructureItem.getPaddingRight())) {
 			cssClassSB.append(" pr-lg-");
 			cssClassSB.append(styledLayoutStructureItem.getPaddingRight());
 		}
 
-		if (styledLayoutStructureItem.getPaddingTop() != -1L) {
+		if (Validator.isNotNull(styledLayoutStructureItem.getPaddingTop())) {
 			cssClassSB.append(" pt-lg-");
 			cssClassSB.append(styledLayoutStructureItem.getPaddingTop());
 		}
@@ -631,9 +735,7 @@ public class RenderLayoutStructureDisplayContext {
 	public String getStyle(StyledLayoutStructureItem styledLayoutStructureItem)
 		throws Exception {
 
-		StringBundler styleSB = new StringBundler(60);
-
-		styleSB.append("box-sizing: border-box;");
+		StringBundler styleSB = new StringBundler(59);
 
 		if (Validator.isNotNull(
 				styledLayoutStructureItem.getBackgroundColor())) {
@@ -708,7 +810,7 @@ public class RenderLayoutStructureDisplayContext {
 			styleSB.append(StringPool.SEMICOLON);
 		}
 
-		if (styledLayoutStructureItem.getBorderWidth() != -1L) {
+		if (Validator.isNotNull(styledLayoutStructureItem.getBorderWidth())) {
 			styleSB.append("border-style: solid; border-width: ");
 			styleSB.append(styledLayoutStructureItem.getBorderWidth());
 			styleSB.append("px;");
@@ -784,9 +886,12 @@ public class RenderLayoutStructureDisplayContext {
 			styleSB.append(StringPool.SEMICOLON);
 		}
 
-		if (styledLayoutStructureItem.getOpacity() != -1L) {
+		if (Validator.isNotNull(styledLayoutStructureItem.getOpacity())) {
+			int opacity = GetterUtil.getInteger(
+				styledLayoutStructureItem.getOpacity(), 100);
+
 			styleSB.append("opacity: ");
-			styleSB.append(styledLayoutStructureItem.getOpacity() / 100.0);
+			styleSB.append(opacity / 100.0);
 			styleSB.append(StringPool.SEMICOLON);
 		}
 
@@ -832,46 +937,6 @@ public class RenderLayoutStructureDisplayContext {
 			FrontendTokenMapping.TYPE_CSS_VARIABLE);
 
 		return "var(--" + cssVariable + ")";
-	}
-
-	private long[][] _getAssetCategoryIds() {
-		if (_assetCategoryIds != null) {
-			return _assetCategoryIds;
-		}
-
-		Set<long[]> assetCategoryIdsSet = new HashSet<>();
-
-		HttpServletRequest originalHttpServletRequest =
-			PortalUtil.getOriginalServletRequest(_httpServletRequest);
-
-		Map<String, String[]> parameterMap =
-			originalHttpServletRequest.getParameterMap();
-
-		Set<String> parameterNames = parameterMap.keySet();
-
-		Stream<String> parameterNameStream = parameterNames.stream();
-
-		Set<String> categoryIdParameterNames = parameterNameStream.filter(
-			parameterName -> parameterName.startsWith("categoryId_")
-		).collect(
-			Collectors.toSet()
-		);
-
-		for (String categoryIdParameterName : categoryIdParameterNames) {
-			String[] values = parameterMap.get(categoryIdParameterName);
-
-			if (ArrayUtil.isNotEmpty(values)) {
-				assetCategoryIdsSet.add(
-					ArrayUtil.filter(
-						GetterUtil.getLongValues(values),
-						categoryId -> categoryId != 0));
-			}
-		}
-
-		_assetCategoryIds = assetCategoryIdsSet.toArray(
-			new long[assetCategoryIdsSet.size()][]);
-
-		return _assetCategoryIds;
 	}
 
 	private String _getBackgroundImage(JSONObject jsonObject) throws Exception {
@@ -1001,7 +1066,7 @@ public class RenderLayoutStructureDisplayContext {
 		String backgroundImageURL = jsonObject.getString("url");
 
 		if (Validator.isNotNull(backgroundImageURL)) {
-			return backgroundImageURL;
+			return PortalUtil.getPathContext() + backgroundImageURL;
 		}
 
 		return StringPool.BLANK;
@@ -1334,7 +1399,6 @@ public class RenderLayoutStructureDisplayContext {
 	private static final Log _log = LogFactoryUtil.getLog(
 		RenderLayoutStructureDisplayContext.class);
 
-	private long[][] _assetCategoryIds;
 	private final Map<String, Object> _fieldValues;
 	private final FragmentEntryProcessorHelper _fragmentEntryProcessorHelper;
 	private final FrontendTokenDefinitionRegistry

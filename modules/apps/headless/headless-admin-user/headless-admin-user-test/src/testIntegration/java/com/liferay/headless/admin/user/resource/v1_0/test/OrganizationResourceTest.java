@@ -14,29 +14,36 @@
 
 package com.liferay.headless.admin.user.resource.v1_0.test;
 
+import com.liferay.account.constants.AccountConstants;
+import com.liferay.account.model.AccountEntry;
+import com.liferay.account.rest.dto.v1_0.Account;
+import com.liferay.account.service.AccountEntryLocalService;
+import com.liferay.account.service.AccountEntryOrganizationRelLocalService;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.headless.admin.user.client.dto.v1_0.AccountInformation;
 import com.liferay.headless.admin.user.client.dto.v1_0.Organization;
 import com.liferay.headless.admin.user.client.pagination.Page;
 import com.liferay.headless.admin.user.client.pagination.Pagination;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.OrganizationLocalService;
-import com.liferay.portal.kernel.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.service.UserLocalServiceUtil;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.DataGuard;
+import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.SynchronousMailTestRule;
+import com.liferay.portal.vulcan.dto.converter.DTOConverter;
+import com.liferay.portal.vulcan.util.TransformUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -47,6 +54,7 @@ import org.junit.runner.RunWith;
 /**
  * @author Javier Gamarra
  */
+@DataGuard(scope = DataGuard.Scope.METHOD)
 @RunWith(Arquillian.class)
 public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 
@@ -61,13 +69,6 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 		super.setUp();
 
 		_user = UserTestUtil.addGroupAdminUser(testGroup);
-	}
-
-	@After
-	@Override
-	public void tearDown() {
-		_deleteOrganizations(_childOrganizations);
-		_deleteOrganizations(_organizations);
 	}
 
 	@Override
@@ -90,6 +91,88 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 		Assert.assertFalse(
 			_organizationLocalService.hasUserOrganization(
 				user.getUserId(), GetterUtil.getLong(organization.getId())));
+	}
+
+	@Override
+	@Test
+	public void testDeleteUserAccountsByEmailAddress() throws Exception {
+		Organization organization = _toOrganization(
+			_addOrganization(randomOrganization(), "0"));
+
+		long organizationId = GetterUtil.getLong(organization.getId());
+
+		List<User> users = Arrays.asList(
+			UserTestUtil.addUser(), UserTestUtil.addUser(),
+			UserTestUtil.addUser(), UserTestUtil.addUser());
+
+		_userLocalService.addOrganizationUsers(organizationId, users);
+
+		for (User user : users) {
+			Assert.assertTrue(
+				_userLocalService.hasOrganizationUser(
+					organizationId, user.getUserId()));
+		}
+
+		List<User> removeUsers = users.subList(0, 2);
+
+		organizationResource.deleteUserAccountsByEmailAddress(
+			organization.getId(), _toEmailAddresses(removeUsers));
+
+		for (User user : removeUsers) {
+			Assert.assertFalse(
+				_userLocalService.hasOrganizationUser(
+					organizationId, user.getUserId()));
+		}
+
+		List<User> keepUsers = users.subList(2, 4);
+
+		for (User user : keepUsers) {
+			Assert.assertTrue(
+				_userLocalService.hasOrganizationUser(
+					organizationId, user.getUserId()));
+		}
+	}
+
+	@Test
+	public void testGetOrganizationAccountInformation() throws Exception {
+		com.liferay.portal.kernel.model.Organization
+			serviceBuilderOrganization = OrganizationTestUtil.addOrganization();
+
+		Organization organization = organizationResource.getOrganization(
+			String.valueOf(serviceBuilderOrganization.getOrganizationId()));
+
+		AccountInformation accountInformation =
+			organization.getAccountInformation();
+
+		Assert.assertEquals(Integer.valueOf(0), accountInformation.getCount());
+		Assert.assertTrue(ArrayUtil.isEmpty(accountInformation.getAccounts()));
+
+		Account[] organizationAccounts = {
+			_addOrganizationAccount(
+				serviceBuilderOrganization.getOrganizationId()),
+			_addOrganizationAccount(
+				serviceBuilderOrganization.getOrganizationId())
+		};
+
+		organization = organizationResource.getOrganization(
+			String.valueOf(serviceBuilderOrganization.getOrganizationId()));
+
+		accountInformation = organization.getAccountInformation();
+
+		Assert.assertEquals(Integer.valueOf(2), accountInformation.getCount());
+
+		Account[] accountInformationAccounts = TransformUtil.transform(
+			accountInformation.getAccounts(),
+			account -> _accountResourceDTOConverter.toDTO(
+				_accountEntryLocalService.getAccountEntry(account.getId())),
+			Account.class);
+
+		Assert.assertTrue(
+			ArrayUtil.containsAll(
+				organizationAccounts, accountInformationAccounts));
+		Assert.assertTrue(
+			ArrayUtil.containsAll(
+				accountInformationAccounts, organizationAccounts));
 	}
 
 	@Override
@@ -147,6 +230,34 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 	}
 
 	@Override
+	@Test
+	public void testPostUserAccountsByEmailAddress() throws Exception {
+		Organization organization = _toOrganization(
+			_addOrganization(randomOrganization(), "0"));
+
+		long organizationId = GetterUtil.getLong(organization.getId());
+
+		List<User> users = Arrays.asList(
+			UserTestUtil.addUser(), UserTestUtil.addUser(),
+			UserTestUtil.addUser(), UserTestUtil.addUser());
+
+		for (User user : users) {
+			Assert.assertFalse(
+				_userLocalService.hasOrganizationUser(
+					organizationId, user.getUserId()));
+		}
+
+		organizationResource.postUserAccountsByEmailAddress(
+			organization.getId(), _toEmailAddresses(users));
+
+		for (User user : users) {
+			Assert.assertTrue(
+				_userLocalService.hasOrganizationUser(
+					organizationId, user.getUserId()));
+		}
+	}
+
+	@Override
 	protected String[] getAdditionalAssertFieldNames() {
 		return new String[] {"name"};
 	}
@@ -158,7 +269,7 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 		Organization organization = randomOrganization();
 
 		return _toOrganization(
-			OrganizationLocalServiceUtil.addOrganization(
+			_organizationLocalService.addOrganization(
 				_user.getUserId(), 0, organization.getName(), true));
 	}
 
@@ -230,20 +341,26 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 			Organization organization, String parentOrganizationId)
 		throws Exception {
 
-		com.liferay.portal.kernel.model.Organization
-			serviceBuilderOrganization =
-				OrganizationLocalServiceUtil.addOrganization(
-					_user.getUserId(), GetterUtil.getLong(parentOrganizationId),
-					organization.getName(), true);
+		return _organizationLocalService.addOrganization(
+			_user.getUserId(), GetterUtil.getLong(parentOrganizationId),
+			organization.getName(), true);
+	}
 
-		if (parentOrganizationId.equals("0")) {
-			_organizations.add(serviceBuilderOrganization);
-		}
-		else {
-			_childOrganizations.add(serviceBuilderOrganization);
-		}
+	private Account _addOrganizationAccount(long organizationId)
+		throws Exception {
 
-		return serviceBuilderOrganization;
+		AccountEntry accountEntry = _accountEntryLocalService.addAccountEntry(
+			TestPropsValues.getUserId(),
+			AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT,
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(), null,
+			null, null, null, AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
+			WorkflowConstants.STATUS_APPROVED,
+			ServiceContextTestUtil.getServiceContext());
+
+		_accountEntryOrganizationRelLocalService.addAccountEntryOrganizationRel(
+			accountEntry.getAccountEntryId(), organizationId);
+
+		return _accountResourceDTOConverter.toDTO(accountEntry);
 	}
 
 	private Organization _addUserOrganization(
@@ -254,39 +371,16 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 			_addOrganization(organization, "0"));
 
 		if (userAccountId != null) {
-			UserLocalServiceUtil.addOrganizationUser(
+			_userLocalService.addOrganizationUser(
 				GetterUtil.getLong(parentOrganization.getId()), userAccountId);
 		}
 
 		return parentOrganization;
 	}
 
-	private void _deleteOrganizations(
-		List<com.liferay.portal.kernel.model.Organization> organizations) {
-
-		for (com.liferay.portal.kernel.model.Organization organization :
-				organizations) {
-
-			try {
-				OrganizationLocalServiceUtil.deleteUserOrganization(
-					_user.getUserId(), organization);
-			}
-			catch (Exception exception) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
-				}
-			}
-
-			try {
-				OrganizationLocalServiceUtil.deleteOrganization(
-					organization.getOrganizationId());
-			}
-			catch (Exception exception) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(exception, exception);
-				}
-			}
-		}
+	private String[] _toEmailAddresses(List<User> users) {
+		return TransformUtil.transformToArray(
+			users, User::getEmailAddress, String.class);
 	}
 
 	private Organization _toOrganization(
@@ -302,19 +396,19 @@ public class OrganizationResourceTest extends BaseOrganizationResourceTestCase {
 		};
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		OrganizationResourceTest.class);
+	@Inject
+	private AccountEntryLocalService _accountEntryLocalService;
 
-	private final List<com.liferay.portal.kernel.model.Organization>
-		_childOrganizations = new ArrayList<>();
+	@Inject
+	private AccountEntryOrganizationRelLocalService
+		_accountEntryOrganizationRelLocalService;
+
+	@Inject(filter = "dto.class.name=com.liferay.account.model.AccountEntry")
+	private DTOConverter<AccountEntry, Account> _accountResourceDTOConverter;
 
 	@Inject
 	private OrganizationLocalService _organizationLocalService;
 
-	private final List<com.liferay.portal.kernel.model.Organization>
-		_organizations = new ArrayList<>();
-
-	@DeleteAfterTestRun
 	private User _user;
 
 	@Inject

@@ -200,11 +200,11 @@ public class ObjectLayoutBoxUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	public static ObjectLayoutBox findByUuid_First(
 			String uuid, OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutBoxException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutBoxException {
 
 		return getPersistence().findByUuid_First(uuid, orderByComparator);
 	}
@@ -228,11 +228,11 @@ public class ObjectLayoutBoxUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	public static ObjectLayoutBox findByUuid_Last(
 			String uuid, OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutBoxException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutBoxException {
 
 		return getPersistence().findByUuid_Last(uuid, orderByComparator);
 	}
@@ -257,12 +257,12 @@ public class ObjectLayoutBoxUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	public static ObjectLayoutBox[] findByUuid_PrevAndNext(
 			long objectLayoutBoxId, String uuid,
 			OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutBoxException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutBoxException {
 
 		return getPersistence().findByUuid_PrevAndNext(
 			objectLayoutBoxId, uuid, orderByComparator);
@@ -372,12 +372,12 @@ public class ObjectLayoutBoxUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	public static ObjectLayoutBox findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutBoxException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutBoxException {
 
 		return getPersistence().findByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -406,12 +406,12 @@ public class ObjectLayoutBoxUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	public static ObjectLayoutBox findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutBoxException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutBoxException {
 
 		return getPersistence().findByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -441,12 +441,12 @@ public class ObjectLayoutBoxUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	public static ObjectLayoutBox[] findByUuid_C_PrevAndNext(
 			long objectLayoutBoxId, String uuid, long companyId,
 			OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutBoxException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutBoxException {
 
 		return getPersistence().findByUuid_C_PrevAndNext(
 			objectLayoutBoxId, uuid, companyId, orderByComparator);
@@ -506,10 +506,10 @@ public class ObjectLayoutBoxUtil {
 	 *
 	 * @param objectLayoutBoxId the primary key of the object layout box
 	 * @return the object layout box that was removed
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	public static ObjectLayoutBox remove(long objectLayoutBoxId)
-		throws com.liferay.object.exception.NoSuchLayoutBoxException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutBoxException {
 
 		return getPersistence().remove(objectLayoutBoxId);
 	}
@@ -519,14 +519,14 @@ public class ObjectLayoutBoxUtil {
 	}
 
 	/**
-	 * Returns the object layout box with the primary key or throws a <code>NoSuchLayoutBoxException</code> if it could not be found.
+	 * Returns the object layout box with the primary key or throws a <code>NoSuchObjectLayoutBoxException</code> if it could not be found.
 	 *
 	 * @param objectLayoutBoxId the primary key of the object layout box
 	 * @return the object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	public static ObjectLayoutBox findByPrimaryKey(long objectLayoutBoxId)
-		throws com.liferay.object.exception.NoSuchLayoutBoxException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutBoxException {
 
 		return getPersistence().findByPrimaryKey(objectLayoutBoxId);
 	}

@@ -25,8 +25,8 @@ import com.liferay.asset.kernel.service.AssetEntryService;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.info.constants.InfoDisplayWebKeys;
 import com.liferay.info.exception.NoSuchInfoItemException;
-import com.liferay.info.field.InfoFieldValue;
 import com.liferay.info.item.ClassPKInfoItemIdentifier;
+import com.liferay.info.item.InfoItemFieldValues;
 import com.liferay.info.item.InfoItemIdentifier;
 import com.liferay.info.item.InfoItemReference;
 import com.liferay.info.item.InfoItemServiceTracker;
@@ -39,6 +39,7 @@ import com.liferay.layout.display.page.LayoutDisplayPageProviderTracker;
 import com.liferay.layout.display.page.constants.LayoutDisplayPageWebKeys;
 import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
+import com.liferay.layout.seo.template.LayoutSEOTemplateProcessor;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
@@ -72,8 +73,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
@@ -145,23 +146,39 @@ public abstract class BaseAssetDisplayPageFriendlyURLResolver
 		Layout layout = _getLayoutDisplayPageObjectProviderLayout(
 			layoutDisplayPageObjectProvider, layoutDisplayPageProvider);
 
+		InfoItemFieldValuesProvider<Object> infoItemFieldValuesProvider =
+			infoItemServiceTracker.getFirstInfoItemService(
+				InfoItemFieldValuesProvider.class,
+				portal.getClassName(
+					layoutDisplayPageObjectProvider.getClassNameId()));
+
+		InfoItemFieldValues infoItemFieldValues =
+			infoItemFieldValuesProvider.getInfoItemFieldValues(
+				layoutDisplayPageObjectProvider.getDisplayObject());
+
+		Optional<String> descriptionOptional = _getMappedValueOptional(
+			layout.getTypeSettingsProperty("mapped-description"),
+			infoItemFieldValues, locale);
+
 		portal.setPageDescription(
 			HtmlUtil.unescape(
 				HtmlUtil.stripHtml(
-					_getMappedField(
-						layoutDisplayPageObjectProvider, locale,
-						layout.getTypeSettingsProperty("mapped-description"),
-						layoutDisplayPageObjectProvider::getDescription))),
+					descriptionOptional.orElseGet(
+						() -> layoutDisplayPageObjectProvider.getDescription(
+							locale)))),
 			httpServletRequest);
 
 		portal.setPageKeywords(
 			layoutDisplayPageObjectProvider.getKeywords(locale),
 			httpServletRequest);
+
+		Optional<String> titleOptional = _getMappedValueOptional(
+			layout.getTypeSettingsProperty("mapped-title"), infoItemFieldValues,
+			locale);
+
 		portal.setPageTitle(
-			_getMappedField(
-				layoutDisplayPageObjectProvider, locale,
-				layout.getTypeSettingsProperty("mapped-title"),
-				layoutDisplayPageObjectProvider::getTitle),
+			titleOptional.orElseGet(
+				() -> layoutDisplayPageObjectProvider.getTitle(locale)),
 			httpServletRequest);
 
 		return portal.getLayoutActualURL(layout, mainPath) +
@@ -226,6 +243,9 @@ public abstract class BaseAssetDisplayPageFriendlyURLResolver
 
 	@Reference
 	protected LayoutPageTemplateEntryService layoutPageTemplateEntryService;
+
+	@Reference
+	protected LayoutSEOTemplateProcessor layoutSEOTemplateProcessor;
 
 	@Reference
 	protected Portal portal;
@@ -390,29 +410,17 @@ public abstract class BaseAssetDisplayPageFriendlyURLResolver
 		return layoutDisplayPageProvider;
 	}
 
-	private String _getMappedField(
-		LayoutDisplayPageObjectProvider<?> layoutDisplayPageObjectProvider,
-		Locale locale, String mappedFieldName,
-		Function<Locale, String> defaultValueFunction) {
+	private Optional<String> _getMappedValueOptional(
+		String template, InfoItemFieldValues infoItemFieldValues,
+		Locale locale) {
 
-		if (layoutDisplayPageObjectProvider != null) {
-			InfoItemFieldValuesProvider<Object> infoItemFieldValuesProvider =
-				infoItemServiceTracker.getFirstInfoItemService(
-					InfoItemFieldValuesProvider.class,
-					portal.getClassName(
-						layoutDisplayPageObjectProvider.getClassNameId()));
-
-			InfoFieldValue<Object> infoFieldValue =
-				infoItemFieldValuesProvider.getInfoItemFieldValue(
-					layoutDisplayPageObjectProvider.getDisplayObject(),
-					mappedFieldName);
-
-			if (infoFieldValue != null) {
-				return String.valueOf(infoFieldValue.getValue(locale));
-			}
+		if ((infoItemFieldValues == null) || Validator.isNull(template)) {
+			return Optional.empty();
 		}
 
-		return defaultValueFunction.apply(locale);
+		return Optional.ofNullable(
+			layoutSEOTemplateProcessor.processTemplate(
+				template, infoItemFieldValues, locale));
 	}
 
 	private LayoutQueryStringComposite

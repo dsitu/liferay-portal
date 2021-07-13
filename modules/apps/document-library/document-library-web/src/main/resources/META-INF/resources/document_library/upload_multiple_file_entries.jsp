@@ -115,7 +115,7 @@ if (portletTitleBasedNavigation) {
 							Liferay.on('tempFileRemoved', () => {
 								Liferay.Util.openToast({
 									message:
-										'<%= LanguageUtil.get(request, "your-request-completed-successfully") %>',
+										'<%= HtmlUtil.escapeJS(LanguageUtil.get(request, "your-request-completed-successfully")) %>',
 								});
 							});
 
@@ -251,7 +251,7 @@ if (portletTitleBasedNavigation) {
 											.addClass('upload-error');
 
 										selectedItems.append(
-											'<span class="card-bottom error-message"><%= UnicodeLanguageUtil.get(request, "an-unexpected-error-occurred-while-deleting-the-file") %></span>'
+											'<span class="card-bottom error-message"><%= UnicodeLanguageUtil.get(request, "an-unexpected-error-occurred-while-uploading-your-file") %></span>'
 										);
 
 										selectedItems.all('input').remove(true);

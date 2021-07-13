@@ -145,7 +145,7 @@ definition {
 			depotName = "Test Depot Name",
 			groupName = "Site Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Page Name",
 			siteName = "Site Name");
 
@@ -191,7 +191,7 @@ definition {
 			siteList = "Site Name",
 			tableEntryText = "No");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Page Name",
 			siteName = "Site Name");
 
@@ -216,9 +216,7 @@ definition {
 
 		JSONDepot.disconnectSite(groupName = "Site Name");
 
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "site-name");
-
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
 
 		BlogsEntry.addTitle(entryTitle = "Blogs Entry Title");
 
@@ -239,7 +237,7 @@ definition {
 	test ViewInRelatedAssets {
 		property test.name.skip.portal.instance = "DepotVideoShortcut#ViewInRelatedAssets";
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Page Name",
 			siteName = "Site Name");
 

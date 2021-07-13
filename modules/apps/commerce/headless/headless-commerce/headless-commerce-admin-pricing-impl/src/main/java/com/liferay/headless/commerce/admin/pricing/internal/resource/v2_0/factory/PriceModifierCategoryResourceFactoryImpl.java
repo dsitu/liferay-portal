@@ -51,7 +51,8 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	immediate = true, service = PriceModifierCategoryResource.Factory.class
+	enabled = false, immediate = true,
+	service = PriceModifierCategoryResource.Factory.class
 )
 @Generated("")
 public class PriceModifierCategoryResourceFactoryImpl

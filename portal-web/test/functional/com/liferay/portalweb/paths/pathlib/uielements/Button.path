@@ -2,11 +2,13 @@
 <head>
 <title>Button</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">Button</td></tr>
 </thead>
+
 <tbody>
 <tr>
 	<td>ADD_ACTION</td>
@@ -54,6 +56,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ADVANCED</td>
+	<td>//div[contains(@class,'nav-wrapper')]//button[contains(.,'Advanced')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ADVANCED_REPLY</td>
 	<td>//button/span[contains(.,'Advanced Reply')]</td>
 	<td></td>
@@ -74,6 +81,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ANY_TITLE</td>
+	<td>//button[@title='${key_title}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ANY_TITLE_DISABLED</td>
+	<td>//button[@title='${key_title}' and @disabled]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ANY_WITH_COLOR</td>
 	<td>//*[contains(@class,'btn-${key_color}')][normalize-space(text())='${key_text}']</td>
 	<td></td>
@@ -84,13 +101,23 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ANY_WITH_SPAN</td>
+	<td>//button/span[contains(.,'${key_text}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ANY_DISABLED</td>
-	<td>//*[contains(@class,'btn')][normalize-space(text())='${key_text}'][@disabled='']</td>
+	<td>//button[@disabled][contains(@class,'btn')][normalize-space()='${key_text}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TRASH_DISABLED</td>
+	<td>//button[*[name()='svg'][contains(@class,'lexicon-icon-trash')]][@disabled='']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ANY_ENABLED</td>
-	<td>//*[contains(@class,'btn')][normalize-space(text())='${key_text}'][not(@disabled='')]</td>
+	<td>//button[not(@disabled)][contains(@class,'btn')][normalize-space()='${key_text}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -116,6 +143,16 @@
 <tr>
 	<td>BROWSE_IMAGE</td>
 	<td>//button[contains(@class,'browse-image')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BUTTON_ID</td>
+	<td>//*[contains(@class,'btn')][contains(@id,'${buttonId}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BUTTON_LABEL</td>
+	<td>//div[./label[normalize-space(text())='${fieldLabel}']]//button[normalize-space()='${text}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -285,7 +322,12 @@
 </tr>
 <tr>
 	<td>DOWNLOAD</td>
-	<td>//a[2][contains(@class,'btn') and contains(.,'Download')] | //button[contains(.,'Download')]</td>
+	<td>//a[contains(@class,'btn-secondary') and contains(.,'Download')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DOWNLOAD_SIDEBAR</td>
+	<td>//div[contains(@class,'sidebar-section')]//a[contains(@class,'btn') and contains(.,'Download')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -361,6 +403,11 @@
 <tr>
 	<td>FINISH_CONFIGURATION</td>
 	<td>//button[contains(.,'Finish Configuration')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>GENERAL_BUTTON_MODAL_FOOTER</td>
+	<td>//div[contains(@class, 'modal-footer')]//button[contains(@class,'btn-primary')][contains(text(),'${key_name}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -535,7 +582,7 @@
 </tr>
 <tr>
 	<td>PROPAGATE</td>
-	<td>//button[contains(@title,'Propagate')]</td>
+	<td>//button[@*='Propagate']</td>
 	<td></td>
 </tr>
 <tr>
@@ -800,7 +847,7 @@
 </tr>
 <tr>
 	<td>TRY_REDIRECTION</td>
-	<td>//button[@type='button' and @title='Check URL']</td>
+	<td>//button[@type='button' and @*='Check URL']</td>
 	<td></td>
 </tr>
 <tr>
@@ -884,9 +931,9 @@
 	<td></td>
 </tr>
 <tr>
-    <td>BUTTON_PLUS_PRODUCT_VISIBILITY</td>
-    <td>//li[contains(@class,'nav-item')]//button[contains(@title,'${key_webContentTitle}')]</td>
-    <td></td>
+	<td>BUTTON_PLUS_PRODUCT_VISIBILITY</td>
+	<td>//li[contains(@class,'nav-item')]//button[contains(@title,'${key_webContentTitle}')]</td>
+	<td></td>
 </tr>
 </tbody>
 </table>

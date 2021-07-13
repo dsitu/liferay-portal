@@ -454,8 +454,22 @@ public class SourceFormatter {
 			String outputFileName = _sourceFormatterArgs.getOutputFileName();
 
 			if (outputFileName != null) {
-				File file = new File(
-					_sourceFormatterArgs.getBaseDirName() + outputFileName);
+				File file = null;
+
+				int pos = outputFileName.lastIndexOf(File.separator);
+
+				if (pos != -1) {
+					File directory = new File(outputFileName.substring(0, pos));
+
+					if (directory.exists()) {
+						file = new File(outputFileName);
+					}
+				}
+
+				if (file == null) {
+					file = new File(
+						_sourceFormatterArgs.getBaseDirName() + outputFileName);
+				}
 
 				FileUtil.write(file, _getOutputFileContent());
 			}
@@ -628,20 +642,38 @@ public class SourceFormatter {
 			}
 		}
 
-		if (!buildPropertiesAdded &&
-			_sourceFormatterArgs.isFormatCurrentBranch()) {
+		if (_sourceFormatterArgs.isFormatCurrentBranch()) {
+			if (!buildPropertiesAdded) {
+				List<String> fileNames = GitUtil.getCurrentBranchFileNames(
+					_sourceFormatterArgs.getBaseDirName(),
+					_sourceFormatterArgs.getGitWorkingBranchName(), true);
 
-			List<String> deletedFileNames = GitUtil.getCurrentBranchFileNames(
-				_sourceFormatterArgs.getBaseDirName(),
-				_sourceFormatterArgs.getGitWorkingBranchName(), true);
+				for (String fileName : fileNames) {
+					if (!buildPropertiesAdded &&
+						fileName.endsWith(".lfrbuild-portal")) {
 
-			for (String deletedFileName : deletedFileNames) {
-				if (deletedFileName.endsWith(".lfrbuild-portal")) {
-					dependentFileNames = _addDependentFileName(
-						dependentFileNames, "build.properties");
+						dependentFileNames = _addDependentFileName(
+							dependentFileNames, "build.properties");
 
-					break;
+						break;
+					}
 				}
+			}
+
+			List<String> deletedFileNames =
+				GitUtil.getCurrentBranchDeletedFileNames(
+					_sourceFormatterArgs.getBaseDirName(),
+					_sourceFormatterArgs.getGitWorkingBranchName());
+
+			if (!deletedFileNames.isEmpty()) {
+				dependentFileNames.addAll(
+					SourceFormatterUtil.filterFileNames(
+						_allFileNames, new String[0],
+						new String[] {
+							"**/source-formatter.properties",
+							"**/source-formatter-suppressions.xml"
+						},
+						_sourceFormatterExcludes, false));
 			}
 		}
 
@@ -1012,6 +1044,14 @@ public class SourceFormatter {
 
 		for (String modulePropertiesFileName : modulePropertiesFileNames) {
 			_readProperties(new File(modulePropertiesFileName));
+		}
+
+		for (Properties properties : _propertiesMap.values()) {
+			if (GetterUtil.getBoolean(properties.get("liferay.source"))) {
+				_portalSource = true;
+
+				break;
+			}
 		}
 
 		if (!_portalSource && _containsDir("modules/private/apps")) {

@@ -82,7 +82,10 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = "site.navigation.menu.item.type=" + SiteNavigationMenuItemTypeConstants.LAYOUT,
+	property = {
+		"service.ranking:Integer=400",
+		"site.navigation.menu.item.type=" + SiteNavigationMenuItemTypeConstants.LAYOUT
+	},
 	service = SiteNavigationMenuItemType.class
 )
 public class LayoutSiteNavigationMenuItemType

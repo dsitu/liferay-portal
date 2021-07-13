@@ -10,7 +10,12 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
+		<field name="dbTableName" type="String" />
 		<field name="name" type="String" />
+		<field name="pkObjectFieldDBColumnName" type="String" />
+		<field name="pkObjectFieldName" type="String" />
+		<field name="system" type="boolean" />
+		<field name="version" type="int" />
 	</model>
 	<model name="com.liferay.object.model.ObjectEntry">
 		<field name="mvccVersion" type="long" />
@@ -39,10 +44,12 @@
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
 		<field name="objectDefinitionId" type="long" />
+		<field name="dbColumnName" type="String" />
 		<field name="indexed" type="boolean" />
 		<field name="indexedAsKeyword" type="boolean" />
 		<field name="indexedLanguageId" type="String" />
 		<field name="name" type="String" />
+		<field name="required" type="boolean" />
 		<field name="type" type="String" />
 	</model>
 	<model name="com.liferay.object.model.ObjectLayout">

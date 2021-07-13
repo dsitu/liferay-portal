@@ -19,11 +19,11 @@ import {
 	RulesUtil,
 	SettingsContext,
 } from 'dynamic-data-mapping-form-builder';
-import sectionAdded from 'dynamic-data-mapping-form-builder/js/components/LayoutProvider/handlers/sectionAddedHandler.es';
 
 import * as FormSupport from '../../utils/FormSupport.es';
 import {PagesVisitor} from '../../utils/visitors.es';
 import {EVENT_TYPES} from '../actions/eventTypes.es';
+import sectionAdded from '../utils/sectionAddedHandler';
 
 export const deleteField = ({
 	clean = false,
@@ -347,7 +347,12 @@ export default (state, action, config) => {
 		}
 		case EVENT_TYPES.FIELD.DUPLICATE: {
 			const {fieldName, parentFieldName} = action.payload;
-			const {availableLanguageIds, defaultLanguageId, pages} = state;
+			const {
+				availableLanguageIds,
+				defaultLanguageId,
+				editingLanguageId,
+				pages,
+			} = state;
 			const {
 				generateFieldNameUsingFieldLabel,
 				getFieldNameGenerator,
@@ -367,6 +372,7 @@ export default (state, action, config) => {
 			const newField = FieldUtil.createDuplicatedField(originalField, {
 				availableLanguageIds,
 				defaultLanguageId,
+				editingLanguageId,
 				fieldNameGenerator,
 				generateFieldNameUsingFieldLabel,
 			});

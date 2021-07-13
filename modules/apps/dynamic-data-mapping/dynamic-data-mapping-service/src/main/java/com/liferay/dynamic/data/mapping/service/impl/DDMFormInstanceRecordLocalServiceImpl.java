@@ -583,11 +583,6 @@ public class DDMFormInstanceRecordLocalServiceImpl
 			else if (formInstanceRecord.getStatus() ==
 						WorkflowConstants.STATUS_APPROVED) {
 
-				updateFormInstanceRecordVersion(
-					user, formInstanceRecordVersion,
-					WorkflowConstants.STATUS_APPROVED,
-					formInstanceRecordVersion.getVersion(), serviceContext);
-
 				formInstanceRecord.setVersion(
 					formInstanceRecordVersion.getVersion());
 
@@ -653,12 +648,14 @@ public class DDMFormInstanceRecordLocalServiceImpl
 				DDMStorageAdapterSaveRequest.Builder.newBuilder(
 					serviceContext.getUserId(),
 					serviceContext.getScopeGroupId(), ddmFormValues
+				).withClassName(
+					DDMStorageLink.class.getName()
+				).withDDMFormInstance(
+					ddmFormInstance
 				).withStructureId(
 					ddmFormInstance.getStructureId()
 				).withUuid(
 					serviceContext.getUuid()
-				).withClassName(
-					DDMStorageLink.class.getName()
 				).build());
 
 		long primaryKey = ddmStorageAdapterSaveResponse.getPrimaryKey();
@@ -909,10 +906,12 @@ public class DDMFormInstanceRecordLocalServiceImpl
 			DDMStorageAdapterSaveRequest.Builder.newBuilder(
 				serviceContext.getUserId(), serviceContext.getScopeGroupId(),
 				ddmFormValues
-			).withStructureId(
-				ddmFormInstance.getStructureId()
+			).withDDMFormInstance(
+				ddmFormInstance
 			).withPrimaryKey(
 				ddmFormInstanceRecordVersion.getStorageId()
+			).withStructureId(
+				ddmFormInstance.getStructureId()
 			).build());
 	}
 

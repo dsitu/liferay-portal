@@ -1,9 +1,9 @@
 definition {
 
-	macro addFullDescriptionViaAlloyEditor {
-		AlloyEditor.typeEditor(
-			content = "${entryFullDescription}",
-			editor = "description");
+	macro addFullDescriptionViaCKEditor {
+		Type.typeCKEditor(
+			locator1 = "CKEditor#BODY_FIELD",
+			value1 = "${entryFullDescription}");
 	}
 
 	macro addNewAccountGroupsEntry {
@@ -139,10 +139,35 @@ definition {
 			value1 = "${entryName}");
 
 		Type(
-			locator1 = "CommerceEntry#CODE_FIELD",
+			key_fieldLabel = "Code",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
 			value1 = "${code}");
 
-		Check.checkToggleSwitch(locator1 = "CommerceEntry#PRIMARY_CHECKBOX");
+		if (isSet(symbol)) {
+			Type(
+				key_fieldLabel = "Symbol",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "${symbol}");
+		}
+
+		if (isSet(formatPattern)) {
+			Type(
+				key_fieldLabel = "Format Pattern",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "${formatPattern}");
+		}
+
+		if (!(isSet(isPrimary)) || "${isPrimary}" == "true") {
+			Check.checkToggleSwitch(locator1 = "CommerceEntry#PRIMARY_CHECKBOX");
+		}
+		else {
+			if (isSet(exchangeRate)) {
+				Type(
+					key_fieldLabel = "Exchange Rate with US Dollar",
+					locator1 = "TextInput#GENERIC_TEXT_INPUT",
+					value1 = "${exchangeRate}");
+			}
+		}
 
 		Check.checkToggleSwitch(locator1 = "CommerceEntry#ACTIVE_CHECKBOX");
 	}
@@ -160,6 +185,8 @@ definition {
 	}
 
 	macro addNewDiscountsEntry {
+		Pause(locator1 = "3000");
+
 		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_IFRAME");
 
 		Type(
@@ -249,6 +276,13 @@ definition {
 		Check.checkToggleSwitch(
 			key_toggleSwitchLabel = "Enabled",
 			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+
+		if (isSet(entryTo)) {
+			Type(
+				key_fieldLabel = "To",
+				locator1 = "TextInput#GENERIC_TEXT_INPUT",
+				value1 = "${entryTo}");
+		}
 
 		Type(
 			locator1 = "CommerceEntry#NOTIFICATION_TEMPLATE_FROM_ADDRESS_FIELD",
@@ -369,7 +403,7 @@ definition {
 			locator1 = "CommerceEntry#SHORT_DESCRIPTION_FIELD",
 			value1 = "${productShortDescription}");
 
-		CommerceEntry.addFullDescriptionViaAlloyEditor(entryFullDescription = "${productFullDescription}");
+		CommerceEntry.addFullDescriptionViaCKEditor(entryFullDescription = "${productFullDescription}");
 	}
 
 	macro AddShippingOptionSettingsVariableRate {
@@ -505,6 +539,7 @@ definition {
 
 	macro checkImageName {
 		echo("number is: ${number} image is: ${image} uploadFileName is: ${uploadFileName}");
+
 		if ("${number}" != "") {
 			AssertElementPresent(
 				key_entry = "Commerce_${image} (${number}).jpg",
@@ -655,7 +690,7 @@ definition {
 	}
 
 	macro editEntryFullDescription {
-		CommerceEntry.addFullDescriptionViaAlloyEditor(entryFullDescription = "${newEntryFullDescription}");
+		CommerceEntry.addFullDescriptionViaCKEditor(entryFullDescription = "${newEntryFullDescription}");
 	}
 
 	macro editEntryName {

@@ -45,6 +45,7 @@ export const Column = forwardRef(
 			children,
 			className,
 			column,
+			columnClassName,
 			index,
 			onClick,
 			onMouseLeave,
@@ -68,7 +69,7 @@ export const Column = forwardRef(
 		return (
 			<ClayLayout.Col
 				{...addr}
-				className="col-ddm"
+				className={classnames('col-ddm', columnClassName)}
 				key={index}
 				md={column.size}
 				onClick={onClick}

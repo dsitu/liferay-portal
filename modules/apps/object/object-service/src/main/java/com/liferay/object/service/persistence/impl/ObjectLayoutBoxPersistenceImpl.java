@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence.impl;
 
-import com.liferay.object.exception.NoSuchLayoutBoxException;
+import com.liferay.object.exception.NoSuchObjectLayoutBoxException;
 import com.liferay.object.model.ObjectLayoutBox;
 import com.liferay.object.model.ObjectLayoutBoxTable;
 import com.liferay.object.model.impl.ObjectLayoutBoxImpl;
@@ -281,12 +281,12 @@ public class ObjectLayoutBoxPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	@Override
 	public ObjectLayoutBox findByUuid_First(
 			String uuid, OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		ObjectLayoutBox objectLayoutBox = fetchByUuid_First(
 			uuid, orderByComparator);
@@ -304,7 +304,7 @@ public class ObjectLayoutBoxPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutBoxException(sb.toString());
+		throw new NoSuchObjectLayoutBoxException(sb.toString());
 	}
 
 	/**
@@ -333,12 +333,12 @@ public class ObjectLayoutBoxPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	@Override
 	public ObjectLayoutBox findByUuid_Last(
 			String uuid, OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		ObjectLayoutBox objectLayoutBox = fetchByUuid_Last(
 			uuid, orderByComparator);
@@ -356,7 +356,7 @@ public class ObjectLayoutBoxPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutBoxException(sb.toString());
+		throw new NoSuchObjectLayoutBoxException(sb.toString());
 	}
 
 	/**
@@ -393,13 +393,13 @@ public class ObjectLayoutBoxPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutBox[] findByUuid_PrevAndNext(
 			long objectLayoutBoxId, String uuid,
 			OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -831,13 +831,13 @@ public class ObjectLayoutBoxPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	@Override
 	public ObjectLayoutBox findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		ObjectLayoutBox objectLayoutBox = fetchByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -858,7 +858,7 @@ public class ObjectLayoutBoxPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutBoxException(sb.toString());
+		throw new NoSuchObjectLayoutBoxException(sb.toString());
 	}
 
 	/**
@@ -891,13 +891,13 @@ public class ObjectLayoutBoxPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	@Override
 	public ObjectLayoutBox findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		ObjectLayoutBox objectLayoutBox = fetchByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -918,7 +918,7 @@ public class ObjectLayoutBoxPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutBoxException(sb.toString());
+		throw new NoSuchObjectLayoutBoxException(sb.toString());
 	}
 
 	/**
@@ -958,13 +958,13 @@ public class ObjectLayoutBoxPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutBox[] findByUuid_C_PrevAndNext(
 			long objectLayoutBoxId, String uuid, long companyId,
 			OrderByComparator<ObjectLayoutBox> orderByComparator)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -1329,11 +1329,11 @@ public class ObjectLayoutBoxPersistenceImpl
 	 *
 	 * @param objectLayoutBoxId the primary key of the object layout box
 	 * @return the object layout box that was removed
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutBox remove(long objectLayoutBoxId)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		return remove((Serializable)objectLayoutBoxId);
 	}
@@ -1343,11 +1343,11 @@ public class ObjectLayoutBoxPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object layout box
 	 * @return the object layout box that was removed
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutBox remove(Serializable primaryKey)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		Session session = null;
 
@@ -1362,13 +1362,13 @@ public class ObjectLayoutBoxPersistenceImpl
 					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
-				throw new NoSuchLayoutBoxException(
+				throw new NoSuchObjectLayoutBoxException(
 					_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			return remove(objectLayoutBox);
 		}
-		catch (NoSuchLayoutBoxException noSuchEntityException) {
+		catch (NoSuchObjectLayoutBoxException noSuchEntityException) {
 			throw noSuchEntityException;
 		}
 		catch (Exception exception) {
@@ -1502,11 +1502,11 @@ public class ObjectLayoutBoxPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object layout box
 	 * @return the object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutBox findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		ObjectLayoutBox objectLayoutBox = fetchByPrimaryKey(primaryKey);
 
@@ -1515,7 +1515,7 @@ public class ObjectLayoutBoxPersistenceImpl
 				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			throw new NoSuchLayoutBoxException(
+			throw new NoSuchObjectLayoutBoxException(
 				_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 		}
 
@@ -1523,15 +1523,15 @@ public class ObjectLayoutBoxPersistenceImpl
 	}
 
 	/**
-	 * Returns the object layout box with the primary key or throws a <code>NoSuchLayoutBoxException</code> if it could not be found.
+	 * Returns the object layout box with the primary key or throws a <code>NoSuchObjectLayoutBoxException</code> if it could not be found.
 	 *
 	 * @param objectLayoutBoxId the primary key of the object layout box
 	 * @return the object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutBox findByPrimaryKey(long objectLayoutBoxId)
-		throws NoSuchLayoutBoxException {
+		throws NoSuchObjectLayoutBoxException {
 
 		return findByPrimaryKey((Serializable)objectLayoutBoxId);
 	}

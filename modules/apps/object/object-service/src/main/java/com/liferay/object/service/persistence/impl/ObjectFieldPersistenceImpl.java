@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence.impl;
 
-import com.liferay.object.exception.NoSuchFieldException;
+import com.liferay.object.exception.NoSuchObjectFieldException;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFieldTable;
 import com.liferay.object.model.impl.ObjectFieldImpl;
@@ -282,12 +282,12 @@ public class ObjectFieldPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	@Override
 	public ObjectField findByUuid_First(
 			String uuid, OrderByComparator<ObjectField> orderByComparator)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = fetchByUuid_First(uuid, orderByComparator);
 
@@ -304,7 +304,7 @@ public class ObjectFieldPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFieldException(sb.toString());
+		throw new NoSuchObjectFieldException(sb.toString());
 	}
 
 	/**
@@ -333,12 +333,12 @@ public class ObjectFieldPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	@Override
 	public ObjectField findByUuid_Last(
 			String uuid, OrderByComparator<ObjectField> orderByComparator)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = fetchByUuid_Last(uuid, orderByComparator);
 
@@ -355,7 +355,7 @@ public class ObjectFieldPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFieldException(sb.toString());
+		throw new NoSuchObjectFieldException(sb.toString());
 	}
 
 	/**
@@ -392,13 +392,13 @@ public class ObjectFieldPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	@Override
 	public ObjectField[] findByUuid_PrevAndNext(
 			long objectFieldId, String uuid,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -828,13 +828,13 @@ public class ObjectFieldPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	@Override
 	public ObjectField findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = fetchByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -855,7 +855,7 @@ public class ObjectFieldPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFieldException(sb.toString());
+		throw new NoSuchObjectFieldException(sb.toString());
 	}
 
 	/**
@@ -888,13 +888,13 @@ public class ObjectFieldPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	@Override
 	public ObjectField findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = fetchByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -915,7 +915,7 @@ public class ObjectFieldPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFieldException(sb.toString());
+		throw new NoSuchObjectFieldException(sb.toString());
 	}
 
 	/**
@@ -955,13 +955,13 @@ public class ObjectFieldPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	@Override
 	public ObjectField[] findByUuid_C_PrevAndNext(
 			long objectFieldId, String uuid, long companyId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -1386,13 +1386,13 @@ public class ObjectFieldPersistenceImpl
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	@Override
 	public ObjectField findByObjectDefinitionId_First(
 			long objectDefinitionId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = fetchByObjectDefinitionId_First(
 			objectDefinitionId, orderByComparator);
@@ -1410,7 +1410,7 @@ public class ObjectFieldPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFieldException(sb.toString());
+		throw new NoSuchObjectFieldException(sb.toString());
 	}
 
 	/**
@@ -1441,13 +1441,13 @@ public class ObjectFieldPersistenceImpl
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	@Override
 	public ObjectField findByObjectDefinitionId_Last(
 			long objectDefinitionId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = fetchByObjectDefinitionId_Last(
 			objectDefinitionId, orderByComparator);
@@ -1465,7 +1465,7 @@ public class ObjectFieldPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFieldException(sb.toString());
+		throw new NoSuchObjectFieldException(sb.toString());
 	}
 
 	/**
@@ -1503,13 +1503,13 @@ public class ObjectFieldPersistenceImpl
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	@Override
 	public ObjectField[] findByObjectDefinitionId_PrevAndNext(
 			long objectFieldId, long objectDefinitionId,
 			OrderByComparator<ObjectField> orderByComparator)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = findByPrimaryKey(objectFieldId);
 
@@ -1721,16 +1721,16 @@ public class ObjectFieldPersistenceImpl
 	private FinderPath _finderPathCountByODI_N;
 
 	/**
-	 * Returns the object field where objectDefinitionId = &#63; and name = &#63; or throws a <code>NoSuchFieldException</code> if it could not be found.
+	 * Returns the object field where objectDefinitionId = &#63; and name = &#63; or throws a <code>NoSuchObjectFieldException</code> if it could not be found.
 	 *
 	 * @param objectDefinitionId the object definition ID
 	 * @param name the name
 	 * @return the matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	@Override
 	public ObjectField findByODI_N(long objectDefinitionId, String name)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = fetchByODI_N(objectDefinitionId, name);
 
@@ -1751,7 +1751,7 @@ public class ObjectFieldPersistenceImpl
 				_log.debug(sb.toString());
 			}
 
-			throw new NoSuchFieldException(sb.toString());
+			throw new NoSuchObjectFieldException(sb.toString());
 		}
 
 		return objectField;
@@ -1898,7 +1898,7 @@ public class ObjectFieldPersistenceImpl
 	 */
 	@Override
 	public ObjectField removeByODI_N(long objectDefinitionId, String name)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = findByODI_N(objectDefinitionId, name);
 
@@ -2114,10 +2114,12 @@ public class ObjectFieldPersistenceImpl
 	 *
 	 * @param objectFieldId the primary key of the object field
 	 * @return the object field that was removed
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	@Override
-	public ObjectField remove(long objectFieldId) throws NoSuchFieldException {
+	public ObjectField remove(long objectFieldId)
+		throws NoSuchObjectFieldException {
+
 		return remove((Serializable)objectFieldId);
 	}
 
@@ -2126,11 +2128,11 @@ public class ObjectFieldPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object field
 	 * @return the object field that was removed
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	@Override
 	public ObjectField remove(Serializable primaryKey)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		Session session = null;
 
@@ -2145,13 +2147,13 @@ public class ObjectFieldPersistenceImpl
 					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
-				throw new NoSuchFieldException(
+				throw new NoSuchObjectFieldException(
 					_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			return remove(objectField);
 		}
-		catch (NoSuchFieldException noSuchEntityException) {
+		catch (NoSuchObjectFieldException noSuchEntityException) {
 			throw noSuchEntityException;
 		}
 		catch (Exception exception) {
@@ -2283,11 +2285,11 @@ public class ObjectFieldPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object field
 	 * @return the object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	@Override
 	public ObjectField findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		ObjectField objectField = fetchByPrimaryKey(primaryKey);
 
@@ -2296,7 +2298,7 @@ public class ObjectFieldPersistenceImpl
 				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			throw new NoSuchFieldException(
+			throw new NoSuchObjectFieldException(
 				_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 		}
 
@@ -2304,15 +2306,15 @@ public class ObjectFieldPersistenceImpl
 	}
 
 	/**
-	 * Returns the object field with the primary key or throws a <code>NoSuchFieldException</code> if it could not be found.
+	 * Returns the object field with the primary key or throws a <code>NoSuchObjectFieldException</code> if it could not be found.
 	 *
 	 * @param objectFieldId the primary key of the object field
 	 * @return the object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	@Override
 	public ObjectField findByPrimaryKey(long objectFieldId)
-		throws NoSuchFieldException {
+		throws NoSuchObjectFieldException {
 
 		return findByPrimaryKey((Serializable)objectFieldId);
 	}

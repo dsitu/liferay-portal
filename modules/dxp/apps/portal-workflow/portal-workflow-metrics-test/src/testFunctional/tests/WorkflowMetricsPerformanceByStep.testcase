@@ -1,0 +1,591 @@
+@component-name = "portal-workflow"
+definition {
+
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property test.run.environment = "EE";
+	property testray.main.component.name = "Workflow Metrics";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		User.firstLoginPG();
+
+		Navigator.openURL();
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Workflow",
+			panel = "Applications",
+			portlet = "Metrics");
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+	}
+
+	@description = "LPS-100674 - Verify that the user can not insert a future date"
+	@priority = "2"
+	test CannotInsertFutureDate {
+		property portal.upstream = "quarantine";
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		var displayDateYear = DateUtil.getCurrentYear();
+		var displayDateYear = ${displayDateYear} + 1;
+
+		WorkflowMetrics.selectDateRange(
+			completionVelocityDateRange = "Custom Range",
+			dateRange = "Last 30 Days",
+			endDateRange = "01/01/${displayDateYear}",
+			startDateRange = "02/01/2021",
+			title = "Performance by Step");
+
+		WorkflowMetrics.viewDateRangeErrorMessage(errorMessage = "Please enter a valid date.");
+	}
+
+	@description = "LPS-100674 - Verify that the card Performance by Step has no more than 10 entries displayed"
+	@ignore = "Test Stub"
+	@priority = "3"
+	test CardDoesNotDisplayMoreThan10Entries {
+
+		// TODO LRQA-67674 CardDoesNotDisplayMoreThan10Entries pending implementation
+
+	}
+
+	@description = "LPS-100674 - Verify that the card Performance by Steps works as designed when the portal is set to a non-en-US locale"
+	@priority = "3"
+	test CardWorksAsDesignedWhenPortalIsSetToNonEnUsLocale {
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetrics#METRICS_PERFORMANCE_TAB");
+
+		WorkflowMetrics.assertChartTotalValuePerformanceByStep(
+			avgCompletionTime = "0min",
+			rowName = "Review",
+			slaBreachedValue = "0 (0%)");
+
+		User.openUsersAdmin();
+
+		User.editDisplaySettingsCP(
+			languageName = "español (España)",
+			userScreenName = "Test Test");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Flujo de trabajo",
+			panel = "Aplicaciones",
+			portlet = "Métricas");
+
+		Click(
+			key_workflowProcessName = "Aprobador único",
+			locator1 = "WorkflowMetrics#METRICS_WORKFLOW_PROCESS_NAME");
+
+		Navigator.gotoNavItem(navItem = "Eficiencia");
+
+		WorkflowMetrics.assertChartTotalValuePerformanceByStep(
+			avgCompletionTime = "0min",
+			rowName = "Revisión",
+			slaBreachedValue = "0 (0%)");
+
+		WorkflowMetrics.assertChartTotalValuePerformanceByStep(
+			avgCompletionTime = "0min",
+			rowName = "Modificar",
+			slaBreachedValue = "0 (0%)");
+
+		Click(
+			key_viewStepsNumber = "Ver todos los pasos (2)",
+			locator1 = "WorkflowMetricsPerformanceByStep#METRICS_PERFORMANCE_BY_STEP_CARD_VIEW_ALL_STEPS_TRANSLATION");
+
+		AssertElementPresent(
+			key_value = "Aprobador único: Rendimiento por paso",
+			locator1 = "WorkflowAllItems#WORKFLOW_HEADER_TITLE");
+	}
+
+	@description = "LPS-100674 - Verify that the default date format for en-US in Custom Range filter is MM/DD/YYYY"
+	@priority = "3"
+	test DefaultDateFormatIsMMDDYYYY {
+		property portal.upstream = "quarantine";
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		Click(
+			key_title = "Performance by Step",
+			locator1 = "WorkflowMetrics#METRICS_DATE_RANGE_DROPDOWN_BY_TITLE");
+
+		Click(
+			completionVelocityDateRange = "Custom Range",
+			locator1 = "WorkflowMetrics#METRICS_COMPLETION_VELOCITY_DATE_RANGE_DROPDOWN_OPTION");
+
+		AssertElementPresent(
+			key_dateFormat = "Default date format is MM/DD/YYYY.",
+			locator1 = "WorkflowMetricsCompletionVelocity#DEFAULT_DATE_FORMAT_MESSAGE");
+	}
+
+	@description = "LPS-100674 - Verify that when the user selects Last 7 Days time period, the result and filter options displayed in accordance with reference"
+	@priority = "4"
+	test FilterItemsFromLast7Days {
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		key_dateRange = "Last 7 Days";
+
+		Click(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN");
+
+		AssertElementPresent(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN_OPTION");
+	}
+
+	@description = "LPS-100674 - Verify that when the user selects Last 90 Days time period the result and filter options displayed in accordance with reference"
+	@priority = "4"
+	test FilterItemsFromLast90Days {
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		key_dateRange = "Last 90 Days";
+
+		Click(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN");
+
+		AssertElementPresent(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN_OPTION");
+	}
+
+	@description = "LPS-100674 - Verify that when the user selects Last 180 Days time period the result and filter options are displayed in accordance with reference"
+	@priority = "4"
+	test FilterItemsFromLast180Days {
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		key_dateRange = "Last 180 Days";
+
+		Click(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN");
+
+		AssertElementPresent(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN_OPTION");
+	}
+
+	@description = "LPS-100674 - Verify that when the user selects Last Year time period the result and filter options displayed in accordance with reference"
+	@priority = "4"
+	test FilterItemsFromLastYear {
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		key_dateRange = "Last Year";
+
+		Click(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN");
+
+		AssertElementPresent(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN_OPTION");
+	}
+
+	@description = "LPS-100674 - Verify that when the user selects Today time period the result and filter options are displayed in accordance with reference"
+	@priority = "4"
+	test FilterItemsFromToday {
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		key_dateRange = "Today";
+
+		Click(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN");
+
+		AssertElementPresent(locator1 = "WorkflowMetricsPerformanceByStep#DATE_RANGE_DROPDOWN_OPTION");
+	}
+
+	@description = "LPS-100679 - Verify that users are able to filter the Performance by Step page by period: Today, Yesterday, Last 7 Days, Last 30 Days, Last 90 Days, Last 180 Days, Last Year, Custom Range"
+	@priority = "3"
+	test FilterPerformanceByStepPagePerTimeRange {
+		property portal.upstream = "quarantine";
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetrics#METRICS_PERFORMANCE_TAB");
+
+		Click(
+			key_stepsNumber = "2",
+			locator1 = "WorkflowMetricsPerformanceByStep#METRICS_PERFORMANCE_BY_STEP_CARD_VIEW_ALL_STEPS");
+
+		WorkflowMetricsPerformanceByStep.selectDateRangeFilter(dateRange = "Today");
+
+		AssertElementPresent(
+			key_allItemsFilterName = "Today",
+			locator1 = "WorkflowAllItems#WORKFLOW_ALL_ITEMS_FILTER_BY");
+
+		WorkflowMetricsPerformanceByStep.selectDateRangeFilter(dateRange = "Yesterday");
+
+		AssertElementPresent(
+			key_allItemsFilterName = "Yesterday",
+			locator1 = "WorkflowAllItems#WORKFLOW_ALL_ITEMS_FILTER_BY");
+
+		WorkflowMetricsPerformanceByStep.selectDateRangeFilter(dateRange = "Last 7 Days");
+
+		AssertElementPresent(
+			key_allItemsFilterName = "Last 7 Days",
+			locator1 = "WorkflowAllItems#WORKFLOW_ALL_ITEMS_FILTER_BY");
+
+		WorkflowMetricsPerformanceByStep.selectDateRangeFilter(dateRange = "Last 30 Days");
+
+		AssertElementPresent(
+			key_allItemsFilterName = "Last 30 Days",
+			locator1 = "WorkflowAllItems#WORKFLOW_ALL_ITEMS_FILTER_BY");
+
+		WorkflowMetricsPerformanceByStep.selectDateRangeFilter(dateRange = "Last 90 Days");
+
+		AssertElementPresent(
+			key_allItemsFilterName = "Last 90 Days",
+			locator1 = "WorkflowAllItems#WORKFLOW_ALL_ITEMS_FILTER_BY");
+
+		WorkflowMetricsPerformanceByStep.selectDateRangeFilter(dateRange = "Last 180 Days");
+
+		AssertElementPresent(
+			key_allItemsFilterName = "Last 180 Days",
+			locator1 = "WorkflowAllItems#WORKFLOW_ALL_ITEMS_FILTER_BY");
+
+		WorkflowMetricsPerformanceByStep.selectDateRangeFilter(dateRange = "Last Year");
+
+		AssertElementPresent(
+			key_allItemsFilterName = "Last Year",
+			locator1 = "WorkflowAllItems#WORKFLOW_ALL_ITEMS_FILTER_BY");
+
+		WorkflowMetrics.selectDateRange(
+			completionVelocityDateRange = "Custom Range",
+			dateRange = "Last Year",
+			endDateRange = "06/15/2021",
+			startDateRange = "06/14/2021",
+			title = "");
+
+		AssertElementPresent(
+			key_allItemsFilterName = "Jun 14, 2021 - Jun 15, 2021",
+			locator1 = "WorkflowAllItems#WORKFLOW_ALL_ITEMS_FILTER_BY");
+	}
+
+	@description = "LPS-100674 - Verify that the fields From and To are required"
+	@priority = "3"
+	test FromAndToAreRequiredFields {
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		WorkflowMetrics.viewPerformanceByStepFromAndToAreRequiredFields(
+			completionVelocityDateRange = "Custom Range",
+			endDateRange = " ",
+			startDateRange = " ");
+	}
+
+	@description = "LPS-100674 - Verify that hovering the info icon next to Performance by Step card will display a tooltip"
+	@priority = "2"
+	test InfoIconDisplaysMessageOnHover {
+		property portal.upstream = "quarantine";
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		WorkflowMetricsProcessListView.assertTooltipMessage(
+			sectionName = "Performance by Step",
+			tooltipMessage = "View the average completion time and percentage of SLA breaches over the selected time period for each step of the workflow process");
+	}
+
+	@description = "LPS-100674 - Verify that at the custom range modal, the oldest date accepted is 1970"
+	@priority = "2"
+	test OldestDataAcceptedIs1970 {
+		property portal.upstream = "quarantine";
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		WorkflowMetrics.selectDateRange(
+			completionVelocityDateRange = "Custom Range",
+			dateRange = "Last 30 Days",
+			endDateRange = "06/22/2021",
+			startDateRange = "01/01/1969",
+			title = "Performance by Step");
+
+		WorkflowMetrics.viewDateRangeErrorMessage(errorMessage = "The date cannot be earlier than 1970.");
+
+		Refresh();
+
+		WorkflowMetrics.selectDateRange(
+			completionVelocityDateRange = "Custom Range",
+			dateRange = "Last 30 Days",
+			endDateRange = "06/22/2021",
+			startDateRange = "01/01/1970",
+			title = "Performance by Step");
+
+		AssertElementPresent(
+			completionVelocityDateRange = "Jan 01, 1970 - Jun 22, 2021",
+			locator1 = "WorkflowMetrics#METRICS_COMPLETION_VELOCITY_DATE_RANGE_DROPDOWN_OPTION");
+	}
+
+	@description = "LPS-100678 - Verify that the Performance by Step page displays the specific error state when there is an unexpected error"
+	@ignore = "Test Stub"
+	@priority = "3"
+	test PageDisplaysSpecificErrorStateOnUnexpectedError {
+
+		// TODO LRQA-67669 PageDisplaysSpecificErrorStateOnUnexpectedError pending implementation
+
+	}
+
+	@description = "LPS-100677 - Verify the page is providing loading feedback when the table is being updated according to the search queries"
+	@ignore = "Test Stub"
+	@priority = "2"
+	test PageProvidesLoadingFeedbackOnTableUpdate {
+
+		// TODO LRQA-67670 PageProvidesLoadingFeedbackOnTableUpdate pending implementation
+
+	}
+
+	@description = "LPS-100677 - Verify that the search is an approximate match aka LIKE search type or character by character comparison"
+	@priority = "3"
+	test SearchIsAnApproximateMatch {
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetrics#METRICS_PERFORMANCE_TAB");
+
+		Click(
+			key_stepsNumber = "2",
+			locator1 = "WorkflowMetricsPerformanceByStep#METRICS_PERFORMANCE_BY_STEP_CARD_VIEW_ALL_STEPS");
+
+		WorkflowMetricsPerformanceByStep.searchForStep(stepName = "view");
+
+		WorkflowMetricsPerformanceByStep.viewPerformanceByStepValues(
+			avgCompletionTimeValue = "0min",
+			isNotPresent = "Update",
+			slaBreachedValue = "0 (0%)",
+			stepName = "Review");
+
+		WorkflowMetricsPerformanceByStep.searchForStep(stepName = "date");
+
+		WorkflowMetricsPerformanceByStep.viewPerformanceByStepValues(
+			avgCompletionTimeValue = "0min",
+			isNotPresent = "Review",
+			slaBreachedValue = "0 (0%)",
+			stepName = "Update");
+	}
+
+	@description = "LPS-97667 - Verify that when there are tasks with average time smaller than 1 minute the average completion time is displayed"
+	@priority = "4"
+	test TasksWithAverageTimeSmallerThan1MinAreDisplayed {
+		WorkflowMetrics.goToWorkflowSLASettings(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetricsSLA#ADD_NEW_SLA_BUTTON");
+
+		WorkflowMetrics.fillSLAForm(
+			slaDefinitionDays = "1",
+			slaDefinitionDescription = "SLA Description",
+			slaDefinitionEnd = "Process Ends: Approved",
+			slaDefinitionHours = "0000",
+			slaDefinitionName = "Test SLA",
+			slaDefinitionStart = "Process Begins");
+
+		Button.clickSave();
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Workflow",
+			panel = "Applications",
+			portlet = "Process Builder");
+
+		Navigator.gotoNavItem(navItem = "Configuration");
+
+		Workflow.configureWorkflow(
+			workflowDefinition = "Single Approver",
+			workflowResourceValue = "Blogs Entry");
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title 1");
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title 2");
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title 3");
+
+		UserBar.gotoDropdownItem(dropdownItem = "My Workflow Tasks");
+
+		Workflow.assignToMeTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title 1",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		Workflow.approveTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title 1",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		Workflow.assignToMeTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title 2",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		Workflow.approveTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title 2",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		Workflow.assignToMeTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title 3",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		Workflow.approveTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title 3",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetrics#METRICS_PERFORMANCE_TAB");
+
+		AssertElementPresent(
+			key_stepName = "Review",
+			locator1 = "WorkflowMetricsPerformanceByStep#METRICS_PERFORMANCE_BY_STEP_PAGE_TABLE_AVG_COMPLETION_TIME_VALUE",
+			value1 = "1min");
+	}
+
+	@description = "LPS-100674 - Verify that the To date is greater than the From date"
+	@priority = "3"
+	test ToDateMustBeGreaterThanFromDate {
+		property portal.upstream = "quarantine";
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		WorkflowMetrics.selectDateRange(
+			completionVelocityDateRange = "Custom Range",
+			dateRange = "Last 30 Days",
+			endDateRange = "01/01/2021",
+			startDateRange = "02/01/2021",
+			title = "Performance by Step");
+
+		WorkflowMetrics.viewDateRangeErrorMessage(errorMessage = "The start date cannot be later than the end date.");
+
+		WorkflowMetrics.viewDateRangeErrorMessage(errorMessage = "The end date cannot be earlier than the start date.");
+	}
+
+	@description = "LPS-100677 - Verify that searching steps containing non-ascii chars is possible"
+	@priority = "3"
+	test UserCanSearchNonAsciiChars {
+		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "WorkflowMetricsPerformanceByStep#UserCanSearchNonAsciiChars";
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Workflow",
+			panel = "Applications",
+			portlet = "Process Builder");
+
+		Workflow.uploadDefinition(
+			workflowDefinitionFile = "11_transitions_update.xml",
+			workflowDefinitionTitle = "11 Transitions Update");
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "11 Transitions Update");
+
+		Click(locator1 = "WorkflowMetrics#METRICS_PERFORMANCE_TAB");
+
+		Click(
+			key_stepsNumber = "11",
+			locator1 = "WorkflowMetricsPerformanceByStep#METRICS_PERFORMANCE_BY_STEP_CARD_VIEW_ALL_STEPS");
+
+		WorkflowMetricsPerformanceByStep.searchForStep(stepName = "新");
+
+		AssertElementPresent(
+			key_stepName = "更新",
+			locator1 = "WorkflowMetricsPerformanceByStep#METRICS_PERFORMANCE_BY_STEP_PAGE_TABLE_STEP_NAME");
+	}
+
+	@description = "LPS-100674 - Verify that the card Performance by Step, when it has 6 or more entries, the table should provide a vertical scroll"
+	@ignore = "Test Stub"
+	@priority = "2"
+	test WhenCard6OrMoreEntriesTableProvideVerticalScroll {
+
+		// TODO LRQA-67679 WhenCard6OrMoreEntriesTableProvideVerticalScroll pending implementation
+
+	}
+
+	@description = "LPS-100674 - Verify that the card Performance by Step, when it has 5 or fewer entries, the table should not scroll"
+	@ignore = "Test Stub"
+	@priority = "2"
+	test WhenCardHasUpTo5EntriesTableDoNotScroll {
+
+		// TODO LRQA-67677 WhenCardHasUpTo5EntriesTableDoNotScroll pending implementation
+
+	}
+
+	@description = "LPS-100674 - Verify that when an SLA is deleted, the data in Performance by Step is still part of the average calculation"
+	@priority = "4"
+	test WhenSlaIsDeletedDataInCardIsStillPartOfTheCalculation {
+		WorkflowMetrics.goToWorkflowSLASettings(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetricsSLA#ADD_NEW_SLA_BUTTON");
+
+		WorkflowMetrics.fillSLAForm(
+			slaDefinitionDays = "0",
+			slaDefinitionDescription = "SLA Description",
+			slaDefinitionEnd = "Process Ends: Approved",
+			slaDefinitionHours = "00:01",
+			slaDefinitionName = "Test",
+			slaDefinitionStart = "Process Begins");
+
+		Button.clickSave();
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Workflow",
+			panel = "Applications",
+			portlet = "Process Builder");
+
+		Navigator.gotoNavItem(navItem = "Configuration");
+
+		Workflow.configureWorkflow(
+			workflowDefinition = "Single Approver",
+			workflowResourceValue = "Blogs Entry");
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry",
+			entryTitle = "Blogs Entry Title");
+
+		UserBar.gotoDropdownItem(dropdownItem = "My Workflow Tasks");
+
+		Workflow.assignToMeTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		Workflow.approveTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		WorkflowMetrics.assertChartTotalValuePerformanceByStep(
+			avgCompletionTime = "1min",
+			rowName = "Review",
+			slaBreachedValue = "0 (0%)");
+
+		WorkflowMetrics.goToWorkflowSLASettings(workflowProcessName = "Single Approver");
+
+		WorkflowMetrics.goToDeleteSLA(slaName = "Test");
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Navigator.gotoNavItem(navItem = "Performance");
+
+		WorkflowMetrics.assertChartTotalValuePerformanceByStep(
+			avgCompletionTime = "1min",
+			rowName = "Review",
+			slaBreachedValue = "0 (0%)");
+	}
+
+}

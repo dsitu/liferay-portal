@@ -24,15 +24,14 @@ import com.liferay.asset.list.web.internal.constants.AssetListWebKeys;
 import com.liferay.asset.list.web.internal.display.context.AssetListDisplayContext;
 import com.liferay.asset.list.web.internal.display.context.AssetListItemsDisplayContext;
 import com.liferay.asset.list.web.internal.display.context.EditAssetListDisplayContext;
-import com.liferay.asset.list.web.internal.display.context.InfoListProviderDisplayContext;
-import com.liferay.asset.list.web.internal.display.context.InfoListProviderItemsDisplayContext;
+import com.liferay.asset.list.web.internal.display.context.InfoCollectionProviderDisplayContext;
+import com.liferay.asset.list.web.internal.display.context.InfoCollectionProviderItemsDisplayContext;
 import com.liferay.asset.list.web.internal.servlet.taglib.util.ListItemsActionDropdownItems;
 import com.liferay.asset.util.AssetRendererFactoryClassProvider;
 import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.dynamic.data.mapping.util.DDMIndexer;
 import com.liferay.info.display.url.provider.InfoEditURLProviderTracker;
 import com.liferay.info.item.InfoItemServiceTracker;
-import com.liferay.info.list.provider.InfoListProviderTracker;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.util.Portal;
@@ -102,13 +101,12 @@ public class AssetListPortlet extends MVCPortlet {
 				_getUnicodeProperties(assetListDisplayContext)));
 
 		renderRequest.setAttribute(
-			AssetListWebKeys.INFO_LIST_PROVIDER_DISPLAY_CONTEXT,
-			new InfoListProviderDisplayContext(
-				_infoItemServiceTracker, _infoListProviderTracker,
-				renderRequest, renderResponse));
+			AssetListWebKeys.INFO_COLLECTION_PROVIDER_DISPLAY_CONTEXT,
+			new InfoCollectionProviderDisplayContext(
+				_infoItemServiceTracker, renderRequest, renderResponse));
 		renderRequest.setAttribute(
-			AssetListWebKeys.INFO_LIST_PROVIDER_ITEMS_DISPLAY_CONTEXT,
-			new InfoListProviderItemsDisplayContext(
+			AssetListWebKeys.INFO_COLLECTION_PROVIDER_ITEMS_DISPLAY_CONTEXT,
+			new InfoCollectionProviderItemsDisplayContext(
 				_infoItemServiceTracker, renderRequest, renderResponse));
 		renderRequest.setAttribute(
 			AssetListWebKeys.LIST_ITEMS_ACTION_DROPDOWN_ITEMS,
@@ -176,9 +174,6 @@ public class AssetListPortlet extends MVCPortlet {
 
 	@Reference
 	private InfoItemServiceTracker _infoItemServiceTracker;
-
-	@Reference
-	private InfoListProviderTracker _infoListProviderTracker;
 
 	@Reference
 	private ItemSelector _itemSelector;

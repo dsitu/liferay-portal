@@ -36,7 +36,7 @@ PortletURL permissionsAllURL = PortletURLBuilder.createRenderURL(
 ).setTabs2(
 	"roles"
 ).setParameter(
-	"roleId", String.valueOf(role.getRoleId())
+	"roleId", role.getRoleId()
 ).build();
 
 List<String> headerNames = new ArrayList<String>();
@@ -180,13 +180,13 @@ for (int i = 0; i < results.size(); i++) {
 	).setCMD(
 		Constants.EDIT
 	).setRedirect(
-		permissionsAllURL.toString()
+		permissionsAllURL
+	).setPortletResource(
+		curPortletName
 	).setTabs1(
 		"define-permissions"
 	).setTabs2(
 		"roles"
-	).setParameter(
-		"portletResource", curPortletName
 	).setParameter(
 		"roleId", role.getRoleId()
 	).build();

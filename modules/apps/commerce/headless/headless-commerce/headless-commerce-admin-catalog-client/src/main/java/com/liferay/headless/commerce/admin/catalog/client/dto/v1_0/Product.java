@@ -206,6 +206,27 @@ public class Product implements Cloneable, Serializable {
 
 	protected Date createDate;
 
+	public CustomField[] getCustomFields() {
+		return customFields;
+	}
+
+	public void setCustomFields(CustomField[] customFields) {
+		this.customFields = customFields;
+	}
+
+	public void setCustomFields(
+		UnsafeSupplier<CustomField[], Exception> customFieldsUnsafeSupplier) {
+
+		try {
+			customFields = customFieldsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected CustomField[] customFields;
+
 	public String getDefaultSku() {
 		return defaultSku;
 	}
@@ -501,6 +522,55 @@ public class Product implements Cloneable, Serializable {
 	}
 
 	protected Boolean neverExpire;
+
+	public Boolean getProductAccountGroupFilter() {
+		return productAccountGroupFilter;
+	}
+
+	public void setProductAccountGroupFilter(
+		Boolean productAccountGroupFilter) {
+
+		this.productAccountGroupFilter = productAccountGroupFilter;
+	}
+
+	public void setProductAccountGroupFilter(
+		UnsafeSupplier<Boolean, Exception>
+			productAccountGroupFilterUnsafeSupplier) {
+
+		try {
+			productAccountGroupFilter =
+				productAccountGroupFilterUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean productAccountGroupFilter;
+
+	public ProductAccountGroup[] getProductAccountGroups() {
+		return productAccountGroups;
+	}
+
+	public void setProductAccountGroups(
+		ProductAccountGroup[] productAccountGroups) {
+
+		this.productAccountGroups = productAccountGroups;
+	}
+
+	public void setProductAccountGroups(
+		UnsafeSupplier<ProductAccountGroup[], Exception>
+			productAccountGroupsUnsafeSupplier) {
+
+		try {
+			productAccountGroups = productAccountGroupsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected ProductAccountGroup[] productAccountGroups;
 
 	public Boolean getProductChannelFilter() {
 		return productChannelFilter;

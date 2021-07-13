@@ -78,7 +78,7 @@ ClickToChatConfiguration clickToChatConfiguration = (ClickToChatConfiguration)re
 
 			<div class="hide mb-2" id="<portlet:namespace />clickToChatChatProviderLearnMessage<%= clickToChatChatProviderId %>">
 				<liferay-learn:message
-					key='<%= "chat-provider-account-id-help-" + clickToChatChatProviderId %>'
+					key='<%= "chat-provider-account-id-" + clickToChatChatProviderId %>'
 					resource="click-to-chat-web"
 				/>
 			</div>

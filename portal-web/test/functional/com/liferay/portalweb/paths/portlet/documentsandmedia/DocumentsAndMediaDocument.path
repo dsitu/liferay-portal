@@ -2,11 +2,13 @@
 <head>
 <title>DocumentsAndMediaDocument</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">DocumentsAndMediaDocument</td></tr>
 </thead>
+
 <tbody>
 <tr>
 	<td>DOCUMENT_VIEW_VERSION_NUMBER</td>
@@ -32,6 +34,11 @@
 <tr>
 	<td>CUSTOM_FIELD_IMAGE_PREVIEW</td>
 	<td>//label[normalize-space(text())='${key_fieldFieldLabel}']//following-sibling::div[contains(@class,'image-picker-preview')]//img[contains(@src,'${key_image}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CUSTOM_FIELD_LOCALIZATION_DROPDOWN_TOGGLE</td>
+	<td>//div[@class='dropdown']//button[contains(@class,'dropdown-toggle')]//*[name()='svg'][contains(@class,'lexicon-icon-${key_currentLocale}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -303,11 +310,6 @@
 </tr>
 <!--METADATA_PANEL-->
 <tr>
-	<td>METADATA_PANEL_BOOLEAN</td>
-	<td>//div[@class='lfr-ddm-container']/div[contains(.,'${key_booleanValue}')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>METADATA_PANEL_DATE</td>
 	<td>//label[normalize-space(text())='${key_fieldFieldLabel}']//following-sibling::div[contains(@class,'date-picker')]//input[@type='text']</td>
 	<td></td>
@@ -351,7 +353,7 @@
 <!--VIDEO_GENERATION-->
 <tr>
 	<td>VIDEO_GENERATION_INFO</td>
-	<td>//div[contains(@class,'video-embed-placeholder-text')]</td>
+	<td>//div[contains(@class,'video-embed-placeholder-text') and contains(.,'${key_text}')]</td>
 	<td></td>
 </tr>
 <tr>

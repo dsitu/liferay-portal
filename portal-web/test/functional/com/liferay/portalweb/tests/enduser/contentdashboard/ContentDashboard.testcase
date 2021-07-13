@@ -38,6 +38,46 @@ definition {
 		}
 	}
 
+	@description = "LPS-114911 When the user selects vocabularies from the selection panel, vocabularies selected show in the table as headers and categories assigned to contents will show "
+	@priority = "5"
+	test CategorieShowInTable {
+		property portal.acceptance = "true";
+
+		task ("Adding vocabulary and category") {
+			JSONCategory.addVocabulary(
+				groupName = "Test Site Name",
+				title = "Vocabulary Name");
+
+			var categoryId = JSONCategory.addCategory(
+				groupName = "Test Site Name",
+				title = "Test",
+				vocabularyName = "Vocabulary Name");
+		}
+
+		task ("Adding Web Content") {
+			JSONWebcontent.addWebContent(
+				assetCategoryIds = "${categoryId}",
+				content = "WC WebContent Content",
+				groupName = "Test Site Name",
+				title = "WC WebContent Title");
+		}
+
+		task ("Go to Content Dashboard and filtering category") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Content",
+				panel = "Applications",
+				portlet = "Content Dashboard");
+
+			ContentDashboard.filterByCategory(
+				categoryName = "Test",
+				filterOption = "Categories");
+
+			AssertTextPresent(
+				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+				value1 = "Test");
+		}
+	}
+
 	@description = "LPS-132597 When a web content is associated to a Display Page and its status is Approved, a display page icon is displayed"
 	@priority = "5"
 	test CheckDisplayPageIconofApprovedWebContent {
@@ -153,6 +193,67 @@ definition {
 				value1 = "Webcontent Title");
 
 			AssertElementNotPresent(locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED_DISPLAY_PAGE");
+		}
+	}
+
+	@description = "LPS-133716 When in Content Dashboard, a column with the Site / assetLibraty header is shown."
+	@priority = "2"
+	test CheckSiteAssertLibraryColumn {
+		task ("Create a Web Content") {
+			JSONWebcontent.addWebContent(
+				content = "Web Content Content",
+				groupName = "Test Site Name",
+				title = "Web Content Title");
+		}
+
+		task ("Check in Content Dashboard if the column is being displayed") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Content",
+				panel = "Applications",
+				portlet = "Content Dashboard");
+
+			AssertElementPresent(
+				locator1 = "ContentDashboard#SITE_ASSET_LIBRARY_COLUMN",
+				siteAssetValue = "Site or Asset Library");
+		}
+	}
+
+	@description = "LPS-133716 When in Content Dashboard, the name of the Site/Asset Library where the contents are stored is shown, regardless where it was created"
+	@priority = "5"
+	test CheckSiteAssertLibraryOfContent {
+		task ("Create new Group") {
+			JSONGroup.addGroup(groupName = "Second Test Site Name");
+		}
+
+		task ("Create a Web Content for each group") {
+			JSONWebcontent.addWebContent(
+				content = "Web Content Content",
+				groupName = "Test Site Name",
+				title = "Web Content Title");
+
+			JSONWebcontent.addWebContent(
+				content = "WC WebContent Content",
+				groupName = "Second Test Site Name",
+				title = "WC WebContent Title");
+		}
+
+		task ("Check in Content Dashboard if the right information is being displayed") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Content",
+				panel = "Applications",
+				portlet = "Content Dashboard");
+
+			AssertElementPresent(
+				locator1 = "ContentDashboard#SITE_ASSET_LIBRARY_COLUMN",
+				siteAssetValue = "Test Site Name");
+
+			AssertElementPresent(
+				locator1 = "ContentDashboard#SITE_ASSET_LIBRARY_COLUMN",
+				siteAssetValue = "Second Test Site Name");
+		}
+
+		task ("Drop second group") {
+			JSONGroup.deleteGroupByName(groupName = "Second Test Site Name");
 		}
 	}
 
@@ -1226,7 +1327,109 @@ definition {
 		Portlet.viewEmptyMessage(message = "There are no tags.");
 	}
 
-	@description = "Validate if the user can order by Modification Date"
+	@description = "LPS-116840 When a user with update permissions clicks on the edit icon, the user is led to the web editor"
+	@priority = "5"
+	test IconEdit {
+		property portal.acceptance = "true";
+
+		task ("Create a Web Content ") {
+			JSONWebcontent.addWebContent(
+				content = "Webcontent Content",
+				groupName = "Test Site Name",
+				title = "Webcontent Title");
+		}
+
+		task ("Check it in its display page and access the edit") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Content",
+				panel = "Applications",
+				portlet = "Content Dashboard");
+
+			Click.clickNoMouseOver(locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED_MODIFIED_DATE");
+		}
+	}
+
+	@description = "LPS-116840 When the user clicks on the info icon, the info panel displays"
+	@priority = "5"
+	test IconInfo {
+		property portal.acceptance = "true";
+
+		task ("Add Display Page and mark it as default") {
+			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+				contentType = "Web Content Article",
+				displayPageTemplateEntryName = "Display Page Name",
+				groupName = "Test Site Name",
+				subType = "Basic Web Content");
+
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+
+			Button.clickPublish();
+
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.markDisplayPageAsDefault(displayPageName = "Display Page Name");
+		}
+
+		task ("Add Web Content and check it in its display page and access the info") {
+			JSONWebcontent.addWebContent(
+				content = "WC Content",
+				groupName = "Test Site Name",
+				title = "teste");
+
+			ApplicationsMenu.gotoPortlet(
+				category = "Content",
+				panel = "Applications",
+				portlet = "Content Dashboard");
+
+			Click.clickNoMouseOver(locator1 = "ContentDashboard#ROW_PANEL_WC");
+
+			Click(locator1 = "ContentDashboard#ICON_INFO_LISTED_MODIFIED_DATE");
+		}
+	}
+
+	@description = "LPS-116840 When the user clicks on the view icon of a content with an associated display page, the user is led to the view mode of the page"
+	@priority = "5"
+	test IconView {
+		property portal.acceptance = "true";
+
+		task ("Add Display Page and mark it as default") {
+			JSONLayoutpagetemplate.addDisplayPageTemplateEntry(
+				contentType = "Web Content Article",
+				displayPageTemplateEntryName = "Display Page Name",
+				groupName = "Test Site Name",
+				subType = "Basic Web Content");
+
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name");
+
+			Button.clickPublish();
+
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.markDisplayPageAsDefault(displayPageName = "Display Page Name");
+		}
+
+		task ("Add Web Content and check it in its display page and access the view") {
+			JSONWebcontent.addWebContent(
+				content = "WC Content",
+				groupName = "Test Site Name",
+				title = "WC");
+
+			ApplicationsMenu.gotoPortlet(
+				category = "Content",
+				panel = "Applications",
+				portlet = "Content Dashboard");
+
+			Click.clickNoMouseOver(locator1 = "ContentDashboard#ROW_PANEL_WC");
+
+			Click(locator1 = "ContentDashboard#ICON_VIEW_LISTED_MODIFIED_DATE");
+		}
+	}
+
+	@descrip	ion = "Validate if the user can order by Modification Date"
 	@priority = "5"
 	test OrderByModificationDate {
 		for (var count : list "1,2,3,4,5") {
@@ -1531,6 +1734,129 @@ definition {
 				value1 = "WC Title");
 
 			AssertElementNotPresent(locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED_DISPLAY_PAGE");
+		}
+	}
+
+	@description = "LPS-133181 When Filter by Author 'All', displays content from all users featured in the user's content dashboard view."
+	@priority = "5"
+	test ShowAllContentCreatorUsers {
+		task ("Create and configure second user") {
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignRoleToUser(
+				roleTitle = "Administrator",
+				userEmailAddress = "userea@liferay.com");
+		}
+
+		task ("Create First WC via JSON") {
+			JSONWebcontent.addWebContent(
+				content = "WC Content 1",
+				groupName = "Test Site Name",
+				title = "WC Title 1");
+		}
+
+		task ("Change to second user and create second WC") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+
+			JSONWebcontent.addWebContent(
+				content = "WC Content 2",
+				groupName = "Test Site Name",
+				title = "WC Title 2");
+		}
+
+		task ("Go to Content Dashboard and aplly All filter") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Content",
+				panel = "Applications",
+				portlet = "Content Dashboard");
+
+			ContentDashboard.filterByAuthorAll(filterOption = "All");
+		}
+
+		task ("Check if all contents are being displayed") {
+			ContentDashboard.searchValue(webContentTitle = "WC Title 1");
+
+			AssertTextPresent(
+				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+				value1 = "WC Title 1");
+
+			ContentDashboard.searchValue(webContentTitle = "WC Title 2");
+
+			AssertTextPresent(
+				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+				value1 = "WC Title 2");
+		}
+	}
+
+	@description = "LPS-133181 When Filter by Author 'Me', displays content where the current user is the last editor of the approved version."
+	@priority = "5"
+	test ShowOnlyContentCreatedByUser {
+		task ("Create and configure second user") {
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+
+			JSONRole.assignRoleToUser(
+				roleTitle = "Administrator",
+				userEmailAddress = "userea@liferay.com");
+		}
+
+		task ("Create First WC via JSON") {
+			JSONWebcontent.addWebContent(
+				content = "WC Content 1",
+				groupName = "Test Site Name",
+				title = "WC Title 1");
+		}
+
+		task ("Change to second user and create second WC") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+			WebContentNavigator.gotoAddCP();
+
+			WebContent.addCP(
+				webContentContent = "WC Content 2",
+				webContentTitle = "WC Title 2");
+
+			PortletEntry.publish();
+		}
+
+		task ("Go to Content Dashboard and aplly All filter") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Content",
+				panel = "Applications",
+				portlet = "Content Dashboard");
+
+			ContentDashboard.filterByAuthorMe(filterOption = "Me");
+		}
+
+		task ("Check if all contents created by user are being displayed") {
+			ContentDashboard.orderByTitle(filterOption = "Title");
+
+			AssertTextPresent(
+				locator1 = "ContentDashboard#FIRST_ELEMENT_LISTED",
+				value1 = "WC Title 2");
 		}
 	}
 

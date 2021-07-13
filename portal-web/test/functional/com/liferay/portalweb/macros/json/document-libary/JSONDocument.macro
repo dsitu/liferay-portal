@@ -1,5 +1,39 @@
 definition {
 
+	@summary = "This calls the JSON WS API to add a Document entry comment"
+	macro addComment {
+		var fileEntryId = JSONDocument.getFileEntryId(
+			dmDocumentTitle = "${dmDocumentTitle}",
+			folderId = "${folderId}",
+			groupName = "${groupName}",
+			portalURL = "${baseURL}");
+
+		var portalURL = JSONCompany.getPortalURL();
+
+		if (!(isSet(parentCommentId))) {
+			var parentCommentId = "0";
+		}
+
+		var curl = '''
+			${portalURL}/o/headless-delivery/v1.0/documents/${fileEntryId}/comments \
+			-H 'Content-Type: application/json' \
+			-u 'test@liferay.com:test'
+			-d '{
+				"creator": {},
+				"parentCommentId": "${parentCommentId}",
+				"text": "${commentBody}"
+			}'
+		''';
+
+		echo("## Adding a 'Comment' with the following info using JSONWS:");
+
+		echo("## * commentBody: ${commentBody}");
+
+		echo("## * fileEntryId: ${fileEntryId}");
+
+		var messageId = JSONCurlUtil.post("${curl}");
+	}
+
 	@summary = "This calls the JSON WS API to add a Document entry"
 	macro addFile {
 		var portalURL = JSONCompany.getPortalURL();
@@ -79,6 +113,10 @@ definition {
 			var description = "";
 		}
 
+		if (isSet(fileName)) {
+			var sourceFileName = "${fileName}";
+		}
+
 		var serviceContext = JSONDocumentSetter.setServiceContext(
 			assetCategoryIds = "${assetCategoryIds}",
 			assetTagNames = "${assetTagNames}",
@@ -105,7 +143,9 @@ definition {
 
 		echo("## * Description: ${description}");
 
-		var messageId = JSONCurlUtil.post("${curl}");
+		var fileEntryId = JSONCurlUtil.post("${curl}", "$..fileEntryId");
+
+		return "${fileEntryId}";
 	}
 
 	@summary = "This calls the JSON WS API to add a DL Folder"
@@ -198,6 +238,36 @@ definition {
 		return "${fileEntryId}";
 
 		echo("## * File Entry ID: ${fileEntryId}");
+	}
+
+	@summary = "This calls the JSON WS API to subscribe to a folder"
+	macro subscribeToFolder {
+		var folderId = JSONDocumentAPI._getFolderIdByFolderName(
+			name = "${dmFolderName}",
+			groupName = "${groupName}");
+
+		if (!(isSet(portalURL))) {
+			var portalURL = JSONCompany.getPortalURL();
+		}
+
+		if (!(isSet(site))) {
+			var site = "true";
+		}
+
+		var groupId = JSONGroupAPI._getGroupIdByName(portalURL = "${portalURL}", groupName = "${groupName}", site = "${site}");
+
+		var curl = '''
+			${portalURL}/api/jsonws/dlapp/subscribe-folder \
+			-u test@liferay.com:test \
+			-d groupId=${groupId} \
+			-d folderId=${folderId} \
+		''';
+
+		echo("## * groupId: ${groupId}");
+
+		echo("## * folderId: ${folderId}");
+
+		var messageId = JSONCurlUtil.post("${curl}");
 	}
 
 }

@@ -15,14 +15,14 @@
 import ClayButton from '@clayui/button';
 import ClayForm from '@clayui/form';
 import {useMutation} from 'graphql-hooks';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useContext, useRef, useState} from 'react';
 import {withRouter} from 'react-router-dom';
 
+import {AppContext} from '../AppContext.es';
 import {createCommentQuery} from '../utils/client.es';
-import {getContextLink, stripHTML} from '../utils/utils.es';
+import {getContextLink} from '../utils/utils.es';
 import Comment from './Comment.es';
-import QuestionsEditor from './QuestionsEditor';
-import TextLengthValidation from './TextLengthValidation.es';
+import DefaultQuestionsEditor from './DefaultQuestionsEditor.es';
 
 export default withRouter(
 	({
@@ -36,7 +36,11 @@ export default withRouter(
 		showNewComment,
 		showNewCommentChange,
 	}) => {
-		const [comment, setComment] = useState('');
+		const context = useContext(AppContext);
+
+		const editor = useRef('');
+
+		const [isReplyButtonDisable, setIsReplyButtonDisable] = useState(false);
 
 		const [createComment] = useMutation(createCommentQuery);
 
@@ -67,18 +71,15 @@ export default withRouter(
 				{editable && showNewComment && (
 					<>
 						<ClayForm.Group small>
-							<QuestionsEditor
-								contents={comment}
-								onChange={(event) => {
-									setComment(event.editor.getData());
-								}}
+							<DefaultQuestionsEditor
+								label={Liferay.Language.get('your-answer')}
+								onContentLengthValid={setIsReplyButtonDisable}
+								ref={editor}
 							/>
-
-							<TextLengthValidation text={comment} />
 
 							<ClayButton.Group className="c-mt-3" spaced>
 								<ClayButton
-									disabled={stripHTML(comment).length < 15}
+									disabled={isReplyButtonDisable}
 									displayType="primary"
 									onClick={() => {
 										createComment({
@@ -86,11 +87,11 @@ export default withRouter(
 												`${sectionTitle}/${questionId}`
 											),
 											variables: {
-												articleBody: comment,
+												articleBody: editor.current.getContent(),
 												parentMessageBoardMessageId: entityId,
 											},
 										}).then(({data}) => {
-											setComment('');
+											editor.current.clearContent();
 											showNewCommentChange(false);
 											commentsChange([
 												...comments,
@@ -99,7 +100,11 @@ export default withRouter(
 										});
 									}}
 								>
-									{Liferay.Language.get('reply')}
+									{context.trustedUser
+										? Liferay.Language.get('reply')
+										: Liferay.Language.get(
+												'submit-for-publication'
+										  )}
 								</ClayButton>
 
 								<ClayButton

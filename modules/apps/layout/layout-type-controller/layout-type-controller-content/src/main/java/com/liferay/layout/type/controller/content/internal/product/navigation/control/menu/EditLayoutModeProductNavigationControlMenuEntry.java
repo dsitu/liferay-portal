@@ -43,14 +43,11 @@ import com.liferay.product.navigation.control.menu.BaseProductNavigationControlM
 import com.liferay.product.navigation.control.menu.ProductNavigationControlMenuEntry;
 import com.liferay.product.navigation.control.menu.constants.ProductNavigationControlMenuCategoryKeys;
 import com.liferay.sites.kernel.util.SitesUtil;
+import com.liferay.staging.StagingGroupHelper;
 
 import java.util.Collections;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -98,12 +95,13 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 
 			Layout layout = themeDisplay.getLayout();
 
-			if ((layout.getClassPK() > 0) &&
-				(_portal.getClassNameId(Layout.class) ==
-					layout.getClassNameId())) {
+			long publishedLayoutPlid = layout.getPlid();
+
+			if (layout.isDraftLayout()) {
+				publishedLayoutPlid = layout.getClassPK();
 
 				redirect = _portal.getLayoutFullURL(
-					_layoutLocalService.getLayout(layout.getClassPK()),
+					_layoutLocalService.getLayout(publishedLayoutPlid),
 					themeDisplay);
 			}
 			else {
@@ -140,13 +138,11 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 				redirect = _portal.getLayoutFullURL(draftLayout, themeDisplay);
 			}
 
-			redirect = _removeAssetCategoryParameters(
-				httpServletRequest, redirect);
-
 			redirect = _http.setParameter(
 				redirect, "p_l_back_url",
-				_removeAssetCategoryParameters(
-					httpServletRequest, themeDisplay.getURLCurrent()));
+				_portal.getLayoutFullURL(
+					_layoutLocalService.getLayout(publishedLayoutPlid),
+					themeDisplay));
 
 			return _http.setParameter(redirect, "p_l_mode", Constants.EDIT);
 		}
@@ -173,6 +169,14 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
+
+		long scopeGroupId = themeDisplay.getScopeGroupId();
+
+		if (_stagingGroupHelper.isLocalLiveGroup(scopeGroupId) ||
+			_stagingGroupHelper.isRemoteLiveGroup(scopeGroupId)) {
+
+			return false;
+		}
 
 		LayoutTypePortlet layoutTypePortlet =
 			themeDisplay.getLayoutTypePortlet();
@@ -219,29 +223,6 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 		return false;
 	}
 
-	private String _removeAssetCategoryParameters(
-		HttpServletRequest httpServletRequest, String url) {
-
-		Map<String, String[]> parameterMap =
-			httpServletRequest.getParameterMap();
-
-		Set<String> parameterNames = parameterMap.keySet();
-
-		Stream<String> parameterNameStream = parameterNames.stream();
-
-		Set<String> categoryIdParameterNames = parameterNameStream.filter(
-			parameterName -> parameterName.startsWith("categoryId_")
-		).collect(
-			Collectors.toSet()
-		);
-
-		for (String categoryIdParameterName : categoryIdParameterNames) {
-			url = _http.removeParameter(url, categoryIdParameterName);
-		}
-
-		return url;
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		EditLayoutModeProductNavigationControlMenuEntry.class);
 
@@ -262,5 +243,8 @@ public class EditLayoutModeProductNavigationControlMenuEntry
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private StagingGroupHelper _stagingGroupHelper;
 
 }

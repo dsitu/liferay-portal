@@ -218,6 +218,34 @@ public class BlogsEntryStagedModelDataHandlerTest
 			importedUpdatedEntry.getSmallImageFileEntryId());
 	}
 
+	@Test
+	public void testImportedSmallImageURL() throws Exception {
+		initExport();
+
+		BlogsEntry entry = addBlogsEntry(
+			null, new ImageSelector(StringUtil.randomString()),
+			ServiceContextTestUtil.getServiceContext(
+				stagingGroup.getGroupId(), TestPropsValues.getUserId()));
+
+		StagedModelDataHandlerUtil.exportStagedModel(portletDataContext, entry);
+
+		initImport();
+
+		BlogsEntry exportedEntry = (BlogsEntry)readExportedStagedModel(entry);
+
+		Assert.assertNotNull(exportedEntry);
+
+		StagedModelDataHandlerUtil.importStagedModel(
+			portletDataContext, exportedEntry);
+
+		BlogsEntry importedEntry = (BlogsEntry)getStagedModel(
+			entry.getUuid(), liveGroup);
+
+		Assert.assertTrue(importedEntry.isSmallImage());
+		Assert.assertEquals(
+			entry.getSmallImageURL(), importedEntry.getSmallImageURL());
+	}
+
 	protected BlogsEntry addBlogsEntry(
 			ImageSelector coverImageImageSelector,
 			ImageSelector smallImageImageSelector,
@@ -341,6 +369,9 @@ public class BlogsEntryStagedModelDataHandlerTest
 		BlogsEntry entry = (BlogsEntry)stagedModel;
 		BlogsEntry importedEntry = (BlogsEntry)importedStagedModel;
 
+		Assert.assertEquals(
+			entry.getExternalReferenceCode(),
+			importedEntry.getExternalReferenceCode());
 		Assert.assertEquals(entry.getTitle(), importedEntry.getTitle());
 		Assert.assertEquals(entry.getSubtitle(), importedEntry.getSubtitle());
 		Assert.assertEquals(entry.getUrlTitle(), importedEntry.getUrlTitle());

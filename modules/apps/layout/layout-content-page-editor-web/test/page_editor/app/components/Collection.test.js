@@ -113,6 +113,7 @@ describe('Collection', () => {
 			Promise.resolve({
 				items: [],
 				length: 0,
+				totalNumberOfItems: 1,
 			})
 		);
 
@@ -122,10 +123,13 @@ describe('Collection', () => {
 					itemSubtype: 'CollectionItemSubtype',
 					itemType: 'CollectionItemType',
 				},
+				listStyle: '',
 			});
 		});
 
-		expect(getByText(document.body, 'title')).toBeInTheDocument();
+		expect(
+			document.body.querySelector('.page-editor__collection-item')
+		).toBeInTheDocument();
 	});
 
 	it('renders empty collection items', async () => {
@@ -138,6 +142,7 @@ describe('Collection', () => {
 			Promise.resolve({
 				items,
 				length: 2,
+				totalNumberOfItems: 2,
 			})
 		);
 

@@ -15,7 +15,7 @@
 package com.liferay.object.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.object.exception.NoSuchLayoutException;
+import com.liferay.object.exception.NoSuchObjectLayoutException;
 import com.liferay.object.model.ObjectLayout;
 import com.liferay.object.service.ObjectLayoutLocalServiceUtil;
 import com.liferay.object.service.persistence.ObjectLayoutPersistence;
@@ -192,7 +192,7 @@ public class ObjectLayoutPersistenceTest {
 		Assert.assertEquals(existingObjectLayout, newObjectLayout);
 	}
 
-	@Test(expected = NoSuchLayoutException.class)
+	@Test(expected = NoSuchObjectLayoutException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 

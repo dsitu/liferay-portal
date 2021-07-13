@@ -14,6 +14,8 @@
 
 package com.liferay.translation.translator;
 
+import com.liferay.portal.kernel.exception.PortalException;
+
 /**
  * @author Adolfo Pérez
  */
@@ -21,6 +23,7 @@ public interface Translator {
 
 	public boolean isEnabled();
 
-	public TranslatorPacket translate(TranslatorPacket translatorPacket);
+	public TranslatorPacket translate(TranslatorPacket translatorPacket)
+		throws PortalException;
 
 }

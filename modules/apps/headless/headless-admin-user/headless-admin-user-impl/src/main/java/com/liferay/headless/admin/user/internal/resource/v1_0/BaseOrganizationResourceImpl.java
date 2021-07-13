@@ -119,7 +119,7 @@ public abstract class BaseOrganizationResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-user/v1.0/organizations' -d $'{"comment": ___, "customFields": ___, "id": ___, "location": ___, "name": ___, "organizationContactInformation": ___, "parentOrganization": ___, "services": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-user/v1.0/organizations' -d $'{"accountInformation": ___, "comment": ___, "customFields": ___, "id": ___, "location": ___, "name": ___, "organizationContactInformation": ___, "parentOrganization": ___, "services": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Consumes({"application/json", "application/xml"})
 	@Operation(description = "Creates a new organization")
@@ -251,7 +251,7 @@ public abstract class BaseOrganizationResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-admin-user/v1.0/organizations/{organizationId}' -d $'{"comment": ___, "customFields": ___, "id": ___, "location": ___, "name": ___, "organizationContactInformation": ___, "parentOrganization": ___, "services": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-admin-user/v1.0/organizations/{organizationId}' -d $'{"accountInformation": ___, "comment": ___, "customFields": ___, "id": ___, "location": ___, "name": ___, "organizationContactInformation": ___, "parentOrganization": ___, "services": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Consumes({"application/json", "application/xml"})
 	@Operation(
@@ -315,7 +315,7 @@ public abstract class BaseOrganizationResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-user/v1.0/organizations/{organizationId}' -d $'{"comment": ___, "customFields": ___, "id": ___, "location": ___, "name": ___, "organizationContactInformation": ___, "parentOrganization": ___, "services": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-user/v1.0/organizations/{organizationId}' -d $'{"accountInformation": ___, "comment": ___, "customFields": ___, "id": ___, "location": ___, "name": ___, "organizationContactInformation": ___, "parentOrganization": ___, "services": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Consumes({"application/json", "application/xml"})
 	@Operation(
@@ -372,6 +372,54 @@ public abstract class BaseOrganizationResourceImpl
 			vulcanBatchEngineImportTaskResource.putImportTask(
 				Organization.class.getName(), callbackURL, object)
 		).build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/headless-admin-user/v1.0/organizations/{organizationId}/user-accounts/by-email-address'  -u 'test@liferay.com:test'
+	 */
+	@Consumes({"application/json", "application/xml"})
+	@DELETE
+	@Operation(
+		description = "Removes users from an organization by their email addresses"
+	)
+	@Override
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "organizationId")}
+	)
+	@Path("/organizations/{organizationId}/user-accounts/by-email-address")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Organization")})
+	public void deleteUserAccountsByEmailAddress(
+			@NotNull @Parameter(hidden = true) @PathParam("organizationId")
+				String organizationId,
+			String[] strings)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-user/v1.0/organizations/{organizationId}/user-accounts/by-email-address'  -u 'test@liferay.com:test'
+	 */
+	@Consumes({"application/json", "application/xml"})
+	@Operation(
+		description = "Assigns users to an organization by their email addresses"
+	)
+	@Override
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "organizationId")}
+	)
+	@Path("/organizations/{organizationId}/user-accounts/by-email-address")
+	@POST
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Organization")})
+	public void postUserAccountsByEmailAddress(
+			@NotNull @Parameter(hidden = true) @PathParam("organizationId")
+				String organizationId,
+			String[] strings)
+		throws Exception {
 	}
 
 	/**

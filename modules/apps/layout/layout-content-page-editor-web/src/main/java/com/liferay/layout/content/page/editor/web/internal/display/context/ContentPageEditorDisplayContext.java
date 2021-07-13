@@ -38,9 +38,9 @@ import com.liferay.fragment.util.comparator.FragmentCollectionContributorNameCom
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
 import com.liferay.frontend.token.definition.FrontendTokenDefinition;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
+import com.liferay.info.collection.provider.item.selector.criterion.InfoCollectionProviderItemSelectorCriterion;
 import com.liferay.info.item.InfoItemServiceTracker;
 import com.liferay.info.item.provider.InfoItemFormProvider;
-import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorCriterion;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.ItemSelectorCriterion;
@@ -101,11 +101,6 @@ import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutSet;
-import com.liferay.portal.kernel.model.Portlet;
-import com.liferay.portal.kernel.model.PortletApp;
-import com.liferay.portal.kernel.model.PortletCategory;
-import com.liferay.portal.kernel.model.PortletItem;
-import com.liferay.portal.kernel.model.PortletPreferences;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
@@ -120,38 +115,28 @@ import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutSetLocalServiceUtil;
-import com.liferay.portal.kernel.service.PortletItemLocalServiceUtil;
-import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
-import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
-import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.servlet.MultiSessionMessages;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.kernel.util.comparator.PortletCategoryComparator;
-import com.liferay.portal.kernel.util.comparator.PortletTitleComparator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.util.PortletCategoryUtil;
-import com.liferay.portal.util.WebAppPool;
+import com.liferay.portal.util.PropsValues;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.service.SegmentsExperienceLocalServiceUtil;
@@ -164,7 +149,6 @@ import com.liferay.style.book.util.comparator.StyleBookEntryNameComparator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -175,7 +159,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -186,9 +169,7 @@ import javax.portlet.PortletURL;
 import javax.portlet.RenderResponse;
 import javax.portlet.ResourceURL;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -292,6 +273,10 @@ public class ContentPageEditorDisplayContext {
 				"changeStyleBookEntryURL",
 				getFragmentEntryActionURL(
 					"/layout_content_page_editor/change_style_book_entry")
+			).put(
+				"collectionDisplayFragmentPaginationEnabled",
+				_ffLayoutContentPageEditorConfiguration.
+					collectionDisplayFragmentPaginationEnabled()
 			).put(
 				"collectionSelectorURL", _getCollectionSelectorURL()
 			).put(
@@ -412,6 +397,10 @@ public class ContentPageEditorDisplayContext {
 				getResourceURL(
 					"/layout_content_page_editor/get_collection_field")
 			).put(
+				"getCollectionFiltersURL",
+				getResourceURL(
+					"/layout_content_page_editor/get_collection_filters")
+			).put(
 				"getCollectionMappingFieldsURL",
 				getResourceURL(
 					"/layout_content_page_editor/get_collection_mapping_fields")
@@ -419,6 +408,9 @@ public class ContentPageEditorDisplayContext {
 				"getExperienceUsedPortletsURL",
 				getResourceURL(
 					"/layout_content_page_editor/get_experience_used_portlets")
+			).put(
+				"getFileEntryURL",
+				getResourceURL("/layout_content_page_editor/get_file_entry_url")
 			).put(
 				"getIframeContentCssURL",
 				PortalUtil.getStaticResourceURL(
@@ -450,6 +442,9 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"getPageContentsURL",
 				getResourceURL("/layout_content_page_editor/get_page_content")
+			).put(
+				"getWidgetsURL",
+				getResourceURL("/layout_content_page_editor/get_widgets")
 			).put(
 				"imageSelectorURL", _getItemSelectorURL()
 			).put(
@@ -484,17 +479,17 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"paddingOptions",
 				() -> {
-					Set<Map.Entry<Integer, Integer>> entrySet =
+					Set<Map.Entry<String, String>> entrySet =
 						PaddingConverter.externalToInternalValuesMap.entrySet();
 
 					List<Map<String, String>> list = new ArrayList<>();
 
-					for (Map.Entry<Integer, Integer> entry : entrySet) {
+					for (Map.Entry<String, String> entry : entrySet) {
 						list.add(
 							HashMapBuilder.put(
-								"label", String.valueOf(entry.getKey())
+								"label", entry.getKey()
 							).put(
-								"value", String.valueOf(entry.getValue())
+								"value", entry.getValue()
 							).build());
 					}
 
@@ -528,9 +523,16 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"redirectURL", _getRedirect()
 			).put(
+				"relatedItemCollectionProvidersEnabled",
+				_ffLayoutContentPageEditorConfiguration.
+					relatedItemCollectionProvidersEnabled()
+			).put(
 				"renderFragmentEntryURL",
 				getResourceURL(
 					"/layout_content_page_editor/get_fragment_entry_link")
+			).put(
+				"searchContainerPageMaxDelta",
+				PropsValues.SEARCH_CONTAINER_PAGE_MAX_DELTA
 			).put(
 				"sidebarPanels", getSidebarPanels()
 			).put(
@@ -636,8 +638,6 @@ public class ContentPageEditorDisplayContext {
 					ContentPageEditorActionKeys.UPDATE_LAYOUT_CONTENT,
 					_hasUpdateContentPermissions()
 				).build()
-			).put(
-				"widgets", _getWidgets()
 			).build()
 		).build();
 	}
@@ -696,19 +696,19 @@ public class ContentPageEditorDisplayContext {
 		infoListItemSelectorCriterion.setItemTypes(
 			_getInfoItemFormProviderClassNames());
 
-		InfoListProviderItemSelectorCriterion
-			infoListProviderItemSelectorCriterion =
-				new InfoListProviderItemSelectorCriterion();
+		InfoCollectionProviderItemSelectorCriterion
+			infoCollectionProviderItemSelectorCriterion =
+				new InfoCollectionProviderItemSelectorCriterion();
 
-		infoListProviderItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
-			new InfoListProviderItemSelectorReturnType());
-		infoListProviderItemSelectorCriterion.setItemTypes(
+		infoCollectionProviderItemSelectorCriterion.
+			setDesiredItemSelectorReturnTypes(
+				new InfoListProviderItemSelectorReturnType());
+		infoCollectionProviderItemSelectorCriterion.setItemTypes(
 			_getInfoItemFormProviderClassNames());
-		infoListProviderItemSelectorCriterion.setPlid(themeDisplay.getPlid());
 
 		return Arrays.asList(
 			infoListItemSelectorCriterion,
-			infoListProviderItemSelectorCriterion);
+			infoCollectionProviderItemSelectorCriterion);
 	}
 
 	protected String getFragmentEntryActionURL(String action) {
@@ -944,7 +944,9 @@ public class ContentPageEditorDisplayContext {
 			return StringPool.BLANK;
 		}
 
-		return infoListSelectorURL.toString();
+		return HttpUtil.addParameter(
+			infoListSelectorURL.toString(), "refererPlid",
+			themeDisplay.getPlid());
 	}
 
 	private Map<String, Object> _getContributedFragmentEntry(
@@ -1179,16 +1181,24 @@ public class ContentPageEditorDisplayContext {
 		for (FragmentCollectionContributor fragmentCollectionContributor :
 				fragmentCollectionContributors) {
 
+			List<FragmentComposition> fragmentCompositions =
+				fragmentCollectionContributor.getFragmentCompositions(
+					themeDisplay.getLocale());
 			List<FragmentEntry> fragmentEntries =
 				fragmentCollectionContributor.getFragmentEntries(
 					themeDisplay.getLocale());
 
-			if (ListUtil.isEmpty(fragmentEntries)) {
+			if (ListUtil.isEmpty(fragmentCompositions) &&
+				ListUtil.isEmpty(fragmentEntries)) {
+
 				continue;
 			}
 
 			List<Map<String, Object>> filteredFragmentEntries =
 				_getFragmentEntries(fragmentEntries);
+
+			filteredFragmentEntries.addAll(
+				_getFragmentCompositions(fragmentCompositions));
 
 			if (ListUtil.isEmpty(filteredFragmentEntries)) {
 				continue;
@@ -1700,25 +1710,27 @@ public class ContentPageEditorDisplayContext {
 		infoListItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 			new InfoListItemSelectorReturnType());
 
-		InfoListProviderItemSelectorCriterion
-			infoListProviderItemSelectorCriterion =
-				new InfoListProviderItemSelectorCriterion();
+		InfoCollectionProviderItemSelectorCriterion
+			infoCollectionProviderItemSelectorCriterion =
+				new InfoCollectionProviderItemSelectorCriterion();
 
-		infoListProviderItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
-			new InfoListProviderItemSelectorReturnType());
-		infoListProviderItemSelectorCriterion.setPlid(themeDisplay.getPlid());
+		infoCollectionProviderItemSelectorCriterion.
+			setDesiredItemSelectorReturnTypes(
+				new InfoListProviderItemSelectorReturnType());
 
 		PortletURL infoListSelectorURL = _itemSelector.getItemSelectorURL(
 			RequestBackedPortletURLFactoryUtil.create(httpServletRequest),
 			_renderResponse.getNamespace() + "selectInfoList",
 			infoListItemSelectorCriterion,
-			infoListProviderItemSelectorCriterion);
+			infoCollectionProviderItemSelectorCriterion);
 
 		if (infoListSelectorURL == null) {
 			return StringPool.BLANK;
 		}
 
-		return infoListSelectorURL.toString();
+		return HttpUtil.addParameter(
+			infoListSelectorURL.toString(), "refererPlid",
+			themeDisplay.getPlid());
 	}
 
 	private String _getItemSelectorURL() {
@@ -1986,40 +1998,6 @@ public class ContentPageEditorDisplayContext {
 		return _masterLayoutStructure;
 	}
 
-	private String _getPortletCategoryTitle(PortletCategory portletCategory) {
-		for (String portletId :
-				PortletCategoryUtil.getFirstChildPortletIds(portletCategory)) {
-
-			Portlet portlet = PortletLocalServiceUtil.getPortletById(
-				themeDisplay.getCompanyId(), portletId);
-
-			if (portlet == null) {
-				continue;
-			}
-
-			PortletApp portletApp = portlet.getPortletApp();
-
-			if (!portletApp.isWARFile()) {
-				continue;
-			}
-
-			PortletConfig portletConfig = PortletConfigFactoryUtil.create(
-				portlet, httpServletRequest.getServletContext());
-
-			ResourceBundle portletResourceBundle =
-				portletConfig.getResourceBundle(themeDisplay.getLocale());
-
-			String title = ResourceBundleUtil.getString(
-				portletResourceBundle, portletCategory.getName());
-
-			if (Validator.isNotNull(title)) {
-				return title;
-			}
-		}
-
-		return LanguageUtil.get(httpServletRequest, portletCategory.getName());
-	}
-
 	private String _getPortletId(String content) {
 		Document document = Jsoup.parse(content);
 
@@ -2035,98 +2013,6 @@ public class ContentPageEditorDisplayContext {
 		String id = element.id();
 
 		return PortletIdCodec.decodePortletName(id.substring(8));
-	}
-
-	private List<Map<String, Object>> _getPortletItems(Portlet portlet) {
-		List<PortletItem> portletItems =
-			PortletItemLocalServiceUtil.getPortletItems(
-				themeDisplay.getScopeGroupId(), portlet.getPortletId(),
-				PortletPreferences.class.getName());
-
-		if (ListUtil.isEmpty(portletItems)) {
-			return Collections.emptyList();
-		}
-
-		Stream<PortletItem> stream = portletItems.stream();
-
-		return stream.map(
-			portletItem -> HashMapBuilder.<String, Object>put(
-				"instanceable", portlet.isInstanceable()
-			).put(
-				"portletId", portlet.getPortletId()
-			).put(
-				"portletItemId", portletItem.getPortletItemId()
-			).put(
-				"title", HtmlUtil.escape(portletItem.getName())
-			).put(
-				"used", _isUsed(portlet)
-			).build()
-		).collect(
-			Collectors.toList()
-		);
-	}
-
-	private List<Map<String, Object>> _getPortlets(
-		PortletCategory portletCategory) {
-
-		HttpSession httpSession = httpServletRequest.getSession();
-
-		ServletContext servletContext = httpSession.getServletContext();
-
-		Set<String> portletIds = portletCategory.getPortletIds();
-
-		Stream<String> stream = portletIds.stream();
-
-		return stream.map(
-			portletId -> PortletLocalServiceUtil.getPortletById(
-				themeDisplay.getCompanyId(), portletId)
-		).filter(
-			portlet -> {
-				if (portlet == null) {
-					return false;
-				}
-
-				if (ArrayUtil.contains(
-						_UNSUPPORTED_PORTLETS_NAMES,
-						portlet.getPortletName())) {
-
-					return false;
-				}
-
-				try {
-					return PortletPermissionUtil.contains(
-						themeDisplay.getPermissionChecker(),
-						themeDisplay.getLayout(), portlet,
-						ActionKeys.ADD_TO_PAGE);
-				}
-				catch (PortalException portalException) {
-					_log.error(
-						"Unable to check portlet permissions for " +
-							portlet.getPortletId(),
-						portalException);
-
-					return false;
-				}
-			}
-		).sorted(
-			new PortletTitleComparator(servletContext, themeDisplay.getLocale())
-		).map(
-			portlet -> HashMapBuilder.<String, Object>put(
-				"instanceable", portlet.isInstanceable()
-			).put(
-				"portletId", portlet.getPortletId()
-			).put(
-				"portletItems", _getPortletItems(portlet)
-			).put(
-				"title",
-				PortalUtil.getPortletTitle(
-					portlet, servletContext, themeDisplay.getLocale())
-			).put(
-				"used", _isUsed(portlet)
-			).build()
-		).collect(
-			Collectors.toList()
-		);
 	}
 
 	private Layout _getPublishedLayout() {
@@ -2244,48 +2130,6 @@ public class ContentPageEditorDisplayContext {
 		return itemSelectorURL.toString();
 	}
 
-	private List<Map<String, Object>> _getWidgetCategories(
-		PortletCategory portletCategory) {
-
-		Collection<PortletCategory> portletCategories =
-			portletCategory.getCategories();
-
-		Stream<PortletCategory> stream = portletCategories.stream();
-
-		return stream.sorted(
-			new PortletCategoryComparator(themeDisplay.getLocale())
-		).filter(
-			currentPortletCategory -> !currentPortletCategory.isHidden()
-		).map(
-			currentPortletCategory -> HashMapBuilder.<String, Object>put(
-				"categories", _getWidgetCategories(currentPortletCategory)
-			).put(
-				"path",
-				StringUtil.replace(
-					currentPortletCategory.getPath(), new String[] {"/", "."},
-					new String[] {"-", "-"})
-			).put(
-				"portlets", _getPortlets(currentPortletCategory)
-			).put(
-				"title", _getPortletCategoryTitle(currentPortletCategory)
-			).build()
-		).collect(
-			Collectors.toList()
-		);
-	}
-
-	private List<Map<String, Object>> _getWidgets() throws Exception {
-		PortletCategory portletCategory = (PortletCategory)WebAppPool.get(
-			themeDisplay.getCompanyId(), WebKeys.PORTLET_CATEGORY);
-
-		portletCategory = PortletCategoryUtil.getRelevantPortletCategory(
-			themeDisplay.getPermissionChecker(), themeDisplay.getCompanyId(),
-			themeDisplay.getLayout(), portletCategory,
-			themeDisplay.getLayoutTypePortlet());
-
-		return _getWidgetCategories(portletCategory);
-	}
-
 	private boolean _hasUpdateContentPermissions() {
 		try {
 			if (LayoutPermissionUtil.contains(
@@ -2393,27 +2237,6 @@ public class ContentPageEditorDisplayContext {
 
 		return false;
 	}
-
-	private boolean _isUsed(Portlet portlet) {
-		if (portlet.isInstanceable()) {
-			return false;
-		}
-
-		long count =
-			PortletPreferencesLocalServiceUtil.getPortletPreferencesCount(
-				PortletKeys.PREFS_OWNER_TYPE_LAYOUT, themeDisplay.getPlid(),
-				portlet.getPortletId());
-
-		if (count > 0) {
-			return true;
-		}
-
-		return false;
-	}
-
-	private static final String[] _UNSUPPORTED_PORTLETS_NAMES = {
-		"com_liferay_nested_portlets_web_portlet_NestedPortletsPortlet"
-	};
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ContentPageEditorDisplayContext.class);

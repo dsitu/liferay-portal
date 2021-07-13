@@ -1,3 +1,5 @@
+@import 'cadmin-variables';
+
 @import 'variables';
 
 @import 'AllowedFragments';
@@ -19,6 +21,7 @@
 
 @import 'fragment-content/FragmentContent';
 
+@import 'layout-data-items/CollectionPagination';
 @import 'layout-data-items/RowWithControls';
 
 @import 'undo/UndoHistory';

@@ -17,10 +17,13 @@ import ClayForm, {ClayInput} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import React from 'react';
 
+import {errorToast} from '../../utils/toast';
 import {Input} from '../form/FormBase';
-import FormDocumentLibraryInput from './FormDocumentLibraryInput';
+import FileEntryList from './FileEntryList';
+import FileSelector from './FileSelector';
 
 const MAX_LENGTH = {
+	ATTACHMENTS: 10,
 	EMAIL_MESSAGE: 10000,
 	RECEIPTS: 10,
 };
@@ -30,10 +33,23 @@ const DigitalSignatureFormBase = ({
 	errors,
 	handleChange,
 	setFieldValue,
-	showDocumentLibraryInput,
 	values,
 }) => {
 	const canAddMoreReceipt = values.recipients.length < MAX_LENGTH.RECEIPTS;
+
+	const onAddFileEntry = (fileEntry) => {
+		const fileEntryExist = values.fileEntries.find(
+			({fileEntryId}) => fileEntryId === fileEntry.fileEntryId
+		);
+
+		if (fileEntryExist) {
+			return errorToast(
+				Liferay.Language.get('the-document-already-exists')
+			);
+		}
+
+		setFieldValue('fileEntries', [...values.fileEntries, fileEntry]);
+	};
 
 	const onAddNewRecipient = () => {
 		if (MAX_LENGTH.RECEIPTS && canAddMoreReceipt) {
@@ -52,7 +68,7 @@ const DigitalSignatureFormBase = ({
 	};
 
 	return (
-		<ClayForm>
+		<>
 			<Input
 				error={errors.envelopeName}
 				label={Liferay.Language.get('envelope-name')}
@@ -62,15 +78,18 @@ const DigitalSignatureFormBase = ({
 				required
 			/>
 
-			{showDocumentLibraryInput && (
-				<FormDocumentLibraryInput
-					error={errors.fileEntryId}
-					onChange={(_, value) => {
-						const fileEntryId = JSON.parse(value).fileEntryId;
-						setFieldValue('fileEntryId', fileEntryId);
-					}}
-				/>
-			)}
+			<FileSelector
+				disabled={values.fileEntries.length === MAX_LENGTH.ATTACHMENTS}
+				onChange={(_, fileEntry) =>
+					onAddFileEntry(JSON.parse(fileEntry))
+				}
+			/>
+
+			<FileEntryList
+				errors={errors.fileEntries}
+				fileEntries={values.fileEntries}
+				setFieldValue={setFieldValue}
+			/>
 
 			{values.recipients.map((recipient, index) => (
 				<ClayForm.Group className="recipient" key={index}>
@@ -155,7 +174,7 @@ const DigitalSignatureFormBase = ({
 				type="textarea"
 				value={values.emailMessage}
 			/>
-		</ClayForm>
+		</>
 	);
 };
 

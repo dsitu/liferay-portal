@@ -35,10 +35,29 @@ public class BatchPlannerPlanServiceWrapper
 
 	@Override
 	public com.liferay.batch.planner.model.BatchPlannerPlan addBatchPlannerPlan(
-			String externalType, String name)
+			boolean export, String externalType, String externalURL,
+			String internalClassName, String name)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return _batchPlannerPlanService.addBatchPlannerPlan(externalType, name);
+		return _batchPlannerPlanService.addBatchPlannerPlan(
+			export, externalType, externalURL, internalClassName, name);
+	}
+
+	@Override
+	public com.liferay.batch.planner.model.BatchPlannerPlan
+			deleteBatchPlannerPlan(long batchPlannerPlanId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _batchPlannerPlanService.deleteBatchPlannerPlan(
+			batchPlannerPlanId);
+	}
+
+	@Override
+	public com.liferay.batch.planner.model.BatchPlannerPlan getBatchPlannerPlan(
+			long batchPlannerPlanId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _batchPlannerPlanService.getBatchPlannerPlan(batchPlannerPlanId);
 	}
 
 	/**

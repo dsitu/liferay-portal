@@ -20,23 +20,26 @@ import com.liferay.adaptive.media.image.validator.AMImageValidator;
 import com.liferay.document.library.kernel.model.DLFileEntryMetadata;
 import com.liferay.document.library.kernel.service.DLFileEntryMetadataLocalService;
 import com.liferay.document.library.kernel.util.RawMetadataProcessor;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueValidationException;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructure;
 import com.liferay.dynamic.data.mapping.kernel.DDMStructureManager;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.StorageEngine;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.util.PropsValues;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -127,29 +130,50 @@ public class AMImageValidatorImpl implements AMImageValidator {
 				for (Map.Entry<String, List<DDMFormFieldValue>> entry :
 						ddmFormFieldValuesMap.entrySet()) {
 
-					if (Objects.equals(entry.getKey(), "TIFF_IMAGE_LENGTH")) {
-						return _isValidDimension(
+					if (Objects.equals(entry.getKey(), "TIFF_IMAGE_LENGTH") &&
+						!_isValidDimension(
 							entry.getValue(),
-							PropsValues.IMAGE_TOOL_IMAGE_MAX_HEIGHT);
+							PropsValues.IMAGE_TOOL_IMAGE_MAX_HEIGHT)) {
+
+						return false;
 					}
 					else if (Objects.equals(
-								entry.getKey(), "TIFF_IMAGE_WIDTH")) {
+								entry.getKey(), "TIFF_IMAGE_WIDTH") &&
+							 !_isValidDimension(
+								 entry.getValue(),
+								 PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH)) {
 
-						return _isValidDimension(
-							entry.getValue(),
-							PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH);
+						return false;
 					}
 				}
 			}
-			catch (PortalException portalException) {
+			catch (DDMFormFieldValueValidationException
+						ddmFormFieldValueValidationException) {
+
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Unable to validate dynamic data mapping form values " +
+							"for file version " +
+								fileVersion.getFileVersionId());
+				}
+
 				if (_log.isDebugEnabled()) {
 					_log.debug(
+						ddmFormFieldValueValidationException,
+						ddmFormFieldValueValidationException);
+				}
+			}
+			catch (PortalException portalException) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
 						StringBundler.concat(
-							"DDMFormValues not found for ",
-							String.valueOf(fileVersion.getFileVersionId()),
-							" in the structure ",
-							ddmStructure.getStructureKey()),
-						portalException);
+							"Unable to find dynamic data mapping form values ",
+							"for ", fileVersion.getFileVersionId(),
+							" in structure ", ddmStructure.getStructureKey()));
+				}
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(portalException, portalException);
 				}
 			}
 		}
@@ -158,8 +182,9 @@ public class AMImageValidatorImpl implements AMImageValidator {
 	}
 
 	private boolean _isValidDimension(
-		List<DDMFormFieldValue> ddmFormFieldValues,
-		long imageToolImageMaxValue) {
+			List<DDMFormFieldValue> ddmFormFieldValues,
+			long imageToolImageMaxValue)
+		throws DDMFormFieldValueValidationException {
 
 		if (imageToolImageMaxValue <= 0) {
 			return true;
@@ -169,10 +194,23 @@ public class AMImageValidatorImpl implements AMImageValidator {
 
 		Value value = ddmFormFieldValue.getValue();
 
-		Long dimension = Long.valueOf(
-			value.getString(value.getDefaultLocale()));
+		String valueString = value.getString(value.getDefaultLocale());
 
-		if (dimension >= imageToolImageMaxValue) {
+		if (Validator.isNull(valueString)) {
+			for (Locale availableLocale : value.getAvailableLocales()) {
+				valueString = value.getString(availableLocale);
+
+				if (Validator.isNotNull(valueString)) {
+					break;
+				}
+			}
+		}
+
+		if (Validator.isNull(valueString)) {
+			throw new DDMFormFieldValueValidationException();
+		}
+
+		if (Long.valueOf(valueString) >= imageToolImageMaxValue) {
 			return false;
 		}
 

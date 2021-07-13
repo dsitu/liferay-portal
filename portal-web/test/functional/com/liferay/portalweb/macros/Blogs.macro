@@ -83,6 +83,26 @@ definition {
 		PortletEntry.publish();
 	}
 
+	macro addEntryWithCoverImageFromDepot {
+		BlogsNavigator.openToAddEntry(siteURLKey = "${siteURLKey}");
+
+		BlogsEntry.addTitle(entryTitle = "${entryTitle}");
+
+		BlogsEntry.addEntryContent(
+			entryContent = "${entryContent}",
+			entrySubtitle = "${entrySubtitle}",
+			entryTitle = "${entryTitle}");
+
+		BlogsNavigator.gotoSelectFile();
+
+		ItemSelector.selectRepositoryImage(
+			depotName = "${depotName}",
+			imageFileName = "${imageFileName}",
+			navTab = "Documents and Media");
+
+		Button.clickPublish();
+	}
+
 	macro addEntryWithCoverImageFromDMFolders {
 		BlogsNavigator.gotoAddEntry();
 
@@ -104,6 +124,26 @@ definition {
 		Pause(locator1 = "1000");
 
 		Button.clickPublish();
+	}
+
+	macro addEntryWithCustomURL {
+		if (isSet(siteURLKey)) {
+			BlogsNavigator.openToAddEntry(siteURLKey = "${siteURLKey}");
+		}
+		else {
+			BlogsNavigator.gotoAddEntry();
+		}
+
+		BlogsEntry.addEntryContent(
+			entryContent = "${entryContent}",
+			entrySubtitle = "${entrySubtitle}",
+			entryTitle = "${entryTitle}");
+
+		Panel.expandPanel(panel = "Configuration");
+
+		BlogsEntry.addCustomURL(customURL = "${customURL}");
+
+		PortletEntry.publish();
 	}
 
 	macro addEntryWithHTML {
@@ -199,6 +239,23 @@ definition {
 		AssertVisible(
 			key_coverImageName = "${coverImageName}",
 			locator1 = "BlogsEntry#ENTRY_COVER_IMAGE_UNPUBLISHED");
+	}
+
+	macro addImageToBlogImages {
+		BlogsNavigator.openToAddEntry(siteURLKey = "${siteURLKey}");
+
+		for (var uploadFileName : list "${uploadFileNames}") {
+			if (IsElementPresent(locator1 = "BlogsEntry#ENTRY_COVER_IMAGE_SELECT_FILE")) {
+				AssertClick(
+					locator1 = "BlogsEntry#ENTRY_COVER_IMAGE_SELECT_FILE",
+					value1 = "Select File");
+			}
+			else {
+				BlogsNavigator.gotoBrowseImage();
+			}
+
+			ItemSelector.uploadFile(uploadFileName = "${uploadFileName}");
+		}
 	}
 
 	macro addViaAP {
@@ -407,6 +464,7 @@ definition {
 		BlogsNavigator.gotoEditPG(entryTitle = "${entryTitle}");
 
 		BlogsEntry.editEntryContent(
+			embedVideo = "${embedVideo}",
 			entryContent = "${entryContent}",
 			entryContentEdit = "${entryContentEdit}",
 			entrySubtitle = "${entrySubtitle}",
@@ -422,7 +480,16 @@ definition {
 	}
 
 	macro editEntryPG {
-		BlogsNavigator.gotoEditPG(entryTitle = "${entryTitle}");
+		if (isSet(siteURLKey)) {
+			BlogsNavigator.openToEditEntryInSite(
+				entryTitle = "${entryTitle}",
+				groupName = "${groupName}",
+				siteURLKey = "${siteURLKey}");
+		}
+
+		else {
+			BlogsNavigator.gotoEditPG(entryTitle = "${entryTitle}");
+		}
 
 		BlogsEntry.editEntryContent(
 			entryContent = "${entryContent}",
@@ -431,6 +498,14 @@ definition {
 			entrySubtitleEdit = "${entrySubtitleEdit}",
 			entryTitle = "${entryTitle}",
 			entryTitleEdit = "${entryTitleEdit}");
+
+		if (isSet(uploadFileName)) {
+			BlogsNavigator.gotoBrowseImage();
+
+			ItemSelector.uploadFile(
+				navTab = "${navTab}",
+				uploadFileName = "${uploadFileName}");
+		}
 
 		if ("${sendEmailEntryUpdated}" == "true") {
 			Panel.expandPanel(panel = "Configuration");

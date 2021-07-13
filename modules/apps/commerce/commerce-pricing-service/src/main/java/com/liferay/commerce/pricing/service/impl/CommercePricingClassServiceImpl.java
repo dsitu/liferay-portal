@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionFactory;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -41,24 +42,30 @@ import java.util.Map;
 
 /**
  * @author Riccardo Alberti
- * @see CommercePricingClassServiceBaseImpl
  */
 public class CommercePricingClassServiceImpl
 	extends CommercePricingClassServiceBaseImpl {
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), use {@link
+	 *             #addCommercePricingClass(String, Map, Map, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public CommercePricingClass addCommercePricingClass(
 			long userId, Map<Locale, String> titleMap,
 			Map<Locale, String> descriptionMap, ServiceContext serviceContext)
 		throws PortalException {
 
-		_checkPortletResourcePermission(
-			null, CommercePricingClassActionKeys.ADD_COMMERCE_PRICING_CLASS);
-
-		return commercePricingClassLocalService.addCommercePricingClass(
-			null, userId, titleMap, descriptionMap, serviceContext);
+		return addCommercePricingClass(
+			null, titleMap, descriptionMap, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), use {@link
+	 *             #addCommercePricingClass(String, Map, Map, ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public CommercePricingClass addCommercePricingClass(
 			String externalReferenceCode, long userId,
@@ -66,12 +73,24 @@ public class CommercePricingClassServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
+		return addCommercePricingClass(
+			externalReferenceCode, titleMap, descriptionMap, serviceContext);
+	}
+
+	@Override
+	public CommercePricingClass addCommercePricingClass(
+			String externalReferenceCode, Map<Locale, String> titleMap,
+			Map<Locale, String> descriptionMap, ServiceContext serviceContext)
+		throws PortalException {
+
 		_checkPortletResourcePermission(
 			null, CommercePricingClassActionKeys.ADD_COMMERCE_PRICING_CLASS);
 
+		PermissionChecker permissionChecker = getPermissionChecker();
+
 		return commercePricingClassLocalService.addCommercePricingClass(
-			externalReferenceCode, userId, titleMap, descriptionMap,
-			serviceContext);
+			externalReferenceCode, permissionChecker.getUserId(), titleMap,
+			descriptionMap, serviceContext);
 	}
 
 	@Override

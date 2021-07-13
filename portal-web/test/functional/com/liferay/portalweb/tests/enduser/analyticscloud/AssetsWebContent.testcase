@@ -1,0 +1,101 @@
+@component-name = "portal-analytics-cloud"
+definition {
+
+	property analytics.cloud.enabled = "true";
+	property minimum.slave.ram = "32";
+	property portal.release = "false";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Analytics Cloud";
+
+	setUp {
+		ACUtils.launchAC();
+
+		ACSettings.takeTokenFromAnalyticsCloud();
+
+		TestCase.setUpPortalInstance();
+
+		ACUtils.launchDXP();
+
+		ACUtils.addSiteAndPage();
+
+		ACUtils.createWCAndAddToPage();
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		ACUtils.tearDownDXP();
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			JSONGroup.deleteGroupByName(groupName = "Site Name");
+		}
+
+		ACUtils.tearDownAC();
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8130 | Test Summary: Click a web content in the web content list navigates to the web content overview page"
+	@ignore = "true"
+	@priority = "5"
+	test CanNavigateToWebContentOverviewPage {
+
+		// TODO LRAC-8130 CanNavigateToWebContentOverviewPage pending implementation
+
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8131 | Test Summary: Web content known individuals shows which individuals interact with the web content"
+	@ignore = "true"
+	@priority = "5"
+	test KnownIndividualsShowsWhichIndividualsInteractWithWebContent {
+
+		// TODO LRAC-8131 KnownIndividualsShowsWhichIndividualsInteractWithWebContent pending implementation
+
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8125 | Test Summary: Web content list shows all web content in a list"
+	@ignore = "true"
+	@priority = "5"
+	test ViewAllWebContentShownInAssetList {
+
+		// TODO LRAC-8125 ViewAllWebContentShownInAssetList pending implementation
+
+	}
+
+	@description = "Web content visitor behavior card shows expected amount of views"
+	@priority = "5"
+	test VisitorBehaviorCardShowsExpectedAmountOfViewsInWC {
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+
+		for (var n : list "1,2,3,4") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		ACUtils.closeAllSessions();
+
+		Pause(locator1 = "30000");
+
+		ACUtils.launchAC();
+
+		ACProperties.switchProperty(propertyName = "${propertyName}");
+
+		ACNavigation.goToAssets();
+
+		ACNavigation.switchTab(tabName = "Web Content");
+
+		ACTimeFilter.clickTimeFilterButton();
+
+		ACTimeFilter.setLast24Hours();
+
+		ACAssets.accessAssets(titleName = "Web Content AC Title");
+
+		AssertTextEquals(
+			locator1 = "ACAssets#MATRIC_VALUE",
+			matricTitle = "Views",
+			value1 = "4");
+	}
+
+}

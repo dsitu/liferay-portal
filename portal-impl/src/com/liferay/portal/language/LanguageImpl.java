@@ -2099,13 +2099,17 @@ public class LanguageImpl implements Language, Serializable {
 
 			String defaultLanguageId = LocaleUtil.toLanguageId(defaultLocale);
 
-			if (!ArrayUtil.contains(languageIds, defaultLanguageId)) {
+			if ((companyId != CompanyConstants.SYSTEM) &&
+				!ArrayUtil.contains(languageIds, defaultLanguageId)) {
+
 				User defaultUser = UserLocalServiceUtil.fetchDefaultUser(
 					companyId);
 
-				defaultLocale = defaultUser.getLocale();
+				if (defaultUser.getLocale() != null) {
+					defaultLocale = defaultUser.getLocale();
 
-				defaultLanguageId = LocaleUtil.toLanguageId(defaultLocale);
+					defaultLanguageId = LocaleUtil.toLanguageId(defaultLocale);
+				}
 			}
 
 			_languageCodeLocalesMap.put(

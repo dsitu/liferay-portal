@@ -35,6 +35,172 @@ definition {
 		}
 	}
 
+	@description = "Verify that the Action label of a Rule changes when the corresponding Field's Label is edited"
+	@priority = "5"
+	test ActionIsUpdatedWhenFieldLabelIsEdited {
+		property forms.functional = "true";
+		property portal.acceptance = "false";
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.addTextField(fieldPositionNumber = "0");
+
+		Form.closeSidebar();
+
+		FormsAdminNavigator.gotoRules();
+
+		FormRules.addRule();
+
+		FormRules.configureConditionOptions(
+			conditionField = "Text",
+			conditionOperator = "Is empty",
+			conditionRowNumber = "1");
+
+		FormRules.configureActionOptions(
+			action = "Require",
+			actionRowNumber = "1",
+			actionTarget = "Text");
+
+		FormRules.save();
+
+		FormRules.viewSummary(
+			action = "Require",
+			actionTarget = "Text",
+			conditionField = "Text",
+			conditionOperator = "Is empty",
+			ruleNumber = "1");
+
+		FormsAdminNavigator.gotoFormBuilder();
+
+		Click(
+			key_name = "Text",
+			locator1 = "FormFields#FIELD_TARGET_LABEL");
+
+		Form.editFieldLabelMetal(fieldValue = "Text Test");
+
+		Form.save();
+
+		FormsAdminNavigator.gotoRules();
+
+		FormRules.viewSummary(
+			action = "Require",
+			actionTarget = "Text Test",
+			conditionField = "Text Test",
+			conditionOperator = "Is empty",
+			ruleNumber = "1");
+	}
+
+	@description = "Verify that a Rule is autosaved when exiting the Form without saving the Rule"
+	@ignore = "True"
+	@priority = "5"
+	test AreSavedWhenExitingTheForm {
+		property forms.functional = "true";
+		property portal.acceptance = "false";
+
+		// TODO LPS-134377 AreSavedWhenExitingTheForm pending implementation
+
+	}
+
+	@description = "Verify that a Rule can be created"
+	@priority = "5"
+	test CanBeCreated {
+		property forms.functional = "true";
+		property portal.acceptance = "false";
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Text",
+			formPageNumber = "0");
+
+		Form.closeSidebar();
+
+		FormsAdminNavigator.gotoRules();
+
+		FormRules.addRule();
+
+		FormRules.configureConditionOptions(
+			conditionField = "Text",
+			conditionOperator = "Is empty",
+			conditionRowNumber = "1");
+
+		FormRules.configureActionOptions(
+			action = "Require",
+			actionRowNumber = "1",
+			actionTarget = "Text");
+
+		FormRules.save();
+
+		FormRules.viewSummary(
+			action = "Require",
+			actionTarget = "Text",
+			conditionField = "Text",
+			conditionOperator = "Is empty",
+			ruleNumber = "1");
+	}
+
+	@description = "Verify that a Rule can be deleted"
+	@priority = "5"
+	test CanBeDeleted {
+		property forms.functional = "true";
+		property portal.acceptance = "false";
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Text",
+			formPageNumber = "0");
+
+		Form.closeSidebar();
+
+		FormsAdminNavigator.gotoRules();
+
+		FormRules.addRule();
+
+		FormRules.configureConditionOptions(
+			conditionField = "Text",
+			conditionOperator = "Is empty",
+			conditionRowNumber = "1");
+
+		FormRules.configureActionOptions(
+			action = "Require",
+			actionRowNumber = "1",
+			actionTarget = "Text");
+
+		FormRules.save();
+
+		FormRules.viewSummary(
+			action = "Require",
+			actionTarget = "Text",
+			conditionField = "Text",
+			conditionOperator = "Is empty",
+			ruleNumber = "1");
+
+		FormRules.gotoDelete(ruleNumber = "1");
+
+		FormRules.viewNoRules();
+	}
+
 	@description = "This is a use case for LPS-80771."
 	@ignore = "true"
 	@priority = "5"
@@ -177,6 +343,71 @@ definition {
 		FormsAdminNavigator.gotoRules();
 
 		FormRules.viewBrokenRule(ruleNumber = "1");
+	}
+
+	@description = "Verify that the Condition label of a Rule changes when the corresponding Field's Label is edited"
+	@priority = "5"
+	test ConditionIsUpdatedWhenFieldLabelIsEdited {
+		property forms.functional = "true";
+		property portal.acceptance = "false";
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Text",
+			formPageNumber = "0");
+
+		Form.closeSidebar();
+
+		FormsAdminNavigator.gotoRules();
+
+		FormRules.addRule();
+
+		FormRules.configureConditionOptions(
+			conditionField = "Text",
+			conditionOperator = "Is empty",
+			conditionRowNumber = "1");
+
+		FormRules.configureActionOptions(
+			action = "Require",
+			actionRowNumber = "1",
+			actionTarget = "Text");
+
+		FormRules.save();
+
+		FormRules.viewSummary(
+			action = "Require",
+			actionTarget = "Text",
+			conditionField = "Text",
+			conditionOperator = "Is empty",
+			ruleNumber = "1");
+
+		FormsAdminNavigator.gotoFormBuilder();
+
+		FormsAdminNavigator.gotoEditField(fieldName = "Text");
+
+		FormFields.editText(
+			fieldName = "label",
+			fieldValue = "Text Test");
+
+		Form.save();
+
+		FormsAdminNavigator.gotoRules();
+
+		FormRules.viewConditionFieldSummary(
+			conditionField = "Text Test",
+			ruleNumber = "1");
+
+		FormRules.viewConditionOperatorSummary(
+			conditionOperator = "Is empty",
+			ruleNumber = "1");
 	}
 
 	@description = "This is a use case for LPS-70446."
@@ -890,6 +1121,48 @@ definition {
 		FormsAdmin.viewFormTableEntry(
 			fieldLabel = "Manager",
 			fieldValue = "Admin Comments");
+	}
+
+	@description = "Verify that a Rule creation can be canceled"
+	@priority = "5"
+	test CreationCanBeCanceled {
+		property forms.functional = "true";
+		property portal.acceptance = "false";
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Text",
+			formPageNumber = "0");
+
+		Form.closeSidebar();
+
+		FormsAdminNavigator.gotoRules();
+
+		FormRules.addRule();
+
+		FormRules.configureConditionOptions(
+			conditionField = "Text",
+			conditionOperator = "Is empty",
+			conditionRowNumber = "1");
+
+		FormRules.configureActionOptions(
+			action = "Require",
+			actionRowNumber = "1",
+			actionTarget = "Text");
+
+		FormRules.cancel();
+
+		AssertElementPresent(locator1 = "FormRules#RULE_BUILDER_ADD_RULE_BUTTON");
+
+		FormRules.viewNoRules();
 	}
 
 	@description = "This is a use case for LPS-119818."

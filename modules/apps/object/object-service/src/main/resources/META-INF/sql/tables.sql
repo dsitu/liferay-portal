@@ -7,7 +7,12 @@ create table ObjectDefinition (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
-	name VARCHAR(75) null
+	dbTableName VARCHAR(75) null,
+	name VARCHAR(75) null,
+	pkObjectFieldDBColumnName VARCHAR(75) null,
+	pkObjectFieldName VARCHAR(75) null,
+	system_ BOOLEAN,
+	version INTEGER
 );
 
 create table ObjectEntry (
@@ -38,10 +43,12 @@ create table ObjectField (
 	createDate DATE null,
 	modifiedDate DATE null,
 	objectDefinitionId LONG,
+	dbColumnName VARCHAR(75) null,
 	indexed BOOLEAN,
 	indexedAsKeyword BOOLEAN,
 	indexedLanguageId VARCHAR(75) null,
 	name VARCHAR(75) null,
+	required BOOLEAN,
 	type_ VARCHAR(75) null
 );
 

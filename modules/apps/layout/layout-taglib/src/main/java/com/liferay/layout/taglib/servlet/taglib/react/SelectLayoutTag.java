@@ -307,7 +307,8 @@ public class SelectLayoutTag extends IncludeTag {
 			).put(
 				"privateLayout", layout.isPrivateLayout()
 			).put(
-				"url", PortalUtil.getLayoutRelativeURL(layout, themeDisplay)
+				"url",
+				PortalUtil.getLayoutRelativeURL(layout, themeDisplay, false)
 			);
 
 			if (ArrayUtil.contains(selectedLayoutUuid, layout.getUuid())) {

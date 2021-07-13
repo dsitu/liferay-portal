@@ -36,12 +36,14 @@ const DefaultSidebarHeader = () => {
 	const dispatch = useContext(StoreDispatchContext);
 
 	return (
-		<div className="d-flex justify-content-between sidebar-header">
-			<span>{Liferay.Language.get('page-audit')}</span>
+		<div className="d-flex justify-content-between p-3 sidebar-header">
+			<span className="font-weight-bold">
+				{Liferay.Language.get('page-audit')}
+			</span>
 			<div>
 				{data?.validConnection && (
 					<ClayButtonWithIcon
-						className="sidenav-relaunch"
+						className="sidenav-relaunch text-secondary"
 						disabled={loading}
 						displayType="unstyled"
 						onClick={() => {
@@ -53,6 +55,7 @@ const DefaultSidebarHeader = () => {
 
 							loadIssues({
 								dispatch,
+								languageId,
 								portletNamespace,
 								url,
 							});
@@ -62,7 +65,7 @@ const DefaultSidebarHeader = () => {
 					/>
 				)}
 				<ClayButtonWithIcon
-					className="sidenav-close"
+					className="sidenav-close text-secondary"
 					displayType="unstyled"
 					symbol="times"
 					title={Liferay.Language.get('close')}
@@ -80,7 +83,7 @@ const IssueDetailSidebarHeader = () => {
 		<div className="d-flex justify-content-between sidebar-header">
 			<div>
 				<ClayButtonWithIcon
-					className="sidenav-back"
+					className="sidenav-back text-secondary"
 					displayType="unstyled"
 					onClick={() => {
 						dispatch({
@@ -92,11 +95,11 @@ const IssueDetailSidebarHeader = () => {
 					title={Liferay.Language.get('go-back')}
 				/>
 
-				<span>{selectedIssue.title}</span>
+				<span className="font-weight-bold">{selectedIssue.title}</span>
 			</div>
 
 			<ClayButtonWithIcon
-				className="sidenav-close"
+				className="sidenav-close text-secondary"
 				displayType="unstyled"
 				symbol="times"
 				title={Liferay.Language.get('close')}

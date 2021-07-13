@@ -13,12 +13,19 @@
  */
 
 import {cleanup, render} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import '@testing-library/jest-dom/extend-expect';
 
 import IssuesList from '../../../src/main/resources/META-INF/resources/js/components/IssuesList';
 import {StoreContextProvider} from '../../../src/main/resources/META-INF/resources/js/context/StoreContext';
+import loadIssues from '../../../src/main/resources/META-INF/resources/js/utils/loadIssues';
+
+jest.mock(
+	'../../../src/main/resources/META-INF/resources/js/utils/loadIssues',
+	() => jest.fn(() => () => {})
+);
 
 const mockLayoutReportsIssues = [
 	{
@@ -121,28 +128,43 @@ const mockLayoutReportsIssuesSEODetails = [
 
 const mockPageURLs = [
 	{languageId: 'en-US', title: 'English', url: 'English URL'},
+	{languageId: 'es-ES', title: 'Español', url: 'URL en Español'},
 ];
 
 const defaultLanguageId = 'en-US';
+
+const renderIssuesList = ({
+	languageId = defaultLanguageId,
+	layoutReportsIssues,
+	loading = false,
+}) => {
+	return render(
+		<StoreContextProvider
+			value={{
+				data: {
+					defaultLanguageId,
+					imagesPath: 'imagesPath',
+					layoutReportsIssues: {
+						[defaultLanguageId]: {issues: layoutReportsIssues},
+					},
+					pageURLs: mockPageURLs,
+				},
+				languageId,
+				loading,
+			}}
+		>
+			<IssuesList />
+		</StoreContextProvider>
+	);
+};
 
 describe('IssuesList', () => {
 	afterEach(cleanup);
 
 	it('renders accessibility and seo sections with issues count', () => {
-		const {getByText} = render(
-			<StoreContextProvider
-				value={{
-					data: {
-						defaultLanguageId,
-						imagesPath: 'imagesPath',
-						layoutReportsIssues: mockLayoutReportsIssues,
-						pageURLs: mockPageURLs,
-					},
-				}}
-			>
-				<IssuesList />
-			</StoreContextProvider>
-		);
+		const {getByText} = renderIssuesList({
+			layoutReportsIssues: mockLayoutReportsIssues,
+		});
 
 		expect(getByText('Accessibility')).toBeInTheDocument();
 		expect(getByText('17')).toBeInTheDocument();
@@ -151,20 +173,9 @@ describe('IssuesList', () => {
 	});
 
 	it('renders no seo or accesibility issues message', () => {
-		const {getByText} = render(
-			<StoreContextProvider
-				value={{
-					data: {
-						defaultLanguageId,
-						imagesPath: 'imagesPath',
-						layoutReportsIssues: mockLayoutReportsIssuesNoSEO,
-						pageURLs: mockPageURLs,
-					},
-				}}
-			>
-				<IssuesList />
-			</StoreContextProvider>
-		);
+		const {getByText} = renderIssuesList({
+			layoutReportsIssues: mockLayoutReportsIssuesNoSEO,
+		});
 
 		expect(getByText('SEO')).toBeInTheDocument();
 		expect(getByText('0')).toBeInTheDocument();
@@ -174,20 +185,9 @@ describe('IssuesList', () => {
 	});
 
 	it('renders no issues message (no seo and accessibility issues)', () => {
-		const {getAllByText, getByText} = render(
-			<StoreContextProvider
-				value={{
-					data: {
-						defaultLanguageId,
-						imagesPath: 'imagesPath',
-						layoutReportsIssues: mockLayoutReportsIssuesNoAccessibilityNoSEO,
-						pageURLs: mockPageURLs,
-					},
-				}}
-			>
-				<IssuesList />
-			</StoreContextProvider>
-		);
+		const {getAllByText, getByText} = renderIssuesList({
+			layoutReportsIssues: mockLayoutReportsIssuesNoAccessibilityNoSEO,
+		});
 
 		expect(getByText('Accessibility')).toBeInTheDocument();
 		expect(getByText('SEO')).toBeInTheDocument();
@@ -196,20 +196,9 @@ describe('IssuesList', () => {
 	});
 
 	it('render list of accesibility issues with correct number of failing elements', () => {
-		const {getAllByText, getByText} = render(
-			<StoreContextProvider
-				value={{
-					data: {
-						defaultLanguageId,
-						imagesPath: 'imagesPath',
-						layoutReportsIssues: mockLayoutReportsIssues,
-						pageURLs: mockPageURLs,
-					},
-				}}
-			>
-				<IssuesList />
-			</StoreContextProvider>
-		);
+		const {getAllByText, getByText} = renderIssuesList({
+			layoutReportsIssues: mockLayoutReportsIssues,
+		});
 
 		expect(getByText('Missing Input ALT Attributes')).toBeInTheDocument();
 		expect(getByText('Missing Video Caption')).toBeInTheDocument();
@@ -218,39 +207,17 @@ describe('IssuesList', () => {
 	});
 
 	it('show +100 if a section has more than 100 issues', () => {
-		const {getByText} = render(
-			<StoreContextProvider
-				value={{
-					data: {
-						defaultLanguageId,
-						imagesPath: 'imagesPath',
-						layoutReportsIssues: mockLayoutReportsIssuesOver100SEO,
-						pageURLs: mockPageURLs,
-					},
-				}}
-			>
-				<IssuesList />
-			</StoreContextProvider>
-		);
+		const {getByText} = renderIssuesList({
+			layoutReportsIssues: mockLayoutReportsIssuesOver100SEO,
+		});
 
 		expect(getByText('+100')).toBeInTheDocument();
 	});
 
 	it('renders SEO section open and show checks with failing elements', () => {
-		const {getAllByText, getByText, queryByText} = render(
-			<StoreContextProvider
-				value={{
-					data: {
-						defaultLanguageId,
-						imagesPath: 'imagesPath',
-						layoutReportsIssues: mockLayoutReportsIssuesSEODetails,
-						pageURLs: mockPageURLs,
-					},
-				}}
-			>
-				<IssuesList />
-			</StoreContextProvider>
-		);
+		const {getAllByText, getByText, queryByText} = renderIssuesList({
+			layoutReportsIssues: mockLayoutReportsIssuesSEODetails,
+		});
 
 		expect(getByText('Missing Meta Description')).toBeInTheDocument();
 		expect(getAllByText('1').length).toBe(2);
@@ -259,21 +226,10 @@ describe('IssuesList', () => {
 	});
 
 	it('renders loading progress bar, title, URL and language when issues are loading', () => {
-		const {getByText} = render(
-			<StoreContextProvider
-				value={{
-					data: {
-						defaultLanguageId,
-						imagesPath: 'imagesPath',
-						layoutReportsIssues: mockLayoutReportsIssuesSEODetails,
-						pageURLs: mockPageURLs,
-					},
-					loading: true,
-				}}
-			>
-				<IssuesList />
-			</StoreContextProvider>
-		);
+		const {getByText} = renderIssuesList({
+			layoutReportsIssues: mockLayoutReportsIssuesSEODetails,
+			loading: true,
+		});
 
 		expect(
 			getByText('connecting-with-google-pagespeed')
@@ -285,24 +241,39 @@ describe('IssuesList', () => {
 	});
 
 	it('renders language selector button disabled when issues are loading', () => {
-		const {getByText} = render(
-			<StoreContextProvider
-				value={{
-					data: {
-						defaultLanguageId,
-						imagesPath: 'imagesPath',
-						layoutReportsIssues: mockLayoutReportsIssuesSEODetails,
-						pageURLs: mockPageURLs,
-					},
-					loading: true,
-				}}
-			>
-				<IssuesList />
-			</StoreContextProvider>
-		);
+		const {getByText} = renderIssuesList({
+			layoutReportsIssues: mockLayoutReportsIssuesSEODetails,
+			loading: true,
+		});
 
 		const button = getByText('en-US').parentElement;
 
 		expect(button.disabled).toBe(true);
+	});
+
+	it('renders no issues loaded view when there are no issues for the selected language', () => {
+		const {getByText} = renderIssuesList({
+			languageId: 'es-ES',
+			layoutReportsIssues: mockLayoutReportsIssuesSEODetails,
+		});
+
+		expect(
+			getByText(
+				"launch-a-page-audit-to-check-issues-that-impact-on-your-page's-accesibility-and-seo"
+			)
+		).toBeInTheDocument();
+	});
+
+	it('calls loadIssues when clicking launch button in no issues loaded view', () => {
+		const {getByTitle} = renderIssuesList({
+			languageId: 'es-ES',
+			layoutReportsIssues: mockLayoutReportsIssuesSEODetails,
+		});
+
+		const button = getByTitle('launch-page-audit');
+
+		userEvent.click(button);
+
+		expect(loadIssues).toBeCalled();
 	});
 });

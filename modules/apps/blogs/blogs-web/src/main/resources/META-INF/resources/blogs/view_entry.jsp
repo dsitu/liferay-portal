@@ -123,7 +123,7 @@ BlogsPortletInstanceConfiguration blogsPortletInstanceConfiguration = BlogsPortl
 
 	<clay:row>
 		<clay:col
-			cssClass="col-md-offset-2"
+			cssClass="offset-md-2"
 			md="8"
 		>
 			<c:if test="<%= blogsPortletInstanceConfiguration.enableComments() %>">

@@ -17,44 +17,46 @@
 <%@ include file="/dynamic_include/init.jsp" %>
 
 <script>
-	function loadTidioScript() {
-		function setTidioUserInfo() {
-			if ('<%= themeDisplay.isSignedIn() %>' === 'true') {
-				document.tidioIdentify = {
-					distinct_id: '<%= user.getUserId() %>',
-					email: '<%= user.getEmailAddress() %>',
-					name: '<%= user.getFirstName() %>',
+	(function () {
+		function loadTidioScript() {
+			function setTidioUserInfo() {
+				if ('<%= themeDisplay.isSignedIn() %>' === 'true') {
+					document.tidioIdentify = {
+						distinct_id: '<%= user.getUserId() %>',
+						email: '<%= user.getEmailAddress() %>',
+						name: '<%= user.getFirstName() %>',
+					};
+				}
+			}
+
+			if (!document.getElementById('tidio-script-chat')) {
+				var scriptElement = document.createElement('script');
+
+				scriptElement.setAttribute('id', 'tidio-script-chat');
+				scriptElement.setAttribute(
+					'src',
+					'//code.tidio.co/<%= clickToChatChatProviderAccountId %>.js'
+				);
+				scriptElement.setAttribute('type', 'text/javascript');
+				scriptElement.onload = function () {
+					setTidioUserInfo();
 				};
+
+				var bodyElement = document.getElementsByTagName('body').item(0);
+
+				bodyElement.appendChild(scriptElement);
+			}
+			else {
+				setTidioUserInfo();
 			}
 		}
 
-		if (!document.getElementById('tidio-script-chat')) {
-			var scriptElement = document.createElement('script');
+		window.onload = function () {
+			loadTidioScript();
+		};
 
-			scriptElement.setAttribute('id', 'tidio-script-chat');
-			scriptElement.setAttribute(
-				'src',
-				'//code.tidio.co/<%= clickToChatChatProviderAccountId %>.js'
-			);
-			scriptElement.setAttribute('type', 'text/javascript');
-			scriptElement.onload = function () {
-				setTidioUserInfo();
-			};
-
-			var bodyElement = document.getElementsByTagName('body').item(0);
-
-			bodyElement.appendChild(scriptElement);
+		if (document.readyState === 'complete') {
+			loadTidioScript();
 		}
-		else {
-			setTidioUserInfo();
-		}
-	}
-
-	window.onload = function () {
-		loadTidioScript();
-	};
-
-	if (document.readyState === 'complete') {
-		loadTidioScript();
-	}
+	})();
 </script>

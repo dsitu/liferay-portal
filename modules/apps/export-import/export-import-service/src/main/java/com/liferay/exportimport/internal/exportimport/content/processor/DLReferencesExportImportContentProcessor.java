@@ -62,6 +62,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -105,29 +107,6 @@ public class DLReferencesExportImportContentProcessor
 		}
 	}
 
-	protected void deleteTimestampParameters(StringBuilder sb, int beginPos) {
-		beginPos = sb.indexOf(StringPool.CLOSE_BRACKET, beginPos);
-
-		if ((beginPos == -1) || (beginPos == (sb.length() - 1)) ||
-			(sb.charAt(beginPos + 1) != CharPool.QUESTION)) {
-
-			return;
-		}
-
-		int endPos = StringUtil.indexOfAny(
-			sb.toString(), _DL_REFERENCE_LEGACY_STOP_STRINGS, beginPos + 2);
-
-		if (endPos == -1) {
-			return;
-		}
-
-		String urlParams = sb.substring(beginPos + 1, endPos);
-
-		urlParams = _http.removeParameter(urlParams, "t");
-
-		sb.replace(beginPos + 1, endPos, urlParams);
-	}
-
 	protected ObjectValuePair<String, Integer>
 		getDLReferenceEndPosObjectValuePair(
 			String content, int beginPos, int endPos) {
@@ -138,14 +117,19 @@ public class DLReferencesExportImportContentProcessor
 			stopStrings = _DL_REFERENCE_STOP_STRINGS;
 		}
 
-		endPos = StringUtil.indexOfAny(content, stopStrings, beginPos, endPos);
+		int urlPatternPos = StringUtil.indexOfAny(
+			content, stopStrings, beginPos, endPos);
 
-		if (endPos == -1) {
-			return null;
+		if (urlPatternPos == -1) {
+			if (endPos != content.length()) {
+				return null;
+			}
+
+			urlPatternPos = endPos;
 		}
 
 		return new ObjectValuePair<>(
-			content.substring(beginPos, endPos), endPos);
+			content.substring(beginPos, urlPatternPos), urlPatternPos);
 	}
 
 	protected Map<String, String[]> getDLReferenceParameters(
@@ -181,7 +165,12 @@ public class DLReferencesExportImportContentProcessor
 
 			if (Objects.equals(pathArray[2], "portlet_file_entry")) {
 				map.put("groupId", new String[] {pathArray[3]});
-				map.put("title", new String[] {_http.decodeURL(pathArray[4])});
+				map.put(
+					"title",
+					new String[] {
+						StringUtils.substringBefore(
+							_http.decodeURL(pathArray[4]), StringPool.POUND)
+					});
 			}
 			else {
 				map.put("groupId", new String[] {pathArray[2]});
@@ -189,7 +178,11 @@ public class DLReferencesExportImportContentProcessor
 				if (pathArray.length == 5) {
 					map.put("folderId", new String[] {pathArray[3]});
 					map.put(
-						"title", new String[] {_http.decodeURL(pathArray[4])});
+						"title",
+						new String[] {
+							StringUtils.substringBefore(
+								_http.decodeURL(pathArray[4]), StringPool.POUND)
+						});
 				}
 			}
 
@@ -256,8 +249,23 @@ public class DLReferencesExportImportContentProcessor
 					String title = MapUtil.getString(map, "title");
 
 					if (Validator.isNotNull(title)) {
-						fileEntry = _dlAppLocalService.getFileEntry(
-							groupId, folderId, title);
+						try {
+							fileEntry =
+								_dlAppLocalService.getFileEntryByFileName(
+									groupId, folderId, title);
+						}
+						catch (NoSuchFileEntryException
+									noSuchFileEntryException) {
+
+							if (_log.isDebugEnabled()) {
+								_log.debug(
+									noSuchFileEntryException,
+									noSuchFileEntryException);
+							}
+
+							fileEntry = _dlAppLocalService.getFileEntry(
+								groupId, folderId, title);
+						}
 					}
 					else {
 						DLFileEntry dlFileEntry =
@@ -413,15 +421,6 @@ public class DLReferencesExportImportContentProcessor
 				}
 
 				sb.replace(beginPos, endPos, exportedReferenceSB.toString());
-
-				int deleteTimestampParametersOffset = beginPos;
-
-				if (fileEntry.isInTrash()) {
-					deleteTimestampParametersOffset = sb.indexOf(
-						"[#dl-reference=", beginPos);
-				}
-
-				deleteTimestampParameters(sb, deleteTimestampParametersOffset);
 			}
 			catch (Exception exception) {
 				StringBundler exceptionSB = new StringBundler(6);
@@ -569,7 +568,8 @@ public class DLReferencesExportImportContentProcessor
 					StringPool.BLANK, false, false);
 
 				if (url.contains(StringPool.QUESTION)) {
-					content = StringUtil.replace(content, "$]?", "$]&");
+					url = url.substring(
+						0, url.lastIndexOf(StringPool.QUESTION));
 				}
 
 				String exportedReference = "[$dl-reference=" + path + "$]";

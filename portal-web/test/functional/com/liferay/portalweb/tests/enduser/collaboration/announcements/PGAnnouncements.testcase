@@ -36,28 +36,28 @@ definition {
 			PortalInstances.tearDownCP();
 		}
 		else {
-			Navigator.gotoPage(pageName = "Announcements Page");
+			JSONAnnouncement.deleteAnnouncement(
+				groupName = "Guest",
+				siteURLKey = "guest");
 
-			AnnouncementsEntry.tearDownPG();
-
-			Page.tearDownCP();
+			JSONLayout.deletePublicLayout(
+				groupName = "Guest",
+				layoutName = "Announcements Page");
 		}
 	}
 
 	@priority = "4"
-	@refactorneeded
-	test AddAnnouncementsEntry {
-		property test.name.skip.portal.instance = "PGAnnouncements#AddAnnouncementsEntry";
+	@refactordone
+	test CanAddAnnouncementsEntry {
+		JSONAnnouncement.addAnnouncement(
+			announcementContent = "Announcements Entry Content",
+			announcementTitle = "Announcements Entry Title",
+			announcementURL = "http://www.liferay.com");
 
-		Navigator.gotoPage(pageName = "Announcements Page");
-
-		AnnouncementsEntry.addPG(
-			distributionScope = "General",
-			entryContent = "Announcements Entry Content",
-			entryTitle = "Announcements Entry Title",
-			entryURL = "http://www.liferay.com");
-
-		Navigator.gotoPage(pageName = "Announcements Page");
+		AnnouncementsNavigator.openToEntriesTab(
+			layoutName = "announcements-page",
+			siteURLKey = "guest",
+			tabName = "unread");
 
 		AnnouncementsEntry.viewPG(
 			distributionScope = "General",
@@ -67,9 +67,13 @@ definition {
 	}
 
 	@priority = "4"
-	@refactorneeded
-	test AddAnnouncementsEntryFutureDate {
-		Navigator.gotoPage(pageName = "Announcements Page");
+	@refactordone
+	@uitest
+	test CanAddAnnouncementsEntryFutureDate {
+		AnnouncementsNavigator.openToEntriesTab(
+			layoutName = "announcements-page",
+			siteURLKey = "guest",
+			tabName = "unread");
 
 		AnnouncementsEntry.addEntryWithFutureDate(
 			distributionScope = "General",
@@ -77,13 +81,7 @@ definition {
 			entryTitle = "Announcements Entry Title",
 			entryURL = "http://www.liferay.com");
 
-		Pause(locator1 = "10000");
-
-		AssertClick(
-			locator1 = "Announcements#NAVIGATION_ENTRIES_UNREAD",
-			value1 = "Unread");
-
-		AssertTextNotPresent(value1 = "Announcements Entry Title");
+		AnnouncementsEntry.viewNoPG(entryTitle = "Announcements Entry Title");
 
 		Pause(locator1 = "120000");
 
@@ -96,119 +94,61 @@ definition {
 			entryURL = "http://www.liferay.com");
 	}
 
-	@priority = "3"
-	@refactorneeded
-	test AddAnnouncementsEntryPastExpirationDate {
-		Navigator.gotoPage(pageName = "Announcements Page");
-
-		AnnouncementsEntry.addPG(
-			distributionScope = "General",
-			entryContent = "Announcements Entry Content",
-			entryTitle = "Announcements Entry Title",
-			entryURL = "http://www.liferay.com",
-			expirationDate = "12/31/2013",
-			pastDate = "true");
-
-		Navigator.gotoPage(pageName = "Announcements Page");
-
-		AssertTextNotPresent(value1 = "Announcements Entry Title");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Communication",
-			panel = "Applications",
-			portlet = "Announcements and Alerts");
-
-		AssertTextEquals(
-			locator1 = "Message#NO_ENTRIES",
-			value1 = "No entries were found.");
-	}
-
 	@priority = "4"
-	@refactorneeded
-	test AddAnnouncementsEntryPriorityImportant {
+	@refactordone
+	test CanAddAnnouncementsEntryPriorityImportant {
 		JSONAnnouncement.addAnnouncement(
 			announcementContent = "Announcements Entry Content",
 			announcementTitle = "Announcements Entry Title",
 			announcementURL = "http://www.liferay.com",
 			priority = "Important");
 
-		Navigator.gotoPage(pageName = "Announcements Page");
+		AnnouncementsNavigator.openToEntriesTab(
+			layoutName = "announcements-page",
+			siteURLKey = "guest",
+			tabName = "unread");
 
 		AnnouncementsEntry.viewPG(
 			distributionScope = "General",
 			entryContent = "Announcements Entry Content",
-			entryTitle = "Announcements Entry Title");
-	}
-
-	@priority = "3"
-	@refactorneeded
-	test AddAnnouncementsEntrySite {
-		JSONGroup.addGroup(groupName = "Site Name");
-
-		JSONLayout.addPublicLayout(
-			groupName = "Site Name",
-			layoutName = "Announcements Page");
-
-		JSONLayout.updateLayoutTemplateOfPublicLayout(
-			groupName = "Site Name",
-			layoutName = "Announcements Page",
-			layoutTemplate = "1 Column");
-
-		JSONLayout.addWidgetToPublicLayout(
-			groupName = "Site Name",
-			layoutName = "Announcements Page",
-			widgetName = "Announcements");
-
-		JSONAnnouncement.addAnnouncement(
-			announcementContent = "Announcements Entry Content",
-			announcementTitle = "Announcements Entry Title",
-			announcementURL = "http://www.liferay.com");
-
-		Navigator.gotoSitePage(
-			pageName = "Announcements Page",
-			siteName = "Site Name");
-
-		AnnouncementsEntry.viewPG(
-			distributionScope = "General",
-			entryContent = "Announcements Entry Content",
-			entryTitle = "Announcements Entry Title");
+			entryTitle = "Announcements Entry Title",
+			priority = "Important");
 	}
 
 	@priority = "5"
-	@refactorneeded
-	test DeleteAnnouncementsEntry {
+	@refactordone
+	test CanDeleteAnnouncementsEntry {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "PGAnnouncements#DeleteAnnouncementsEntry";
 
 		JSONAnnouncement.addAnnouncement(
 			announcementContent = "Announcements Entry Content",
 			announcementTitle = "Announcements Entry Title",
 			announcementURL = "http://www.liferay.com");
 
-		Navigator.gotoPage(pageName = "Announcements Page");
+		AnnouncementsNavigator.openToEntriesTab(
+			layoutName = "announcements-page",
+			siteURLKey = "guest",
+			tabName = "unread");
 
-		AnnouncementsEntry.deletePG(
-			distributionScope = "General",
-			entryContent = "Announcements Entry Content",
-			entryTitle = "Announcements Entry Title");
+		AnnouncementsEntry.deletePG(entryTitle = "Announcements Entry Title");
 
-		AnnouncementsEntry.viewDeletePG(
-			entryContent = "Announcements Entry Content",
-			entryTitle = "Announcements Entry Title");
+		AnnouncementsEntry.viewNoPG(entryTitle = "Announcements Entry Title");
 	}
 
 	@priority = "5"
-	@refactorneeded
-	test EditAnnouncementsEntry {
+	@refactordone
+	test CanEditAnnouncementsEntry {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "PGAnnouncements#EditAnnouncementsEntry";
 
 		JSONAnnouncement.addAnnouncement(
 			announcementContent = "Announcements Entry Content",
 			announcementTitle = "Announcements Entry Title",
 			announcementURL = "http://www.liferay.com");
 
-		Navigator.gotoPage(pageName = "Announcements Page");
+		AnnouncementsNavigator.openToEntriesTab(
+			layoutName = "announcements-page",
+			siteURLKey = "guest",
+			tabName = "unread");
 
 		AnnouncementsEntry.editPG(
 			distributionScope = "General",
@@ -218,32 +158,59 @@ definition {
 			entryTitleEdit = "Announcements Entry Title Edit",
 			entryURLEdit = "http://www.alloyui.com");
 
-		Navigator.gotoPage(pageName = "Announcements Page");
-
 		AnnouncementsEntry.viewPG(
 			distributionScope = "General",
 			entryContent = "Announcements Entry Content Edit",
 			entryTitle = "Announcements Entry Title Edit");
 	}
 
-	@priority = "5"
-	@refactorneeded
-	test ViewPreviousAnnouncementEntries {
-		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "PGAnnouncements#ViewPreviousAnnouncementEntries";
+	@priority = "3"
+	@refactordone
+	@uitest
+	test CannotAddAnnouncementsEntryPastExpirationDate {
+		AnnouncementsNavigator.openToEntriesTab(
+			layoutName = "announcements-page",
+			siteURLKey = "guest",
+			tabName = "unread");
 
-		Navigator.gotoPage(pageName = "Announcements Page");
+		AnnouncementsEntry.addPG(
+			distributionScope = "General",
+			entryContent = "Announcements Entry Content",
+			entryTitle = "Announcements Entry Title",
+			entryURL = "http://www.liferay.com",
+			expirationDate = "12/31/2013",
+			pastDate = "true");
+
+		AnnouncementsNavigator.openToEntriesTab(
+			layoutName = "announcements-page",
+			siteURLKey = "guest",
+			tabName = "unread");
+
+		AnnouncementsEntry.viewNoPG(entryTitle = "Announcements Entry Title");
+
+		AnnouncementsNavigator.opentoAdmin(
+			groupName = "Guest",
+			siteURLKey = "guest");
+
+		AnnouncementsEntry.viewNoAdmin();
+	}
+
+	@priority = "5"
+	@refactordone
+	test CanViewPreviousAnnouncementEntries {
+		property portal.acceptance = "true";
 
 		JSONAnnouncement.addAnnouncement(
 			announcementContent = "Announcements Entry Content",
 			announcementTitle = "Announcements Entry Title",
 			announcementURL = "http://www.liferay.com");
 
-		Navigator.gotoPage(pageName = "Announcements Page");
-
 		AnnouncementsEntry.markAsReadPG(
 			entryContent = "Announcements Entry Content",
-			entryTitle = "Announcements Entry Title");
+			entryTitle = "Announcements Entry Title",
+			layoutName = "announcements-page",
+			siteURLKey = "guest",
+			tabName = "unread");
 
 		AnnouncementsEntry.viewReadPG(
 			distributionScope = "General",

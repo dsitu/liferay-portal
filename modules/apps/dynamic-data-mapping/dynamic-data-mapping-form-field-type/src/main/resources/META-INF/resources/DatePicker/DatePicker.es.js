@@ -91,7 +91,15 @@ const getDateFormat = (locale) => {
 	};
 };
 
-const transformToDate = (
+const getInitialMonth = (value) => {
+	if (moment(value).isValid()) {
+		return moment(value).toDate();
+	}
+
+	return moment().toDate();
+};
+
+const getInitialValue = (
 	defaultLanguageId,
 	date,
 	locale,
@@ -102,24 +110,16 @@ const transformToDate = (
 			return moment(date, [
 				getLocaleDateFormat(locale),
 				'YYYY-MM-DD',
-			]).toDate();
+			]).format(getLocaleDateFormat(locale));
 		}
 
 		return moment(date, [
 			getLocaleDateFormat(defaultLanguageId),
 			'YYYY-MM-DD',
-		]).toDate();
+		]).format(getLocaleDateFormat(defaultLanguageId));
 	}
 
 	return date;
-};
-
-const getInitialMonth = (value) => {
-	if (moment(value).isValid()) {
-		return moment(value).toDate();
-	}
-
-	return moment().toDate();
 };
 
 const getValueForHidden = (value, locale) => {
@@ -155,7 +155,7 @@ const DatePicker = ({
 
 	const initialValueMemoized = useMemo(
 		() =>
-			transformToDate(
+			getInitialValue(
 				defaultLanguageId,
 				initialValue,
 				locale,
@@ -198,9 +198,7 @@ const DatePicker = ({
 				}
 			}
 			else if (initialValueMemoized) {
-				inputRef.current.value = moment(initialValueMemoized).format(
-					dateMask.toUpperCase()
-				);
+				inputRef.current.value = initialValueMemoized;
 			}
 			else {
 				inputRef.current.value = '';
@@ -272,12 +270,14 @@ const DatePicker = ({
 						return onChange('');
 					}
 
-					if (moment(value).isValid()) {
-						onChange(
-							moment(value, getLocaleDateFormat(locale)).format(
-								'L'
-							)
-						);
+					if (
+						moment(
+							value,
+							getLocaleDateFormat(locale),
+							true
+						).isValid()
+					) {
+						onChange(getValueForHidden(value, locale));
 					}
 				}}
 				ref={inputRef}

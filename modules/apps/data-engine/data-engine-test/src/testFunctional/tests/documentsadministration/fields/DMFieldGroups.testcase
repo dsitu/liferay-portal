@@ -46,7 +46,7 @@ definition {
 
 		DDLDataDefinition.save();
 
-		Navigator.gotoNavItem(navItem = "Documents and Media");
+		Navigator.gotoNavItem(navItem = "Files");
 
 		DMDocument.addCP(
 			dmDocumentTitle = "DM Title",
@@ -63,6 +63,7 @@ definition {
 			value1 = "Test Text");
 
 		AssertTextEquals.assertValue(
+			key_fieldLabel = "Numeric",
 			locator1 = "TextInput#NUMERIC",
 			value1 = "123");
 	}
@@ -83,13 +84,10 @@ definition {
 
 		DMNavigator.gotoEditDocumentType(dmDocumentTypeName = "DM Document Type Name");
 
-		AssertElementPresent(
-			key_FieldGroupLabel = "Fields Group",
-			locator1 = "DataEngineBuilder#FIELDS_GROUP_LOCATOR");
-
-		FormFields.assertFieldsVisibleInFieldGroup(
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "1",
 			fieldGroupLabel = "Fields Group",
-			fieldGroupLabelList = "Text,Numeric");
+			fieldsLabelList = "Text,Numeric");
 	}
 
 	@description = "This test ensures it's possible to delete a field group on a Document Type."
@@ -128,14 +126,7 @@ definition {
 
 		MenuItem.clickNoError(menuItem = "Edit");
 
-		Click(
-			index = "1",
-			key_fieldLabel = "Fields Group",
-			locator1 = "DataEngineBuilder#FIELD_LABEL_INDEXED");
-
-		Click(locator1 = "DataEngineBuilder#FORM_FIELDS_GROUP_VERTICAL_ELLIPSIS");
-
-		MenuItem.clickNoError(menuItem = "Delete");
+		DataEngine.delete(fieldsGroupLabel = "Fields Group");
 
 		DDLDataDefinition.save();
 
@@ -233,13 +224,10 @@ definition {
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document Type Name");
 
-		Click(
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "2",
 			fieldGroupLabel = "Copy of Fields Group",
-			locator1 = "DataEngineBuilder#FORM_FIELDS_GROUP_NESTED_LABEL");
-
-		AssertTextEquals(
-			locator1 = "DataEngineBuilder#DUPLICATED_FORM_FIELDS_GROUP_LABEL",
-			value1 = "Copy of Fields Group");
+			fieldsLabelList = "Copy of Date,Copy of Numeric");
 	}
 
 	@description = "This test ensure user can edit the field group label."
@@ -254,15 +242,16 @@ definition {
 
 		DataEngine.editFieldLabel(
 			fieldFieldLabel = "Fields Group",
-			fieldFieldLabelEdit = "Fields Group Edit");
+			fieldFieldLabelEdit = "Fields Group Edited");
 
 		DDLDataDefinition.save();
 
 		LexiconEntry.gotoEntry(rowEntry = "DM Document Type Name");
 
-		AssertElementPresent(
-			key_FieldGroupLabel = "Fields Group Edit",
-			locator1 = "DataEngineBuilder#FIELDS_GROUP_LOCATOR");
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "1",
+			fieldGroupLabel = "Fields Group Edited",
+			fieldsLabelList = "Text,Numeric");
 	}
 
 	@description = "This test ensures it's possible to edit a field's property for a field inside a field group."
@@ -345,7 +334,7 @@ definition {
 
 		DataEngine.editFieldLabel(
 			fieldFieldLabel = "Fields Group",
-			fieldFieldLabelEdit = "Field Group Edit");
+			fieldFieldLabelEdit = "Fields Group Edited");
 
 		DataEngine.addFieldNested(
 			fieldFieldLabel = "Date",
@@ -356,15 +345,15 @@ definition {
 
 		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document Type Name");
 
-		AssertTextEquals(
-			key_FieldGroupLabel = "Field Group Edit",
-			locator1 = "DataEngineBuilder#FIELDS_GROUP_LOCATOR",
-			value1 = "Field Group Edit");
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "1",
+			fieldGroupLabel = "Fields Group Edited",
+			fieldsLabelList = "Text");
 
-		AssertTextEquals(
-			key_FieldGroupLabel = "Fields Group",
-			locator1 = "DataEngineBuilder#FIELDS_GROUP_LOCATOR",
-			value1 = "Fields Group");
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "2",
+			fieldGroupLabel = "Fields Group",
+			fieldsLabelList = "Numeric,Date");
 	}
 
 	@description = "This test validates that a collapsible field group can be collapsed when uploading a Document and Media."
@@ -379,7 +368,7 @@ definition {
 
 		PortletEntry.save();
 
-		Navigator.gotoNavItem(navItem = "Documents and Media");
+		Navigator.gotoNavItem(navItem = "Files");
 
 		DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "DM Document Type Name");
 
@@ -410,7 +399,7 @@ definition {
 
 		Button.clickSave();
 
-		Navigator.gotoNavItem(navItem = "Documents and Media");
+		Navigator.gotoNavItem(navItem = "Files");
 
 		DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "DM Document Type Name");
 

@@ -811,13 +811,18 @@ public class PortletFileRepositoryImpl implements PortletFileRepository {
 	@Reference
 	private Http _http;
 
+	@Reference(
+		target = "(class.name=com.liferay.portal.repository.liferayrepository.LiferayRepository)"
+	)
+	private RepositoryFactory _liferayRepositoryFactory;
+
 	@Reference
 	private Portal _portal;
 
 	@Reference(
 		target = "(class.name=com.liferay.portal.repository.portletrepository.PortletRepository)"
 	)
-	private RepositoryFactory _repositoryFactory;
+	private RepositoryFactory _portletRepositoryFactory;
 
 	@Reference
 	private RepositoryLocalService _repositoryLocalService;

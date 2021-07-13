@@ -10,6 +10,14 @@ definition {
 		Click(locator1 = "ACSettings#KEYWORD_SEND_BUTTON");
 	}
 
+	@summary = "Asserts the individuals usage value \
+	@param individualUsageValue"
+	macro assertIndividualsUsage() {
+		AssertTextEquals(
+			locator1 = "ACSettings#INDIVIDUALS_USAGE_METRIC",
+			value1 = "${individualUsageValue}");
+	}
+
 	macro assertKeywords {
 		var key_KeywordName = "${keyword}";
 
@@ -18,14 +26,36 @@ definition {
 			value1 = "${keyword}");
 	}
 
+	@summary = "Asserts the page views usage value \
+	@param pageViewsUsageValue"
+	macro assertPageViewsUsage() {
+		AssertTextEquals(
+			locator1 = "ACSettings#PAGE_VIEWS_USAGE_METRIC",
+			value1 = "${pageViewsUsageValue}");
+	}
+
+	@summary = "Deletes all properties \
+	@param propertyList the list of properties you want to delete (optional)"
 	macro deleteAllProperties {
-		if (!(isSet(propertyList))) {
-			var propertyList = "Liferay DXP,Liferay DXP Combined Property";
+		if (IsElementNotPresent(locator1 = "ACSettings#EXIT_SETTINGS_BUTTON")) {
+			ACNavigation.goToSettings();
 		}
 
-		for (var itemName : list "${propertyList}") {
-			ACSettings.deleteProperty(propertyName = "${itemName}");
-		}
+		ACSettings.goToProperties();
+
+		KeyPress(
+			locator1 = "ACSettings#SELECT_ALL_CHECKBOX",
+			value1 = "\SPACE");
+
+		Click(locator1 = "ACSettings#GENERIC_DELETE_BUTTON");
+
+		Copy(locator1 = "ACSettings#DELETE_CONFIRMATION_MESSAGE");
+
+		Click(locator1 = "ACSettings#DELETE_CONFIRMATION_INPUT");
+
+		Paste(locator1 = "ACSettings#DELETE_CONFIRMATION_INPUT");
+
+		Click(locator1 = "ACSettings#DELETE_CONFIRMATION_BUTTON");
 	}
 
 	@summary = "Deletes a specific data source \
@@ -39,27 +69,19 @@ definition {
 
 		ACSettings.goToDataSources();
 
-		Click(locator1 = "ACSettings#SEARCH_BAR");
+		while (IsElementPresent(locator1 = "ACSettings#ITEM_TABLE")) {
+			Click(locator1 = "ACSettings#ITEM_TABLE");
 
-		Type(
-			locator1 = "ACSettings#SEARCH_BAR",
-			value1 = "${dataSourceName}");
+			Click(locator1 = "ACSettings#DELETE_BUTTON_DATA_SOURCE");
 
-		KeyPress(
-			locator1 = "ACSettings#SEARCH_BAR",
-			value1 = "\ENTER");
+			Copy(locator1 = "ACSettings#DELETE_CONFIRMATION_MESSAGE");
 
-		Click(locator1 = "ACSettings#ITEM_ON_LIST");
+			Click(locator1 = "ACSettings#DELETE_CONFIRMATION_INPUT");
 
-		Click(locator1 = "ACSettings#GENERIC_DELETE_BUTTON");
+			Paste(locator1 = "ACSettings#DELETE_CONFIRMATION_INPUT");
 
-		Copy(locator1 = "ACSettings#DELETE_CONFIRMATION_MESSAGE");
-
-		Click(locator1 = "ACSettings#DELETE_CONFIRMATION_INPUT");
-
-		Paste(locator1 = "ACSettings#DELETE_CONFIRMATION_INPUT");
-
-		Click(locator1 = "ACSettings#DELETE_CONFIRMATION_BUTTON");
+			Click(locator1 = "ACSettings#DELETE_CONFIRMATION_BUTTON");
+		}
 	}
 
 	macro deleteKeywordCheckbox {
@@ -78,40 +100,6 @@ definition {
 
 			Click(locator1 = "ACSettings#CONTINUE_BUTTON");
 		}
-	}
-
-	@summary = "Deletes a specific property \
-	@param propertyName the name of the property you want to delete"
-	macro deleteProperty {
-		var itemName = "${propertyName}";
-
-		if (IsElementNotPresent(locator1 = "ACSettings#EXIT_SETTINGS_BUTTON")) {
-			ACNavigation.goToSettings();
-		}
-
-		ACSettings.goToProperties();
-
-		Click(locator1 = "ACSettings#SEARCH_BAR");
-
-		Type(
-			locator1 = "ACSettings#SEARCH_BAR",
-			value1 = "${propertyName}");
-
-		KeyPress(
-			locator1 = "ACSettings#SEARCH_BAR",
-			value1 = "\ENTER");
-
-		Click(locator1 = "ACSettings#ITEM_ON_LIST");
-
-		Click(locator1 = "ACSettings#GENERIC_DELETE_BUTTON");
-
-		Copy(locator1 = "ACSettings#DELETE_CONFIRMATION_MESSAGE");
-
-		Click(locator1 = "ACSettings#DELETE_CONFIRMATION_INPUT");
-
-		Paste(locator1 = "ACSettings#DELETE_CONFIRMATION_INPUT");
-
-		Click(locator1 = "ACSettings#DELETE_CONFIRMATION_BUTTON");
 	}
 
 	macro goToApis {
@@ -152,6 +140,7 @@ definition {
 		ACSettings.goToSettingsNavigation(settingsNavigation = "settings/workspace");
 	}
 
+	@summary = "Takes the token from Analytics Clouds to use on during the DXP connection process"
 	macro takeTokenFromAnalyticsCloud {
 		ACSettings.goToDataSources();
 

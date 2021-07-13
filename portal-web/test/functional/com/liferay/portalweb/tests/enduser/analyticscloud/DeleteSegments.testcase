@@ -1,0 +1,90 @@
+@component-name = "portal-analytics-cloud"
+definition {
+
+	property analytics.cloud.enabled = "true";
+	property minimum.slave.ram = "32";
+	property portal.release = "false";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Analytics Cloud";
+
+	setUp {
+		ACUtils.launchAC();
+
+		ACSettings.takeTokenFromAnalyticsCloud();
+
+		TestCase.setUpPortalInstance();
+
+		ACUtils.launchDXP();
+
+		ACUtils.addSiteAndPage();
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		ACUtils.tearDownDXP();
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			JSONGroup.deleteGroupByName(groupName = "Site Name");
+		}
+
+		ACUtils.tearDownAC();
+	}
+
+	@description = "Delete a dynamic segment"
+	@priority = "5"
+	test CanDeleteDynamicSegment {
+		ACUtils.createBlogsAndAddToPage();
+
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+
+		Navigator.gotoSitePage(
+			pageName = "AC Page",
+			siteName = "Site Name");
+
+		BlogsNavigator.gotoPG(entryTitle = "Blogs AC Title");
+
+		ACUtils.closeAllSessions();
+
+		Pause(locator1 = "30000");
+
+		ACUtils.launchAC();
+
+		ACProperties.switchProperty(propertyName = "${propertyName}");
+
+		ACNavigation.goToSegments();
+
+		ACSegments.createDynamicSegment();
+
+		ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+
+		ACSegments.addSegmentField(segmentField = "Viewed Blog");
+
+		ACSegments.selectDocument(
+			documentTitle = "Blogs AC Title",
+			indexField = "1");
+
+		ACSegments.saveSegment();
+
+		ACNavigation.goToSegments();
+
+		ACSegments.viewSegmentName(searchTerm = "Dynamic Segment Test");
+
+		ACSegments.deleteSegment(searchTerm = "Dynamic Segment Test");
+
+		ACSegments.viewDeletedSegmentName(searchTerm = "Dynamic Segment Test");
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8138 | Test Summary: Delete a static segment"
+	@ignore = "true"
+	@priority = "5"
+	test CanDeleteStaticSegment {
+
+		// TODO LRAC-8138 CanDeleteStaticSegment pending implementation
+
+	}
+
+}

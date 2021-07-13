@@ -115,7 +115,9 @@ Export-Package:\
 	com.sun.syndication.io;version='1.0',\
 	com.sun.syndication.io.impl;version='1.0',\
 	\
-	com.thoughtworks.xstream.*;version='1.4.16',\
+	com.thoughtworks.xstream.*;version='1.4.17',\
+	\
+	io.netty.*,\
 	\
 	java_cup.runtime.*;version='2.7.1',\
 	\
@@ -124,7 +126,7 @@ Export-Package:\
 	\
 	javax.mail.*;version='1.6.6',\
 	\
-	javax.persistence.*;version='2.1',\
+	javax.persistence.*;version='2.2.1',\
 	\
 	javax.portlet.*;version='2.0',\
 	\
@@ -347,6 +349,7 @@ Provide-Capability:\
 	@../../../lib/portal/log4j-1.2-api.jar,\
 	@../../../lib/portal/log4j-api.jar,\
 	@../../../lib/portal/log4j-core.jar,\
+	@../../../lib/portal/netty-all.jar,\
 	@../../../lib/portal/persistence.jar,\
 	@../../../lib/portal/portlet.jar,\
 	@../../../lib/portal/portletmvc4spring-framework.jar,\

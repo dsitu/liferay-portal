@@ -9,7 +9,7 @@ definition {
 	setUp {
 		TestCase.setUpPortalInstance();
 
-		User.firstLoginPG();
+		User.firstLoginUI();
 	}
 
 	tearDown {
@@ -274,18 +274,52 @@ definition {
 	@ignore = "true"
 	@priority = "4"
 	test CanDeleteATableUsingBackspace {
-		property forms.functional = "true";
+		property forms.functional = "false";
 		property portal.acceptance = "false";
 
-		// TODO LPS-131237 CanDeleteATableUsingBackspace pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Paragraph");
+
+		FormFields.addTableInBodyParagraph();
+
+		Form.save();
+
+		FormFields.deleteTextWithBackspaceInBodyParagraph();
+
+		FormFields.viewTableNotPresent();
+
+		FormFields.editParagraphBody(content = "test");
+
+		Form.save();
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoEditFormByName(formName = "Form 1");
+
+		FormFields.viewParagraphField(
+			fieldName = "Paragraph",
+			fieldTitle = "Paragraph",
+			fieldValue = "Test");
+
+		FormFields.viewTableNotPresent();
 	}
 
 	@description = "Verify that a Table can be deleted in the Body Text using the right click menu"
 	@ignore = "true"
 	@priority = "4"
 	test CanDeleteATableUsingRightClick {
-		property forms.functional = "true";
+		property forms.functional = "false";
 		property portal.acceptance = "false";
 
 		// TODO LPS-133010 CanDeleteATableUsingRightClick pending implementation
@@ -297,6 +331,7 @@ definition {
 	test CanEditFormattingStyle {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "FormsParagraphField#CanEditFormattingStyle";
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -430,41 +465,12 @@ definition {
 		Alert.viewSuccessMessageText(successMessage = "The form was published successfully.");
 	}
 
-	@description = "Verify that a link to an Anchor in The Text can be added to the Body Text"
-	@ignore = "true"
-	@priority = "5"
-	test CanSupportALinkToAnAnchor {
-		property portal.acceptance = "false";
-
-		// TODO LPS-131241 CanSupportALinkToAnAnchor pending implementation
-
-	}
-
-	@description = "Verify that a link to an Email can be added to the Body Text"
-	@ignore = "true"
-	@priority = "5"
-	test CanSupportALinkToAnEmail {
-		property portal.acceptance = "false";
-
-		// TODO LPS-131242 CanSupportALinkToAnEmail pending implementation
-
-	}
-
-	@description = "Verify that a link to a Phone Number can be added to the Body Text"
-	@ignore = "true"
-	@priority = "5"
-	test CanSupportALinkToAPhoneNumber {
-		property portal.acceptance = "false";
-
-		// TODO LPS-131243 CanSupportALinkToAPhoneNumber pending implementation
-
-	}
-
 	@description = "Verify that a link to a URL can be added to the Body Text"
 	@priority = "5"
 	test CanSupportALinkToAURL {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportALinkToAURL";
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -507,6 +513,7 @@ definition {
 	test CanSupportBulletedLists {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportBulletedLists";
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -559,13 +566,42 @@ definition {
 	}
 
 	@description = "Verify that the Body Text supports HTML"
-	@ignore = "true"
 	@priority = "5"
 	test CanSupportHTML {
+		property forms.functional = "true";
 		property portal.acceptance = "false";
 
-		// TODO LPS-131247 CanSupportHTML pending implementation
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
 
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Paragraph");
+
+		CKEditor.addSourceContent(content = "<h1>Paragraph Test</h1>");
+
+		FormFields.viewSourceElement(
+			elementName = "h1",
+			value = "Paragraph Test");
+
+		Form.save();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormFields.viewParagraphField(
+			fieldTitle = "Paragraph",
+			fieldValue = "Paragraph Test");
+
+		FormFields.viewParagraphContentNotEquals(fieldValue = "<h1>Paragraph Test</h1>");
+
+		FormPortlet.submitSuccessfullyAndViewSuccessPage();
 	}
 
 	@description = "Verify that an Image can be uploaded to the Body Text"
@@ -573,6 +609,7 @@ definition {
 	test CanSupportImages {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportImages";
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -612,6 +649,7 @@ definition {
 	test CanSupportNumberedLists {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportNumberedLists";
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -668,6 +706,7 @@ definition {
 	test CanSupportTables {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportTables";
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -709,6 +748,7 @@ definition {
 	test CanSupportVideos {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportVideos";
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -760,6 +800,7 @@ definition {
 	test CanUndoAndRedo {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "FormsParagraphField#CanUndoAndRedo";
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -800,16 +841,6 @@ definition {
 			value1 = "Test Body Text");
 	}
 
-	@description = "Verify that a link in a Paragraph Field can be unlinked"
-	@ignore = "true"
-	@priority = "5"
-	test CanUnlinkALink {
-		property portal.acceptance = "false";
-
-		// TODO LPS-131244 CanUnlinkALink pending implementation
-
-	}
-
 	@description = "Verify that changes to a Field can be canceled"
 	@ignore = "true"
 	@priority = "5"
@@ -822,7 +853,7 @@ definition {
 
 	@description = "Verify that the Field Reference can be Edited"
 	@priority = "5"
-	test FieldReferenceCanBeEdited {
+	test ReferenceCanBeEdited {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
 
@@ -850,16 +881,9 @@ definition {
 
 		FormsAdminNavigator.gotoEditFormByName(formName = "Form 1");
 
-		Click(
-			key_name = "Paragraph",
-			locator1 = "FormFields#FIELD_TARGET_LABEL");
-
-		Form.gotoAdvancedTab();
-
-		AssertElementPresent(
-			key_fieldName = "",
-			key_fieldValue = "Paragraph1234",
-			locator1 = "Translation#TARGET_LANGUAGE_FIELD");
+		FormFields.viewFieldReference(
+			fieldName = "Paragraph",
+			key_fieldReferenceValue = "Paragraph1234");
 	}
 
 	@description = "Verify that text in the Body Text can be Bolded, Italicized and Underlined"
@@ -867,6 +891,7 @@ definition {
 	test TextCanBeBoldedItalicizedAndUnderlined {
 		property forms.functional = "true";
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "FormsParagraphField#TextCanBeBoldedItalicizedAndUnderlined";
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",

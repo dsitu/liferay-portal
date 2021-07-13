@@ -104,6 +104,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 import javax.portlet.ActionRequest;
+import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 import javax.portlet.WindowStateException;
 
@@ -183,16 +184,16 @@ public class LayoutsAdminDisplayContext {
 			"/select_layout_page_template_entry.jsp"
 		).setBackURL(
 			getBackURL()
+		).setPortletResource(
+			getPortletResource()
 		).setParameter(
-			"explicitCreation", Boolean.TRUE.toString()
+			"explicitCreation", true
 		).setParameter(
 			"groupId", getGroupId()
 		).setParameter(
 			"liveGroupId", getLiveGroupId()
 		).setParameter(
 			"parentLayoutId", getParentLayoutId()
-		).setParameter(
-			"portletResource", getPortletResource()
 		).setParameter(
 			"privateLayout", isPrivateLayout()
 		).setParameter(
@@ -275,17 +276,16 @@ public class LayoutsAdminDisplayContext {
 		).setRedirect(
 			themeDisplay.getURLCurrent()
 		).setBackURL(
-			themeDisplay.getURLCurrent()
-		).setParameter(
-			"groupId", layout.getGroupId()
-		).setParameter(
-			"portletResource",
+			_getBackURL()
+		).setPortletResource(
 			() -> {
 				PortletDisplay portletDisplay =
 					themeDisplay.getPortletDisplay();
 
 				return portletDisplay.getId();
 			}
+		).setParameter(
+			"groupId", layout.getGroupId()
 		).setParameter(
 			"privateLayout", layout.isPrivateLayout()
 		).setParameter(
@@ -412,7 +412,7 @@ public class LayoutsAdminDisplayContext {
 		).setRedirect(
 			themeDisplay.getURLCurrent()
 		).setBackURL(
-			themeDisplay.getURLCurrent()
+			_getBackURL()
 		).setParameter(
 			"groupId", themeDisplay.getScopeGroupId()
 		).setParameter(
@@ -692,7 +692,7 @@ public class LayoutsAdminDisplayContext {
 		).setMVCPath(
 			"/orphan_portlets.jsp"
 		).setBackURL(
-			themeDisplay.getURLCurrent()
+			_getBackURL()
 		).setParameter(
 			"selPlid", layout.getPlid()
 		).buildString();
@@ -831,7 +831,7 @@ public class LayoutsAdminDisplayContext {
 		}
 
 		_redirect = ParamUtil.getString(
-			_liferayPortletRequest, "redirect", themeDisplay.getURLCurrent());
+			_liferayPortletRequest, "redirect", _getBackURL());
 
 		return _redirect;
 	}
@@ -920,8 +920,7 @@ public class LayoutsAdminDisplayContext {
 			getPortletURL()
 		).setMVCRenderCommandName(
 			"/layout_admin/edit_layout"
-		).setParameter(
-			"portletResource",
+		).setPortletResource(
 			ParamUtil.getString(httpServletRequest, "portletResource")
 		).setParameter(
 			"selPlid", getSelPlid()
@@ -939,7 +938,7 @@ public class LayoutsAdminDisplayContext {
 			).setRedirect(
 				getRedirect()
 			).setBackURL(
-				themeDisplay.getURLCurrent()
+				_getBackURL()
 			).setParameter(
 				"groupId", getSelGroupId()
 			).setParameter(
@@ -991,7 +990,7 @@ public class LayoutsAdminDisplayContext {
 			).setRedirect(
 				getRedirect()
 			).setBackURL(
-				themeDisplay.getURLCurrent()
+				_getBackURL()
 			).setParameter(
 				"groupId", getSelGroupId()
 			).setParameter(
@@ -1112,7 +1111,7 @@ public class LayoutsAdminDisplayContext {
 					).setParameter(
 						"groupId", themeDisplay.getScopeGroupId()
 					).setParameter(
-						"privateLayout", Boolean.FALSE.toString()
+						"privateLayout", false
 					).setWindowState(
 						LiferayWindowState.MAXIMIZED
 					).buildString() + "\">",
@@ -1199,7 +1198,7 @@ public class LayoutsAdminDisplayContext {
 
 		try {
 			layoutFullURL = HttpUtil.setParameter(
-				layoutFullURL, "p_l_back_url", themeDisplay.getURLCurrent());
+				layoutFullURL, "p_l_back_url", _getBackURL());
 		}
 		catch (Exception exception) {
 			_log.error(
@@ -1280,10 +1279,7 @@ public class LayoutsAdminDisplayContext {
 	public boolean isDraft() {
 		Layout layout = getSelLayout();
 
-		if (layout.isSystem() && (layout.getClassPK() > 0) &&
-			(layout.getClassNameId() == PortalUtil.getClassNameId(
-				Layout.class))) {
-
+		if (layout.isDraftLayout() && layout.isSystem()) {
 			return true;
 		}
 
@@ -1751,6 +1747,15 @@ public class LayoutsAdminDisplayContext {
 	protected final HttpServletRequest httpServletRequest;
 	protected final ThemeDisplay themeDisplay;
 
+	private String _getBackURL() {
+		PortletURL portletURL = PortalUtil.getControlPanelPortletURL(
+			_liferayPortletRequest, getGroup(),
+			LayoutAdminPortletKeys.GROUP_PAGES, 0, 0,
+			PortletRequest.RENDER_PHASE);
+
+		return portletURL.toString();
+	}
+
 	private BreadcrumbEntry _getBreadcrumbEntry(
 		long plid, boolean privateLayout, String title) {
 
@@ -1804,7 +1809,7 @@ public class LayoutsAdminDisplayContext {
 			draftLayout, themeDisplay);
 
 		layoutFullURL = HttpUtil.setParameter(
-			layoutFullURL, "p_l_back_url", themeDisplay.getURLCurrent());
+			layoutFullURL, "p_l_back_url", _getBackURL());
 
 		return HttpUtil.setParameter(layoutFullURL, "p_l_mode", Constants.EDIT);
 	}

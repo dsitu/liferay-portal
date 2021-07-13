@@ -2,11 +2,13 @@
 <head>
 <title>CommerceAccelerators</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">CommerceAccelerators</td></tr>
 </thead>
+
 <tbody>
 <tr>
 	<td>ACCOUNT_MANAGEMENT_ADD_MODAL_PLUS_BUTTON</td>
@@ -16,6 +18,11 @@
 <tr>
 	<td>ACCOUNT_MANAGEMENT_MEMBER_ACTIONS_DROPDOWN</td>
 	<td>//div[contains(.,'${key_memberEmailAddress}')]/../div[contains(@class,'item-actions')]//button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ACCOUNT_ORDER_NAME</td>
+	<td>xpath=(//div[contains(@class,'dnd-td') and contains(text(),'${accountName}')])[1]</td>
 	<td></td>
 </tr>
 <tr>
@@ -186,6 +193,11 @@
 <tr>
 	<td>PRODUCT_DETAILS_DISCOUNT</td>
 	<td>//div[contains(@class,'price')]//span[contains(@class,'price-value-discount')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MINI_CART_DISCOUNT_LEVELS</td>
+	<td>//div[contains(@class,'price')]//span[contains(@class,'price-value-discount')]/span[${key_index}]</td>
 	<td></td>
 </tr>
 <tr>
@@ -392,6 +404,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>MINI_CART_ITEM_THUMBNAIL_STYLE</td>
+	<td>//div[@class='mini-cart-item-thumbnail' and contains(@style, '${key_imageName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>MINI_CART_ITEM_BUNDLED_ITEMS</td>
+	<td>//div[@class='child-item']//span</td>
+	<td></td>
+</tr>
+<tr>
 	<td>MINI_CART_ITEM_INFO_EXTRA</td>
 	<td>//p[@class='item-sku' and contains(.,'${key_cartItemSKU}')]/../../div[@class='item-info-extra mt-3']/*</td>
 	<td></td>
@@ -416,7 +438,17 @@
 	<td>//div[contains(@class,'summary-table')]//*[contains(.,'Total')]/following::h4</td>
 	<td></td>
 </tr>
+<tr>
+	<td>MINI_CART_REMOVE_ITEM</td>
+	<td>//p[contains(text(),"${key_cartItemSKU}")]//..//..//..//div//*[name()='svg'][contains(@class,'lexicon-icon lexicon-icon-times-circle-full')]</td>
+	<td></td>
+</tr>
 <!--ORDERS-->
+<tr>
+	<td>ACCOUNT_SELECTOR_ORDER_ID</td>
+	<td>//a[contains(@href,'commerceOrderId')]</td>
+	<td></td>
+</tr>
 <tr>
 	<td>ORDER_DETAILS_DISCOUNT</td>
 	<td>//div[contains(@class,'tbody')]/div/div[6]</td>
@@ -458,9 +490,9 @@
 	<td></td>
 </tr>
 <tr>
-    <td>PRODUCT_CARD_VIEW_ALL_VARIANTS</td>
+	<td>PRODUCT_CARD_VIEW_ALL_VARIANTS</td>
 	<td>//div[contains(@class,'add-to-cart d-flex my-2 pt-5')]//a[contains(@href,'${key_productName}')]</td>
-    <td></td>
+	<td></td>
 </tr>
 <!--COMPARE-->
 <tr>

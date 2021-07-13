@@ -15,7 +15,7 @@
 package com.liferay.object.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.object.exception.NoSuchDefinitionException;
+import com.liferay.object.exception.NoSuchObjectDefinitionException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
 import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
@@ -138,7 +138,18 @@ public class ObjectDefinitionPersistenceTest {
 
 		newObjectDefinition.setModifiedDate(RandomTestUtil.nextDate());
 
+		newObjectDefinition.setDBTableName(RandomTestUtil.randomString());
+
 		newObjectDefinition.setName(RandomTestUtil.randomString());
+
+		newObjectDefinition.setPKObjectFieldDBColumnName(
+			RandomTestUtil.randomString());
+
+		newObjectDefinition.setPKObjectFieldName(RandomTestUtil.randomString());
+
+		newObjectDefinition.setSystem(RandomTestUtil.randomBoolean());
+
+		newObjectDefinition.setVersion(RandomTestUtil.nextInt());
 
 		_objectDefinitions.add(_persistence.update(newObjectDefinition));
 
@@ -169,7 +180,22 @@ public class ObjectDefinitionPersistenceTest {
 			Time.getShortTimestamp(existingObjectDefinition.getModifiedDate()),
 			Time.getShortTimestamp(newObjectDefinition.getModifiedDate()));
 		Assert.assertEquals(
+			existingObjectDefinition.getDBTableName(),
+			newObjectDefinition.getDBTableName());
+		Assert.assertEquals(
 			existingObjectDefinition.getName(), newObjectDefinition.getName());
+		Assert.assertEquals(
+			existingObjectDefinition.getPKObjectFieldDBColumnName(),
+			newObjectDefinition.getPKObjectFieldDBColumnName());
+		Assert.assertEquals(
+			existingObjectDefinition.getPKObjectFieldName(),
+			newObjectDefinition.getPKObjectFieldName());
+		Assert.assertEquals(
+			existingObjectDefinition.isSystem(),
+			newObjectDefinition.isSystem());
+		Assert.assertEquals(
+			existingObjectDefinition.getVersion(),
+			newObjectDefinition.getVersion());
 	}
 
 	@Test
@@ -198,6 +224,13 @@ public class ObjectDefinitionPersistenceTest {
 	}
 
 	@Test
+	public void testCountBySystem() throws Exception {
+		_persistence.countBySystem(RandomTestUtil.randomBoolean());
+
+		_persistence.countBySystem(RandomTestUtil.randomBoolean());
+	}
+
+	@Test
 	public void testCountByC_N() throws Exception {
 		_persistence.countByC_N(RandomTestUtil.nextLong(), "");
 
@@ -216,7 +249,7 @@ public class ObjectDefinitionPersistenceTest {
 		Assert.assertEquals(existingObjectDefinition, newObjectDefinition);
 	}
 
-	@Test(expected = NoSuchDefinitionException.class)
+	@Test(expected = NoSuchObjectDefinitionException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
@@ -233,8 +266,9 @@ public class ObjectDefinitionPersistenceTest {
 		return OrderByComparatorFactoryUtil.create(
 			"ObjectDefinition", "mvccVersion", true, "uuid", true,
 			"objectDefinitionId", true, "companyId", true, "userId", true,
-			"userName", true, "createDate", true, "modifiedDate", true, "name",
-			true);
+			"userName", true, "createDate", true, "modifiedDate", true,
+			"dbTableName", true, "name", true, "pkObjectFieldDBColumnName",
+			true, "pkObjectFieldName", true, "system", true, "version", true);
 	}
 
 	@Test
@@ -537,7 +571,18 @@ public class ObjectDefinitionPersistenceTest {
 
 		objectDefinition.setModifiedDate(RandomTestUtil.nextDate());
 
+		objectDefinition.setDBTableName(RandomTestUtil.randomString());
+
 		objectDefinition.setName(RandomTestUtil.randomString());
+
+		objectDefinition.setPKObjectFieldDBColumnName(
+			RandomTestUtil.randomString());
+
+		objectDefinition.setPKObjectFieldName(RandomTestUtil.randomString());
+
+		objectDefinition.setSystem(RandomTestUtil.randomBoolean());
+
+		objectDefinition.setVersion(RandomTestUtil.nextInt());
 
 		_objectDefinitions.add(_persistence.update(objectDefinition));
 

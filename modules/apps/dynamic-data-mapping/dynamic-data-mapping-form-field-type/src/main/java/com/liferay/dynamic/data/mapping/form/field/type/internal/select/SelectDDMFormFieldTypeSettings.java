@@ -45,8 +45,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 				"setVisible('ddmDataProviderInstanceOutput', contains(getValue('dataSourceType'), \"data-provider\"))",
 				"setVisible('options', contains(getValue('dataSourceType'), \"manual\") OR isEmpty(getValue('dataSourceType')))",
 				"setVisible('predefinedValue', contains(getValue('dataSourceType'), \"manual\"))",
-				"setVisible('requiredErrorMessage', false)",
-				"setVisible('validation', false)"
+				"setVisible('requiredErrorMessage', getValue('required'))"
 			},
 			condition = "TRUE"
 		),
@@ -89,7 +88,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 							size = 12,
 							value = {
 								"name", "fieldReference", "predefinedValue",
-								"visibilityExpression", "validation",
+								"objectFieldName", "visibilityExpression",
 								"fieldNamespace", "indexType",
 								"labelAtStructureLevel", "localizable",
 								"nativeField", "readOnly", "dataType", "type",

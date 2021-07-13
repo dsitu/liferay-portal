@@ -19,6 +19,7 @@ import {
 	MARK_VIEW_DURATION,
 	PARAM_CONFIGURATION_PORTLET_NAME,
 	PARAM_MODE_KEY,
+	PARAM_PAGE_EDITOR_PORTLET_NAME,
 	PARAM_PORTLET_ID_KEY,
 	PARAM_VIEW_MODE,
 } from '../utils/constants';
@@ -69,6 +70,15 @@ function dxp(analytics) {
 	}
 
 	/**
+	 * Checks based on the URL param if it is a configuration portlet
+	 */
+	function isPageEditorPortlet(searchParams) {
+		const portletId = searchParams.get(PARAM_PORTLET_ID_KEY);
+
+		return portletId === PARAM_PAGE_EDITOR_PORTLET_NAME;
+	}
+
+	/**
 	 * Checks based on the URL param if the page is in view mode
 	 */
 	function isViewMode(searchParams) {
@@ -80,7 +90,11 @@ function dxp(analytics) {
 	if (window.Liferay) {
 		const searchParams = getSearchParams();
 
-		if (isConfigurationPortlet(searchParams) || !isViewMode(searchParams)) {
+		if (
+			isConfigurationPortlet(searchParams) ||
+			isPageEditorPortlet(searchParams) ||
+			!isViewMode(searchParams)
+		) {
 			return analytics.disposeInternal();
 		}
 

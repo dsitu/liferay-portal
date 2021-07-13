@@ -120,10 +120,13 @@ public class DDMFormTemplateContextProcessor {
 		setDDMFormFieldInputMaskFormat(
 			jsonObject.getString("inputMaskFormat"), ddmFormField);
 		setDDMFormFieldLabel(jsonObject.getString("label"), ddmFormField);
+		setDDMFormFieldLayout(ddmFormField, jsonObject.getString("layout"));
 		setDDMFormFieldLocalizable(
 			jsonObject.getBoolean("localizable", false), ddmFormField);
 		setDDMFormFieldMultiple(
 			jsonObject.getBoolean("multiple"), ddmFormField);
+		setDDMFormFieldNumericInputMask(
+			jsonObject.getString("numericInputMask"), ddmFormField);
 		setDDMFormFieldOptions(
 			jsonObject.getJSONArray("options"), ddmFormField);
 		setDDMFormFieldPlaceholder(
@@ -150,6 +153,8 @@ public class DDMFormTemplateContextProcessor {
 			jsonObject.getJSONObject("validation"), ddmFormField);
 		setDDMFormFieldVisibilityExpression(
 			jsonObject.getString("visibilityExpression"), ddmFormField);
+		setDDMFormFieldVisibleFields(
+			ddmFormField, jsonObject.getString("visibleFields"));
 
 		setDDMFormFieldNestedFields(
 			jsonObject.getJSONArray("nestedFields"), ddmFormField);
@@ -316,6 +321,13 @@ public class DDMFormTemplateContextProcessor {
 		ddmFormField.setLabel(getLocalizedValue(GetterUtil.getString(label)));
 	}
 
+	protected void setDDMFormFieldLayout(
+		DDMFormField ddmFormField, String layout) {
+
+		ddmFormField.setProperty(
+			"layout", getLocalizedValue(GetterUtil.getString(layout)));
+	}
+
 	protected void setDDMFormFieldLocalizable(
 		boolean localizable, DDMFormField ddmFormField) {
 
@@ -341,6 +353,14 @@ public class DDMFormTemplateContextProcessor {
 
 			ddmFormField.addNestedDDMFormField(nestedDDMFormField);
 		}
+	}
+
+	protected void setDDMFormFieldNumericInputMask(
+		String numericInputMask, DDMFormField ddmFormField) {
+
+		ddmFormField.setProperty(
+			"numericInputMask",
+			getLocalizedValue(GetterUtil.getString(numericInputMask)));
 	}
 
 	protected void setDDMFormFieldOptions(
@@ -546,6 +566,14 @@ public class DDMFormTemplateContextProcessor {
 
 		ddmFormField.setVisibilityExpression(
 			GetterUtil.getString(visibilityExpression));
+	}
+
+	protected void setDDMFormFieldVisibleFields(
+		DDMFormField ddmFormField, String visibleFields) {
+
+		ddmFormField.setProperty(
+			"visibleFields",
+			getLocalizedValue(GetterUtil.getString(visibleFields)));
 	}
 
 	protected void setDDMFormInstanceId() {

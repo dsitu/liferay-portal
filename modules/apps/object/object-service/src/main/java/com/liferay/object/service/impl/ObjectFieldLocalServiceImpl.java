@@ -22,6 +22,7 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.base.ObjectFieldLocalServiceBaseImpl;
 import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
@@ -50,18 +51,28 @@ public class ObjectFieldLocalServiceImpl
 
 	@Override
 	public ObjectField addObjectField(
-			long userId, long objectDefinitionId, boolean indexed,
-			boolean indexedAsKeyword, String indexedLanguageId, String name,
-			String type)
+			long userId, long objectDefinitionId, String dbColumnName,
+			boolean indexed, boolean indexedAsKeyword, String indexedLanguageId,
+			String name, boolean required, String type)
 		throws PortalException {
-
-		_validateIndexed(indexed, indexedAsKeyword, indexedLanguageId, type);
 
 		name = StringUtil.trim(name);
 
-		_validateName(objectDefinitionId, name);
+		ObjectDefinition objectDefinition =
+			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
-		_validateType(type);
+		if (objectDefinition.isSystem()) {
+			if (Validator.isNull(dbColumnName)) {
+				dbColumnName = name;
+			}
+		}
+		else {
+			dbColumnName = name + StringPool.UNDERLINE;
+		}
+
+		_validateIndexed(indexed, indexedAsKeyword, indexedLanguageId, type);
+		_validateName(objectDefinition, name);
+		validateType(type);
 
 		ObjectField objectField = objectFieldPersistence.create(
 			counterLocalService.increment());
@@ -73,19 +84,35 @@ public class ObjectFieldLocalServiceImpl
 		objectField.setUserName(user.getFullName());
 
 		objectField.setObjectDefinitionId(objectDefinitionId);
+		objectField.setDBColumnName(dbColumnName);
 		objectField.setIndexed(indexed);
 		objectField.setIndexedAsKeyword(indexedAsKeyword);
 		objectField.setIndexedLanguageId(indexedLanguageId);
 		objectField.setName(name);
+		objectField.setRequired(required);
 		objectField.setType(type);
 
 		return objectFieldPersistence.update(objectField);
 	}
 
 	@Override
+	public ObjectField getObjectField(long objectDefinitionId, String name)
+		throws PortalException {
+
+		return objectFieldPersistence.findByODI_N(objectDefinitionId, name);
+	}
+
+	@Override
 	public List<ObjectField> getObjectFields(long objectDefinitionId) {
 		return objectFieldPersistence.findByObjectDefinitionId(
 			objectDefinitionId);
+	}
+
+	@Override
+	public void validateType(String type) throws PortalException {
+		if (!_types.contains(type)) {
+			throw new ObjectFieldTypeException("Invalid type " + type);
+		}
 	}
 
 	private void _validateIndexed(
@@ -108,7 +135,7 @@ public class ObjectFieldLocalServiceImpl
 		}
 	}
 
-	private void _validateName(long objectDefinitionId, String name)
+	private void _validateName(ObjectDefinition objectDefinition, String name)
 		throws PortalException {
 
 		if (Validator.isNull(name)) {
@@ -138,25 +165,17 @@ public class ObjectFieldLocalServiceImpl
 			throw new ReservedObjectFieldException("Reserved name " + name);
 		}
 
-		ObjectDefinition objectDefinition =
-			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
-
 		if (StringUtil.equalsIgnoreCase(
-				objectDefinition.getPrimaryKeyColumnName(), name)) {
+				objectDefinition.getPKObjectFieldName(), name)) {
 
 			throw new ReservedObjectFieldException("Reserved name " + name);
 		}
 
-		if (objectFieldPersistence.fetchByODI_N(objectDefinitionId, name) !=
-				null) {
+		ObjectField objectField = objectFieldPersistence.fetchByODI_N(
+			objectDefinition.getObjectDefinitionId(), name);
 
+		if (objectField != null) {
 			throw new DuplicateObjectFieldException("Duplicate name " + name);
-		}
-	}
-
-	private void _validateType(String type) throws PortalException {
-		if (!_types.contains(type)) {
-			throw new ObjectFieldTypeException("Invalid type " + type);
 		}
 	}
 

@@ -27,8 +27,8 @@ import com.liferay.fragment.renderer.FragmentRendererController;
 import com.liferay.fragment.renderer.FragmentRendererTracker;
 import com.liferay.fragment.util.configuration.FragmentEntryConfigurationParser;
 import com.liferay.frontend.token.definition.FrontendTokenDefinitionRegistry;
+import com.liferay.info.collection.provider.InfoCollectionProvider;
 import com.liferay.info.item.InfoItemServiceTracker;
-import com.liferay.info.list.provider.InfoListProvider;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
@@ -41,7 +41,6 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructureRel;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalServiceUtil;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureRelLocalServiceUtil;
-import com.liferay.petra.reflect.GenericUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.comment.CommentManager;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -73,9 +72,6 @@ import com.liferay.segments.model.SegmentsExperience;
 import com.liferay.segments.service.SegmentsEntryServiceUtil;
 import com.liferay.segments.service.SegmentsExperienceLocalServiceUtil;
 import com.liferay.staging.StagingGroupHelper;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -412,24 +408,6 @@ public class ContentPageLayoutEditorDisplayContext
 		return availableSegmentsEntries;
 	}
 
-	private String _getClassName(InfoListProvider<?> infoListProvider) {
-		Class<?> clazz = infoListProvider.getClass();
-
-		Type[] genericInterfaceTypes = clazz.getGenericInterfaces();
-
-		for (Type genericInterfaceType : genericInterfaceTypes) {
-			ParameterizedType parameterizedType =
-				(ParameterizedType)genericInterfaceType;
-
-			Class<?> typeClazz =
-				(Class<?>)parameterizedType.getActualTypeArguments()[0];
-
-			return typeClazz.getName();
-		}
-
-		return StringPool.BLANK;
-	}
-
 	private String _getEditSegmentsEntryURL() throws Exception {
 		if (_editSegmentsEntryURL != null) {
 			return _editSegmentsEntryURL;
@@ -451,30 +429,34 @@ public class ContentPageLayoutEditorDisplayContext
 		return _editSegmentsEntryURL;
 	}
 
-	private InfoListProvider<?> _getInfoListProvider(String collectionPK) {
-		List<InfoListProvider<?>> infoListProviders =
-			(List<InfoListProvider<?>>)
+	private InfoCollectionProvider<?> _getInfoCollectionProvider(
+		String collectionPK) {
+
+		List<InfoCollectionProvider<?>> infoCollectionProviders =
+			(List<InfoCollectionProvider<?>>)
 				(List<?>)infoItemServiceTracker.getAllInfoItemServices(
-					InfoListProvider.class);
+					InfoCollectionProvider.class);
 
-		Stream<InfoListProvider<?>> stream = infoListProviders.stream();
+		Stream<InfoCollectionProvider<?>> stream =
+			infoCollectionProviders.stream();
 
-		Optional<InfoListProvider<?>> infoListProviderOptional = stream.filter(
-			infoListProvider -> Objects.equals(
-				infoListProvider.getKey(), collectionPK)
-		).findFirst();
+		Optional<InfoCollectionProvider<?>> infoCollectionProviderOptional =
+			stream.filter(
+				infoCollectionProvider -> Objects.equals(
+					infoCollectionProvider.getKey(), collectionPK)
+			).findFirst();
 
-		if (infoListProviderOptional.isPresent()) {
-			return infoListProviderOptional.get();
+		if (infoCollectionProviderOptional.isPresent()) {
+			return infoCollectionProviderOptional.get();
 		}
 
 		return null;
 	}
 
-	private String _getInfoListProviderItemTypeLabel(
-		InfoListProvider<?> infoListProvider) {
+	private String _getInfoCollectionProviderItemTypeLabel(
+		InfoCollectionProvider<?> infoCollectionProvider) {
 
-		String className = _getClassName(infoListProvider);
+		String className = infoCollectionProvider.getCollectionItemClassName();
 
 		if (Objects.equals(className, AssetEntry.class.getName())) {
 			return LanguageUtil.get(httpServletRequest, "multiple-item-types");
@@ -488,16 +470,17 @@ public class ContentPageLayoutEditorDisplayContext
 		return StringPool.BLANK;
 	}
 
-	private JSONArray _getInfoListProviderLinkedCollectionJSONArray(
-		InfoListProvider<?> infoListProvider) {
+	private JSONArray _getInfoCollectionProviderLinkedCollectionJSONArray(
+		InfoCollectionProvider<?> infoCollectionProvider) {
 
 		return JSONUtil.put(
 			JSONUtil.put(
-				"itemType", GenericUtil.getGenericClassName(infoListProvider)
+				"itemType", infoCollectionProvider.getCollectionItemClassName()
 			).put(
-				"key", infoListProvider.getKey()
+				"key", infoCollectionProvider.getKey()
 			).put(
-				"title", infoListProvider.getLabel(LocaleUtil.getDefault())
+				"title",
+				infoCollectionProvider.getLabel(LocaleUtil.getDefault())
 			).put(
 				"type", InfoListProviderItemSelectorReturnType.class.getName()
 			));
@@ -580,16 +563,16 @@ public class ContentPageLayoutEditorDisplayContext
 				collectionType,
 				InfoListProviderItemSelectorReturnType.class.getName())) {
 
-			InfoListProvider<?> infoListProvider = _getInfoListProvider(
-				collectionPK);
+			InfoCollectionProvider<?> infoCollectionProvider =
+				_getInfoCollectionProvider(collectionPK);
 
-			if (infoListProvider != null) {
-				itemTypeLabel = _getInfoListProviderItemTypeLabel(
-					infoListProvider);
+			if (infoCollectionProvider != null) {
+				itemTypeLabel = _getInfoCollectionProviderItemTypeLabel(
+					infoCollectionProvider);
 				linkedCollectionJSONArray =
-					_getInfoListProviderLinkedCollectionJSONArray(
-						infoListProvider);
-				subtypeLabel = infoListProvider.getLabel(
+					_getInfoCollectionProviderLinkedCollectionJSONArray(
+						infoCollectionProvider);
+				subtypeLabel = infoCollectionProvider.getLabel(
 					themeDisplay.getLocale());
 			}
 

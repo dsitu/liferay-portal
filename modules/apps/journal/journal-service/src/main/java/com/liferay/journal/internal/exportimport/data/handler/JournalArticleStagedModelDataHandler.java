@@ -89,6 +89,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlEscapableObject;
 import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -651,6 +652,18 @@ public class JournalArticleStagedModelDataHandler
 			autoArticleId = false;
 		}
 
+		String externalReferenceCode = article.getExternalReferenceCode();
+
+		JournalArticle articleByERC =
+			_journalArticleLocalService.
+				fetchLatestArticleByExternalReferenceCode(
+					portletDataContext.getScopeGroupId(),
+					externalReferenceCode);
+
+		if (articleByERC != null) {
+			externalReferenceCode = newArticleId;
+		}
+
 		String content = portletDataContext.getZipEntryAsString(
 			ExportImportPathUtil.getModelPath(article, "journal-content-path"));
 
@@ -929,7 +942,8 @@ public class JournalArticleStagedModelDataHandler
 
 				if (existingArticleVersion == null) {
 					importedArticle = _journalArticleLocalService.addArticle(
-						userId, portletDataContext.getScopeGroupId(), folderId,
+						externalReferenceCode, userId,
+						portletDataContext.getScopeGroupId(), folderId,
 						article.getClassNameId(), ddmStructureId, articleId,
 						autoArticleId, article.getVersion(),
 						article.getTitleMap(), article.getDescriptionMap(),
@@ -975,7 +989,8 @@ public class JournalArticleStagedModelDataHandler
 			}
 			else {
 				importedArticle = _journalArticleLocalService.addArticle(
-					userId, portletDataContext.getScopeGroupId(), folderId,
+					externalReferenceCode, userId,
+					portletDataContext.getScopeGroupId(), folderId,
 					article.getClassNameId(), ddmStructureId, articleId,
 					autoArticleId, article.getVersion(), article.getTitleMap(),
 					article.getDescriptionMap(), friendlyURLMap, content,
@@ -1426,6 +1441,21 @@ public class JournalArticleStagedModelDataHandler
 
 		articleNewPrimaryKeys.put(
 			article.getResourcePrimKey(), importedArticle.getResourcePrimKey());
+
+		if (ListUtil.isEmpty(assetDisplayPageEntryElements)) {
+			AssetDisplayPageEntry existingAssetDisplayPageEntry =
+				_assetDisplayPageEntryLocalService.fetchAssetDisplayPageEntry(
+					importedArticle.getGroupId(),
+					_portal.getClassNameId(JournalArticle.class.getName()),
+					importedArticle.getResourcePrimKey());
+
+			if (existingAssetDisplayPageEntry != null) {
+				_assetDisplayPageEntryLocalService.deleteAssetDisplayPageEntry(
+					existingAssetDisplayPageEntry);
+			}
+
+			return;
+		}
 
 		for (Element assetDisplayPageEntryElement :
 				assetDisplayPageEntryElements) {

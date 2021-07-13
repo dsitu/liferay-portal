@@ -29,7 +29,7 @@ public interface ObjectDefinitionDeployer {
 	public List<ServiceRegistration<?>> deploy(
 		ObjectDefinition objectDefinition);
 
-	public default void undeploy(long objectDefinitionId) {
+	public default void undeploy(ObjectDefinition objectDefinition) {
 	}
 
 }

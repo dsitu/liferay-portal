@@ -22,12 +22,28 @@ definition {
 		AssertNotVisible(locator1 = "FormRules#RULE_BUILDER_ADD_RULE_BUTTON");
 	}
 
+	macro cancel {
+		AssertClick(
+			locator1 = "FormRules#RULE_BUILDER_CANCEL_BUTTON",
+			value1 = "Cancel");
+	}
+
 	macro chooseCalculateOperator {
 		var key_calculateOperator = "${calculateOperator}";
 
 		AssertClick(
 			locator1 = "FormRules#RULE_BUILDER_CALCULATE_OPERATOR",
 			value1 = "${calculateOperator}");
+	}
+
+	macro clickOnCalculatorBackspace {
+		Click.javaScriptClick(locator1 = "FormRules#RULE_BUILDER_CALCULATE_BACKSPACE");
+	}
+
+	macro clickOnCalculatorNumbersKeyboard {
+		Click(
+			key_buttonName = "${buttonName}",
+			locator1 = "FormRules#RULE_BUILDER_CALCULATE_NUMBERS_KEYBOARD");
 	}
 
 	macro configureActionOptions {
@@ -82,6 +98,26 @@ definition {
 				locator1 = "FormRules#RULE_BUILDER_FIELD_SELECT_VALUE",
 				value1 = "${conditionValueField}");
 		}
+	}
+
+	macro deleteActions {
+		var key_actionRowNumber = "${rowNumber}";
+		MouseOver(
+			key_actionRowNumber = "${rowNumber}",
+			locator1 = "FormRules#RULE_ACTION_FIELD");
+		Click(
+			key_actionRowNumber = "${rowNumber}",
+			locator1 = "FormRules#RULE_DELETE_ACTION_FIELD");
+
+		Click(locator1 = "FormViewBuilder#DELETE_OBJECT_LABEL_DELETE_BUTTON");
+	}
+
+	macro gotoDelete {
+		var key_ruleNumber = "${ruleNumber}";
+
+		Click.waitForMenuToggleJSClick(locator1 = "FormRules#RULE_BUILDER_ROW_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Delete");
 	}
 
 	macro gotoEdit {
@@ -204,6 +240,37 @@ definition {
 		Click(locator1 = "FormRules#RULE_BUILDER_RULE_CONDITION_DROPDOWN");
 
 		MenuItem.click(menuItem = "${condition}");
+	}
+
+	macro viewAction {
+		var key_selectActionValue = "${action}";
+		var key_actionRowNumber = "${actionRowNumber}";
+		var key_selectActionTargetValue = "${actionTarget}";
+
+		AssertElementPresent(
+			key_actionRowNumber = "${actionRowNumber}",
+			key_selectActionValue = "${action}",
+			locator1 = "FormRules#RULE_ACTION_FIELD_VALUE");
+
+		AssertElementPresent(
+			key_actionRowNumber = "${actionRowNumber}",
+			key_selectActionTargetValue = "${actionTarget}",
+			locator1 = "FormRules#RULE_ACTION_TARGET_FIELD_VALUE");
+	}
+
+	macro viewActionNotPresent {
+		var key_selectActionValue = "${action}";
+		var key_actionRowNumber = "${actionRowNumber}";
+		var key_selectActionTargetValue = "${actionTarget}";
+
+		AssertElementNotPresent(
+			key_actionRowNumber = "${actionRowNumber}",
+			key_selectActionValue = "${action}",
+			locator1 = "FormRules#RULE_ACTION_FIELD_VALUE");
+		AssertElementNotPresent(
+			key_actionRowNumber = "${actionRowNumber}",
+			key_selectActionTargetValue = "${actionTarget}",
+			locator1 = "FormRules#RULE_ACTION_TARGET_FIELD_VALUE");
 	}
 
 	macro viewActionSummary {

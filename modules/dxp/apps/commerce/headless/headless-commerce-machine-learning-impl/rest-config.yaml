@@ -5,3 +5,4 @@ application:
     className: "HeadlessCommerceMachineLEarningApplication"
     name: "Liferay.Headless.Commerce.Machine.Learning"
 author: "Riccardo Ferrari"
+liferayEnterpriseApp: true

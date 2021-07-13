@@ -15,7 +15,7 @@
 package com.liferay.object.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.object.exception.NoSuchEntryException;
+import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectEntryLocalServiceUtil;
 import com.liferay.object.service.persistence.ObjectEntryPersistence;
@@ -242,7 +242,7 @@ public class ObjectEntryPersistenceTest {
 		Assert.assertEquals(existingObjectEntry, newObjectEntry);
 	}
 
-	@Test(expected = NoSuchEntryException.class)
+	@Test(expected = NoSuchObjectEntryException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 

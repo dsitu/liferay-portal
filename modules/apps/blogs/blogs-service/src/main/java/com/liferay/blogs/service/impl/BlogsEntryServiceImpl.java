@@ -109,12 +109,12 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 
 	@Override
 	public BlogsEntry addEntry(
-			String title, String subtitle, String urlTitle, String description,
-			String content, int displayDateMonth, int displayDateDay,
-			int displayDateYear, int displayDateHour, int displayDateMinute,
-			boolean allowPingbacks, boolean allowTrackbacks,
-			String[] trackbacks, String coverImageCaption,
-			ImageSelector coverImageImageSelector,
+			String externalReferenceCode, String title, String subtitle,
+			String urlTitle, String description, String content,
+			int displayDateMonth, int displayDateDay, int displayDateYear,
+			int displayDateHour, int displayDateMinute, boolean allowPingbacks,
+			boolean allowTrackbacks, String[] trackbacks,
+			String coverImageCaption, ImageSelector coverImageImageSelector,
 			ImageSelector smallImageImageSelector,
 			ServiceContext serviceContext)
 		throws PortalException {
@@ -124,11 +124,11 @@ public class BlogsEntryServiceImpl extends BlogsEntryServiceBaseImpl {
 			ActionKeys.ADD_ENTRY);
 
 		return blogsEntryLocalService.addEntry(
-			getUserId(), title, subtitle, urlTitle, description, content,
-			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
-			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
-			coverImageCaption, coverImageImageSelector, smallImageImageSelector,
-			serviceContext);
+			externalReferenceCode, getUserId(), title, subtitle, urlTitle,
+			description, content, displayDateMonth, displayDateDay,
+			displayDateYear, displayDateHour, displayDateMinute, allowPingbacks,
+			allowTrackbacks, trackbacks, coverImageCaption,
+			coverImageImageSelector, smallImageImageSelector, serviceContext);
 	}
 
 	@Override

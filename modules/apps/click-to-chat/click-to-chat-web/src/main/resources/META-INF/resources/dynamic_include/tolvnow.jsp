@@ -27,31 +27,33 @@
 		_tn.push(['_setName', '<%= user.getScreenName() %>']);
 	</c:if>
 
-	function loadTolnowScript() {
-		if (!document.getElementById('tolvnow-script-chat')) {
-			var spanElement = document.createElement('span');
+	(function () {
+		function loadTolnowScript() {
+			if (!document.getElementById('tolvnow-script-chat')) {
+				var spanElement = document.createElement('span');
 
-			spanElement.setAttribute('id', 'tolvnow');
+				spanElement.setAttribute('id', 'tolvnow');
 
-			var scriptElement = document.createElement('script');
+				var scriptElement = document.createElement('script');
 
-			scriptElement.setAttribute('async', true);
-			scriptElement.setAttribute('id', 'tolvnow-script-chat');
-			scriptElement.setAttribute('src', '//tracker.tolvnow.com/js/tn.js');
-			scriptElement.setAttribute('type', 'text/javascript');
+				scriptElement.setAttribute('async', true);
+				scriptElement.setAttribute('id', 'tolvnow-script-chat');
+				scriptElement.setAttribute('src', '//tracker.tolvnow.com/js/tn.js');
+				scriptElement.setAttribute('type', 'text/javascript');
 
-			var bodyElement = document.getElementsByTagName('body').item(0);
+				var bodyElement = document.getElementsByTagName('body').item(0);
 
-			bodyElement.appendChild(spanElement);
-			bodyElement.appendChild(scriptElement);
+				bodyElement.appendChild(spanElement);
+				bodyElement.appendChild(scriptElement);
+			}
 		}
-	}
 
-	window.onload = function () {
-		loadTolnowScript();
-	};
+		window.onload = function () {
+			loadTolnowScript();
+		};
 
-	if (document.readyState === 'complete') {
-		loadTolnowScript();
-	}
+		if (document.readyState === 'complete') {
+			loadTolnowScript();
+		}
+	})();
 </script>

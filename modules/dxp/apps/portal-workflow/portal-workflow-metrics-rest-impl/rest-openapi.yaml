@@ -337,6 +337,13 @@ components:
                     format: int64
                     type: integer
             type: object
+        ProcessVersion:
+            description:
+                https://www.schema.org/ProcessVersion
+            properties:
+                name:
+                    type: string
+            type: object
         ReindexStatus:
             description:
                 https://www.schema.org/ReindexStatus
@@ -561,7 +568,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.portal.workflow.metrics.rest.client', and version '3.0.3'."
+        'com.liferay.portal.workflow.metrics.rest.client', and version '3.0.4'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -1272,6 +1279,10 @@ paths:
                   schema:
                       type: string
                 - in: query
+                  name: processVersion
+                  schema:
+                      type: string
+                - in: query
                   name: page
                   schema:
                       type: integer
@@ -1323,6 +1334,32 @@ paths:
                     description:
                         ""
             tags: ["Node"]
+    "/processes/{processId}/process-versions":
+        get:
+            operationId: getProcessVersionsPage
+            parameters:
+                - in: path
+                  name: processId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ProcessVersion"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/ProcessVersion"
+                                type: array
+                    description:
+                        ""
+            tags: ["ProcessVersion"]
     "/processes/{processId}/roles":
         get:
             operationId: getProcessRolesPage

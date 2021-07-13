@@ -19,6 +19,7 @@ import com.liferay.commerce.product.type.virtual.order.constants.CommerceVirtual
 import com.liferay.commerce.product.type.virtual.order.content.web.internal.display.context.CommerceVirtualOrderItemContentDisplayContext;
 import com.liferay.commerce.product.type.virtual.order.content.web.internal.portlet.CommerceVirtualOrderItemContentPortlet;
 import com.liferay.commerce.product.type.virtual.order.service.CommerceVirtualOrderItemLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portletdisplaytemplate.BasePortletDisplayTemplateHandler;
@@ -26,7 +27,6 @@ import com.liferay.portal.kernel.template.TemplateHandler;
 import com.liferay.portal.kernel.template.TemplateVariableGroup;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
-import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portlet.display.template.constants.PortletDisplayTemplateConstants;
 
 import java.util.List;
@@ -94,7 +94,7 @@ public class CommerceVirtualOrderItemContentPortletDisplayTemplateHandler
 		templateVariableGroup.addVariable(
 			"commerce-virtual-order-item-content-display-context",
 			CommerceVirtualOrderItemContentDisplayContext.class,
-			"commerceVirtualOrderContentDisplayContext");
+			"commerceVirtualOrderItemContentDisplayContext");
 		templateVariableGroup.addCollectionVariable(
 			"commerce-virtual-order-items", List.class,
 			PortletDisplayTemplateConstants.ENTRIES, "commerceVitualOrderItem",

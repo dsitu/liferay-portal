@@ -233,8 +233,6 @@ definition {
 	@description = "This is a test for LPS-123539. As Content Creator, I want to leverage the structures’ translations with fildset when creating a new Web Content"
 	@priority = "5"
 	test CheckTranslationOfDuplicatedFieldsetOnWebContent {
-		property portal.upstream = "quarantine";
-
 		NavItem.gotoStructures();
 
 		WebContentStructures.addCP(structureName = "WC Structure Name");
@@ -305,7 +303,7 @@ definition {
 	@description = "This test ensures add fields, translate, edit fieldset, check propagation, translate from different language."
 	@priority = "5"
 	test CreateEditAndDeleteLocalizedFieldset {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
 
@@ -343,8 +341,6 @@ definition {
 			fieldNameList = "Text,Numeric,Date",
 			fieldsetName = "New Fieldset Test",
 			localeList = "pt-BR");
-
-		Refresh();
 
 		PortletEntry.changeLocale(locale = "pt-BR");
 
@@ -411,7 +407,7 @@ definition {
 		PortletEntry.publish();
 
 		WebContent.viewWithStructureCP(
-			webContentDate = "22/02/2021",
+			webContentDate = "23/02/2021",
 			webContentDateFieldLabel = "Date pt-BR",
 			webContentLocaleFieldLabel = "pt-BR",
 			webContentNumeric = "2",

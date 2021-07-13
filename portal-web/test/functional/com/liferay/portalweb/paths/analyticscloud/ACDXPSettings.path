@@ -2,11 +2,13 @@
 <head>
 <title>ACDXPSettings</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">ACDXPSettings</td></tr>
 </thead>
+
 <tbody>
 <!-- INSTANCE SETTINGS OPTION -->
 <tr>
@@ -64,10 +66,21 @@
 	<td>//*[contains(@class, 'btn-primary')]</td>
 	<td></td>
 </tr>
+<!-- GENERIC CANCEL BUTTON -->
+<tr>
+	<td>AC_GENERIC_CANCEL_BUTTON</td>
+	<td>//*[contains(@class, 'btn-secondary')]</td>
+	<td></td>
+</tr>
 <!-- NEW PROPERTY SCREEN -->
 <tr>
 	<td>COMBINATED_PROPERTY_OPTION</td>
 	<td>//*[contains(@value, 'combined')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ASSIGNED_PROPERTY</td>
+	<td>//input[@disabled=""]//../following::td[contains(@class,'lfr-assigned-property-column')]</td>
 	<td></td>
 </tr>
 <tr>

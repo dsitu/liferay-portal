@@ -16,11 +16,16 @@ package com.liferay.layout.reports.web.internal.model;
 
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Collections;
 import java.util.List;
@@ -87,7 +92,10 @@ public class LayoutReportsIssue {
 		return HashUtil.hash(hashCode, _total);
 	}
 
-	public JSONObject toJSONObject(ResourceBundle resourceBundle) {
+	public JSONObject toJSONObject(
+		String configureLayoutSeoURL, String configurePagesSeoURL,
+		ResourceBundle resourceBundle) {
+
 		Stream<Detail> stream = _details.stream();
 
 		return JSONUtil.put(
@@ -96,7 +104,9 @@ public class LayoutReportsIssue {
 				stream.filter(
 					detail -> detail.getTotal() > 0
 				).map(
-					detail -> detail.toJSONObject(resourceBundle)
+					detail -> detail.toJSONObject(
+						configureLayoutSeoURL, configurePagesSeoURL,
+						resourceBundle)
 				).toArray())
 		).put(
 			"key", _key.toString()
@@ -139,13 +149,15 @@ public class LayoutReportsIssue {
 
 	public static class Detail {
 
-		public Detail(Detail.Key key, long total) {
+		public Detail(Key key, JSONObject lighthouseAuditJSONObject) {
 			if (key == null) {
 				throw new IllegalArgumentException("Key is null");
 			}
 
 			_key = key;
-			_total = total;
+			_lighthouseAuditJSONObject = lighthouseAuditJSONObject;
+
+			_total = _calculateTotal();
 		}
 
 		@Override
@@ -174,9 +186,17 @@ public class LayoutReportsIssue {
 			return HashUtil.hash(hashCode, _total);
 		}
 
-		public JSONObject toJSONObject(ResourceBundle resourceBundle) {
+		public JSONObject toJSONObject(
+			String configureLayoutSeoURL, String configurePagesSeoURL,
+			ResourceBundle resourceBundle) {
+
 			return JSONUtil.put(
 				"description", _key.getDescription(resourceBundle)
+			).put(
+				"failingElements",
+				_key.getFailingElementsJSONArray(
+					configureLayoutSeoURL, configurePagesSeoURL,
+					_lighthouseAuditJSONObject, resourceBundle)
 			).put(
 				"key", _key.toString()
 			).put(
@@ -191,7 +211,7 @@ public class LayoutReportsIssue {
 		@Override
 		public String toString() {
 			JSONObject jsonObject = toJSONObject(
-				ResourceBundleUtil.EMPTY_RESOURCE_BUNDLE);
+				null, null, ResourceBundleUtil.EMPTY_RESOURCE_BUNDLE);
 
 			return jsonObject.toString();
 		}
@@ -213,6 +233,45 @@ public class LayoutReportsIssue {
 						getLearnMoreLink(
 							resourceBundle, "https://web.dev/font-size")
 					};
+				}
+
+				@Override
+				protected JSONArray getFailingElementsJSONArray(
+					String configureLayoutSeoURL, String configurePagesSeoURL,
+					JSONObject lighthouseAuditJSONObject,
+					ResourceBundle resourceBundle) {
+
+					JSONArray failingElementsJSONArray =
+						super.getFailingElementsJSONArray(
+							configureLayoutSeoURL, configurePagesSeoURL,
+							lighthouseAuditJSONObject, resourceBundle);
+
+					if (failingElementsJSONArray == null) {
+						return null;
+					}
+
+					JSONArray filteredFailingElementsJSONArray =
+						JSONFactoryUtil.createJSONArray();
+
+					for (int i = 0; i < failingElementsJSONArray.length();
+						 i++) {
+
+						JSONObject failingElementJSONObject =
+							failingElementsJSONArray.getJSONObject(i);
+
+						if (failingElementJSONObject != null) {
+							JSONObject selectorJSONObject =
+								failingElementJSONObject.getJSONObject(
+									"selector");
+
+							if (selectorJSONObject != null) {
+								filteredFailingElementsJSONArray.put(
+									failingElementJSONObject);
+							}
+						}
+					}
+
+					return filteredFailingElementsJSONArray;
 				}
 
 			},
@@ -250,6 +309,21 @@ public class LayoutReportsIssue {
 						getLearnMoreLink(
 							resourceBundle, "https://web.dev/canonical")
 					};
+				}
+
+				@Override
+				protected JSONArray getFailingElementsJSONArray(
+					String configureLayoutSeoURL, String configurePagesSeoURL,
+					JSONObject lighthouseAuditJSONObject,
+					ResourceBundle resourceBundle) {
+
+					return JSONUtil.putAll(
+						JSONUtil.put(
+							"content",
+							LanguageUtil.format(
+								resourceBundle,
+								getDetailLanguageKey() + "-failing-element",
+								_getLinkArguments(configurePagesSeoURL))));
 				}
 
 			},
@@ -361,6 +435,21 @@ public class LayoutReportsIssue {
 					};
 				}
 
+				@Override
+				protected JSONArray getFailingElementsJSONArray(
+					String configureLayoutSeoURL, String configurePagesSeoURL,
+					JSONObject lighthouseAuditJSONObject,
+					ResourceBundle resourceBundle) {
+
+					return JSONUtil.putAll(
+						JSONUtil.put(
+							"content",
+							LanguageUtil.format(
+								resourceBundle,
+								getDetailLanguageKey() + "-failing-element",
+								_getLinkArguments(configureLayoutSeoURL))));
+				}
+
 			},
 			MISSING_TITLE_ELEMENT {
 
@@ -391,6 +480,21 @@ public class LayoutReportsIssue {
 						getLearnMoreLink(
 							resourceBundle, "https://web.dev/document-title")
 					};
+				}
+
+				@Override
+				protected JSONArray getFailingElementsJSONArray(
+					String configureLayoutSeoURL, String configurePagesSeoURL,
+					JSONObject lighthouseAuditJSONObject,
+					ResourceBundle resourceBundle) {
+
+					return JSONUtil.putAll(
+						JSONUtil.put(
+							"content",
+							LanguageUtil.format(
+								resourceBundle,
+								getDetailLanguageKey() + "-failing-element",
+								_getLinkArguments(configureLayoutSeoURL))));
 				}
 
 			},
@@ -449,6 +553,21 @@ public class LayoutReportsIssue {
 					};
 				}
 
+				@Override
+				protected JSONArray getFailingElementsJSONArray(
+					String configureLayoutSeoURL, String configurePagesSeoURL,
+					JSONObject lighthouseAuditJSONObject,
+					ResourceBundle resourceBundle) {
+
+					return JSONUtil.putAll(
+						JSONUtil.put(
+							"content",
+							LanguageUtil.format(
+								resourceBundle,
+								getDetailLanguageKey() + "-failing-element",
+								_getLinkArguments(configureLayoutSeoURL))));
+				}
+
 			},
 			SMALL_TAP_TARGETS {
 
@@ -471,19 +590,19 @@ public class LayoutReportsIssue {
 
 			public String getDescription(ResourceBundle resourceBundle) {
 				return LanguageUtil.format(
-					resourceBundle, _getDetailLanguageKey() + "-description",
+					resourceBundle, getDetailLanguageKey() + "-description",
 					getDescriptionArguments(resourceBundle), false);
 			}
 
 			public String getTips(ResourceBundle resourceBundle) {
 				return ResourceBundleUtil.getString(
-					resourceBundle, _getDetailLanguageKey() + "-tip",
+					resourceBundle, getDetailLanguageKey() + "-tip",
 					getTipsArguments(resourceBundle));
 			}
 
 			public String getTitle(ResourceBundle resourceBundle) {
 				return LanguageUtil.format(
-					resourceBundle, _getDetailLanguageKey(),
+					resourceBundle, getDetailLanguageKey(),
 					getTitleArguments(resourceBundle), false);
 			}
 
@@ -493,6 +612,25 @@ public class LayoutReportsIssue {
 				return new String[0];
 			}
 
+			protected String getDetailLanguageKey() {
+				return "detail-" + toString();
+			}
+
+			protected JSONArray getFailingElementsJSONArray(
+				String configureLayoutSeoURL, String configurePagesSeoURL,
+				JSONObject lighthouseAuditJSONObject,
+				ResourceBundle resourceBundle) {
+
+				JSONObject detailsJSONObject =
+					lighthouseAuditJSONObject.getJSONObject("details");
+
+				if (detailsJSONObject != null) {
+					return detailsJSONObject.getJSONArray("items");
+				}
+
+				return null;
+			}
+
 			protected String getHtmlCode(String html) {
 				return "<code>" + HtmlUtil.escape(html) + "</code>";
 			}
@@ -500,9 +638,16 @@ public class LayoutReportsIssue {
 			protected String getLearnMoreLink(
 				ResourceBundle resourceBundle, String url) {
 
+				return getLink(
+					LanguageUtil.format(
+						resourceBundle, "learn-more-about-x",
+						HtmlUtil.escape(getTitle(resourceBundle)), false),
+					url);
+			}
+
+			protected String getLink(String content, String url) {
 				return StringBundler.concat(
-					"<a href=\"", url, "\" target=\"_blank\">",
-					ResourceBundleUtil.getString(resourceBundle, "learn-more"),
+					"<a href=\"", url, "\" target=\"_blank\">", content,
 					"</a>");
 			}
 
@@ -516,13 +661,43 @@ public class LayoutReportsIssue {
 				return new String[0];
 			}
 
-			private String _getDetailLanguageKey() {
-				return "detail-" + toString();
+		}
+
+		private int _calculateTotal() {
+			if (Objects.equals(
+					_lighthouseAuditJSONObject.getString("scoreDisplayMode"),
+					"notApplicable")) {
+
+				return 0;
 			}
 
+			float score = GetterUtil.getFloat(
+				_lighthouseAuditJSONObject.get("score"));
+
+			if (score == 1) {
+				return 0;
+			}
+
+			JSONArray failingElementsJSONArray =
+				_key.getFailingElementsJSONArray(
+					null, null, _lighthouseAuditJSONObject,
+					ResourceBundleUtil.EMPTY_RESOURCE_BUNDLE);
+
+			if ((failingElementsJSONArray != null) &&
+				(failingElementsJSONArray.length() > 0)) {
+
+				return failingElementsJSONArray.length();
+			}
+
+			if (score == 0) {
+				return 1;
+			}
+
+			return 0;
 		}
 
 		private final Detail.Key _key;
+		private final JSONObject _lighthouseAuditJSONObject;
 		private final long _total;
 
 	}
@@ -546,6 +721,14 @@ public class LayoutReportsIssue {
 
 		},
 
+	}
+
+	private static String[] _getLinkArguments(String url) {
+		if (Validator.isNotNull(url)) {
+			return new String[] {"<a href=\"" + url + "\">", "</a>"};
+		}
+
+		return new String[] {StringPool.BLANK, StringPool.BLANK};
 	}
 
 	private final List<Detail> _details;

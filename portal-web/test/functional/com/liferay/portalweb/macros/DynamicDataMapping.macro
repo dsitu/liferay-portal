@@ -122,10 +122,9 @@ definition {
 
 		var key_field = "${field}";
 
-		DragAndDrop(
+		DragAndDrop.dragAndDropWithMouseMove(
 			locator1 = "DDMEditStructure#FIELDS_FIELD",
-			locator2 = "DDMEditStructure#FORM_BUILDER_FIELD",
-			value1 = "${field}");
+			locator2 = "DDMEditStructure#FORM_BUILDER_FIELD");
 
 		DynamicDataMapping._editFieldLabel(
 			field = "${field}",
@@ -716,8 +715,8 @@ definition {
 		if (IsElementPresent(locator1 = "DDMEditStructure#IFRAME")) {
 			SelectFrame(locator1 = "DDMEditStructure#IFRAME");
 		}
-		else if (IsElementPresent(locator1 = "IFrame#MODAL_BODY")) {
-			SelectFrame(locator1 = "IFrame#MODAL_BODY");
+		else if (IsElementPresent(locator1 = "DataEngineModal#MODAL_IFRAME")) {
+			SelectFrame(locator1 = "DataEngineModal#MODAL_IFRAME");
 		}
 	}
 

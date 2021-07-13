@@ -476,13 +476,70 @@ definition {
 	}
 
 	@description = "This is a test for COMMERCE-6123. AddTaxRateSettingsFixedTaxRateTaxCalculation"
-	@ignore = "true"
 	@priority = "3"
 	test AddTaxRateSettingsFixedTaxRateTaxCalculation {
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "CPCommerceChannels#AddTaxRateSettingsFixedTaxRateTaxCalculation";
 
-		// TODO COMMERCE-6123 AddTaxRateSettingsFixedTaxRateTaxCalculation
+		// TODO Review
 
+		CommerceConfiguration.reindexAllSearchIndexes();
+
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		Click(
+			key_entryName = "Fixed Tax Rate",
+			locator1 = "CommerceEntry#CHANNELS_GENERAL_TAB_EDITS");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Check.checkToggleSwitch(
+			key_toggleSwitchLabel = "Active",
+			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Check.checkToggleSwitch(
+			key_toggleSwitchLabel = "Active",
+			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		CommerceEntry.gotoMenuTab(menuTab = "Tax Rates");
+
+		Click(locator1 = "Button#PLUS");
+
+		SelectFrameTop();
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		Select(
+			key_fieldLabel = "Tax Category",
+			locator1 = "Select#GENERIC_SELECT_FIELD",
+			value1 = "Normal Product");
+
+		Type(
+			key_fieldLabel = "Amount",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
+			value1 = "1");
+
+		Button.clickSubmitButton();
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		AssertElementPresent(
+			key_entryName = "Normal Product",
+			locator1 = "CommerceEntry#ENTRY_NAME_BODY_VERTICAL_ELLIPSIS");
 	}
 
 	@description = "This is a test for COMMERCE-6195. CreateCategoryDisplayPage"
@@ -1139,13 +1196,80 @@ definition {
 	}
 
 	@description = "This is a test for COMMERCE-6276. EditNotificationTemplate"
-	@ignore = "true"
 	@priority = "3"
 	test EditNotificationTemplate {
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "CPCommerceChannels#EditNotificationTemplate";
 
-		// TODO COMMERCE-6276 EditNotificationTemplate
+		// TODO Review
 
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Notification Templates");
+
+		Click(locator1 = "Button#PLUS");
+
+		SelectFrameTop();
+
+		CommerceEntry.addNewNotificationTemplate(
+			entryName = "Test Notification Template",
+			fromAddress = "test@liferay.com",
+			fromName = "Test",
+			notificationType = "Order Placed");
+
+		Type(
+			key_fieldLabel = "To",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
+			value1 = "[%ACCOUNT_ROLE_ADMINISTRATOR%]");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Click(locator1 = "Icon#CLOSE");
+
+		Refresh();
+
+		AssertVisible(
+			key_productQuantity = "Test Notification Template",
+			locator1 = "CommerceOrders#ORDER_DETAILS_PRODUCT_QUANTITY");
+
+		Click(
+			key_text = "Test Notification Template",
+			locator1 = "Icon#ANY_VERTICAL_ELLIPSIS");
+
+		MenuItem.clickNoError(menuItem = "Edit");
+
+		SelectFrameTop();
+
+		CommerceEntry.addNewNotificationTemplate(
+			entryName = "Notification Template",
+			fromAddress = "test@liferay.com",
+			fromName = "Test",
+			notificationType = "Order Completed");
+
+		Type(
+			key_fieldLabel = "To",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
+			value1 = "[%ACCOUNT_ROLE_ORDER_MANAGER%]");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Click(locator1 = "Icon#CLOSE");
+
+		Refresh();
+
+		AssertVisible(
+			key_productQuantity = "Notification Template",
+			locator1 = "CommerceOrders#ORDER_DETAILS_PRODUCT_QUANTITY");
 	}
 
 	@description = "This is a test for COMMERCE-6106. EditPaypalPaymentMethod"
@@ -1199,43 +1323,342 @@ definition {
 	}
 
 	@description = "This is a test for COMMERCE-6274. EditProductDisplayPage"
-	@ignore = "true"
 	@priority = "3"
 	test EditProductDisplayPage {
-		property portal.acceptance = "false";
+		property portal.acceptance = "Intern Test";
+		property test.name.skip.portal.instance = "CPCommerceChannels#EditProductDisplayPage";
 
-		// TODO COMMERCE-6274 EditProductDisplayPage
+		// TODO Review
 
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Product Display Pages");
+
+		Click(locator1 = "Button#PLUS");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Button.click(button = "Select Product");
+
+		SelectFrameTop();
+
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
+
+		Click(
+			key_siteName = "ABS Sensor",
+			locator1 = "CommerceNavigation#CHOOSE_SITE_BUTTON");
+
+		SelectFrameTop();
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Click(locator1 = "Button#CHOOSE");
+
+		SelectFrameTop();
+
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
+
+		Click(
+			key_card = "Login",
+			locator1 = "Card#CARD_TITLE");
+
+		SelectFrameTop();
+
+		Click(locator1 = "Button#DONE");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Click(locator1 = "CommerceEntry#MODAL_BUTTON_CLOSE");
+
+		SelectFrameTop();
+
+		AssertElementPresent(
+			key_entryName = "ABS Sensor",
+			locator1 = "CommerceEntry#TABLE_LIST_TITLE");
+
+		ClickNoError(
+			key_value = "ABS Sensor",
+			locator1 = "CommerceEntry#BODY_VERTICAL_ELLIPSIS");
+
+		CommerceEntry.clickNoError(menuItem = "Delete");
+
+		Alert.viewSuccessMessage();
+
+		Click(locator1 = "Button#PLUS");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Button.click(button = "Select Product");
+
+		SelectFrameTop();
+
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
+
+		Click(
+			key_siteName = "Ball Joints",
+			locator1 = "CommerceNavigation#CHOOSE_SITE_BUTTON");
+
+		SelectFrameTop();
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Click(locator1 = "Button#CHOOSE");
+
+		SelectFrameTop();
+
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
+
+		Click(
+			key_card = "Login",
+			locator1 = "Card#CARD_TITLE");
+
+		SelectFrameTop();
+
+		Click(locator1 = "Button#DONE");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Click(locator1 = "CommerceEntry#MODAL_BUTTON_CLOSE");
+
+		SelectFrameTop();
+
+		AssertElementPresent(
+			key_entryName = "Ball Joints",
+			locator1 = "CommerceEntry#TABLE_LIST_TITLE");
+
+		AssertElementNotPresent(
+			key_entryName = "ABS Sensor",
+			locator1 = "CommerceEntry#TABLE_LIST_TITLE");
 	}
 
 	@description = "This is a test for COMMERCE-6198. RemoveCategoryDisplayPage"
-	@ignore = "true"
 	@priority = "3"
 	test RemoveCategoryDisplayPage {
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "CPCommerceChannels#RemoveCategoryDisplayPage";
 
-		// TODO COMMERCE-6198 RemoveCategoryDisplayPage
+		// TODO Review
 
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Category Display Pages");
+
+		Click(locator1 = "Button#PLUS");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Click(locator1 = "Button#SELECT");
+
+		AssetCategorization.selectCategory(categoryName = "Brake System");
+
+		SelectFrameTop();
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Click(
+			key_text = "Done",
+			locator1 = "Modal#MODAL_FOOTER_BUTTON");
+
+		Click(locator1 = "Button#CHOOSE");
+
+		SelectFrame.selectFrameNoLoading(
+			key_title = "Select Category Display Page",
+			locator1 = "IFrame#MODAL_ANY");
+
+		Click(
+			key_nodeName = "Login",
+			locator1 = "Treeview#NODE_UNSELECTED");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Button.clickSave();
+
+		AssertElementPresent(locator1 = "Message#SUCCESS");
+
+		Refresh();
+
+		Click(
+			locator1 = "Icon#SVG_ELLIPSIS",
+			value1 = "Brake System");
+
+		MenuItem.clickNoError(menuItem = "Delete");
+
+		AssertElementPresent(locator1 = "Message#SUCCESS");
 	}
 
 	@description = "This is a test for COMMERCE-6270. RemoveNotificationQueue"
-	@ignore = "true"
 	@priority = "3"
 	test RemoveNotificationQueue {
-		property portal.acceptance = "false";
+		property portal.acceptance = "Intern Test";
+		property test.name.skip.portal.instance = "CPCommerceChannels#RemoveNotificationQueue";
 
-		// TODO COMMERCE-6270 RemoveNotificationQueue
+		// TODO Review
 
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
+
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(
+			accountName = "new Account",
+			adminEmailAddress = "test@liferay.com");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "User Groups");
+
+		Click(locator1 = "Button#PLUS");
+
+		Type(
+			key_fieldLabel = "",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
+			value1 = "User Account Group");
+
+		Button.clickSave();
+
+		CommerceNavigator.gotoEntry(entryName = "User Account Group");
+
+		Click(locator1 = "Button#PLUS");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_IFRAME");
+
+		Click(
+			key_userName = "Test Test",
+			locator1 = "Account#USER_TABLE_NAME");
+
+		SelectFrameTop();
+
+		Click(
+			key_name = "Add",
+			locator1 = "Button#GENERAL_BUTTON_MODAL_FOOTER");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Notification Templates");
+
+		Click(locator1 = "Button#PLUS");
+
+		CommerceEntry.addNewNotificationTemplate(
+			entryName = "Test Notification Template",
+			entryTo = "[%USER_GROUP_User Account Group%]",
+			fromAddress = "test@liferay.com",
+			fromName = "Test",
+			notificationType = "Order Placed");
+
+		Button.clickSave();
+
+		Refresh();
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		FrontStore.addInitializerProductToCart(
+			productName = "U-Joint",
+			productQuantity = "1");
+
+		CommerceNavigator.gotoMiniCart();
+
+		Button.click(button = "View Details");
+
+		Button.click(button = "Checkout");
+
+		Pause(locator1 = "3000");
+
+		CommerceCheckout.initializersCheckout(
+			newAddressAddress = "Test Address",
+			newAddressCity = "Test City",
+			newAddressCountry = "United States",
+			newAddressName = "Address Name",
+			newAddressZipCode = "Test Zip Code",
+			productName = "U-Joint",
+			productQuantity = "1",
+			productUnitPrice = "24",
+			shippingMethod = "Standard");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Notification Queue");
+
+		Click(
+			key_value = "Test",
+			locator1 = "CommerceEntry#DROPDOWN");
+
+		MenuItem.click(menuItem = "Delete");
 	}
 
 	@description = "This is a test for COMMERCE-6271. RemoveNotificationTemplate"
-	@ignore = "true"
 	@priority = "3"
 	test RemoveNotificationTemplate {
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "CPCommerceChannels#RemoveNotificationTemplate";
 
-		// TODO COMMERCE-6271 RemoveNotificationTemplate
+		// TODO Review
 
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Notification Templates");
+
+		Click(locator1 = "Button#PLUS");
+
+		CommerceEntry.addNewNotificationTemplate(
+			entryName = "Test Notification Template",
+			entryTo = "[%ACCOUNT_ROLE_ADMINISTRATOR%]",
+			fromAddress = "test@liferay.com",
+			fromName = "Test",
+			notificationType = "Order Placed");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Click.clickNoWaitForVisible(locator1 = "Icon#CLOSE");
+
+		Refresh();
+
+		Click(locator1 = "Icon#SVG_ELLIPSIS");
+
+		MenuItem.clickNoError(menuItem = "Delete");
+
+		Alert.viewSuccessMessage();
+
+		AssertElementNotPresent(
+			key_value = "Test Notification Template",
+			locator1 = "CommerceEntry#TABLE_LIST_TITLE");
 	}
 
 	@description = "This is a test for COMMERCE-6196. RemoveProductDisplayPage"
@@ -1543,13 +1966,86 @@ definition {
 	}
 
 	@description = "This is a test for COMMERCE-6121. RemoveTaxRateSettingsByAddressTaxCalculation"
-	@ignore = "true"
 	@priority = "3"
 	test RemoveTaxRateSettingsByAddressTaxCalculation {
 		property portal.acceptance = "false";
+		property test.name.skip.portal.instance = "CPCommerceChannels#RemoveTaxRateSettingsByAddressTaxCalculation";
 
-		// TODO COMMERCE-6121 RemoveTaxRateSettingsByAddressTaxCalculation
+		// TODO Review
 
+		ApplicationsMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "Search");
+
+		SearchAdministration.executeSearchActions(actionsDescription = "Reindex all search indexes.");
+
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		Click(
+			key_entryName = "By Address",
+			key_table = "Tax Calculations",
+			locator1 = "CommerceEntry#TABLE_ENTRY_EDIT_BUTTON");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Check.checkToggleSwitch(
+			key_toggleSwitchLabel = "Active",
+			locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		CommerceEntry.gotoMenuTab(menuTab = "Tax Rate Settings");
+
+		WaitForElementPresent(locator1 = "Button#PLUS");
+
+		Click(locator1 = "Button#PLUS");
+
+		SelectFrameTop();
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		for (var current : list "Tax Category-Normal Product,Amount-20,Country-Italy,Region-Roma,Zip-0100") {
+			var fieldLabel = StringUtil.extractFirst("${current}","-");
+			var value = StringUtil.extractLast("${current}","-");
+
+			if ("${fieldLabel}" == "Tax Category" || "${fieldLabel}" == "Country" || "${fieldLabel}" == "Region") {
+				Select(
+					key_fieldLabel = "${fieldLabel}",
+					locator1 = "Select#GENERIC_SELECT_FIELD",
+					value1 = "${value}");
+			}
+			else {
+				Type(
+					key_fieldLabel = "${fieldLabel}",
+					locator1 = "TextInput#GENERIC_TEXT_INPUT",
+					value1 = "${value}");
+			}
+		}
+
+		Button.click(button = "Submit");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Click(
+			key_value = "Normal Product",
+			locator1 = "CommerceEntry#BODY_VERTICAL_ELLIPSIS");
+
+		MenuItem.click(menuItem = "Delete");
+
+		Alert.viewSuccessMessage();
 	}
 
 	@description = "This is a test for COMMERCE-6124. RemoveTaxRateSettingsFixedTaxRateTaxCalculation"
@@ -1670,13 +2166,111 @@ definition {
 	}
 
 	@description = "This is a test for COMMERCE-6266. VerifyNotificationQueue"
-	@ignore = "true"
 	@priority = "3"
 	test VerifyNotificationQueue {
-		property portal.acceptance = "false";
+		property portal.acceptance = "Intern Test";
+		property test.name.skip.portal.instance = "CPCommerceChannels#VerifyNotificationQueue";
 
-		// TODO COMMERCE-6266 VerifyNotificationQueue
+		// TODO Review
 
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
+
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(
+			accountName = "new Account",
+			adminEmailAddress = "test@liferay.com");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Users",
+			panel = "Control Panel",
+			portlet = "User Groups");
+
+		Click(locator1 = "Button#PLUS");
+
+		Type(
+			key_fieldLabel = "",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
+			value1 = "User Account Group");
+
+		Button.clickSave();
+
+		CommerceNavigator.gotoEntry(entryName = "User Account Group");
+
+		Click(locator1 = "Button#PLUS");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_IFRAME");
+
+		Click(
+			key_userName = "Test Test",
+			locator1 = "Account#USER_TABLE_NAME");
+
+		SelectFrameTop();
+
+		Click(
+			key_name = "Add",
+			locator1 = "Button#GENERAL_BUTTON_MODAL_FOOTER");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Notification Templates");
+
+		Click(locator1 = "Button#PLUS");
+
+		CommerceEntry.addNewNotificationTemplate(
+			entryName = "Test Notification Template",
+			entryTo = "[%USER_GROUP_User Account Group%]",
+			fromAddress = "test@liferay.com",
+			fromName = "Test",
+			notificationType = "Order Placed");
+
+		Button.clickSave();
+
+		Refresh();
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		FrontStore.addInitializerProductToCart(
+			productName = "U-Joint",
+			productQuantity = "1");
+
+		CommerceNavigator.gotoMiniCart();
+
+		Button.click(button = "View Details");
+
+		Button.click(button = "Checkout");
+
+		Pause(locator1 = "3000");
+
+		CommerceCheckout.initializersCheckout(
+			newAddressAddress = "Test Address",
+			newAddressCity = "Test City",
+			newAddressCountry = "United States",
+			newAddressName = "Address Name",
+			newAddressZipCode = "Test Zip Code",
+			productName = "U-Joint",
+			productQuantity = "1",
+			productUnitPrice = "24",
+			shippingMethod = "Standard");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Store Management",
+			portlet = "Channels");
+
+		CommerceNavigator.gotoEntry(entryName = "Minium Portal");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Notification Queue");
+
+		AssertElementPresent(
+			key_name = "Test",
+			key_order = "1",
+			locator1 = "CommerceEntry#ASSERT_NOTIFICATION_QUEUE");
 	}
 
 }

@@ -515,6 +515,10 @@
 						"store": true,
 						"type": "long"
 					},
+					"assigneeName": {
+						"store": true,
+						"type": "keyword"
+					},
 					"assigneeType": {
 						"store": true,
 						"type": "keyword"
@@ -1090,6 +1094,10 @@
 				"type": "long"
 			},
 			"version": {
+				"store": true,
+				"type": "keyword"
+			},
+			"versions": {
 				"store": true,
 				"type": "keyword"
 			}

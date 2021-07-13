@@ -200,11 +200,11 @@ public class ObjectEntryUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public static ObjectEntry findByUuid_First(
 			String uuid, OrderByComparator<ObjectEntry> orderByComparator)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByUuid_First(uuid, orderByComparator);
 	}
@@ -228,11 +228,11 @@ public class ObjectEntryUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public static ObjectEntry findByUuid_Last(
 			String uuid, OrderByComparator<ObjectEntry> orderByComparator)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByUuid_Last(uuid, orderByComparator);
 	}
@@ -257,12 +257,12 @@ public class ObjectEntryUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	public static ObjectEntry[] findByUuid_PrevAndNext(
 			long objectEntryId, String uuid,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByUuid_PrevAndNext(
 			objectEntryId, uuid, orderByComparator);
@@ -288,15 +288,15 @@ public class ObjectEntryUtil {
 	}
 
 	/**
-	 * Returns the object entry where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchEntryException</code> if it could not be found.
+	 * Returns the object entry where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchObjectEntryException</code> if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public static ObjectEntry findByUUID_G(String uuid, long groupId)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByUUID_G(uuid, groupId);
 	}
@@ -334,7 +334,7 @@ public class ObjectEntryUtil {
 	 * @return the object entry that was removed
 	 */
 	public static ObjectEntry removeByUUID_G(String uuid, long groupId)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().removeByUUID_G(uuid, groupId);
 	}
@@ -433,12 +433,12 @@ public class ObjectEntryUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public static ObjectEntry findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -467,12 +467,12 @@ public class ObjectEntryUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public static ObjectEntry findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -502,12 +502,12 @@ public class ObjectEntryUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	public static ObjectEntry[] findByUuid_C_PrevAndNext(
 			long objectEntryId, String uuid, long companyId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByUuid_C_PrevAndNext(
 			objectEntryId, uuid, companyId, orderByComparator);
@@ -615,12 +615,12 @@ public class ObjectEntryUtil {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public static ObjectEntry findByObjectDefinitionId_First(
 			long objectDefinitionId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByObjectDefinitionId_First(
 			objectDefinitionId, orderByComparator);
@@ -647,12 +647,12 @@ public class ObjectEntryUtil {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public static ObjectEntry findByObjectDefinitionId_Last(
 			long objectDefinitionId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByObjectDefinitionId_Last(
 			objectDefinitionId, orderByComparator);
@@ -680,12 +680,12 @@ public class ObjectEntryUtil {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	public static ObjectEntry[] findByObjectDefinitionId_PrevAndNext(
 			long objectEntryId, long objectDefinitionId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByObjectDefinitionId_PrevAndNext(
 			objectEntryId, objectDefinitionId, orderByComparator);
@@ -743,10 +743,10 @@ public class ObjectEntryUtil {
 	 *
 	 * @param objectEntryId the primary key of the object entry
 	 * @return the object entry that was removed
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	public static ObjectEntry remove(long objectEntryId)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().remove(objectEntryId);
 	}
@@ -756,14 +756,14 @@ public class ObjectEntryUtil {
 	}
 
 	/**
-	 * Returns the object entry with the primary key or throws a <code>NoSuchEntryException</code> if it could not be found.
+	 * Returns the object entry with the primary key or throws a <code>NoSuchObjectEntryException</code> if it could not be found.
 	 *
 	 * @param objectEntryId the primary key of the object entry
 	 * @return the object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	public static ObjectEntry findByPrimaryKey(long objectEntryId)
-		throws com.liferay.object.exception.NoSuchEntryException {
+		throws com.liferay.object.exception.NoSuchObjectEntryException {
 
 		return getPersistence().findByPrimaryKey(objectEntryId);
 	}

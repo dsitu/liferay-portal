@@ -26,7 +26,7 @@ definition {
 
 	@priority = "5"
 	test AddPortalInstance {
-		property test.name.skip.portal.instance = "PortalconfigurationUsecase#AddPortalInstance";
+		property test.name.skip.portal.instance = "VirtualInstances#AddPortalInstance";
 
 		ApplicationsMenu.gotoPortlet(
 			category = "System",
@@ -43,7 +43,7 @@ definition {
 
 	@priority = "5"
 	test DeletePortalInstance {
-		property test.name.skip.portal.instance = "PortalconfigurationUsecase#DeletePortalInstance";
+		property test.name.skip.portal.instance = "VirtualInstances#DeletePortalInstance";
 
 		ApplicationsMenu.gotoPortlet(
 			category = "System",
@@ -60,7 +60,7 @@ definition {
 
 	@priority = "4"
 	test PermissionCheckPortalInstances {
-		property test.name.skip.portal.instance = "PortalconfigurationUsecase#PermissionCheckPortalInstances";
+		property test.name.skip.portal.instance = "VirtualInstances#PermissionCheckPortalInstances";
 
 		ApplicationsMenu.gotoPortlet(
 			category = "System",
@@ -116,7 +116,7 @@ definition {
 
 	@priority = "5"
 	test ViewDeactivatedPortalInstance {
-		property test.name.skip.portal.instance = "PortalconfigurationUsecase#ViewDeactivatedPortalInstance";
+		property test.name.skip.portal.instance = "VirtualInstances#ViewDeactivatedPortalInstance";
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Configuration",
@@ -231,7 +231,7 @@ definition {
 	@priority = "4"
 	test ViewVirtualHostPrivateSitePage {
 		property custom.properties = "virtual.hosts.valid.hosts=localhost,127.0.0.1,www.able.com,www.baker.com,www.charlie.com";
-		property test.name.skip.portal.instance = "PortalconfigurationUsecase#ViewVirtualHostPrivateSitePage";
+		property test.name.skip.portal.instance = "VirtualInstances#ViewVirtualHostPrivateSitePage";
 
 		PortalSettings.gotoConfiguration(
 			configurationCategory = "Instance Configuration",
@@ -285,7 +285,7 @@ definition {
 
 	@priority = "4"
 	test ViewVirtualInstanceInheritsSystemSettings {
-		property test.name.skip.portal.instance = "PortalconfigurationUsecase#ViewVirtualInstanceInheritsSystemSettings";
+		property test.name.skip.portal.instance = "VirtualInstances#ViewVirtualInstanceInheritsSystemSettings";
 
 		PortalSettings.gotoConfiguration(
 			configurationCategory = "Users",

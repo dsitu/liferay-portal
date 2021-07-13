@@ -17,11 +17,13 @@ package com.liferay.digital.signature.web.internal.portlet.action;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.digital.signature.manager.DSEnvelopeManager;
 import com.liferay.digital.signature.model.DSEnvelope;
+import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
@@ -56,10 +58,17 @@ public class GetDSEnvelopesMVCResourceCommand extends BaseMVCResourceCommand {
 
 		Page<DSEnvelope> page = _dsEnvelopeManager.getDSEnvelopesPage(
 			themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId(),
-			"2011-01-01", ParamUtil.getString(resourceRequest, "order", "desc"),
+			ParamUtil.getString(resourceRequest, "from_date", "2000-01-01"),
+			StringUtil.replace(
+				ParamUtil.getString(resourceRequest, "keywords"),
+				CharPool.SPACE, CharPool.PLUS),
+			StringUtil.removeSubstring(
+				ParamUtil.getString(resourceRequest, "sort", "desc"),
+				"createdLocalDateTime:"),
 			Pagination.of(
 				ParamUtil.getInteger(resourceRequest, "page"),
-				ParamUtil.getInteger(resourceRequest, "pageSize")));
+				ParamUtil.getInteger(resourceRequest, "pageSize")),
+			ParamUtil.getString(resourceRequest, "status"));
 
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse, page.toString());

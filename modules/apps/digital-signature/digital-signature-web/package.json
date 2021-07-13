@@ -1,14 +1,15 @@
 {
 	"dependencies": {
 		"@clayui/button": "3.6.0",
-		"@clayui/drop-down": "3.29.0",
+		"@clayui/drop-down": "3.30.0",
 		"@clayui/form": "3.29.0",
 		"@clayui/icon": "3.1.0",
 		"@clayui/label": "3.4.1",
-		"@clayui/layout": "3.3.0",
-		"@clayui/pagination-bar": "3.29.0",
+		"@clayui/layout": "3.31.0",
+		"@clayui/pagination-bar": "3.31.0",
 		"@clayui/table": "3.29.0",
-		"classnames": "2.2.6",
+		"@liferay/frontend-js-react-web": "*",
+		"classnames": "2.3.1",
 		"frontend-js-web": "*",
 		"image-promise": "^5.0.1",
 		"moment": "^2.22.2",
@@ -36,7 +37,7 @@
 		"build": "liferay-npm-scripts build",
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix",
-		"test": "liferay-npm-scripts test"
+		"test": "env TZ=utc liferay-npm-scripts test"
 	},
 	"version": "1.0.0"
 }

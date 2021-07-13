@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence;
 
-import com.liferay.object.exception.NoSuchEntryException;
+import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
@@ -107,13 +107,13 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public ObjectEntry findByUuid_First(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectEntry>
 				orderByComparator)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Returns the first object entry in the ordered set where uuid = &#63;.
@@ -133,13 +133,13 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public ObjectEntry findByUuid_Last(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectEntry>
 				orderByComparator)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Returns the last object entry in the ordered set where uuid = &#63;.
@@ -160,13 +160,13 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	public ObjectEntry[] findByUuid_PrevAndNext(
 			long objectEntryId, String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectEntry>
 				orderByComparator)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Removes all the object entries where uuid = &#63; from the database.
@@ -184,15 +184,15 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	public int countByUuid(String uuid);
 
 	/**
-	 * Returns the object entry where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchEntryException</code> if it could not be found.
+	 * Returns the object entry where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchObjectEntryException</code> if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public ObjectEntry findByUUID_G(String uuid, long groupId)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Returns the object entry where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
@@ -222,7 +222,7 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @return the object entry that was removed
 	 */
 	public ObjectEntry removeByUUID_G(String uuid, long groupId)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Returns the number of object entries where uuid = &#63; and groupId = &#63;.
@@ -306,13 +306,13 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public ObjectEntry findByUuid_C_First(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectEntry>
 				orderByComparator)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Returns the first object entry in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -334,13 +334,13 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public ObjectEntry findByUuid_C_Last(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectEntry>
 				orderByComparator)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Returns the last object entry in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -363,13 +363,13 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	public ObjectEntry[] findByUuid_C_PrevAndNext(
 			long objectEntryId, String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectEntry>
 				orderByComparator)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Removes all the object entries where uuid = &#63; and companyId = &#63; from the database.
@@ -456,13 +456,13 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public ObjectEntry findByObjectDefinitionId_First(
 			long objectDefinitionId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectEntry>
 				orderByComparator)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Returns the first object entry in the ordered set where objectDefinitionId = &#63;.
@@ -482,13 +482,13 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	public ObjectEntry findByObjectDefinitionId_Last(
 			long objectDefinitionId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectEntry>
 				orderByComparator)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Returns the last object entry in the ordered set where objectDefinitionId = &#63;.
@@ -509,13 +509,13 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	public ObjectEntry[] findByObjectDefinitionId_PrevAndNext(
 			long objectEntryId, long objectDefinitionId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectEntry>
 				orderByComparator)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Removes all the object entries where objectDefinitionId = &#63; from the database.
@@ -559,21 +559,22 @@ public interface ObjectEntryPersistence extends BasePersistence<ObjectEntry> {
 	 *
 	 * @param objectEntryId the primary key of the object entry
 	 * @return the object entry that was removed
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
-	public ObjectEntry remove(long objectEntryId) throws NoSuchEntryException;
+	public ObjectEntry remove(long objectEntryId)
+		throws NoSuchObjectEntryException;
 
 	public ObjectEntry updateImpl(ObjectEntry objectEntry);
 
 	/**
-	 * Returns the object entry with the primary key or throws a <code>NoSuchEntryException</code> if it could not be found.
+	 * Returns the object entry with the primary key or throws a <code>NoSuchObjectEntryException</code> if it could not be found.
 	 *
 	 * @param objectEntryId the primary key of the object entry
 	 * @return the object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	public ObjectEntry findByPrimaryKey(long objectEntryId)
-		throws NoSuchEntryException;
+		throws NoSuchObjectEntryException;
 
 	/**
 	 * Returns the object entry with the primary key or returns <code>null</code> if it could not be found.

@@ -91,6 +91,8 @@ definition {
 			fieldType = "Numeric",
 			formPageNumber = "0");
 
+		FormViewBuilder.closeSidebar();
+
 		FormsAdminNavigator.gotoDeleteField(fieldName = "Single Selection");
 
 		Form.save();
@@ -139,43 +141,29 @@ definition {
 			key_selectOption = "Duplicate",
 			locator1 = "FormViewBuilder#SELECT_FIELD_OPTIONS_LIST");
 
-		AssertElementPresent(
-			key_name = "Single Selection",
-			locator1 = "FormFields#FIELD_TARGET_LABEL");
+		FormFields.viewOptionSingleSelection(
+			fieldName = "Single Selection",
+			optionName = "Option 1");
 
-		AssertElementPresent(
-			key_name = "Copy of Single Selection",
-			locator1 = "FormFields#FIELD_TARGET_LABEL");
+		FormFields.viewOptionSingleSelection(
+			fieldName = "Single Selection",
+			optionName = "Option 2");
 
-		AssertElementPresent(
-			key_bodyText = "Option 1",
-			key_fieldName = "Single Selection",
-			locator1 = "FormFields#FIELD_TARGET_LABEL_AND_BODY_OPTION");
+		FormFields.viewOptionSingleSelection(
+			fieldName = "Copy of Single Selection",
+			optionName = "Option 1");
 
-		AssertElementPresent(
-			key_bodyText = "Option 2",
-			key_fieldName = "Single Selection",
-			locator1 = "FormFields#FIELD_TARGET_LABEL_AND_BODY_OPTION");
+		FormFields.viewOptionSingleSelection(
+			fieldName = "Copy of Single Selection",
+			optionName = "Option 2");
 
-		AssertElementPresent(
-			key_bodyText = "Option 1",
-			key_fieldName = "Copy of Single Selection",
-			locator1 = "FormFields#FIELD_TARGET_LABEL_AND_BODY_OPTION");
+		FormViewBuilder.assertHelpTextPresent(
+			fieldName = "Single Selection",
+			fieldValue = "Help Text Test");
 
-		AssertElementPresent(
-			key_bodyText = "Option 2",
-			key_fieldName = "Copy of Single Selection",
-			locator1 = "FormFields#FIELD_TARGET_LABEL_AND_BODY_OPTION");
-
-		AssertElementPresent(
-			key_bodyText = "Help Text Test",
-			key_fieldName = "Single Selection",
-			locator1 = "FormFields#FIELD_TARGET_LABEL_AND_BODY_TEXT");
-
-		AssertElementPresent(
-			key_bodyText = "Help Text Test",
-			key_fieldName = "Copy of Single Selection",
-			locator1 = "FormFields#FIELD_TARGET_LABEL_AND_BODY_TEXT");
+		FormViewBuilder.assertHelpTextPresent(
+			fieldName = "Copy of Single Selection",
+			fieldValue = "Help Text Test");
 	}
 
 	@description = "Verify that a Single Selection Field can be edited"
@@ -383,11 +371,7 @@ definition {
 			successPageDescription = "Your information was successfully received. Thank you for filling out the form.",
 			successPageTitle = "Thank you.");
 
-		Navigator.openSpecificURL(url = "http://localhost:8080");
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
+		FormsAdminNavigator.closePublishedFormWindow();
 
 		FormsAdminNavigator.gotoViewEntries();
 
@@ -403,7 +387,7 @@ definition {
 	@ignore = "Test Stub"
 	@priority = "4"
 	test ChangesCanBeCanceled {
-		property forms.functional = "true";
+		property forms.functional = "false";
 		property portal.acceptance = "false";
 
 		// TODO LPS-132196 ChangesCanBeCanceled pending implementation
@@ -629,7 +613,7 @@ definition {
 	@description = "Verify that options can be deleted"
 	@priority = "5"
 	test OptionsCanBeDeleted {
-		property forms.functional = "true";
+		property forms.functional = "quarantine";
 		property portal.acceptance = "false";
 
 		ProductMenu.gotoPortlet(
@@ -886,7 +870,7 @@ definition {
 
 		FormsAdminNavigator.gotoAddForm();
 
-		Form.editName(formName = "Form1");
+		Form.editName(formName = "Form 1");
 
 		Form.gotoAddField(
 			fieldPositionNumber = "0",
@@ -894,33 +878,24 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		Form.editFieldReferenceMetal(fieldValue = "Single1234");
+		Form.editFieldReferenceMetal(fieldValue = "SingleSelection1234");
 
 		Form.save();
 
 		FormsAdminNavigator.gotoBack();
 
-		Click(
-			key_formName = "Form1",
-			locator1 = "FormsAdmin#FORMS_TABLE_NAME");
+		FormsAdminNavigator.gotoEditFormByName(formName = "Form 1");
 
-		Click(
-			key_name = "Single Selection",
-			locator1 = "FormFields#FIELD_TARGET_LABEL");
-
-		Form.gotoAdvancedTab();
-
-		AssertElementPresent(
-			key_fieldName = "",
-			key_fieldValue = "Single1234",
-			locator1 = "Translation#TARGET_LANGUAGE_FIELD");
+		FormFields.viewFieldReference(
+			fieldName = "Single Selection",
+			key_fieldReferenceValue = "SingleSelection1234");
 	}
 
 	@description = "Verify that the Field Type can be changed"
 	@ignore = "Test Stub"
 	@priority = "5"
 	test TypeCanBeChanged {
-		property forms.functional = "true";
+		property forms.functional = "false";
 		property portal.acceptance = "false";
 
 		// TODO LPS-132195 TypeCanBeChanged pending implementation

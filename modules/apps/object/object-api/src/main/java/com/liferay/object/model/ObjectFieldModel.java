@@ -219,6 +219,21 @@ public interface ObjectFieldModel
 	public void setObjectDefinitionId(long objectDefinitionId);
 
 	/**
+	 * Returns the db column name of this object field.
+	 *
+	 * @return the db column name of this object field
+	 */
+	@AutoEscape
+	public String getDBColumnName();
+
+	/**
+	 * Sets the db column name of this object field.
+	 *
+	 * @param dbColumnName the db column name of this object field
+	 */
+	public void setDBColumnName(String dbColumnName);
+
+	/**
 	 * Returns the indexed of this object field.
 	 *
 	 * @return the indexed of this object field
@@ -289,6 +304,27 @@ public interface ObjectFieldModel
 	 * @param name the name of this object field
 	 */
 	public void setName(String name);
+
+	/**
+	 * Returns the required of this object field.
+	 *
+	 * @return the required of this object field
+	 */
+	public boolean getRequired();
+
+	/**
+	 * Returns <code>true</code> if this object field is required.
+	 *
+	 * @return <code>true</code> if this object field is required; <code>false</code> otherwise
+	 */
+	public boolean isRequired();
+
+	/**
+	 * Sets whether this object field is required.
+	 *
+	 * @param required the required of this object field
+	 */
+	public void setRequired(boolean required);
 
 	/**
 	 * Returns the type of this object field.

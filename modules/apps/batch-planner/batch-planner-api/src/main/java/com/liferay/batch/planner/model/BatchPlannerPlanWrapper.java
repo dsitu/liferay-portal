@@ -50,11 +50,11 @@ public class BatchPlannerPlanWrapper
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("active", isActive());
+		attributes.put("export", isExport());
 		attributes.put("externalType", getExternalType());
 		attributes.put("externalURL", getExternalURL());
 		attributes.put("internalClassName", getInternalClassName());
 		attributes.put("name", getName());
-		attributes.put("export", isExport());
 
 		return attributes;
 	}
@@ -109,6 +109,12 @@ public class BatchPlannerPlanWrapper
 			setActive(active);
 		}
 
+		Boolean export = (Boolean)attributes.get("export");
+
+		if (export != null) {
+			setExport(export);
+		}
+
 		String externalType = (String)attributes.get("externalType");
 
 		if (externalType != null) {
@@ -131,12 +137,6 @@ public class BatchPlannerPlanWrapper
 
 		if (name != null) {
 			setName(name);
-		}
-
-		Boolean export = (Boolean)attributes.get("export");
-
-		if (export != null) {
-			setExport(export);
 		}
 	}
 

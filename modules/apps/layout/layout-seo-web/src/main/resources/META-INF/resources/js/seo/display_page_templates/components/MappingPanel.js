@@ -17,9 +17,11 @@ import ClayForm, {ClayInput, ClaySelectWithOption} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
 import {PropTypes} from 'prop-types';
-import React, {useRef, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 
+import {FIELD_TYPES} from '../constants';
 import useOnClickOutside from '../hooks/useOnClickOutside';
+import MappingContext from './MappingContext';
 
 const noop = () => {};
 
@@ -32,21 +34,49 @@ function MappingPanel({
 	isActive = false,
 	name,
 	fields,
-	field,
+	field: initialField,
+	fieldType,
 	source,
-	onChange = noop,
+	onSelect = noop,
+	clearSelectionOnClose = false,
 }) {
 	const [isPanelOpen, setIsPanelOpen] = useState(false);
+	const [fieldValue, setFieldValue] = useState(
+		initialField?.key || fields[0].key
+	);
+	const {ffSEOInlineFieldMappingEnabled} = useContext(MappingContext);
 	const wrapperRef = useRef(null);
 
-	useOnClickOutside([wrapperRef.current], () => setIsPanelOpen(false));
+	const handleOnClose = () => {
+		if (isPanelOpen) {
+			setIsPanelOpen(false);
+
+			if (clearSelectionOnClose) {
+				setFieldValue(fields[0].key);
+			}
+		}
+	};
+
+	useOnClickOutside([wrapperRef.current], handleOnClose);
 
 	const handleChangeField = (event) => {
 		const {value} = event.target;
-
 		const field = fields.find(({key}) => key === value);
 
-		onChange({
+		setFieldValue(field.key);
+
+		if (!ffSEOInlineFieldMappingEnabled) {
+			onSelect({
+				field,
+				source,
+			});
+		}
+	};
+
+	const handleOnSelect = () => {
+		const field = fields.find(({key}) => key === fieldValue);
+
+		onSelect({
 			field,
 			source,
 		});
@@ -93,9 +123,20 @@ function MappingPanel({
 								id={`${name}_mappingSelectorFieldSelect`}
 								onChange={handleChangeField}
 								options={fields.map(normalizeField)}
-								value={field.key}
+								value={fieldValue}
 							/>
 						</ClayForm.Group>
+						{ffSEOInlineFieldMappingEnabled && (
+							<ClayButton
+								block
+								displayType="primary"
+								onClick={handleOnSelect}
+							>
+								{fieldType === FIELD_TYPES.TEXT
+									? Liferay.Language.get('add-field')
+									: Liferay.Language.get('map-content')}
+							</ClayButton>
+						)}
 					</div>
 				</div>
 			)}
@@ -104,10 +145,12 @@ function MappingPanel({
 }
 
 MappingPanel.propTypes = {
+	clearSelectionOnClose: PropTypes.bool,
 	field: PropTypes.shape({
 		key: PropTypes.string,
 		label: PropTypes.string,
-	}).isRequired,
+	}),
+	fieldType: PropTypes.string,
 	fields: PropTypes.arrayOf(
 		PropTypes.shape({
 			key: PropTypes.string,
@@ -116,6 +159,7 @@ MappingPanel.propTypes = {
 	).isRequired,
 	isActive: PropTypes.bool,
 	name: PropTypes.string.isRequired,
+	onSelect: PropTypes.func,
 	source: PropTypes.shape({
 		initialValue: PropTypes.string,
 	}).isRequired,

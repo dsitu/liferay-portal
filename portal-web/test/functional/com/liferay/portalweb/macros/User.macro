@@ -3,13 +3,42 @@ definition {
 	var password = "test";
 	var userEmailAddress = "test@liferay.com";
 
-	macro _login {
-		SignIn._signIn(
-			userEmailAddress = "${userEmailAddress}",
-			userPassword = "${userPassword}");
+	macro _clickSignInButton {
+		var localizedSignIn = User._getSignInText(localization = "${localization}");
+
+		Button.click(button = "${localizedSignIn}");
 	}
 
-	macro _signInLocalization {
+	macro _clickSignInLink {
+		var localizedSignIn = User._getSignInText(localization = "${localization}");
+
+		if (IsElementNotPresent(locator1 = "TextInput#EMAIL_ADDRESS")) {
+			if (isSet(localization)) {
+				AssertClick(
+					locator1 = "UserBar#USER_SIGN_IN",
+					value1 = "${localizedSignIn}");
+			}
+			else if (IsElementPresent(locator1 = "UserBar#USER_SIGN_IN")) {
+				AssertClick(
+					locator1 = "UserBar#USER_SIGN_IN",
+					value1 = "Sign In");
+
+				if ("${samlMultiIdPs}" == "true") {
+					Select(
+						key_fieldLabel = "Identity Provider",
+						locator1 = "Select#GENERIC_SELECT_FIELD",
+						value1 = "${idpName}");
+
+					Button.click(button = "Sign In");
+				}
+			}
+			else if (IsElementPresent(key_text = "Sign In", locator1 = "Button#ANY")) {
+				Button.click(button = "Sign In");
+			}
+		}
+	}
+
+	macro _getSignInText {
 		if ("${localization}" == "JA") {
 			var localizedSignIn = "ログイン";
 		}
@@ -27,6 +56,12 @@ definition {
 		}
 
 		return "${localizedSignIn}";
+	}
+
+	macro _login {
+		SignIn._signIn(
+			userEmailAddress = "${userEmailAddress}",
+			userPassword = "${userPassword}");
 	}
 
 	macro acceptEndUserLicenseAgreement {
@@ -1185,9 +1220,7 @@ definition {
 	macro createUserViaOpenID {
 		Navigator.openURL();
 
-		AssertClick(
-			locator1 = "UserBar#USER_SIGN_IN",
-			value1 = "Sign In");
+		Navigator.gotoLoginPage();
 
 		AssertClick(
 			locator1 = "Link#OPENID",
@@ -1902,9 +1935,22 @@ definition {
 
 		User.answerPasswordReminder();
 
-		AssertElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE");
+		if (IsElementNotPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+			takeScreenshot();
 
-		WaitForLiferayEvent.initializeLiferayEventLog();
+			echo("URL login failed, falling back to UI login.");
+
+			User.firstLoginUI(
+				idpName = "${idpName}",
+				password = "${password}",
+				rememberMeChecked = "${rememberMeChecked}",
+				specificURL = "${virtualHostsURL}",
+				userEmailAddress = "${userEmailAddress}",
+				userScreenName = "${userScreenName}");
+		}
+		else {
+			WaitForLiferayEvent.initializeLiferayEventLog();
+		}
 	}
 
 	@summary = "Log into Liferay using the UI"
@@ -1916,21 +1962,18 @@ definition {
 			Navigator.openURL();
 		}
 
-		if (IsElementNotPresent(locator1 = "TextInput#EMAIL_ADDRESS")) {
-			if (IsElementPresent(locator1 = "UserBar#USER_SIGN_IN")) {
-				AssertClick(
-					locator1 = "UserBar#USER_SIGN_IN",
-					value1 = "Sign In");
-			}
-			else if (IsElementPresent(key_text = "Sign In", locator1 = "Button#ANY")) {
-				Button.click(button = "Sign In");
-			}
-		}
+		User._clickSignInLink(localization = "${localization}");
 
 		if ("${authenticationMethod}" == "By Screen Name") {
 			Type(
 				locator1 = "TextInput#SCREEN_NAME",
 				value1 = "${userScreenName}");
+		}
+		else if ("${authenticationMethod}" == "By User ID") {
+			Type.typePause(
+				key_text = "ID",
+				locator1 = "TextInput#ANY",
+				value1 = "${userID}");
 		}
 		else {
 			Type.typePause(
@@ -1946,7 +1989,7 @@ definition {
 			Check(locator1 = "Checkbox#REMEMBER_ME");
 		}
 
-		Click(locator1 = "Button#SIGN_IN");
+		User._clickSignInButton(localization = "${localization}");
 
 		if (IsElementPresent(locator1 = "Button#I_AGREE")) {
 			SignIn.agreeToTermsOfUse();
@@ -2043,16 +2086,6 @@ definition {
 		WaitForLiferayEvent.initializeLiferayEventLog();
 	}
 
-	macro loginLocalizationPG {
-		if (IsElementNotPresent(locator1 = "Button#SIGN_IN")) {
-			var localizedSignIn = User._signInLocalization(localization = "${localization}");
-
-			AssertClick(
-				locator1 = "UserBar#USER_SIGN_IN",
-				value1 = "${localizedSignIn}");
-		}
-	}
-
 	@summary = "Log into Liferay Portal as '${userEmailAddress}' using the password '${password}'"
 	macro loginPG {
 		JSONUser.agreeToTermsAndAnswerReminderQuery(
@@ -2082,9 +2115,22 @@ definition {
 
 		User.answerPasswordReminder();
 
-		AssertElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE");
+		if (IsElementNotPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+			takeScreenshot();
 
-		WaitForLiferayEvent.initializeLiferayEventLog();
+			echo("URL login failed, falling back to UI login.");
+
+			User.firstLoginUI(
+				idpName = "${idpName}",
+				password = "${password}",
+				rememberMeChecked = "${rememberMeChecked}",
+				specificURL = "${virtualHostsURL}",
+				userEmailAddress = "${userEmailAddress}",
+				userScreenName = "${userScreenName}");
+		}
+		else {
+			WaitForLiferayEvent.initializeLiferayEventLog();
+		}
 	}
 
 	macro loginUserInvalidPG {
@@ -2109,12 +2155,12 @@ definition {
 
 			if ("${count}" == "${maximumFailure}") {
 				AssertTextEquals.assertPartialText(
-					locator1 = "Message#ERROR_1",
+					locator1 = "Message#ERROR_DISMISSIBLE",
 					value1 = "${errorMessage}");
 			}
 			else {
 				AssertTextEquals.assertPartialText(
-					locator1 = "Message#ERROR_1",
+					locator1 = "Message#ERROR_DISMISSIBLE",
 					value1 = "Authentication failed. Please try again.");
 			}
 		}
@@ -2137,9 +2183,7 @@ definition {
 	macro loginUserWithCASEnabledPG {
 		Navigator.openURL();
 
-		AssertClick(
-			locator1 = "UserBar#USER_SIGN_IN",
-			value1 = "Sign In");
+		Navigator.gotoLoginPage();
 
 		Type(
 			locator1 = "CAS#NETID_FIELD",
@@ -2160,9 +2204,7 @@ definition {
 	macro loginUserWithFacebookSSOEnabledPG {
 		Navigator.openURL();
 
-		AssertClick(
-			locator1 = "UserBar#USER_SIGN_IN",
-			value1 = "Sign In");
+		Navigator.gotoLoginPage();
 
 		AssertClick(
 			locator1 = "Link#FACEBOOK",
@@ -2266,9 +2308,7 @@ definition {
 	macro loginUserWithOpenIDEnabledPG {
 		Navigator.openURL();
 
-		AssertClick(
-			locator1 = "UserBar#USER_SIGN_IN",
-			value1 = "Sign In");
+		Navigator.gotoLoginPage();
 
 		AssertClick(
 			locator1 = "Link#OPENID",
@@ -2317,9 +2357,7 @@ definition {
 	macro loginUserWithOpenSSOEnabledPG {
 		Navigator.openSpecificURL(url = "${hostsURL}");
 
-		AssertClick(
-			locator1 = "UserBar#USER_SIGN_IN",
-			value1 = "Sign In");
+		Navigator.gotoLoginPage();
 
 		Type(
 			locator1 = "TextInput#TEXT",
@@ -2486,9 +2524,7 @@ definition {
 	}
 
 	macro signInPG {
-		AssertClick(
-			locator1 = "UserBar#USER_SIGN_IN",
-			value1 = "Sign In");
+		Navigator.gotoLoginPage();
 
 		Type(
 			locator1 = "TextInput#EMAIL_ADDRESS",

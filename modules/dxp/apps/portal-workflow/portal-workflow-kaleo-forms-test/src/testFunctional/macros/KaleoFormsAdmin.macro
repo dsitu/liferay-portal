@@ -557,9 +557,9 @@ definition {
 			kfProgressName = "Forms",
 			kfProgressStep = "4");
 
-		Refresh();
-
-		AssertElementNotPresent(locator1 = "Button#SAVE_INACTIVE");
+		if (IsElementNotPresent(key_text = "Save",locator1 = "Button#ANY")) {
+			Refresh();
+		}
 
 		Button.clickSave();
 	}
@@ -642,15 +642,16 @@ definition {
 
 	macro viewNewProcessProgressBar {
 		var key_kfProgressName = "${kfProgressName}";
+
+		AssertTextEquals(
+			locator1 = "KaleoFormsAdminEditProcess#FORM_NAVIGATOR_PROGRESS_BAR_NAME",
+			value1 = "${kfProgressName}");
+
 		var key_kfProgressName = StringUtil.lowerCase("${kfProgressName}");
 
 		AssertTextEquals(
 			locator1 = "KaleoFormsAdminEditProcess#FORM_NAVIGATOR_PROGRESS_BAR_STEP",
 			value1 = "${kfProgressStep}");
-
-		AssertTextEquals(
-			locator1 = "KaleoFormsAdminEditProcess#FORM_NAVIGATOR_PROGRESS_BAR_NAME",
-			value1 = "${kfProgressName}");
 	}
 
 	macro viewNextFieldSetPage {

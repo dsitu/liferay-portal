@@ -36,10 +36,10 @@ definition {
 
 			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
-			AssertTextEquals.assertPartialText(
-				key_card = "${webContentTitle}",
+			AssertTextEquals(
+				key_card = "${webContentTitle} (${depotName})",
 				locator1 = "Card#CARD_TITLE",
-				value1 = "${webContentTitle}");
+				value1 = "${webContentTitle} (${depotName})");
 		}
 
 		PortletEntry.save();
@@ -140,7 +140,8 @@ definition {
 			Panel.expandPanel(panel = "Default Template");
 
 			AssertTextEquals(
-				locator1 = "WCEditWebContent#SELECTED_TEMPLATE",
+				inputFieldId = "ddmTemplateName",
+				locator1 = "TextInput#INPUT_ID",
 				value1 = "${templateName}");
 
 			AssertClick.pauseAssertTextClickAt(
@@ -174,6 +175,38 @@ definition {
 		MenuItem.click(menuItem = "Permissions");
 	}
 
+	macro gotoSelectWebContent {
+		Portlet.gotoPortletOptions(
+			portletName = "Web Content Display",
+			portletOption = "Configuration");
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		AssertClick.assertTextClickAtAndPause(
+			locator1 = "WCDConfiguration#SELECT_WEB_CONTENT_BUTTON",
+			value1 = "Select");
+
+		SelectFrame.selectSecondFrame(locator1 = "IFrame#MODAL_BODY");
+
+		if (isSet(depotName)) {
+			var key_rowEntry = "${webContentTitle}";
+
+			AssertClick(
+				key_breadcrumbName = "Sites and Libraries",
+				locator1 = "Breadcrumb#BREADCRUMB_ENTRY",
+				value1 = "Sites and Libraries");
+
+			AssertClick(
+				key_groupTab = "Asset Library",
+				locator1 = "ItemSelector#NAVIGATION_GROUP_TAB",
+				value1 = "Asset Library");
+
+			Click(
+				key_card = "${depotName}",
+				locator1 = "Card#CARD_TITLE");
+		}
+	}
+
 	macro removeWebContent {
 		Portlet.gotoPortletOptions(
 			portletName = "${portletName}",
@@ -194,6 +227,59 @@ definition {
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		PortletEntry.save();
+
+		SelectFrame(value1 = "relative=top");
+	}
+
+	macro searchForNoWebContent {
+		Portlet.gotoPortletOptions(
+			portletName = "${portletName}",
+			portletOption = "Configuration");
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		AssertClick(
+			locator1 = "WCDConfiguration#SELECT_WEB_CONTENT_BUTTON",
+			value1 = "Select");
+
+		SelectFrame.selectSecondFrame(locator1 = "IFrame#MODAL_BODY");
+
+		if (isSet(depotName)) {
+			var key_rowEntry = "${webContentTitle}";
+
+			AssertClick(
+				key_breadcrumbName = "Sites and Libraries",
+				locator1 = "Breadcrumb#BREADCRUMB_ENTRY",
+				value1 = "Sites and Libraries");
+
+			AssertClick(
+				key_groupTab = "Asset Library",
+				locator1 = "ItemSelector#NAVIGATION_GROUP_TAB",
+				value1 = "Asset Library");
+
+			Click(
+				key_card = "${depotName}",
+				locator1 = "Card#CARD_TITLE");
+
+			AssertElementNotPresent(
+				key_contentName = "${webContentTitle}",
+				locator1 = "ItemSelector#SELECT_FILE_WEB_CONTENT");
+
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#INFO",
+				value1 = "Info:Web Content is disabled for this scope.");
+		}
+		else {
+			Search.searchCP(searchTerm = "${webContentTitle}");
+
+			LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+			var key_webContentTitle = "${webContentTitle}";
+
+			AssertElementNotPresent(
+				key_listEntry = "${webContentTitle}",
+				locator1 = "LexiconList#LIST_ENTRY_TITLE");
+		}
 
 		SelectFrame(value1 = "relative=top");
 	}
@@ -247,32 +333,6 @@ definition {
 		SelectFrame(value1 = "relative=top");
 	}
 
-	macro searchWebContentNo {
-		Portlet.gotoPortletOptions(
-			portletName = "${portletName}",
-			portletOption = "Configuration");
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
-
-		AssertClick(
-			locator1 = "WCDConfiguration#SELECT_WEB_CONTENT_BUTTON",
-			value1 = "Select");
-
-		SelectFrame.selectSecondFrame(locator1 = "IFrame#MODAL_BODY");
-
-		Search.searchCP(searchTerm = "${webContentTitle}");
-
-		LexiconEntry.changeDisplayStyle(displayStyle = "list");
-
-		var key_webContentTitle = "${webContentTitle}";
-
-		AssertElementNotPresent(
-			key_listEntry = "${webContentTitle}",
-			locator1 = "LexiconList#LIST_ENTRY_TITLE");
-
-		SelectFrame(value1 = "relative=top");
-	}
-
 	macro selectOtherSiteWebContent {
 		Portlet.gotoPortletOptions(
 			portletName = "Web Content Display",
@@ -309,10 +369,10 @@ definition {
 
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
-		AssertTextEquals.assertPartialText(
-			key_card = "${webContentTitle}",
+		AssertTextEquals(
+			key_card = "${webContentTitle} (${otherSiteName})",
 			locator1 = "Card#CARD_TITLE",
-			value1 = "${webContentTitle}");
+			value1 = "${webContentTitle} (${otherSiteName})");
 
 		PortletEntry.save();
 
@@ -361,10 +421,10 @@ definition {
 
 			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
-			AssertTextEquals.assertPartialText(
-				key_card = "${webContentTitle}",
+			AssertTextEquals(
+				key_card = "${webContentTitle} (${depotName})",
 				locator1 = "Card#CARD_TITLE",
-				value1 = "${webContentTitle}");
+				value1 = "${webContentTitle} (${depotName})");
 		}
 
 		else {

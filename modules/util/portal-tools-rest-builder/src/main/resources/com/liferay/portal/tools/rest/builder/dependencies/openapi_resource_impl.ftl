@@ -28,6 +28,7 @@ import org.osgi.service.component.annotations.Reference;
  * @generated
  */
 @Component(
+	<#if configYAML.liferayEnterpriseApp>enabled = false,</#if>
 	properties = "OSGI-INF/liferay/rest/${escapedVersion}/openapi.properties",
 	service = OpenAPIResourceImpl.class
 )

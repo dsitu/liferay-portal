@@ -48,6 +48,9 @@ import com.liferay.portal.verify.VerifyProperties;
 import com.liferay.portal.verify.VerifyResourcePermissions;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
+import com.liferay.registry.ServiceReference;
+import com.liferay.registry.dependency.ServiceDependencyListener;
+import com.liferay.registry.dependency.ServiceDependencyManager;
 import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.sql.Connection;
@@ -56,6 +59,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.logging.log4j.core.Appender;
 
 import org.springframework.context.ApplicationContext;
 
@@ -125,6 +129,10 @@ public class DBUpgrader {
 			try (SafeCloseable safeCloseable =
 					ProxyModeThreadLocal.setWithSafeCloseable(false)) {
 
+				if (PropsValues.UPGRADE_REPORT_ENABLED) {
+					_startUpgradeReportLogAppender();
+				}
+
 				upgrade();
 			}
 
@@ -143,6 +151,11 @@ public class DBUpgrader {
 
 			System.exit(1);
 		}
+		finally {
+			if (PropsValues.UPGRADE_REPORT_ENABLED) {
+				_stopUpgradeReportLogAppender();
+			}
+		}
 	}
 
 	public static void upgrade() throws Exception {
@@ -156,11 +169,11 @@ public class DBUpgrader {
 
 		_upgradePortal();
 
-		DependencyManagerSyncUtil.sync();
-
 		DLFileEntryTypeLocalServiceUtil.getBasicDocumentDLFileEntryType();
 
 		_upgradeModules(applicationContext);
+
+		DependencyManagerSyncUtil.sync();
 	}
 
 	public static void verify() throws VerifyException {
@@ -247,6 +260,53 @@ public class DBUpgrader {
 			).put(
 				"service.version", ReleaseInfo.getVersion()
 			).build());
+	}
+
+	private static void _startUpgradeReportLogAppender() {
+		Registry registry = RegistryUtil.getRegistry();
+
+		ServiceDependencyManager serviceDependencyManager =
+			new ServiceDependencyManager();
+
+		serviceDependencyManager.addServiceDependencyListener(
+			new ServiceDependencyListener() {
+
+				@Override
+				public void dependenciesFulfilled() {
+					_appenderServiceReference = registry.getServiceReference(
+						Appender.class);
+
+					ServiceReference<? extends Appender>
+						appenderServiceReference = _appenderServiceReference;
+
+					_appender = registry.getService(appenderServiceReference);
+
+					_appender.start();
+				}
+
+				@Override
+				public void destroy() {
+				}
+
+			});
+
+		serviceDependencyManager.registerDependencies(
+			registry.getFilter(
+				StringBundler.concat(
+					"(&(appender.name=UpgradeReportLogAppender)(objectClass=",
+					Appender.class.getName(), "))")));
+	}
+
+	private static void _stopUpgradeReportLogAppender() {
+		if (_appender != null) {
+			_appender.stop();
+		}
+
+		if (_appenderServiceReference != null) {
+			Registry registry = RegistryUtil.getRegistry();
+
+			registry.ungetService(_appenderServiceReference);
+		}
 	}
 
 	private static void _updateCompanyKey() throws Exception {
@@ -376,5 +436,9 @@ public class DBUpgrader {
 	private static final Version _VERSION_7010 = new Version(0, 0, 6);
 
 	private static final Log _log = LogFactoryUtil.getLog(DBUpgrader.class);
+
+	private static volatile Appender _appender;
+	private static volatile ServiceReference<Appender>
+		_appenderServiceReference;
 
 }

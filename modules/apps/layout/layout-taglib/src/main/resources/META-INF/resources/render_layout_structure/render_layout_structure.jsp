@@ -34,6 +34,12 @@ for (String childrenItemId : childrenItemIds) {
 			CollectionStyledLayoutStructureItem collectionStyledLayoutStructureItem = (CollectionStyledLayoutStructureItem)layoutStructureItem;
 
 			InfoListRenderer<Object> infoListRenderer = (InfoListRenderer<Object>)renderLayoutStructureDisplayContext.getInfoListRenderer(collectionStyledLayoutStructureItem);
+
+			int collectionCount = renderLayoutStructureDisplayContext.getCollectionCount(collectionStyledLayoutStructureItem);
+
+			String paginationType = collectionStyledLayoutStructureItem.getPaginationType();
+
+			boolean paginationEnabled = FFRenderLayoutStructureConfigurationUtil.collectionDisplayFragmentPaginationEnabled() && (Objects.equals(paginationType, "regular") || Objects.equals(paginationType, "simple"));
 			%>
 
 			<div class="<%= renderLayoutStructureDisplayContext.getCssClass(collectionStyledLayoutStructureItem) %>" style="<%= renderLayoutStructureDisplayContext.getStyle(collectionStyledLayoutStructureItem) %>">
@@ -55,9 +61,13 @@ for (String childrenItemId : childrenItemIds) {
 
 							List<Object> collection = renderLayoutStructureDisplayContext.getCollection(collectionStyledLayoutStructureItem);
 
-							int maxNumberOfItems = Math.min(collection.size(), collectionStyledLayoutStructureItem.getNumberOfItems());
+							int maxNumberOfItemsPerPage = Math.min(collectionCount, collectionStyledLayoutStructureItem.getNumberOfItems());
 
-							int numberOfRows = (int)Math.ceil((double)maxNumberOfItems / collectionStyledLayoutStructureItem.getNumberOfColumns());
+							if (paginationEnabled) {
+								maxNumberOfItemsPerPage = Math.min(collectionCount, collectionStyledLayoutStructureItem.getNumberOfItemsPerPage());
+							}
+
+							int numberOfRows = (int)Math.ceil((double)maxNumberOfItemsPerPage / collectionStyledLayoutStructureItem.getNumberOfColumns());
 
 							for (int i = 0; i < numberOfRows; i++) {
 						%>
@@ -68,7 +78,7 @@ for (String childrenItemId : childrenItemIds) {
 								for (int j = 0; j < collectionStyledLayoutStructureItem.getNumberOfColumns(); j++) {
 									int index = (i * collectionStyledLayoutStructureItem.getNumberOfColumns()) + j;
 
-									if (index >= maxNumberOfItems) {
+									if ((index >= maxNumberOfItemsPerPage) || (index >= collection.size())) {
 										break;
 									}
 
@@ -100,6 +110,35 @@ for (String childrenItemId : childrenItemIds) {
 
 					</c:otherwise>
 				</c:choose>
+
+				<%
+				int maxNumberOfItems = Math.min(collectionCount, collectionStyledLayoutStructureItem.getNumberOfItems());
+
+				int numberOfPages = (int)Math.ceil((double)maxNumberOfItems / collectionStyledLayoutStructureItem.getNumberOfItemsPerPage());
+				%>
+
+				<c:if test="<%= paginationEnabled %>">
+					<div>
+						<react:component
+							module="render_layout_structure/js/CollectionPagination"
+							props='<%=
+								HashMapBuilder.<String, Object>put(
+									"collectionId", collectionStyledLayoutStructureItem.getItemId()
+								).put(
+									"numberOfItems", collectionStyledLayoutStructureItem.getNumberOfItems()
+								).put(
+									"numberOfItemsPerPage", collectionStyledLayoutStructureItem.getNumberOfItemsPerPage()
+								).put(
+									"paginationType", paginationType
+								).put(
+									"totalItems", collectionCount
+								).put(
+									"totalPages", numberOfPages
+								).build()
+							%>'
+						/>
+					</div>
+				</c:if>
 			</div>
 		</c:when>
 		<c:when test="<%= layoutStructureItem instanceof ColumnLayoutStructureItem %>">

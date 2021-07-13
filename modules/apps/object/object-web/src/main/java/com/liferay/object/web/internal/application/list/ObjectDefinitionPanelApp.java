@@ -44,7 +44,7 @@ public class ObjectDefinitionPanelApp extends BasePanelApp {
 
 	@Override
 	public String getLabel(Locale locale) {
-		return _objectDefinition.getName();
+		return _objectDefinition.getShortName();
 	}
 
 	@Override
@@ -59,8 +59,7 @@ public class ObjectDefinitionPanelApp extends BasePanelApp {
 		return PortletURLBuilder.create(
 			super.getPortletURL(httpServletRequest)
 		).setParameter(
-			"objectDefinitionId",
-			String.valueOf(_objectDefinition.getObjectDefinitionId())
+			"objectDefinitionId", _objectDefinition.getObjectDefinitionId()
 		).build();
 	}
 

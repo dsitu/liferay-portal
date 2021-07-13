@@ -16,8 +16,8 @@ package com.liferay.layout.admin.web.internal.portlet.action;
 
 import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.asset.list.service.AssetListEntryLocalService;
-import com.liferay.info.list.provider.InfoListProvider;
-import com.liferay.info.list.provider.InfoListProviderTracker;
+import com.liferay.info.collection.provider.InfoCollectionProvider;
+import com.liferay.info.item.InfoItemServiceTracker;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
@@ -201,10 +201,11 @@ public class AddCollectionLayoutMVCActionCommand
 	}
 
 	private String _getCollectionProviderPageElementJSON(String className) {
-		InfoListProvider<?> infoListProvider =
-			_infoListProviderTracker.getInfoListProvider(className);
+		InfoCollectionProvider<?> infoCollectionProvider =
+			_infoItemServiceTracker.getInfoItemService(
+				InfoCollectionProvider.class, className);
 
-		if (infoListProvider == null) {
+		if (infoCollectionProvider == null) {
 			return null;
 		}
 
@@ -212,7 +213,7 @@ public class AddCollectionLayoutMVCActionCommand
 			"CLASS_NAME", className
 		).put(
 			"COLLECTION_PROVIDER_NAME",
-			infoListProvider.getLabel(LocaleUtil.getDefault())
+			infoCollectionProvider.getLabel(LocaleUtil.getDefault())
 		).build();
 
 		String collectionProviderPageElementJSON = StringUtil.read(
@@ -264,7 +265,7 @@ public class AddCollectionLayoutMVCActionCommand
 	private AssetListEntryLocalService _assetListEntryLocalService;
 
 	@Reference
-	private InfoListProviderTracker _infoListProviderTracker;
+	private InfoItemServiceTracker _infoItemServiceTracker;
 
 	@Reference
 	private LayoutExceptionRequestHandler _layoutExceptionRequestHandler;

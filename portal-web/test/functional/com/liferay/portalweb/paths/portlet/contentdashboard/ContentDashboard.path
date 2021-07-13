@@ -2,11 +2,13 @@
 <head>
 <title>ContentDashboard</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">ContentDashboard</td></tr>
 </thead>
+
 <tbody>
 <tr>
 	<td>AUDIT_GRAPH_CATEGORY_CHECKBOX</td>
@@ -19,13 +21,38 @@
 	<td></td>
 </tr>
 <tr>
+	<td>AUDIT_GRAPH_CONFIGURATION_LEFT_ARROW_BUTTON</td>
+	<td>//button[contains(@class, 'move-left')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUDIT_GRAPH_CONFIGURATION_RIGHT_ARROW_BUTTON</td>
+	<td>//button[contains(@class, 'move-right')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>AUDIT_GRAPH_CONFIGURATION_STAGE_VOCABULARY</td>
 	<td>//option[contains(text(),'Stage')]</td>
 	<td></td>
 </tr>
 <tr>
+	<td>AUDIT_GRAPH_CONFIGURATION_VOCABULARY_IN_USE</td>
+	<td>//div[contains(@class, 'form-group')]/label[contains(text(), 'In Use')]/../select/option[contains(text(), '${vocabularyName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUDIT_GRAPH_CONFIGURATION_VOCABULARY_AVAILABLE</td>
+	<td>//div[contains(@class, 'form-group')]/label[contains(text(), 'Available')]/../select/option[contains(text(), '${vocabularyName}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>AUDIT_GRAPH_CONFIGURATION_UP_ARROW_BUTTON</td>
 	<td>//button[contains(@class, 'reorder-up')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AUDIT_GRAPH_CONFIGURATION_DOWN_ARROW_BUTTON</td>
+	<td>//button[contains(@class, 'reorder-down')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -80,6 +107,11 @@
 <tr>
 	<td>CATEGORY_NAME_ELEMENT</td>
 	<td>//*[contains(@class, 'text-truncate') and contains(text(),'${categoryName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHECKBOX_TAGS</td>
+	<td>//*[contains(@title,'Select') and contains(@value,'${tagName}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -223,8 +255,28 @@
 	<td></td>
 </tr>
 <tr>
-	<td>CHECKBOX_TAGS</td>
-	<td>//*[contains(@title,'Select') and contains(@value,'${tagName}')]</td>
+	<td>SESSION_PROPERTY_SESSION_LINK_PROPERTY</td>
+	<td>//div[contains(@class, 'form-group-inline')] //label[contains(text(), 'Session Property Name')]/../select</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SESSION_PROPERTY_SESSION_LINK_PROPERTY_OPTION</td>
+	<td>//label[contains(text(), 'Session Property Name')]/..//option[contains(text(), '${propertyName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SESSION_PROPERTY_SESSION_LINK_VOCABULARY</td>
+	<td>//div[contains(@class, 'form-group-inline')] //label[contains(text(), 'Vocabulary Name')]/../select</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SESSION_PROPERTY_SESSION_LINK_VOCABULARY_OPTION</td>
+	<td>//label[contains(text(), 'Vocabulary Name')]/..//option[contains(text(), '${vocabularyName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SITE_ASSET_LIBRARY_COLUMN</td>
+	<td>//*[contains(@class,'lfr-site-or-asset-library-column') and contains(text(), '${siteAssetValue}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -250,6 +302,26 @@
 <tr>
 	<td>X_AXIS_VOCABULARY_NAME</td>
 	<td>//*[contains(@class, 'recharts-layer recharts-cartesian-axis-tick')]//*[contains(text(), '${xAxisCategoryName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ROW_PANEL_WC</td>
+	<td>//tr[contains(@data-qa-id, 'row')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>TITLE_COLUMN_CONTENT</td>
+	<td>//td[contains(@class,'lfr-title-column')]//a[contains(@title,'${title}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ICON_INFO_LISTED_MODIFIED_DATE</td>
+	<td>//button[contains(@class,'component-action quick-action-item btn btn-monospaced btn-sm btn-unstyled')] //*[contains(@class,'circle')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ICON_VIEW_LISTED_MODIFIED_DATE</td>
+	<td>//a[contains(@label,'View')]</td>
 	<td></td>
 </tr>
 </tbody>

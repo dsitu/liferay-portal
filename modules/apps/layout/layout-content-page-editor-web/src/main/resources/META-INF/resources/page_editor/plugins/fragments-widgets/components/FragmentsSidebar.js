@@ -18,6 +18,7 @@ import React, {useMemo, useState} from 'react';
 import {FRAGMENTS_DISPLAY_STYLES} from '../../../app/config/constants/fragmentsDisplayStyles';
 import {LAYOUT_DATA_ITEM_TYPES} from '../../../app/config/constants/layoutDataItemTypes';
 import {useSelector} from '../../../app/contexts/StoreContext';
+import {useWidgets} from '../../../app/contexts/WidgetsContext';
 import SearchForm from '../../../common/components/SearchForm';
 import SidebarPanelContent from '../../../common/components/SidebarPanelContent';
 import SidebarPanelHeader from '../../../common/components/SidebarPanelHeader';
@@ -25,6 +26,11 @@ import SearchResultsPanel from './SearchResultsPanel';
 import TabsPanel from './TabsPanel';
 
 const FRAGMENTS_DISPLAY_STYLE_KEY = 'FRAGMENTS_DISPLAY_STYLE_KEY';
+
+export const COLLECTION_IDS = {
+	fragments: 'fragments',
+	widgets: 'widgets',
+};
 
 const collectionFilter = (collections, searchValue) => {
 	const searchValueLowerCase = searchValue.toLowerCase();
@@ -48,7 +54,11 @@ const collectionFilter = (collections, searchValue) => {
 			else {
 				const updateCollection = {
 					...collection,
-					children: collection.children.filter(itemFilter),
+					children: collection.children?.filter(
+						(item) =>
+							itemFilter(item) ||
+							item.portletItems?.some(itemFilter)
+					),
 					...(collection.collections?.length && {
 						collections: collectionFilter(
 							collection.collections,
@@ -72,7 +82,7 @@ const normalizeWidget = (widget) => {
 			used: widget.used,
 		},
 		disabled: !widget.instanceable && widget.used,
-		icon: widget.instanceable ? 'cards2' : 'square-hole',
+		icon: widget.instanceable ? 'square-hole-multi' : 'square-hole',
 		itemId: widget.portletId,
 		label: widget.title,
 		portletItems: widget.portletItems?.length
@@ -120,8 +130,9 @@ const normalizeFragmentEntry = (fragmentEntry) => {
 
 export default function FragmentsSidebar() {
 	const fragments = useSelector((state) => state.fragments);
-	const widgets = useSelector((state) => state.widgets);
+	const widgets = useWidgets();
 
+	const [activeTabId, setActiveTabId] = useState(COLLECTION_IDS.fragments);
 	const [displayStyle, setDisplayStyle] = useState(
 		window.sessionStorage.getItem(FRAGMENTS_DISPLAY_STYLE_KEY) ||
 			FRAGMENTS_DISPLAY_STYLES.LIST
@@ -139,12 +150,14 @@ export default function FragmentsSidebar() {
 					collectionId: collection.fragmentCollectionId,
 					label: collection.name,
 				})),
+				id: COLLECTION_IDS.fragments,
 				label: Liferay.Language.get('fragments'),
 			},
 			{
 				collections: widgets.map((collection) =>
 					normalizeCollections(collection)
 				),
+				id: COLLECTION_IDS.widgets,
 				label: Liferay.Language.get('widgets'),
 			},
 		],
@@ -167,6 +180,9 @@ export default function FragmentsSidebar() {
 		[tabs, searchValue]
 	);
 
+	const displayStyleButtonDisabled =
+		searchValue || activeTabId === COLLECTION_IDS.widgets;
+
 	return (
 		<>
 			<SidebarPanelHeader>
@@ -183,6 +199,8 @@ export default function FragmentsSidebar() {
 					<ClayButtonWithIcon
 						borderless
 						className="lfr-portal-tooltip ml-2 mt-0"
+						data-tooltip-align="bottom-right"
+						disabled={displayStyleButtonDisabled}
 						displayType="secondary"
 						onClick={() => {
 							const nextDisplayStyle =
@@ -199,20 +217,23 @@ export default function FragmentsSidebar() {
 						}}
 						small
 						symbol={
-							displayStyle === FRAGMENTS_DISPLAY_STYLES.CARDS
-								? 'cards2'
-								: 'list'
+							displayStyleButtonDisabled ||
+							displayStyle === FRAGMENTS_DISPLAY_STYLES.LIST
+								? 'list'
+								: 'cards2'
 						}
 						title={Liferay.Language.get('change-view')}
 					/>
 				</div>
 				{searchValue ? (
-					<SearchResultsPanel
-						displayStyle={displayStyle}
-						filteredTabs={filteredTabs}
-					/>
+					<SearchResultsPanel filteredTabs={filteredTabs} />
 				) : (
-					<TabsPanel displayStyle={displayStyle} tabs={tabs} />
+					<TabsPanel
+						activeTabId={activeTabId}
+						displayStyle={displayStyle}
+						setActiveTabId={setActiveTabId}
+						tabs={tabs}
+					/>
 				)}
 			</SidebarPanelContent>
 		</>

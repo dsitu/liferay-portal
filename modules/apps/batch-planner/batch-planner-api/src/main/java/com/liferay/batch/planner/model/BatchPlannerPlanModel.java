@@ -208,6 +208,27 @@ public interface BatchPlannerPlanModel
 	public void setActive(boolean active);
 
 	/**
+	 * Returns the export of this batch planner plan.
+	 *
+	 * @return the export of this batch planner plan
+	 */
+	public boolean getExport();
+
+	/**
+	 * Returns <code>true</code> if this batch planner plan is export.
+	 *
+	 * @return <code>true</code> if this batch planner plan is export; <code>false</code> otherwise
+	 */
+	public boolean isExport();
+
+	/**
+	 * Sets whether this batch planner plan is export.
+	 *
+	 * @param export the export of this batch planner plan
+	 */
+	public void setExport(boolean export);
+
+	/**
 	 * Returns the external type of this batch planner plan.
 	 *
 	 * @return the external type of this batch planner plan
@@ -266,26 +287,5 @@ public interface BatchPlannerPlanModel
 	 * @param name the name of this batch planner plan
 	 */
 	public void setName(String name);
-
-	/**
-	 * Returns the export of this batch planner plan.
-	 *
-	 * @return the export of this batch planner plan
-	 */
-	public boolean getExport();
-
-	/**
-	 * Returns <code>true</code> if this batch planner plan is export.
-	 *
-	 * @return <code>true</code> if this batch planner plan is export; <code>false</code> otherwise
-	 */
-	public boolean isExport();
-
-	/**
-	 * Sets whether this batch planner plan is export.
-	 *
-	 * @param export the export of this batch planner plan
-	 */
-	public void setExport(boolean export);
 
 }

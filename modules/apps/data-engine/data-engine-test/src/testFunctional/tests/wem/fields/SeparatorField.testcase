@@ -163,29 +163,23 @@ definition {
 	test ShowAndHideSeparatorLabel {
 		property portal.acceptance = "false";
 
-		DataEngine.editShowOrHideLabel(
-			fieldFieldLabel = "Separator",
-			showLabel = "true");
+		DataEngine.toggleShowLabel(fieldLabel = "Separator");
 
 		WebContentStructures.saveCP();
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
 
-		AssertElementPresent(
-			key_fieldFieldLabel = "Separator",
-			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		DataEngine.assertFieldNotPresent(fieldFieldLabel = "Separator");
 
-		DataEngine.editShowOrHideLabel(
-			fieldFieldLabel = "Separator",
-			showLabel = "false");
+		DataEngine.toggleShowLabel();
 
 		WebContentStructures.saveCP();
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
 
-		AssertElementNotPresent(
-			key_fieldFieldLabel = "Separator",
-			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		DataEngine.viewField(
+			fieldFieldLabel = "Separator",
+			fieldName = "Separator");
 	}
 
 }

@@ -914,6 +914,14 @@ public abstract class BaseProductResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("customFields", additionalAssertFieldName)) {
+				if (product.getCustomFields() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("defaultSku", additionalAssertFieldName)) {
 				if (product.getDefaultSku() == null) {
 					valid = false;
@@ -1014,6 +1022,26 @@ public abstract class BaseProductResourceTestCase {
 
 			if (Objects.equals("neverExpire", additionalAssertFieldName)) {
 				if (product.getNeverExpire() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"productAccountGroupFilter", additionalAssertFieldName)) {
+
+				if (product.getProductAccountGroupFilter() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"productAccountGroups", additionalAssertFieldName)) {
+
+				if (product.getProductAccountGroups() == null) {
 					valid = false;
 				}
 
@@ -1354,6 +1382,17 @@ public abstract class BaseProductResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("customFields", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						product1.getCustomFields(),
+						product2.getCustomFields())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("defaultSku", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						product1.getDefaultSku(), product2.getDefaultSku())) {
@@ -1493,6 +1532,32 @@ public abstract class BaseProductResourceTestCase {
 			if (Objects.equals("neverExpire", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						product1.getNeverExpire(), product2.getNeverExpire())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"productAccountGroupFilter", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						product1.getProductAccountGroupFilter(),
+						product2.getProductAccountGroupFilter())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"productAccountGroups", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						product1.getProductAccountGroups(),
+						product2.getProductAccountGroups())) {
 
 					return false;
 				}
@@ -1872,6 +1937,11 @@ public abstract class BaseProductResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("customFields")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("defaultSku")) {
 			sb.append("'");
 			sb.append(String.valueOf(product.getDefaultSku()));
@@ -2022,6 +2092,16 @@ public abstract class BaseProductResourceTestCase {
 		}
 
 		if (entityFieldName.equals("neverExpire")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("productAccountGroupFilter")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("productAccountGroups")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
@@ -2189,6 +2269,7 @@ public abstract class BaseProductResourceTestCase {
 				id = RandomTestUtil.randomLong();
 				modifiedDate = RandomTestUtil.nextDate();
 				neverExpire = RandomTestUtil.randomBoolean();
+				productAccountGroupFilter = RandomTestUtil.randomBoolean();
 				productChannelFilter = RandomTestUtil.randomBoolean();
 				productId = RandomTestUtil.randomLong();
 				productStatus = RandomTestUtil.randomInt();

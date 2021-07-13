@@ -59,8 +59,6 @@ definition {
 	@description = "This is a test for LPS-107630. Make sure the Fieldset does not crash when editing its properties directly from Object sidebar during reuse in a new form view"
 	@priority = "4"
 	test EditFieldsetPropertiesFromSideBar {
-		property portal.acceptance = "quarantine";
-
 		DataEngine.createNewFieldset(
 			fieldNameList = "Text",
 			fieldsetName = "New Fieldset");
@@ -301,29 +299,23 @@ definition {
 
 		DataEngine.addFieldsetToBuilder(fieldsetName = "New Fieldset");
 
-		DataEngine.editShowOrHideLabel(
-			fieldsetLabel = "New Fieldset",
-			showLabel = "true");
+		DataEngine.toggleShowLabel(fieldLabel = "New Fieldset");
 
 		WebContentStructures.saveCP(structureName = "WC Structure Name");
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
 
-		AssertVisible(
-			key_fieldsetLabel = "New Fieldset",
-			locator1 = "DDMEditStructure#FORM_FIELD_SETS_CONTAINER_LABEL");
+		DataEngine.assertFieldNotPresent(fieldsetLabel = "New Fieldset");
 
-		DataEngine.editShowOrHideLabel(
-			fieldsetLabel = "New Fieldset",
-			showLabel = "false");
+		DataEngine.toggleShowLabel();
 
 		WebContentStructures.saveCP(structureName = "WC Structure Name");
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
 
-		AssertElementNotPresent(
-			key_fieldsetLabel = "New Fieldset",
-			locator1 = "DDMEditStructure#FORM_FIELD_SETS_CONTAINER_LABEL");
+		DataEngine.viewFieldset(
+			fieldNameList = "Date",
+			fieldsetName = "New Fieldset");
 	}
 
 	@description = "This is a test for LPS-123538. As Content Creator, I cannot edit fieldset on the Advanced panel"

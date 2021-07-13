@@ -31,7 +31,12 @@ import {getConnectedReactComponentAdapter} from '../../utils/ReactComponentAdapt
 import {parseProps} from '../../utils/parseProps.es';
 import {Form} from './FormView.es';
 import {EVENT_TYPES} from './eventTypes.es';
-import {paginationReducer, rulesReducer} from './reducers/index.es';
+import {
+	builderPagesReducer,
+	objectFieldsReducer,
+	paginationReducer,
+	rulesReducer,
+} from './reducers/index.es';
 
 /**
  * Updates the state of the FieldSettings when any value coming
@@ -39,9 +44,11 @@ import {paginationReducer, rulesReducer} from './reducers/index.es';
  */
 const StateSync = ({
 	activePage,
+	builderPages,
 	defaultLanguageId,
 	editingLanguageId,
 	focusedField,
+	objectFields,
 	pages,
 	rules,
 }) => {
@@ -82,6 +89,20 @@ const StateSync = ({
 		});
 	}, [dispatch, defaultLanguageId, editingLanguageId]);
 
+	useEffect(() => {
+		dispatch({
+			payload: {objectFields},
+			type: EVENT_TYPES.OBJECT_FIELDS.ADD,
+		});
+	}, [dispatch, objectFields]);
+
+	useEffect(() => {
+		dispatch({
+			payload: {builderPages},
+			type: EVENT_TYPES.BUILDER_PAGES.UPDATE,
+		});
+	}, [dispatch, builderPages]);
+
 	return null;
 };
 
@@ -99,9 +120,11 @@ export const FormFieldSettings = ({children, onAction, ...otherProps}) => {
 				initialState={INITIAL_STATE}
 				onAction={onAction}
 				reducers={[
+					builderPagesReducer,
 					activePageReducer,
 					fieldReducer,
 					languageReducer,
+					objectFieldsReducer,
 					pagesStructureReducer,
 					pageValidationReducer,
 					paginationReducer,

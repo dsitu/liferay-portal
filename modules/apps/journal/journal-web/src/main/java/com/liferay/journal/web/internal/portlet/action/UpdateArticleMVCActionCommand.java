@@ -312,7 +312,7 @@ public class UpdateArticleMVCActionCommand extends BaseMVCActionCommand {
 				uploadPortletRequest, "autoArticleId");
 
 			article = _journalArticleService.addArticle(
-				groupId, folderId, classNameId, classPK, articleId,
+				null, groupId, folderId, classNameId, classPK, articleId,
 				autoArticleId, titleMap, descriptionMap, friendlyURLMap,
 				content, ddmStructureKey, ddmTemplateKey, layoutUuid,
 				displayDateMonth, displayDateDay, displayDateYear,
@@ -458,15 +458,14 @@ public class UpdateArticleMVCActionCommand extends BaseMVCActionCommand {
 			"/edit_article.jsp"
 		).setRedirect(
 			redirect
+		).setPortletResource(
+			ParamUtil.getString(actionRequest, "portletResource")
 		).setParameter(
 			"articleId", article.getArticleId()
 		).setParameter(
 			"folderId", article.getFolderId()
 		).setParameter(
 			"groupId", article.getGroupId()
-		).setParameter(
-			"portletResource",
-			ParamUtil.getString(actionRequest, "portletResource")
 		).setParameter(
 			"referringPortletResource",
 			ParamUtil.getString(actionRequest, "referringPortletResource")

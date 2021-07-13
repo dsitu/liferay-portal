@@ -248,7 +248,7 @@ public class LinksToLayoutsExportImportContentProcessor
 				newLayoutId = layout.getLayoutId();
 			}
 			else if (_log.isWarnEnabled()) {
-				_log.warn("Unable to get layout with plid " + oldPlid);
+				_log.warn("Unable to get layout with PLID " + oldPlid);
 			}
 
 			String oldLinkToLayout = matcher.group(0);

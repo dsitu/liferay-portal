@@ -4,7 +4,7 @@
 <service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.batch.engine">
 	<author>Shuyang Zhou</author>
 	<namespace>BatchEngine</namespace>
-	<entity local-service="true" name="BatchEngineExportTask" remote-service="false" uuid="true">
+	<entity local-service="true" name="BatchEngineExportTask" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -33,11 +33,14 @@
 
 		<!-- Finder methods -->
 
+		<finder name="CompanyId" return-type="Collection">
+			<finder-column name="companyId" />
+		</finder>
 		<finder name="ExecuteStatus" return-type="Collection">
 			<finder-column name="executeStatus" />
 		</finder>
 	</entity>
-	<entity local-service="true" name="BatchEngineImportTask" remote-service="false" uuid="true">
+	<entity local-service="true" name="BatchEngineImportTask" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
@@ -63,11 +66,16 @@
 		<column name="fieldNameMapping" type="Map" />
 		<column name="operation" type="String" />
 		<column name="parameters" type="Map" />
+		<column name="processedItemsCount" type="int" />
 		<column name="startTime" type="Date" />
 		<column name="taskItemDelegateName" type="String" />
+		<column name="totalItemsCount" type="int" />
 
 		<!-- Finder methods -->
 
+		<finder name="CompanyId" return-type="Collection">
+			<finder-column name="companyId" />
+		</finder>
 		<finder name="ExecuteStatus" return-type="Collection">
 			<finder-column name="executeStatus" />
 		</finder>

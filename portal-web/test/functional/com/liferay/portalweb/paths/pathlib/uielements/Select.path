@@ -2,12 +2,19 @@
 <head>
 <title>Select</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">Select</td></tr>
 </thead>
+
 <tbody>
+<tr>
+	<td>ADDRESS_TYPE</td>
+	<td>//div[label[contains(.,'Type')]]/select[contains(@name,'addressType')]</td>
+	<td></td>
+</tr>
 <tr>
 	<td>ANY</td>
 	<td>//div[not(contains(@class,'hide'))]/div[contains(@class,'input-select-wrapper')][label[contains(.,'${key_selectFieldLabel}')]]/select</td>
@@ -191,6 +198,11 @@
 <tr>
 	<td>SAML_NAME_IDENTIFIER_FORMAT_SELECT</td>
 	<td>//select[contains(@id,'SamlAdminPortlet_nameIdFormat')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SELECT_ID</td>
+	<td>//select[contains(@id,'${selectFieldId}')]</td>
 	<td></td>
 </tr>
 <tr>

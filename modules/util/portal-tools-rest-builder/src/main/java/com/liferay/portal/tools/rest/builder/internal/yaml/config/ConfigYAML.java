@@ -95,6 +95,10 @@ public class ConfigYAML {
 		return _generateREST;
 	}
 
+	public boolean isLiferayEnterpriseApp() {
+		return _liferayEnterpriseApp;
+	}
+
 	public boolean isWarningsEnabled() {
 		return _warningsEnabled;
 	}
@@ -181,6 +185,10 @@ public class ConfigYAML {
 		_licenseURL = licenseURL;
 	}
 
+	public void setLiferayEnterpriseApp(boolean liferayEnterpriseApp) {
+		_liferayEnterpriseApp = liferayEnterpriseApp;
+	}
+
 	public void setTestDir(String testDir) {
 		_testDir = testDir;
 	}
@@ -208,6 +216,7 @@ public class ConfigYAML {
 	private String _licenseName = "Apache 2.0";
 	private String _licenseURL =
 		"http://www.apache.org/licenses/LICENSE-2.0.html";
+	private boolean _liferayEnterpriseApp;
 	private String _testDir;
 	private boolean _warningsEnabled = true;
 

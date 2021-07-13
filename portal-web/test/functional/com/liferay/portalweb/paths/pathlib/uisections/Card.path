@@ -2,11 +2,13 @@
 <head>
 <title>Card</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">Card</td></tr>
 </thead>
+
 <tbody>
 <tr>
 	<td>CARD</td>
@@ -25,7 +27,7 @@
 </tr>
 <tr>
 	<td>CARD_TITLE</td>
-	<td>//*[contains(@class,'card-title')][contains(.,'${key_card}')]</td>
+	<td>//*[contains(@class,'card-title')][.//*[normalize-space(text())='${key_card}']] | //*[contains(@class,'card-title')][normalize-space(text())='${key_card}']</td>
 	<td></td>
 </tr>
 <tr>

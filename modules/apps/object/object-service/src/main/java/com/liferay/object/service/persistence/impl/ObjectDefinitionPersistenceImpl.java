@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence.impl;
 
-import com.liferay.object.exception.NoSuchDefinitionException;
+import com.liferay.object.exception.NoSuchObjectDefinitionException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectDefinitionTable;
 import com.liferay.object.model.impl.ObjectDefinitionImpl;
@@ -283,12 +283,12 @@ public class ObjectDefinitionPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object definition
-	 * @throws NoSuchDefinitionException if a matching object definition could not be found
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
 	 */
 	@Override
 	public ObjectDefinition findByUuid_First(
 			String uuid, OrderByComparator<ObjectDefinition> orderByComparator)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = fetchByUuid_First(
 			uuid, orderByComparator);
@@ -306,7 +306,7 @@ public class ObjectDefinitionPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchDefinitionException(sb.toString());
+		throw new NoSuchObjectDefinitionException(sb.toString());
 	}
 
 	/**
@@ -335,12 +335,12 @@ public class ObjectDefinitionPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object definition
-	 * @throws NoSuchDefinitionException if a matching object definition could not be found
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
 	 */
 	@Override
 	public ObjectDefinition findByUuid_Last(
 			String uuid, OrderByComparator<ObjectDefinition> orderByComparator)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = fetchByUuid_Last(
 			uuid, orderByComparator);
@@ -358,7 +358,7 @@ public class ObjectDefinitionPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchDefinitionException(sb.toString());
+		throw new NoSuchObjectDefinitionException(sb.toString());
 	}
 
 	/**
@@ -395,13 +395,13 @@ public class ObjectDefinitionPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object definition
-	 * @throws NoSuchDefinitionException if a object definition with the primary key could not be found
+	 * @throws NoSuchObjectDefinitionException if a object definition with the primary key could not be found
 	 */
 	@Override
 	public ObjectDefinition[] findByUuid_PrevAndNext(
 			long objectDefinitionId, String uuid,
 			OrderByComparator<ObjectDefinition> orderByComparator)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -834,13 +834,13 @@ public class ObjectDefinitionPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object definition
-	 * @throws NoSuchDefinitionException if a matching object definition could not be found
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
 	 */
 	@Override
 	public ObjectDefinition findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectDefinition> orderByComparator)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = fetchByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -861,7 +861,7 @@ public class ObjectDefinitionPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchDefinitionException(sb.toString());
+		throw new NoSuchObjectDefinitionException(sb.toString());
 	}
 
 	/**
@@ -894,13 +894,13 @@ public class ObjectDefinitionPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object definition
-	 * @throws NoSuchDefinitionException if a matching object definition could not be found
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
 	 */
 	@Override
 	public ObjectDefinition findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectDefinition> orderByComparator)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = fetchByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -921,7 +921,7 @@ public class ObjectDefinitionPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchDefinitionException(sb.toString());
+		throw new NoSuchObjectDefinitionException(sb.toString());
 	}
 
 	/**
@@ -961,13 +961,13 @@ public class ObjectDefinitionPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object definition
-	 * @throws NoSuchDefinitionException if a object definition with the primary key could not be found
+	 * @throws NoSuchObjectDefinitionException if a object definition with the primary key could not be found
 	 */
 	@Override
 	public ObjectDefinition[] findByUuid_C_PrevAndNext(
 			long objectDefinitionId, String uuid, long companyId,
 			OrderByComparator<ObjectDefinition> orderByComparator)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -1392,13 +1392,13 @@ public class ObjectDefinitionPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object definition
-	 * @throws NoSuchDefinitionException if a matching object definition could not be found
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
 	 */
 	@Override
 	public ObjectDefinition findByCompanyId_First(
 			long companyId,
 			OrderByComparator<ObjectDefinition> orderByComparator)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = fetchByCompanyId_First(
 			companyId, orderByComparator);
@@ -1416,7 +1416,7 @@ public class ObjectDefinitionPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchDefinitionException(sb.toString());
+		throw new NoSuchObjectDefinitionException(sb.toString());
 	}
 
 	/**
@@ -1446,13 +1446,13 @@ public class ObjectDefinitionPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object definition
-	 * @throws NoSuchDefinitionException if a matching object definition could not be found
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
 	 */
 	@Override
 	public ObjectDefinition findByCompanyId_Last(
 			long companyId,
 			OrderByComparator<ObjectDefinition> orderByComparator)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = fetchByCompanyId_Last(
 			companyId, orderByComparator);
@@ -1470,7 +1470,7 @@ public class ObjectDefinitionPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchDefinitionException(sb.toString());
+		throw new NoSuchObjectDefinitionException(sb.toString());
 	}
 
 	/**
@@ -1507,13 +1507,13 @@ public class ObjectDefinitionPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object definition
-	 * @throws NoSuchDefinitionException if a object definition with the primary key could not be found
+	 * @throws NoSuchObjectDefinitionException if a object definition with the primary key could not be found
 	 */
 	@Override
 	public ObjectDefinition[] findByCompanyId_PrevAndNext(
 			long objectDefinitionId, long companyId,
 			OrderByComparator<ObjectDefinition> orderByComparator)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = findByPrimaryKey(
 			objectDefinitionId);
@@ -1720,20 +1720,518 @@ public class ObjectDefinitionPersistenceImpl
 	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 =
 		"objectDefinition.companyId = ?";
 
+	private FinderPath _finderPathWithPaginationFindBySystem;
+	private FinderPath _finderPathWithoutPaginationFindBySystem;
+	private FinderPath _finderPathCountBySystem;
+
+	/**
+	 * Returns all the object definitions where system = &#63;.
+	 *
+	 * @param system the system
+	 * @return the matching object definitions
+	 */
+	@Override
+	public List<ObjectDefinition> findBySystem(boolean system) {
+		return findBySystem(system, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the object definitions where system = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>ObjectDefinitionModelImpl</code>.
+	 * </p>
+	 *
+	 * @param system the system
+	 * @param start the lower bound of the range of object definitions
+	 * @param end the upper bound of the range of object definitions (not inclusive)
+	 * @return the range of matching object definitions
+	 */
+	@Override
+	public List<ObjectDefinition> findBySystem(
+		boolean system, int start, int end) {
+
+		return findBySystem(system, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the object definitions where system = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>ObjectDefinitionModelImpl</code>.
+	 * </p>
+	 *
+	 * @param system the system
+	 * @param start the lower bound of the range of object definitions
+	 * @param end the upper bound of the range of object definitions (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching object definitions
+	 */
+	@Override
+	public List<ObjectDefinition> findBySystem(
+		boolean system, int start, int end,
+		OrderByComparator<ObjectDefinition> orderByComparator) {
+
+		return findBySystem(system, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the object definitions where system = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>ObjectDefinitionModelImpl</code>.
+	 * </p>
+	 *
+	 * @param system the system
+	 * @param start the lower bound of the range of object definitions
+	 * @param end the upper bound of the range of object definitions (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching object definitions
+	 */
+	@Override
+	public List<ObjectDefinition> findBySystem(
+		boolean system, int start, int end,
+		OrderByComparator<ObjectDefinition> orderByComparator,
+		boolean useFinderCache) {
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindBySystem;
+				finderArgs = new Object[] {system};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindBySystem;
+			finderArgs = new Object[] {system, start, end, orderByComparator};
+		}
+
+		List<ObjectDefinition> list = null;
+
+		if (useFinderCache) {
+			list = (List<ObjectDefinition>)finderCache.getResult(
+				finderPath, finderArgs);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (ObjectDefinition objectDefinition : list) {
+					if (system != objectDefinition.isSystem()) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_OBJECTDEFINITION_WHERE);
+
+			sb.append(_FINDER_COLUMN_SYSTEM_SYSTEM_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(ObjectDefinitionModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(system);
+
+				list = (List<ObjectDefinition>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first object definition in the ordered set where system = &#63;.
+	 *
+	 * @param system the system
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching object definition
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
+	 */
+	@Override
+	public ObjectDefinition findBySystem_First(
+			boolean system,
+			OrderByComparator<ObjectDefinition> orderByComparator)
+		throws NoSuchObjectDefinitionException {
+
+		ObjectDefinition objectDefinition = fetchBySystem_First(
+			system, orderByComparator);
+
+		if (objectDefinition != null) {
+			return objectDefinition;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("system=");
+		sb.append(system);
+
+		sb.append("}");
+
+		throw new NoSuchObjectDefinitionException(sb.toString());
+	}
+
+	/**
+	 * Returns the first object definition in the ordered set where system = &#63;.
+	 *
+	 * @param system the system
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching object definition, or <code>null</code> if a matching object definition could not be found
+	 */
+	@Override
+	public ObjectDefinition fetchBySystem_First(
+		boolean system, OrderByComparator<ObjectDefinition> orderByComparator) {
+
+		List<ObjectDefinition> list = findBySystem(
+			system, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last object definition in the ordered set where system = &#63;.
+	 *
+	 * @param system the system
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching object definition
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
+	 */
+	@Override
+	public ObjectDefinition findBySystem_Last(
+			boolean system,
+			OrderByComparator<ObjectDefinition> orderByComparator)
+		throws NoSuchObjectDefinitionException {
+
+		ObjectDefinition objectDefinition = fetchBySystem_Last(
+			system, orderByComparator);
+
+		if (objectDefinition != null) {
+			return objectDefinition;
+		}
+
+		StringBundler sb = new StringBundler(4);
+
+		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		sb.append("system=");
+		sb.append(system);
+
+		sb.append("}");
+
+		throw new NoSuchObjectDefinitionException(sb.toString());
+	}
+
+	/**
+	 * Returns the last object definition in the ordered set where system = &#63;.
+	 *
+	 * @param system the system
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching object definition, or <code>null</code> if a matching object definition could not be found
+	 */
+	@Override
+	public ObjectDefinition fetchBySystem_Last(
+		boolean system, OrderByComparator<ObjectDefinition> orderByComparator) {
+
+		int count = countBySystem(system);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<ObjectDefinition> list = findBySystem(
+			system, count - 1, count, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the object definitions before and after the current object definition in the ordered set where system = &#63;.
+	 *
+	 * @param objectDefinitionId the primary key of the current object definition
+	 * @param system the system
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next object definition
+	 * @throws NoSuchObjectDefinitionException if a object definition with the primary key could not be found
+	 */
+	@Override
+	public ObjectDefinition[] findBySystem_PrevAndNext(
+			long objectDefinitionId, boolean system,
+			OrderByComparator<ObjectDefinition> orderByComparator)
+		throws NoSuchObjectDefinitionException {
+
+		ObjectDefinition objectDefinition = findByPrimaryKey(
+			objectDefinitionId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			ObjectDefinition[] array = new ObjectDefinitionImpl[3];
+
+			array[0] = getBySystem_PrevAndNext(
+				session, objectDefinition, system, orderByComparator, true);
+
+			array[1] = objectDefinition;
+
+			array[2] = getBySystem_PrevAndNext(
+				session, objectDefinition, system, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception exception) {
+			throw processException(exception);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected ObjectDefinition getBySystem_PrevAndNext(
+		Session session, ObjectDefinition objectDefinition, boolean system,
+		OrderByComparator<ObjectDefinition> orderByComparator,
+		boolean previous) {
+
+		StringBundler sb = null;
+
+		if (orderByComparator != null) {
+			sb = new StringBundler(
+				4 + (orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			sb = new StringBundler(3);
+		}
+
+		sb.append(_SQL_SELECT_OBJECTDEFINITION_WHERE);
+
+		sb.append(_FINDER_COLUMN_SYSTEM_SYSTEM_2);
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields =
+				orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				sb.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(WHERE_GREATER_THAN);
+					}
+					else {
+						sb.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			sb.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				sb.append(_ORDER_BY_ENTITY_ALIAS);
+				sb.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						sb.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						sb.append(ORDER_BY_ASC);
+					}
+					else {
+						sb.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			sb.append(ObjectDefinitionModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = sb.toString();
+
+		Query query = session.createQuery(sql);
+
+		query.setFirstResult(0);
+		query.setMaxResults(2);
+
+		QueryPos queryPos = QueryPos.getInstance(query);
+
+		queryPos.add(system);
+
+		if (orderByComparator != null) {
+			for (Object orderByConditionValue :
+					orderByComparator.getOrderByConditionValues(
+						objectDefinition)) {
+
+				queryPos.add(orderByConditionValue);
+			}
+		}
+
+		List<ObjectDefinition> list = query.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the object definitions where system = &#63; from the database.
+	 *
+	 * @param system the system
+	 */
+	@Override
+	public void removeBySystem(boolean system) {
+		for (ObjectDefinition objectDefinition :
+				findBySystem(
+					system, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
+
+			remove(objectDefinition);
+		}
+	}
+
+	/**
+	 * Returns the number of object definitions where system = &#63;.
+	 *
+	 * @param system the system
+	 * @return the number of matching object definitions
+	 */
+	@Override
+	public int countBySystem(boolean system) {
+		FinderPath finderPath = _finderPathCountBySystem;
+
+		Object[] finderArgs = new Object[] {system};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_OBJECTDEFINITION_WHERE);
+
+			sb.append(_FINDER_COLUMN_SYSTEM_SYSTEM_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(system);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_SYSTEM_SYSTEM_2 =
+		"objectDefinition.system = ?";
+
 	private FinderPath _finderPathFetchByC_N;
 	private FinderPath _finderPathCountByC_N;
 
 	/**
-	 * Returns the object definition where companyId = &#63; and name = &#63; or throws a <code>NoSuchDefinitionException</code> if it could not be found.
+	 * Returns the object definition where companyId = &#63; and name = &#63; or throws a <code>NoSuchObjectDefinitionException</code> if it could not be found.
 	 *
 	 * @param companyId the company ID
 	 * @param name the name
 	 * @return the matching object definition
-	 * @throws NoSuchDefinitionException if a matching object definition could not be found
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
 	 */
 	@Override
 	public ObjectDefinition findByC_N(long companyId, String name)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = fetchByC_N(companyId, name);
 
@@ -1754,7 +2252,7 @@ public class ObjectDefinitionPersistenceImpl
 				_log.debug(sb.toString());
 			}
 
-			throw new NoSuchDefinitionException(sb.toString());
+			throw new NoSuchObjectDefinitionException(sb.toString());
 		}
 
 		return objectDefinition;
@@ -1899,7 +2397,7 @@ public class ObjectDefinitionPersistenceImpl
 	 */
 	@Override
 	public ObjectDefinition removeByC_N(long companyId, String name)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = findByC_N(companyId, name);
 
@@ -1986,6 +2484,7 @@ public class ObjectDefinitionPersistenceImpl
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
 		dbColumnNames.put("uuid", "uuid_");
+		dbColumnNames.put("system", "system_");
 
 		setDBColumnNames(dbColumnNames);
 
@@ -2116,11 +2615,11 @@ public class ObjectDefinitionPersistenceImpl
 	 *
 	 * @param objectDefinitionId the primary key of the object definition
 	 * @return the object definition that was removed
-	 * @throws NoSuchDefinitionException if a object definition with the primary key could not be found
+	 * @throws NoSuchObjectDefinitionException if a object definition with the primary key could not be found
 	 */
 	@Override
 	public ObjectDefinition remove(long objectDefinitionId)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		return remove((Serializable)objectDefinitionId);
 	}
@@ -2130,11 +2629,11 @@ public class ObjectDefinitionPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object definition
 	 * @return the object definition that was removed
-	 * @throws NoSuchDefinitionException if a object definition with the primary key could not be found
+	 * @throws NoSuchObjectDefinitionException if a object definition with the primary key could not be found
 	 */
 	@Override
 	public ObjectDefinition remove(Serializable primaryKey)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		Session session = null;
 
@@ -2149,13 +2648,13 @@ public class ObjectDefinitionPersistenceImpl
 					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
-				throw new NoSuchDefinitionException(
+				throw new NoSuchObjectDefinitionException(
 					_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			return remove(objectDefinition);
 		}
-		catch (NoSuchDefinitionException noSuchEntityException) {
+		catch (NoSuchObjectDefinitionException noSuchEntityException) {
 			throw noSuchEntityException;
 		}
 		catch (Exception exception) {
@@ -2291,11 +2790,11 @@ public class ObjectDefinitionPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object definition
 	 * @return the object definition
-	 * @throws NoSuchDefinitionException if a object definition with the primary key could not be found
+	 * @throws NoSuchObjectDefinitionException if a object definition with the primary key could not be found
 	 */
 	@Override
 	public ObjectDefinition findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		ObjectDefinition objectDefinition = fetchByPrimaryKey(primaryKey);
 
@@ -2304,7 +2803,7 @@ public class ObjectDefinitionPersistenceImpl
 				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			throw new NoSuchDefinitionException(
+			throw new NoSuchObjectDefinitionException(
 				_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 		}
 
@@ -2312,15 +2811,15 @@ public class ObjectDefinitionPersistenceImpl
 	}
 
 	/**
-	 * Returns the object definition with the primary key or throws a <code>NoSuchDefinitionException</code> if it could not be found.
+	 * Returns the object definition with the primary key or throws a <code>NoSuchObjectDefinitionException</code> if it could not be found.
 	 *
 	 * @param objectDefinitionId the primary key of the object definition
 	 * @return the object definition
-	 * @throws NoSuchDefinitionException if a object definition with the primary key could not be found
+	 * @throws NoSuchObjectDefinitionException if a object definition with the primary key could not be found
 	 */
 	@Override
 	public ObjectDefinition findByPrimaryKey(long objectDefinitionId)
-		throws NoSuchDefinitionException {
+		throws NoSuchObjectDefinitionException {
 
 		return findByPrimaryKey((Serializable)objectDefinitionId);
 	}
@@ -2621,6 +3120,24 @@ public class ObjectDefinitionPersistenceImpl
 			new String[] {Long.class.getName()}, new String[] {"companyId"},
 			false);
 
+		_finderPathWithPaginationFindBySystem = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findBySystem",
+			new String[] {
+				Boolean.class.getName(), Integer.class.getName(),
+				Integer.class.getName(), OrderByComparator.class.getName()
+			},
+			new String[] {"system_"}, true);
+
+		_finderPathWithoutPaginationFindBySystem = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findBySystem",
+			new String[] {Boolean.class.getName()}, new String[] {"system_"},
+			true);
+
+		_finderPathCountBySystem = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countBySystem",
+			new String[] {Boolean.class.getName()}, new String[] {"system_"},
+			false);
+
 		_finderPathFetchByC_N = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByC_N",
 			new String[] {Long.class.getName(), String.class.getName()},
@@ -2697,7 +3214,7 @@ public class ObjectDefinitionPersistenceImpl
 		ObjectDefinitionPersistenceImpl.class);
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
-		new String[] {"uuid"});
+		new String[] {"uuid", "system"});
 
 	@Override
 	protected FinderCache getFinderCache() {

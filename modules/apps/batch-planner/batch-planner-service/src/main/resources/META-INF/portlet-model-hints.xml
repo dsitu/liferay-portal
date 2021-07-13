@@ -51,10 +51,12 @@
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
 		<field name="active" type="boolean" />
+		<field name="export" type="boolean" />
 		<field name="externalType" type="String">
 			<validator name="required" />
 		</field>
 		<field name="externalURL" type="String">
+			<hint-collection name="URL" />
 			<validator name="required" />
 		</field>
 		<field name="internalClassName" type="String">
@@ -63,7 +65,6 @@
 		<field name="name" type="String">
 			<validator name="required" />
 		</field>
-		<field name="export" type="boolean" />
 	</model>
 	<model name="com.liferay.batch.planner.model.BatchPlannerPolicy">
 		<field name="mvccVersion" type="long" />

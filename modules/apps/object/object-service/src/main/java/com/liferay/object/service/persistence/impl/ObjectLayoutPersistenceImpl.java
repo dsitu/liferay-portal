@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence.impl;
 
-import com.liferay.object.exception.NoSuchLayoutException;
+import com.liferay.object.exception.NoSuchObjectLayoutException;
 import com.liferay.object.model.ObjectLayout;
 import com.liferay.object.model.ObjectLayoutTable;
 import com.liferay.object.model.impl.ObjectLayoutImpl;
@@ -281,12 +281,12 @@ public class ObjectLayoutPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout
-	 * @throws NoSuchLayoutException if a matching object layout could not be found
+	 * @throws NoSuchObjectLayoutException if a matching object layout could not be found
 	 */
 	@Override
 	public ObjectLayout findByUuid_First(
 			String uuid, OrderByComparator<ObjectLayout> orderByComparator)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		ObjectLayout objectLayout = fetchByUuid_First(uuid, orderByComparator);
 
@@ -303,7 +303,7 @@ public class ObjectLayoutPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutException(sb.toString());
+		throw new NoSuchObjectLayoutException(sb.toString());
 	}
 
 	/**
@@ -332,12 +332,12 @@ public class ObjectLayoutPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout
-	 * @throws NoSuchLayoutException if a matching object layout could not be found
+	 * @throws NoSuchObjectLayoutException if a matching object layout could not be found
 	 */
 	@Override
 	public ObjectLayout findByUuid_Last(
 			String uuid, OrderByComparator<ObjectLayout> orderByComparator)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		ObjectLayout objectLayout = fetchByUuid_Last(uuid, orderByComparator);
 
@@ -354,7 +354,7 @@ public class ObjectLayoutPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutException(sb.toString());
+		throw new NoSuchObjectLayoutException(sb.toString());
 	}
 
 	/**
@@ -391,13 +391,13 @@ public class ObjectLayoutPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayout[] findByUuid_PrevAndNext(
 			long objectLayoutId, String uuid,
 			OrderByComparator<ObjectLayout> orderByComparator)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -827,13 +827,13 @@ public class ObjectLayoutPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout
-	 * @throws NoSuchLayoutException if a matching object layout could not be found
+	 * @throws NoSuchObjectLayoutException if a matching object layout could not be found
 	 */
 	@Override
 	public ObjectLayout findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayout> orderByComparator)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		ObjectLayout objectLayout = fetchByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -854,7 +854,7 @@ public class ObjectLayoutPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutException(sb.toString());
+		throw new NoSuchObjectLayoutException(sb.toString());
 	}
 
 	/**
@@ -887,13 +887,13 @@ public class ObjectLayoutPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout
-	 * @throws NoSuchLayoutException if a matching object layout could not be found
+	 * @throws NoSuchObjectLayoutException if a matching object layout could not be found
 	 */
 	@Override
 	public ObjectLayout findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayout> orderByComparator)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		ObjectLayout objectLayout = fetchByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -914,7 +914,7 @@ public class ObjectLayoutPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutException(sb.toString());
+		throw new NoSuchObjectLayoutException(sb.toString());
 	}
 
 	/**
@@ -954,13 +954,13 @@ public class ObjectLayoutPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayout[] findByUuid_C_PrevAndNext(
 			long objectLayoutId, String uuid, long companyId,
 			OrderByComparator<ObjectLayout> orderByComparator)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -1321,11 +1321,11 @@ public class ObjectLayoutPersistenceImpl
 	 *
 	 * @param objectLayoutId the primary key of the object layout
 	 * @return the object layout that was removed
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayout remove(long objectLayoutId)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		return remove((Serializable)objectLayoutId);
 	}
@@ -1335,11 +1335,11 @@ public class ObjectLayoutPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object layout
 	 * @return the object layout that was removed
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayout remove(Serializable primaryKey)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		Session session = null;
 
@@ -1354,13 +1354,13 @@ public class ObjectLayoutPersistenceImpl
 					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
-				throw new NoSuchLayoutException(
+				throw new NoSuchObjectLayoutException(
 					_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			return remove(objectLayout);
 		}
-		catch (NoSuchLayoutException noSuchEntityException) {
+		catch (NoSuchObjectLayoutException noSuchEntityException) {
 			throw noSuchEntityException;
 		}
 		catch (Exception exception) {
@@ -1491,11 +1491,11 @@ public class ObjectLayoutPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object layout
 	 * @return the object layout
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayout findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		ObjectLayout objectLayout = fetchByPrimaryKey(primaryKey);
 
@@ -1504,7 +1504,7 @@ public class ObjectLayoutPersistenceImpl
 				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			throw new NoSuchLayoutException(
+			throw new NoSuchObjectLayoutException(
 				_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 		}
 
@@ -1512,15 +1512,15 @@ public class ObjectLayoutPersistenceImpl
 	}
 
 	/**
-	 * Returns the object layout with the primary key or throws a <code>NoSuchLayoutException</code> if it could not be found.
+	 * Returns the object layout with the primary key or throws a <code>NoSuchObjectLayoutException</code> if it could not be found.
 	 *
 	 * @param objectLayoutId the primary key of the object layout
 	 * @return the object layout
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayout findByPrimaryKey(long objectLayoutId)
-		throws NoSuchLayoutException {
+		throws NoSuchObjectLayoutException {
 
 		return findByPrimaryKey((Serializable)objectLayoutId);
 	}

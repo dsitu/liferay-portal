@@ -465,7 +465,7 @@ definition {
 			}
 		}
 
-		if (isSet(assetTitle)) {
+		if (isSet(assetTitle) || isSet(searchTerm)) {
 			Panel.expandPanel(panel = "Asset Entries");
 
 			if (isSet(depotName)) {
@@ -473,6 +473,7 @@ definition {
 					key_depotName = "${depotName}",
 					locator1 = "APConfiguration#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_SELECT_IN_DEPOT");
 			}
+
 			else {
 				Click(locator1 = "APConfiguration#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_SELECT_BUTTON");
 			}
@@ -487,30 +488,46 @@ definition {
 
 			SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
 
-			var key_assetTitle = "${assetTitle}";
+			if (isSet(assetTitle)) {
+				var key_assetTitle = "${assetTitle}";
 
-			if (isSet(viewNoRelatedAsset)) {
-				AssertElementNotPresent(
-					key_rowEntry = "${assetTitle}",
-					locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_CHECKBOX");
+				if (isSet(viewNoRelatedAsset)) {
+					AssertElementNotPresent(
+						key_rowEntry = "${assetTitle}",
+						locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_CHECKBOX");
+				}
+
+				else {
+					WaitForElementPresent(
+						key_rowEntry = "${assetTitle}",
+						locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_CHECKBOX");
+
+					Click(
+						key_rowEntry = "${assetTitle}",
+						locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_CHECKBOX");
+				}
 			}
-			else {
-				WaitForElementPresent(
-					key_rowEntry = "${assetTitle}",
-					locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_CHECKBOX");
 
-				Click(
-					key_rowEntry = "${assetTitle}",
-					locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_CHECKBOX");
+			if (isSet(searchTerm)) {
+				Search.searchPG(
+					modal = "true",
+					portletName = "",
+					searchTerm = "${searchTerm}");
 
-				SelectFrameTop();
+				AssertTextEquals(
+					locator1 = "Search#SEARCH_INFO",
+					value1 = "${searchInfo}");
 
-				SelectFrame(locator1 = "IFrame#CONFIGURATION");
-
-				Button.clickAdd();
-
-				Alert.viewSuccessMessage();
+				PortletEntry.selectAll();
 			}
+
+			SelectFrameTop();
+
+			SelectFrame(locator1 = "IFrame#CONFIGURATION");
+
+			Button.clickAdd();
+
+			Alert.viewSuccessMessage();
 		}
 
 		SelectFrameTop();
@@ -937,9 +954,13 @@ definition {
 
 		Panel.expandPanel(panel = "Select Collection");
 
+		Alert.closeMessage(messageType = "SUCCESS");
+
 		Button.clickSelect();
 
-		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#ASSET_LIST_DIALOG");
+		WaitForElementPresent(locator1 = "IFrame#ASSET_LIST_DIALOG");
+
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
 
 		if (isSet(depotName)) {
 			AssertClick(
@@ -1045,6 +1066,13 @@ definition {
 
 	macro viewAssetPG {
 		var key_assetTitle = "${assetTitle}";
+
+		if (isSet(filteredByCategory)) {
+			AssertTextEquals.assertPartialText(
+				key_categoryName = "${categoryName}",
+				locator1 = "AP#CATEGORIES_FILTER_CATEGORY",
+				value1 = "${categoryName}");
+		}
 
 		AssertTextEquals(
 			locator1 = "AP#ASSET_ABSTRACT_TITLE",

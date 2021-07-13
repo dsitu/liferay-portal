@@ -17,6 +17,7 @@ package com.liferay.object.service;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.system.SystemObjectDefinitionMetadata;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.cluster.Clusterable;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -65,7 +66,7 @@ public interface ObjectDefinitionLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectDefinitionLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the object definition local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link ObjectDefinitionLocalServiceUtil} if injection and service tracking are not available.
 	 */
-	public ObjectDefinition addObjectDefinition(
+	public ObjectDefinition addCustomObjectDefinition(
 			long userId, String name, List<ObjectField> objectFields)
 		throws PortalException;
 
@@ -83,6 +84,17 @@ public interface ObjectDefinitionLocalService
 	public ObjectDefinition addObjectDefinition(
 		ObjectDefinition objectDefinition);
 
+	public ObjectDefinition addOrUpdateSystemObjectDefinition(
+			long companyId,
+			SystemObjectDefinitionMetadata systemObjectDefinitionMetadata)
+		throws PortalException;
+
+	public ObjectDefinition addSystemObjectDefinition(
+			long userId, String dbTableName, String name,
+			String pkObjectFieldDBColumnName, String pkObjectFieldName,
+			int version, List<ObjectField> objectFields)
+		throws PortalException;
+
 	/**
 	 * Creates a new object definition with the primary key. Does not add the object definition to the database.
 	 *
@@ -96,6 +108,9 @@ public interface ObjectDefinitionLocalService
 	 * @throws PortalException
 	 */
 	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
+
+	public void deleteCompanyObjectDefinitions(long companyId)
 		throws PortalException;
 
 	/**
@@ -229,6 +244,9 @@ public interface ObjectDefinitionLocalService
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<ObjectDefinition> getCustomObjectDefinitions();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
 		PortletDataContext portletDataContext);
 
@@ -299,8 +317,11 @@ public interface ObjectDefinitionLocalService
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<ObjectDefinition> getSystemObjectDefinitions();
+
 	@Clusterable
-	public void undeployObjectDefinition(long objectDefinitionId);
+	public void undeployObjectDefinition(ObjectDefinition objectDefinition);
 
 	/**
 	 * Updates the object definition in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.

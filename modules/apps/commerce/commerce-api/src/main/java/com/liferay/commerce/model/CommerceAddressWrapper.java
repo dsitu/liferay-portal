@@ -14,6 +14,7 @@
 
 package com.liferay.commerce.model;
 
+import com.liferay.expando.kernel.model.ExpandoBridge;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.wrapper.BaseModelWrapper;
 
@@ -347,6 +348,11 @@ public class CommerceAddressWrapper
 		return model.getDescription();
 	}
 
+	@Override
+	public ExpandoBridge getExpandoBridge() {
+		return model.getExpandoBridge();
+	}
+
 	/**
 	 * Returns the external reference code of this commerce address.
 	 *
@@ -552,11 +558,6 @@ public class CommerceAddressWrapper
 	@Override
 	public boolean isSameAddress(CommerceAddress commerceAddress) {
 		return model.isSameAddress(commerceAddress);
-	}
-
-	@Override
-	public void persist() {
-		model.persist();
 	}
 
 	/**

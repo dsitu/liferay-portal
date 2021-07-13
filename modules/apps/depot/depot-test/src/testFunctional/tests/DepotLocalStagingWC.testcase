@@ -209,7 +209,7 @@ definition {
 
 		Staging.publishToLive();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -249,7 +249,7 @@ definition {
 
 		Staging.publishToLive();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -348,7 +348,7 @@ definition {
 		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		AssertElementPresent(
-			key_imageTitle = "Document_2.jpg",
+			key_imageTitle = "Document_3.jpg",
 			locator1 = "WCPreview#PREVIEW_IMAGE");
 	}
 
@@ -569,7 +569,7 @@ definition {
 
 		Staging.publishToLive();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -646,7 +646,7 @@ definition {
 
 		Staging.publishToLive();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Test Embedded Video Site Name");
 
@@ -710,7 +710,7 @@ definition {
 			assetTitle = "WC Folder Name",
 			assetType = "Web Content Folder");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -726,7 +726,7 @@ definition {
 
 		Staging.publishToLive();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 

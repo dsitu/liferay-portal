@@ -437,7 +437,7 @@ public class ObjectEntryLocalServiceImpl
 		runSQL(
 			StringBundler.concat(
 				"delete from ", objectDefinition.getDBTableName(), " where ",
-				objectDefinition.getDBPrimaryKeyColumnName(), " = ",
+				objectDefinition.getPKObjectFieldDBColumnName(), " = ",
 				objectEntry.getObjectEntryId()));
 	}
 
@@ -545,7 +545,7 @@ public class ObjectEntryLocalServiceImpl
 		sb.append("insert into ");
 		sb.append(objectDefinition.getDBTableName());
 		sb.append(" (");
-		sb.append(objectDefinition.getDBPrimaryKeyColumnName());
+		sb.append(objectDefinition.getPKObjectFieldDBColumnName());
 
 		int count = 1;
 
@@ -560,10 +560,16 @@ public class ObjectEntryLocalServiceImpl
 			Object value = values.get(objectField.getName());
 
 			if (value == null) {
+				if (objectField.isRequired()) {
+					throw new ObjectEntryValuesException(
+						"No value was provided for required object field \"" +
+							objectField.getName() + "\"");
+				}
+
 				if (_log.isDebugEnabled()) {
 					_log.debug(
-						"No value was provided for object field " +
-							objectField.getName());
+						"No value was provided for object field \"" +
+							objectField.getName() + "\"");
 				}
 
 				continue;
@@ -891,8 +897,8 @@ public class ObjectEntryLocalServiceImpl
 			if (value == null) {
 				if (_log.isDebugEnabled()) {
 					_log.debug(
-						"No value was provided for object field " +
-							objectField.getName());
+						"No value was provided for object field \"" +
+							objectField.getName() + "\"");
 				}
 
 				continue;
@@ -915,7 +921,7 @@ public class ObjectEntryLocalServiceImpl
 		}
 
 		sb.append(" where ");
-		sb.append(objectDefinition.getDBPrimaryKeyColumnName());
+		sb.append(objectDefinition.getPKObjectFieldDBColumnName());
 		sb.append(" = ?");
 
 		String sql = sb.toString();

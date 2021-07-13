@@ -687,6 +687,50 @@ public abstract class BaseOrganizationResourceTestCase {
 	}
 
 	@Test
+	public void testDeleteUserAccountsByEmailAddress() throws Exception {
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		Organization organization =
+			testDeleteUserAccountsByEmailAddress_addOrganization();
+
+		assertHttpResponseStatusCode(
+			204,
+			organizationResource.deleteUserAccountsByEmailAddressHttpResponse(
+				organization.getId(), null));
+	}
+
+	protected Organization
+			testDeleteUserAccountsByEmailAddress_addOrganization()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testPostUserAccountsByEmailAddress() throws Exception {
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		Organization organization =
+			testPostUserAccountsByEmailAddress_addOrganization();
+
+		assertHttpResponseStatusCode(
+			204,
+			organizationResource.postUserAccountsByEmailAddressHttpResponse(
+				organization.getId(), null));
+
+		assertHttpResponseStatusCode(
+			404,
+			organizationResource.postUserAccountsByEmailAddressHttpResponse(
+				"-", null));
+	}
+
+	protected Organization testPostUserAccountsByEmailAddress_addOrganization()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
 	public void testDeleteUserAccountByEmailAddress() throws Exception {
 		@SuppressWarnings("PMD.UnusedLocalVariable")
 		Organization organization =
@@ -1136,6 +1180,16 @@ public abstract class BaseOrganizationResourceTestCase {
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
 
+			if (Objects.equals(
+					"accountInformation", additionalAssertFieldName)) {
+
+				if (organization.getAccountInformation() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("actions", additionalAssertFieldName)) {
 				if (organization.getActions() == null) {
 					valid = false;
@@ -1322,6 +1376,19 @@ public abstract class BaseOrganizationResourceTestCase {
 
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
+
+			if (Objects.equals(
+					"accountInformation", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						organization1.getAccountInformation(),
+						organization2.getAccountInformation())) {
+
+					return false;
+				}
+
+				continue;
+			}
 
 			if (Objects.equals("actions", additionalAssertFieldName)) {
 				if (!equals(
@@ -1575,6 +1642,11 @@ public abstract class BaseOrganizationResourceTestCase {
 		sb.append(" ");
 		sb.append(operator);
 		sb.append(" ");
+
+		if (entityFieldName.equals("accountInformation")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
 
 		if (entityFieldName.equals("actions")) {
 			throw new IllegalArgumentException(

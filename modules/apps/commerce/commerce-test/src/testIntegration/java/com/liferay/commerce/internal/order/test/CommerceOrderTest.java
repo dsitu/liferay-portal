@@ -67,7 +67,6 @@ import com.liferay.portal.kernel.settings.ModifiableSettings;
 import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -1084,7 +1083,6 @@ public class CommerceOrderTest {
 	private CommerceAccountOrganizationRelLocalService
 		_commerceAccountOrganizationRelLocalService;
 
-	@DeleteAfterTestRun
 	private final List<CommerceAccount> _commerceAccounts = new ArrayList<>();
 
 	@Inject
@@ -1094,7 +1092,6 @@ public class CommerceOrderTest {
 	@Inject
 	private CommerceAddressLocalService _commerceAddressLocalService;
 
-	@DeleteAfterTestRun
 	private CommerceChannel _commerceChannel;
 
 	@Inject
@@ -1103,7 +1100,6 @@ public class CommerceOrderTest {
 	@Inject
 	private CommerceContextFactory _commerceContextFactory;
 
-	@DeleteAfterTestRun
 	private CommerceCurrency _commerceCurrency;
 
 	@Inject
@@ -1115,19 +1111,16 @@ public class CommerceOrderTest {
 	@Inject
 	private CommerceOrderService _commerceOrderService;
 
-	@DeleteAfterTestRun
 	private Country _country;
 
 	@Inject
 	private CountryLocalService _countryLocalService;
 
-	@DeleteAfterTestRun
 	private Group _group;
 
 	@Inject
 	private OrganizationLocalService _organizationLocalService;
 
-	@DeleteAfterTestRun
 	private Region _region;
 
 	@Inject
@@ -1144,7 +1137,6 @@ public class CommerceOrderTest {
 	@Inject
 	private SettingsFactory _settingsFactory;
 
-	@DeleteAfterTestRun
 	private User _user;
 
 	@Inject

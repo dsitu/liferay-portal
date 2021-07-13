@@ -75,32 +75,19 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Blogs.addEntryWithCoverImageFromDepot(
+			depotName = "Test Depot Name",
+			entryContent = "Blogs Entry Content",
+			entrySubtitle = "Blogs Entry Subtitle",
+			entryTitle = "Blogs Entry Title",
+			imageFileName = "Document_2.jpg",
+			siteURLKey = "site-name");
+
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
 		Portlet.addPG(portletName = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
-
-		Pause(locator1 = "3000");
-
-		BlogsNavigator.gotoSelectFile();
-
-		ItemSelector.selectRepositoryImage(
-			depotName = "Test Depot Name",
-			imageFileName = "Document_2.jpg",
-			navTab = "Documents and Media");
-
-		BlogsEntry.addTitle(entryTitle = "Blogs Entry Title");
-
-		AlloyEditor.addContent(content = "Blogs Entry Content");
-
-		Button.clickPublish();
-
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
 
 		Staging.gotoPublishToLive();
 
@@ -113,7 +100,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -127,7 +114,7 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -147,7 +134,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -166,7 +153,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -195,30 +182,23 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
+
+		BlogsEntry.addTitle(entryTitle = "Blogs Entry Title");
+
+		BlogsEntry.addContentWithInlineImage(
+			depotName = "Test Depot Name",
+			entryContent = "Blogs Entry Content",
+			imageFileName = "Document_2.jpg",
+			navTab = "Documents and Media");
+
+		PortletEntry.publish();
+
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
 		Portlet.addPG(portletName = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
-
-		BlogsEntry.addTitle(entryTitle = "Blogs Entry Title");
-
-		AlloyEditor.addContent(content = "Blogs Entry Content");
-
-		ItemSelector.gotoItemSelectorViaAlloyEditor();
-
-		ItemSelector.selectRepositoryImage(
-			depotName = "Test Depot Name",
-			imageFileName = "Document_2.jpg",
-			navTab = "Documents and Media");
-
-		Button.clickPublish();
-
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
 
 		Staging.gotoPublishToLive();
 
@@ -231,7 +211,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -265,7 +245,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -290,7 +270,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -323,7 +303,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -334,7 +314,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -353,7 +333,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -381,7 +361,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -400,7 +380,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -465,7 +445,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -476,7 +456,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -495,7 +475,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -517,7 +497,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -536,7 +516,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -567,7 +547,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -578,7 +558,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -597,7 +577,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -625,7 +605,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -644,7 +624,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -692,7 +672,7 @@ definition {
 			key_imageName = "Document_2.jpg",
 			locator1 = "SitePagesEditPage#PREVIEW_IMAGE");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -707,7 +687,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -759,7 +739,7 @@ definition {
 			key_imageName = "Document_2.jpg",
 			locator1 = "SitePagesEditPage#PREVIEW_IMAGE");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -774,7 +754,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -810,7 +790,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -824,7 +804,7 @@ definition {
 			navTab = "Documents and Media",
 			videoShortcutTitle = "Test YouTube Video");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -848,7 +828,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -881,7 +861,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -905,7 +885,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -965,7 +945,7 @@ definition {
 
 		PortletEntry.publish();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -986,7 +966,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1016,7 +996,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1031,7 +1011,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1062,32 +1042,19 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Blogs.addEntryWithCoverImageFromDepot(
+			depotName = "Test Depot Name",
+			entryContent = "Blogs Entry Content",
+			entrySubtitle = "Blogs Entry Subtitle",
+			entryTitle = "Blogs Entry Title",
+			imageFileName = "Document_2.jpg",
+			siteURLKey = "site-name");
+
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
 		Portlet.addPG(portletName = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
-
-		Pause(locator1 = "3000");
-
-		BlogsNavigator.gotoSelectFile();
-
-		ItemSelector.selectRepositoryImage(
-			depotName = "Test Depot Name",
-			imageFileName = "Document_2.jpg",
-			navTab = "Documents and Media");
-
-		BlogsEntry.addTitle(entryTitle = "Blogs Entry Title");
-
-		AlloyEditor.addContent(content = "Blogs Entry Content");
-
-		Button.clickPublish();
-
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
 
 		AssertVisible(
 			key_uploadFileName = "Document_2.jpg",
@@ -1104,7 +1071,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1118,7 +1085,7 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1137,7 +1104,7 @@ definition {
 
 		Button.clickPublish();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1156,7 +1123,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1187,28 +1154,25 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
 		Portlet.addPG(portletName = "Blogs");
 
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
 
 		BlogsEntry.addTitle(entryTitle = "Blogs Entry Title");
 
-		AlloyEditor.addContent(content = "Blogs Entry Content");
-
-		ItemSelector.gotoItemSelectorViaAlloyEditor();
-
-		ItemSelector.selectRepositoryImage(
+		BlogsEntry.addContentWithInlineImage(
 			depotName = "Test Depot Name",
+			entryContent = "Blogs Entry Content",
 			imageFileName = "Document_2.jpg",
 			navTab = "Documents and Media");
 
-		Button.clickPublish();
+		PortletEntry.publish();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1231,7 +1195,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1251,7 +1215,7 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			portletTitleName = "Blogs",
 			siteName = "Site Name");
@@ -1270,7 +1234,7 @@ definition {
 
 		Button.clickPublish();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1293,7 +1257,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1328,19 +1292,11 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
-
-		Portlet.addPG(portletName = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
 
 		BlogsEntry.addEntryContent(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
-
-		Panel.expandPanel(panel = "Configuration");
 
 		BlogsEntry.addSmallImage(
 			depotName = "Test Depot Name",
@@ -1348,6 +1304,12 @@ definition {
 			navTab = "Documents and Media");
 
 		PortletEntry.publish();
+
+		Navigator.openSitePage(
+			pageName = "Test Page",
+			siteName = "Site Name");
+
+		Portlet.addPG(portletName = "Blogs");
 
 		Staging.gotoPublishToLive();
 
@@ -1360,7 +1322,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1374,13 +1336,11 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
 		BlogsNavigator.gotoEditPG(entryTitle = "Blogs Entry Title");
-
-		Panel.expandPanel(panel = "Configuration");
 
 		BlogsEntry.addSmallImage(
 			browseImage = "true",
@@ -1401,7 +1361,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1430,7 +1390,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1441,7 +1401,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1460,7 +1420,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1485,7 +1445,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1504,7 +1464,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1569,7 +1529,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1580,7 +1540,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1599,7 +1559,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1627,7 +1587,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1646,7 +1606,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1677,7 +1637,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1688,7 +1648,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1707,7 +1667,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1732,7 +1692,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1751,7 +1711,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1806,7 +1766,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1817,7 +1777,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1842,7 +1802,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1874,7 +1834,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1899,7 +1859,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -1955,7 +1915,7 @@ definition {
 			key_imageName = "Document_1.jpg",
 			locator1 = "SitePagesEditPage#PREVIEW_IMAGE");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -1970,7 +1930,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2014,7 +1974,7 @@ definition {
 			key_imageName = "Document_2.jpg",
 			locator1 = "SitePagesEditPage#PREVIEW_IMAGE");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2029,7 +1989,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2096,7 +2056,7 @@ definition {
 
 		PortletEntry.publish();
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2117,7 +2077,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2131,7 +2091,7 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2147,7 +2107,7 @@ definition {
 			webContentTitle = "Web Content Title",
 			webContentTitleEdit = "Web Content Title");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2162,7 +2122,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2213,7 +2173,7 @@ definition {
 
 		DMDocument.viewCP(dmDocumentTitle = "Document_1.jpg");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2264,7 +2224,7 @@ definition {
 
 		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "site-name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2275,7 +2235,7 @@ definition {
 			assetType = "Documents Folder",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2294,7 +2254,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2334,7 +2294,7 @@ definition {
 
 		DMDocument.viewCP(dmDocumentTitle = "Document_1.jpg");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2417,7 +2377,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2428,7 +2388,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2443,7 +2403,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2484,7 +2444,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2495,7 +2455,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2509,7 +2469,7 @@ definition {
 			locator1 = "DocumentsAndMediaDocument#DOCUMENT_VIEW_VERSION_NUMBER",
 			value1 = "1.2");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2524,7 +2484,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2570,32 +2530,19 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Blogs.addEntryWithCoverImageFromDepot(
+			depotName = "Test Depot Name",
+			entryContent = "Blogs Entry Content",
+			entrySubtitle = "Blogs Entry Subtitle",
+			entryTitle = "Blogs Entry Title",
+			imageFileName = "Document_2.jpg",
+			siteURLKey = "site-name");
+
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
 		Portlet.addPG(portletName = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
-
-		Pause(locator1 = "3000");
-
-		BlogsNavigator.gotoSelectFile();
-
-		ItemSelector.selectRepositoryImage(
-			depotName = "Test Depot Name",
-			imageFileName = "Document_2.jpg",
-			navTab = "Documents and Media");
-
-		BlogsEntry.addTitle(entryTitle = "Blogs Entry Title");
-
-		AlloyEditor.addContent(content = "Blogs Entry Content");
-
-		Button.clickPublish();
-
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
 
 		Staging.gotoPublishToLive();
 
@@ -2608,7 +2555,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2634,7 +2581,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2645,7 +2592,7 @@ definition {
 			assetType = "External Video Shortcut",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2653,7 +2600,7 @@ definition {
 			key_thumbnailName = "https://i.ytimg.com",
 			locator1 = "AP#ASSET_ABSTRACT_DETAIL_EXTERNAL_VIDEO_THUMBNAIL");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2668,7 +2615,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2697,19 +2644,11 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
-
-		Portlet.addPG(portletName = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
 
 		BlogsEntry.addEntryContent(
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
-
-		Panel.expandPanel(panel = "Configuration");
 
 		BlogsEntry.addSmallImage(
 			depotName = "Test Depot Name",
@@ -2717,6 +2656,12 @@ definition {
 			navTab = "Documents and Media");
 
 		PortletEntry.publish();
+
+		Navigator.openSitePage(
+			pageName = "Test Page",
+			siteName = "Site Name");
+
+		Portlet.addPG(portletName = "Blogs");
 
 		Staging.gotoPublishToLive();
 
@@ -2729,7 +2674,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2743,13 +2688,11 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
 		BlogsNavigator.gotoEditPG(entryTitle = "Blogs Entry Title");
-
-		Panel.expandPanel(panel = "Configuration");
 
 		BlogsEntry.removeSmallImage(uploadFileName = "Document_1.jpg");
 
@@ -2766,7 +2709,7 @@ definition {
 			specificURL = "http://localhost:9080",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			baseURL = "http://localhost:9080",
 			pageName = "Test Page",
 			siteName = "Remote Site");
@@ -2805,7 +2748,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2877,7 +2820,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2909,7 +2852,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2918,7 +2861,7 @@ definition {
 			assetType = "Basic Document",
 			depotName = "Test Depot Name");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2946,17 +2889,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
-
-		Pause(locator1 = "3000");
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -2971,7 +2904,7 @@ definition {
 	test ViewImageFromDisconnectedSite {
 		property test.name.skip.portal.instance = "DepotRemoteStagingDM#ViewImageFromDisconnectedSite";
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -2994,7 +2927,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
+		Navigator.openSitePage(
 			pageName = "Test Page",
 			siteName = "Site Name");
 
@@ -3002,15 +2935,7 @@ definition {
 			depotName = "Test Depot Name",
 			noConnectedDepot = "true");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -3051,15 +2976,7 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Blogs");
-
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
 
 		BlogsNavigator.gotoSelectFile();
 

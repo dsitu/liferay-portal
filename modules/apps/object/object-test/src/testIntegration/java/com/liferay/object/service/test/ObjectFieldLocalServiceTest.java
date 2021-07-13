@@ -88,7 +88,7 @@ public class ObjectFieldLocalServiceTest {
 				objectFieldNameException.getMessage());
 		}
 
-		// First character
+		// The first character of a name must be an upper case letter
 
 		try {
 			_testAddObjectField(_createObjectField("Able", "String"));
@@ -101,7 +101,7 @@ public class ObjectFieldLocalServiceTest {
 				objectFieldNameException.getMessage());
 		}
 
-		// Name has a 40 character limit
+		// Names must be less than 41 characters
 
 		_testAddObjectField(
 			_createObjectField(
@@ -120,7 +120,7 @@ public class ObjectFieldLocalServiceTest {
 				objectFieldNameException.getMessage());
 		}
 
-		// Name is reserved
+		// Reserved name
 
 		String[] reservedNames = {
 			"companyId", "createDate", "groupId", "id", "lastPublishDate",
@@ -141,7 +141,7 @@ public class ObjectFieldLocalServiceTest {
 			}
 		}
 
-		// Name is the primary key
+		// Reserved name is the primary key
 
 		try {
 			_testAddObjectField(_createObjectField("testId", "String"));
@@ -154,18 +154,7 @@ public class ObjectFieldLocalServiceTest {
 				reservedObjectFieldException.getMessage());
 		}
 
-		try {
-			_testAddObjectField(_createObjectField("testid", "String"));
-
-			Assert.fail();
-		}
-		catch (ReservedObjectFieldException reservedObjectFieldException) {
-			Assert.assertEquals(
-				"Reserved name testid",
-				reservedObjectFieldException.getMessage());
-		}
-
-		// Name is a duplicate
+		// Duplicate name
 
 		try {
 			_testAddObjectField(
@@ -219,8 +208,8 @@ public class ObjectFieldLocalServiceTest {
 
 		try {
 			objectDefinition =
-				ObjectDefinitionLocalServiceUtil.addObjectDefinition(
-					TestPropsValues.getUserId(), "Test",
+				ObjectDefinitionLocalServiceUtil.addSystemObjectDefinition(
+					TestPropsValues.getUserId(), null, "Test", null, null, 1,
 					Arrays.asList(objectFields));
 		}
 		finally {

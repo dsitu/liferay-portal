@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence.impl;
 
-import com.liferay.object.exception.NoSuchEntryException;
+import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryTable;
 import com.liferay.object.model.impl.ObjectEntryImpl;
@@ -280,12 +280,12 @@ public class ObjectEntryPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	@Override
 	public ObjectEntry findByUuid_First(
 			String uuid, OrderByComparator<ObjectEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = fetchByUuid_First(uuid, orderByComparator);
 
@@ -302,7 +302,7 @@ public class ObjectEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchObjectEntryException(sb.toString());
 	}
 
 	/**
@@ -331,12 +331,12 @@ public class ObjectEntryPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	@Override
 	public ObjectEntry findByUuid_Last(
 			String uuid, OrderByComparator<ObjectEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = fetchByUuid_Last(uuid, orderByComparator);
 
@@ -353,7 +353,7 @@ public class ObjectEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchObjectEntryException(sb.toString());
 	}
 
 	/**
@@ -390,13 +390,13 @@ public class ObjectEntryPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	@Override
 	public ObjectEntry[] findByUuid_PrevAndNext(
 			long objectEntryId, String uuid,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -632,16 +632,16 @@ public class ObjectEntryPersistenceImpl
 	private FinderPath _finderPathCountByUUID_G;
 
 	/**
-	 * Returns the object entry where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchEntryException</code> if it could not be found.
+	 * Returns the object entry where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchObjectEntryException</code> if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	@Override
 	public ObjectEntry findByUUID_G(String uuid, long groupId)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = fetchByUUID_G(uuid, groupId);
 
@@ -662,7 +662,7 @@ public class ObjectEntryPersistenceImpl
 				_log.debug(sb.toString());
 			}
 
-			throw new NoSuchEntryException(sb.toString());
+			throw new NoSuchObjectEntryException(sb.toString());
 		}
 
 		return objectEntry;
@@ -793,7 +793,7 @@ public class ObjectEntryPersistenceImpl
 	 */
 	@Override
 	public ObjectEntry removeByUUID_G(String uuid, long groupId)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = findByUUID_G(uuid, groupId);
 
@@ -1074,13 +1074,13 @@ public class ObjectEntryPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	@Override
 	public ObjectEntry findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = fetchByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -1101,7 +1101,7 @@ public class ObjectEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchObjectEntryException(sb.toString());
 	}
 
 	/**
@@ -1134,13 +1134,13 @@ public class ObjectEntryPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	@Override
 	public ObjectEntry findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = fetchByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -1161,7 +1161,7 @@ public class ObjectEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchObjectEntryException(sb.toString());
 	}
 
 	/**
@@ -1201,13 +1201,13 @@ public class ObjectEntryPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	@Override
 	public ObjectEntry[] findByUuid_C_PrevAndNext(
 			long objectEntryId, String uuid, long companyId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -1632,13 +1632,13 @@ public class ObjectEntryPersistenceImpl
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	@Override
 	public ObjectEntry findByObjectDefinitionId_First(
 			long objectDefinitionId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = fetchByObjectDefinitionId_First(
 			objectDefinitionId, orderByComparator);
@@ -1656,7 +1656,7 @@ public class ObjectEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchObjectEntryException(sb.toString());
 	}
 
 	/**
@@ -1687,13 +1687,13 @@ public class ObjectEntryPersistenceImpl
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object entry
-	 * @throws NoSuchEntryException if a matching object entry could not be found
+	 * @throws NoSuchObjectEntryException if a matching object entry could not be found
 	 */
 	@Override
 	public ObjectEntry findByObjectDefinitionId_Last(
 			long objectDefinitionId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = fetchByObjectDefinitionId_Last(
 			objectDefinitionId, orderByComparator);
@@ -1711,7 +1711,7 @@ public class ObjectEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchObjectEntryException(sb.toString());
 	}
 
 	/**
@@ -1749,13 +1749,13 @@ public class ObjectEntryPersistenceImpl
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	@Override
 	public ObjectEntry[] findByObjectDefinitionId_PrevAndNext(
 			long objectEntryId, long objectDefinitionId,
 			OrderByComparator<ObjectEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = findByPrimaryKey(objectEntryId);
 
@@ -2101,10 +2101,12 @@ public class ObjectEntryPersistenceImpl
 	 *
 	 * @param objectEntryId the primary key of the object entry
 	 * @return the object entry that was removed
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	@Override
-	public ObjectEntry remove(long objectEntryId) throws NoSuchEntryException {
+	public ObjectEntry remove(long objectEntryId)
+		throws NoSuchObjectEntryException {
+
 		return remove((Serializable)objectEntryId);
 	}
 
@@ -2113,11 +2115,11 @@ public class ObjectEntryPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object entry
 	 * @return the object entry that was removed
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	@Override
 	public ObjectEntry remove(Serializable primaryKey)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		Session session = null;
 
@@ -2132,13 +2134,13 @@ public class ObjectEntryPersistenceImpl
 					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
-				throw new NoSuchEntryException(
+				throw new NoSuchObjectEntryException(
 					_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			return remove(objectEntry);
 		}
-		catch (NoSuchEntryException noSuchEntityException) {
+		catch (NoSuchObjectEntryException noSuchEntityException) {
 			throw noSuchEntityException;
 		}
 		catch (Exception exception) {
@@ -2270,11 +2272,11 @@ public class ObjectEntryPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object entry
 	 * @return the object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	@Override
 	public ObjectEntry findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		ObjectEntry objectEntry = fetchByPrimaryKey(primaryKey);
 
@@ -2283,7 +2285,7 @@ public class ObjectEntryPersistenceImpl
 				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			throw new NoSuchEntryException(
+			throw new NoSuchObjectEntryException(
 				_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 		}
 
@@ -2291,15 +2293,15 @@ public class ObjectEntryPersistenceImpl
 	}
 
 	/**
-	 * Returns the object entry with the primary key or throws a <code>NoSuchEntryException</code> if it could not be found.
+	 * Returns the object entry with the primary key or throws a <code>NoSuchObjectEntryException</code> if it could not be found.
 	 *
 	 * @param objectEntryId the primary key of the object entry
 	 * @return the object entry
-	 * @throws NoSuchEntryException if a object entry with the primary key could not be found
+	 * @throws NoSuchObjectEntryException if a object entry with the primary key could not be found
 	 */
 	@Override
 	public ObjectEntry findByPrimaryKey(long objectEntryId)
-		throws NoSuchEntryException {
+		throws NoSuchObjectEntryException {
 
 		return findByPrimaryKey((Serializable)objectEntryId);
 	}

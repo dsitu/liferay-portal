@@ -52,8 +52,9 @@ import com.liferay.dynamic.data.mapping.internal.upgrade.v3_2_4.DDMContentUpgrad
 import com.liferay.dynamic.data.mapping.internal.upgrade.v3_5_0.DDMFormInstanceReportUpgradeProcess;
 import com.liferay.dynamic.data.mapping.internal.upgrade.v3_7_1.DDMStructureEmptyValidationUpgradeProcess;
 import com.liferay.dynamic.data.mapping.internal.upgrade.v4_1_0.DDMFieldUpgradeProcess;
-import com.liferay.dynamic.data.mapping.internal.upgrade.v4_3_0.DLFileEntryTypeDDMFieldAttributeUpgradeProcess;
 import com.liferay.dynamic.data.mapping.internal.upgrade.v4_3_0.DLFileEntryTypeDataDefinitionIdUpgradeProcess;
+import com.liferay.dynamic.data.mapping.internal.upgrade.v4_3_4.DDMStructureLinkDLFileEntryTypeUpgradeProcess;
+import com.liferay.dynamic.data.mapping.internal.upgrade.v4_3_4.DLFileEntryTypeDDMFieldAttributeUpgradeProcess;
 import com.liferay.dynamic.data.mapping.io.DDMFormDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializer;
@@ -398,7 +399,20 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 		registry.register("3.10.0", "3.10.1", new DummyUpgradeStep());
 
 		registry.register(
-			"3.10.1", "4.0.0",
+			"3.10.1", "3.10.2",
+			new com.liferay.dynamic.data.mapping.internal.upgrade.v3_10_2.
+				DDMContentUpgradeProcess(
+					ddmFormJSONDeserializer, ddmFormValuesDeserializer,
+					ddmFormValuesSerializer, _jsonFactory),
+			new com.liferay.dynamic.data.mapping.internal.upgrade.v3_10_2.
+				DDMFormInstanceReportUpgradeProcess(_jsonFactory),
+			new com.liferay.dynamic.data.mapping.internal.upgrade.v3_10_2.
+				DDMStructureUpgradeProcess(
+					ddmFormJSONDeserializer, _ddmFormLayoutDeserializer,
+					ddmFormLayoutSerializer, ddmFormSerializer, _jsonFactory));
+
+		registry.register(
+			"3.10.2", "4.0.0",
 			new com.liferay.dynamic.data.mapping.internal.upgrade.v4_0_0.
 				DDMStructureUpgradeProcess(_ddmDataDefinitionConverter));
 
@@ -415,7 +429,6 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register(
 			"4.2.0", "4.3.0",
-			new DLFileEntryTypeDDMFieldAttributeUpgradeProcess(),
 			new DLFileEntryTypeDataDefinitionIdUpgradeProcess(
 				_dlFileEntryTypeLocalService));
 
@@ -435,6 +448,12 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 				DDMStructureLayoutUpgradeProcess(
 					_ddmFormLayoutDeserializer, ddmFormLayoutSerializer,
 					_jsonFactory));
+
+		registry.register(
+			"4.3.3", "4.3.4",
+			new DDMStructureLinkDLFileEntryTypeUpgradeProcess(
+				_dlFileEntryTypeLocalService),
+			new DLFileEntryTypeDDMFieldAttributeUpgradeProcess());
 	}
 
 	@Activate

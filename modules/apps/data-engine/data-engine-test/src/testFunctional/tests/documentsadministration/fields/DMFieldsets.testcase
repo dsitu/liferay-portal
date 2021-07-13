@@ -139,7 +139,7 @@ definition {
 
 		Button.clickSave();
 
-		Navigator.gotoNavItem(navItem = "Documents and Media");
+		Navigator.gotoNavItem(navItem = "Files");
 
 		DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "${documentType}");
 
@@ -188,9 +188,7 @@ definition {
 
 		DataEngine.addFieldsetToBuilder(fieldsetName = "ShowAndHideTest");
 
-		DataEngine.configureFieldsetsShowOrHideLabel(
-			fieldFieldLabel = "Text",
-			status = "Hide");
+		DataEngine.toggleShowLabel(fieldLabel = "Text");
 
 		DDLDataDefinition.save();
 
@@ -202,9 +200,7 @@ definition {
 			key_fieldsetLabel = "ShowAndHideTest",
 			locator1 = "DDMEditStructure#FORM_FIELD_SETS_CONTAINER_LABEL");
 
-		DataEngine.configureFieldsetsShowOrHideLabel(
-			fieldFieldLabel = "Text",
-			status = "Show");
+		DataEngine.toggleShowLabel();
 
 		AssertElementPresent(
 			key_fieldsetLabel = "ShowAndHideTest",

@@ -12,7 +12,7 @@ To use the plugin, include it in your build script:
 ```gradle
 buildscript {
 	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.rest.builder", version: "1.1.59"
+		classpath group: "com.liferay", name: "com.liferay.gradle.plugins.rest.builder", version: "1.1.63"
 	}
 
 	repositories {
@@ -90,6 +90,6 @@ a dependency to the latest released version of Liferay REST Builder.
 
 ```gradle
 dependencies {
-	restBuilder group: "com.liferay", name: "com.liferay.portal.tools.rest.builder", version: "1.0.182"
+	restBuilder group: "com.liferay", name: "com.liferay.portal.tools.rest.builder", version: "1.0.186"
 }
 ```

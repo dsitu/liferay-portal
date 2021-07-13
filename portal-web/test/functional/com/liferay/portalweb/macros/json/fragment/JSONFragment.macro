@@ -40,7 +40,7 @@ definition {
 		var type = JSONFragmentSetter.setType(
 			type = "${type}");
 
-		JSONFragmentAPI._addSection(
+		var fragmentEntryId = JSONFragmentAPI._addSection(
 			collectionId = "${collectionId}",
 			configuration = "${configuration}",
 			groupId = "${groupId}",
@@ -48,6 +48,8 @@ definition {
 			name = "${name}",
 			status = "${status}",
 			type = "${type}");
+
+		return "${fragmentEntryId}";
 	}
 
 	@summary = "Assert that a fragmentCollection does not exist in a group given its collectionName and groupName"
@@ -64,7 +66,7 @@ definition {
 			groupId = "${groupId}"
 		);
 
-		if ("${collectionNameResult}" == "[]") {
+		if ("${collectionNameResult}" == "") {
 			fail("The collection ${collectionName} was not found.");
 		}
 	}
@@ -83,7 +85,7 @@ definition {
 			groupId = "${groupId}"
 		);
 
-		if ("${collectionNameResult}" != "[]") {
+		if ("${collectionNameResult}" != "") {
 			fail("The collection ${collectionName} was found.");
 		}
 	}
@@ -107,7 +109,7 @@ definition {
 			groupId = "${groupId}"
 		);
 
-		if ("${fragmentNameResult}" == "[]") {
+		if ("${fragmentNameResult}" == "") {
 			fail("The fragment ${fragmentName} was not found.");
 		}
 	}
@@ -131,7 +133,7 @@ definition {
 			groupId = "${groupId}"
 		);
 
-		if ("${fragmentNameResult}" != "[]") {
+		if ("${fragmentNameResult}" != "") {
 			fail("The fragment ${fragmentName} was found.");
 		}
 	}

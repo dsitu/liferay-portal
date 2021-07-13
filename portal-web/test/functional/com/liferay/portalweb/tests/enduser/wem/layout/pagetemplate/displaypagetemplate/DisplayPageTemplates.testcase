@@ -77,6 +77,59 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-129360. The user could change the display style of Documents and Media in display page template."
+	@priority = "4"
+	test ChangeDisplayStyleOfDocumentsAndMediaInDisplayPageTemplate {
+		task ("Add a Documents and Media widget to the display page template") {
+			PageEditor.addWidget(portletName = "Documents and Media");
+
+			PageEditor.clickPublish();
+		}
+
+		task ("Mark the display page template as default") {
+			DisplayPageTemplatesAdmin.markDisplayPageAsDefault(displayPageName = "Display Page Name");
+		}
+
+		task ("Add a document entry") {
+			JSONDocument.addFileWithUploadedFile(
+				dmDocumentTitle = "Document Title",
+				groupName = "Test Site Name",
+				mimeType = "image/jpeg",
+				sourceFileName = "Document_4.jpg");
+		}
+
+		task ("Add a web content") {
+			JSONWebcontent.addWebContent(
+				content = "Webcontent Content",
+				groupName = "Test Site Name",
+				title = "Webcontent Title");
+		}
+
+		task ("Navigate to display page template at view mode") {
+			WebContentNavigator.openWebContentAdmin(siteURLKey = "test-site-name");
+
+			WebContentNavigator.gotoEntryMenuItem(
+				entry = "Webcontent Title",
+				menuItem = "View Content");
+		}
+
+		task ("View the document entry displayed as Cards style") {
+			DMDocument.viewCardTitle(dmDocumentTitle = "Document Title");
+
+			LexiconEntry.viewActiveDisplayStyle(displayStyle = "cards");
+		}
+
+		task ("Change to List display style") {
+			LexiconEntry.changeDisplayStyle(displayStyle = "list");
+		}
+
+		task ("View the document entry displayed as List style") {
+			LexiconList.viewListEntryTitle(listEntry = "Document Title");
+
+			LexiconEntry.viewActiveDisplayStyle(displayStyle = "list");
+		}
+	}
+
 	@description = "This is for LPS-106813. Can set permissions for widgets in display page template."
 	@priority = "5"
 	test ConfigurePermissionsOfAssetPublisher {
@@ -217,8 +270,6 @@ definition {
 		}
 
 		task ("Mark the display page template as default") {
-			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
-
 			DisplayPageTemplatesAdmin.markDisplayPageAsDefault(displayPageName = "Display Page Name");
 		}
 
@@ -493,8 +544,66 @@ definition {
 	@priority = "4"
 	@uitest
 	test ViewAssetTypeOnlySelectableOnce {
-		task ("View the plus button of Content field no longer shown in Mapping tab") {
+		task ("View the plus button of Item field no longer shown in Mapping tab") {
 			PageEditorMapping.assertAssetTypeUnselectable();
+		}
+	}
+
+	@description = "This is a test for LPS-133350. View master page after renaming display page template within custom master page."
+	@priority = "4"
+	test ViewMasterPageAfterRenamingDisplayPageTemplateWithinCustomMasterPage {
+		task ("Add a custom master page and publish") {
+			JSONLayoutpagetemplate.addMasterPageTemplateEntry(
+				groupName = "Test Site Name",
+				masterPageTemplateEntryName = "TestMaster");
+
+			MastersPageTemplatesAdmin.openMastersAdmin(siteURLKey = "test-site-name");
+
+			MastersPageTemplatesAdmin.gotoMasters(masterLayoutName = "TestMaster");
+
+			Button.click(button = "Publish Master");
+
+			Alert.viewSuccessMessage();
+		}
+
+		task ("Add a display page template with created master page") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.addDisplayPage(
+				contentType = "Web Content Article",
+				displayPageName = "Display Page Name 2",
+				masterLayoutName = "TestMaster",
+				subType = "Basic Web Content");
+
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name 2");
+
+			PageEditor.gotoTab(tabName = "Page Design Options");
+
+			Navigator.gotoNavTab(navTab = "Master");
+
+			AssertElementPresent(
+				key_card = "TestMaster",
+				locator1 = "Card#CARD_SELECTED");
+		}
+
+		task ("Go to display page template and rename") {
+			DisplayPageTemplatesAdmin.openDisplayPagesAdmin(siteURLKey = "test-site-name");
+
+			DisplayPageTemplatesAdmin.renameDisplayPage(
+				displayPageName = "Display Page Name 2",
+				newDisplayPageName = "Display Page Name New");
+		}
+
+		task ("View the master page after renaming") {
+			DisplayPageTemplatesAdmin.gotoDisplayPage(displayPageName = "Display Page Name New");
+
+			PageEditor.gotoTab(tabName = "Page Design Options");
+
+			AssertElementPresent(
+				key_card = "TestMaster",
+				locator1 = "Card#CARD_SELECTED");
 		}
 	}
 

@@ -19,7 +19,6 @@ import com.liferay.commerce.service.CommerceAddressService;
 import com.liferay.commerce.service.CommerceAddressServiceUtil;
 import com.liferay.commerce.service.persistence.CPDAvailabilityEstimatePersistence;
 import com.liferay.commerce.service.persistence.CPDefinitionInventoryPersistence;
-import com.liferay.commerce.service.persistence.CommerceAddressPersistence;
 import com.liferay.commerce.service.persistence.CommerceAddressRestrictionPersistence;
 import com.liferay.commerce.service.persistence.CommerceAvailabilityEstimatePersistence;
 import com.liferay.commerce.service.persistence.CommerceOrderFinder;
@@ -36,21 +35,14 @@ import com.liferay.commerce.service.persistence.CommerceShippingMethodPersistenc
 import com.liferay.commerce.service.persistence.CommerceSubscriptionEntryFinder;
 import com.liferay.commerce.service.persistence.CommerceSubscriptionEntryPersistence;
 import com.liferay.portal.kernel.bean.BeanReference;
-import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBManagerUtil;
-import com.liferay.portal.kernel.dao.jdbc.SqlUpdate;
-import com.liferay.portal.kernel.dao.jdbc.SqlUpdateFactoryUtil;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.service.BaseServiceImpl;
+import com.liferay.portal.kernel.service.persistence.AddressPersistence;
 import com.liferay.portal.kernel.service.persistence.ClassNamePersistence;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.lang.reflect.Field;
-
-import javax.sql.DataSource;
 
 /**
  * Provides the base implementation for the commerce address remote service.
@@ -114,26 +106,6 @@ public abstract class CommerceAddressServiceBaseImpl
 		CommerceAddressService commerceAddressService) {
 
 		this.commerceAddressService = commerceAddressService;
-	}
-
-	/**
-	 * Returns the commerce address persistence.
-	 *
-	 * @return the commerce address persistence
-	 */
-	public CommerceAddressPersistence getCommerceAddressPersistence() {
-		return commerceAddressPersistence;
-	}
-
-	/**
-	 * Sets the commerce address persistence.
-	 *
-	 * @param commerceAddressPersistence the commerce address persistence
-	 */
-	public void setCommerceAddressPersistence(
-		CommerceAddressPersistence commerceAddressPersistence) {
-
-		this.commerceAddressPersistence = commerceAddressPersistence;
 	}
 
 	/**
@@ -1067,6 +1039,69 @@ public abstract class CommerceAddressServiceBaseImpl
 	}
 
 	/**
+	 * Returns the address local service.
+	 *
+	 * @return the address local service
+	 */
+	public com.liferay.portal.kernel.service.AddressLocalService
+		getAddressLocalService() {
+
+		return addressLocalService;
+	}
+
+	/**
+	 * Sets the address local service.
+	 *
+	 * @param addressLocalService the address local service
+	 */
+	public void setAddressLocalService(
+		com.liferay.portal.kernel.service.AddressLocalService
+			addressLocalService) {
+
+		this.addressLocalService = addressLocalService;
+	}
+
+	/**
+	 * Returns the address remote service.
+	 *
+	 * @return the address remote service
+	 */
+	public com.liferay.portal.kernel.service.AddressService
+		getAddressService() {
+
+		return addressService;
+	}
+
+	/**
+	 * Sets the address remote service.
+	 *
+	 * @param addressService the address remote service
+	 */
+	public void setAddressService(
+		com.liferay.portal.kernel.service.AddressService addressService) {
+
+		this.addressService = addressService;
+	}
+
+	/**
+	 * Returns the address persistence.
+	 *
+	 * @return the address persistence
+	 */
+	public AddressPersistence getAddressPersistence() {
+		return addressPersistence;
+	}
+
+	/**
+	 * Sets the address persistence.
+	 *
+	 * @param addressPersistence the address persistence
+	 */
+	public void setAddressPersistence(AddressPersistence addressPersistence) {
+		this.addressPersistence = addressPersistence;
+	}
+
+	/**
 	 * Returns the class name local service.
 	 *
 	 * @return the class name local service
@@ -1240,30 +1275,6 @@ public abstract class CommerceAddressServiceBaseImpl
 		return CommerceAddress.class.getName();
 	}
 
-	/**
-	 * Performs a SQL query.
-	 *
-	 * @param sql the sql query
-	 */
-	protected void runSQL(String sql) {
-		try {
-			DataSource dataSource = commerceAddressPersistence.getDataSource();
-
-			DB db = DBManagerUtil.getDB();
-
-			sql = db.buildSQL(sql);
-			sql = PortalUtil.transformSQL(sql);
-
-			SqlUpdate sqlUpdate = SqlUpdateFactoryUtil.getSqlUpdate(
-				dataSource, sql);
-
-			sqlUpdate.update();
-		}
-		catch (Exception exception) {
-			throw new SystemException(exception);
-		}
-	}
-
 	private void _setServiceUtilService(
 		CommerceAddressService commerceAddressService) {
 
@@ -1288,9 +1299,6 @@ public abstract class CommerceAddressServiceBaseImpl
 
 	@BeanReference(type = CommerceAddressService.class)
 	protected CommerceAddressService commerceAddressService;
-
-	@BeanReference(type = CommerceAddressPersistence.class)
-	protected CommerceAddressPersistence commerceAddressPersistence;
 
 	@BeanReference(
 		type = com.liferay.commerce.service.CommerceAddressRestrictionLocalService.class
@@ -1493,6 +1501,20 @@ public abstract class CommerceAddressServiceBaseImpl
 	)
 	protected com.liferay.counter.kernel.service.CounterLocalService
 		counterLocalService;
+
+	@ServiceReference(
+		type = com.liferay.portal.kernel.service.AddressLocalService.class
+	)
+	protected com.liferay.portal.kernel.service.AddressLocalService
+		addressLocalService;
+
+	@ServiceReference(
+		type = com.liferay.portal.kernel.service.AddressService.class
+	)
+	protected com.liferay.portal.kernel.service.AddressService addressService;
+
+	@ServiceReference(type = AddressPersistence.class)
+	protected AddressPersistence addressPersistence;
 
 	@ServiceReference(
 		type = com.liferay.portal.kernel.service.ClassNameLocalService.class

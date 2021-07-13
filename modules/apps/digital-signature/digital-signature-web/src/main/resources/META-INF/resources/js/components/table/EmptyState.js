@@ -57,7 +57,7 @@ const EmptyState = ({
 
 export const FilteredEmpty = (props) => {
 	const description = Liferay.Language.get(
-		'there-are-no-results-with-these-attributes'
+		'there-are-no-envelopes-with-these-attributes'
 	);
 
 	return <EmptyState description={description} {...props} />;
@@ -65,7 +65,7 @@ export const FilteredEmpty = (props) => {
 
 export const SearchEmpty = ({keywords, ...otherProps}) => {
 	const description = Liferay.Util.sub(
-		Liferay.Language.get('there-are-no-results-for-x'),
+		Liferay.Language.get('there-are-no-envelopes-for-x'),
 		keywords
 	);
 
@@ -75,7 +75,7 @@ export const SearchEmpty = ({keywords, ...otherProps}) => {
 export const SearchAndFilteredEmpty = ({keywords, ...otherProps}) => {
 	const description = Liferay.Util.sub(
 		Liferay.Language.get(
-			'there-are-no-results-for-x-with-these-attributes'
+			'there-are-no-envelopes-for-x-with-these-attributes'
 		),
 		keywords
 	);
@@ -98,7 +98,7 @@ export const withEmpty = (Component) => {
 						<SearchAndFilteredEmpty
 							keywords={keywords}
 							{...DEFAULT_EMPTY.search}
-							{...emptyState.searchAndFiltered}
+							{...emptyState?.searchAndFiltered}
 						/>
 					);
 				}
@@ -107,7 +107,7 @@ export const withEmpty = (Component) => {
 					<SearchEmpty
 						keywords={keywords}
 						{...DEFAULT_EMPTY.search}
-						{...emptyState.search}
+						{...emptyState?.search}
 					/>
 				);
 			}
@@ -116,7 +116,7 @@ export const withEmpty = (Component) => {
 				return (
 					<FilteredEmpty
 						{...DEFAULT_EMPTY.search}
-						{...emptyState.filtered}
+						{...emptyState?.filtered}
 					/>
 				);
 			}

@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.template.BaseTemplateManager;
 import com.liferay.portal.template.TemplateContextHelper;
 import com.liferay.portal.template.freemarker.configuration.FreeMarkerEngineConfiguration;
+import com.liferay.taglib.TagSupport;
 
 import freemarker.cache.TemplateCache;
 
@@ -101,6 +102,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleWiring;
@@ -324,8 +326,8 @@ public class FreeMarkerManager extends BaseTemplateManager {
 				"Unable to init FreeMarker manager", exception);
 		}
 
-		_defaultBeanWrapper = new LiferayObjectWrapper();
-		_restrictedBeanWrapper = new RestrictedLiferayObjectWrapper(
+		_defaultBeansWrapper = new LiferayObjectWrapper();
+		_restrictedBeansWrapper = new RestrictedLiferayObjectWrapper(
 			_freeMarkerEngineConfiguration.allowedClasses(),
 			_freeMarkerEngineConfiguration.restrictedClasses(),
 			_freeMarkerEngineConfiguration.restrictedMethods());
@@ -338,9 +340,9 @@ public class FreeMarkerManager extends BaseTemplateManager {
 			(FreeMarkerTemplateContextHelper)templateContextHelper;
 
 		freeMarkerTemplateContextHelper.setDefaultBeansWrapper(
-			_defaultBeanWrapper);
+			_defaultBeansWrapper);
 		freeMarkerTemplateContextHelper.setRestrictedBeansWrapper(
-			_restrictedBeanWrapper);
+			_restrictedBeansWrapper);
 	}
 
 	@Reference(unbind = "-")
@@ -376,7 +378,8 @@ public class FreeMarkerManager extends BaseTemplateManager {
 
 		_bundle = bundleContext.getBundle();
 
-		_freeMarkerBundleClassloader = new FreeMarkerBundleClassloader(_bundle);
+		_freeMarkerBundleClassloader = new FreeMarkerBundleClassloader(
+			_bundle, FrameworkUtil.getBundle(TagSupport.class));
 
 		int stateMask = ~Bundle.INSTALLED & ~Bundle.UNINSTALLED;
 
@@ -448,10 +451,10 @@ public class FreeMarkerManager extends BaseTemplateManager {
 		TemplateResource templateResource, boolean restricted,
 		Map<String, Object> helperUtilities) {
 
-		BeansWrapper beansWrapper = _defaultBeanWrapper;
+		BeansWrapper beansWrapper = _defaultBeansWrapper;
 
 		if (restricted) {
-			beansWrapper = _restrictedBeanWrapper;
+			beansWrapper = _restrictedBeansWrapper;
 		}
 
 		return new FreeMarkerTemplate(
@@ -659,7 +662,7 @@ public class FreeMarkerManager extends BaseTemplateManager {
 	private Bundle _bundle;
 	private BundleTracker<Set<String>> _bundleTracker;
 	private volatile Configuration _configuration;
-	private volatile BeansWrapper _defaultBeanWrapper;
+	private volatile BeansWrapper _defaultBeansWrapper;
 	private FreeMarkerBundleClassloader _freeMarkerBundleClassloader;
 	private volatile FreeMarkerEngineConfiguration
 		_freeMarkerEngineConfiguration;
@@ -672,7 +675,7 @@ public class FreeMarkerManager extends BaseTemplateManager {
 	@Reference
 	private PortalExecutorManager _portalExecutorManager;
 
-	private volatile BeansWrapper _restrictedBeanWrapper;
+	private volatile BeansWrapper _restrictedBeansWrapper;
 	private volatile ServiceRegistration<PortalExecutorConfig>
 		_serviceRegistration;
 	private SingleVMPool _singleVMPool;

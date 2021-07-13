@@ -219,8 +219,8 @@ definition {
 
 		User.firstLoginUI(
 			password = "test",
-			userEmailAddress = "test@www.baker.com",
-			virtualHostsURL = "http://www.baker.com:9080");
+			specificURL = "http://www.baker.com:9080",
+			userEmailAddress = "test@www.baker.com");
 
 		User.openUsersAdmin(baseURL = "http://www.baker.com:9080");
 
@@ -1656,6 +1656,10 @@ definition {
 			userEmailAddress = "test@liferay.com");
 
 		User.logoutPG(specificURL = "http://www.able.com:8080");
+
+		User.viewLoggedOutPG();
+
+		User.logoutPG(specificURL = "http://localhost:8080");
 
 		User.viewLoggedOutPG();
 

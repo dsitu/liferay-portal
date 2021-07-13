@@ -17,22 +17,22 @@
 <%@ include file="/init.jsp" %>
 
 <%
-List<InfoListProvider<?>> infoListProviders = assetPublisherDisplayContext.getAssetEntryInfoListProviders();
+List<InfoCollectionProvider<?>> infoCollectionProviders = assetPublisherDisplayContext.getAssetEntryInfoCollectionProviders();
 %>
 
 <c:choose>
-	<c:when test="<%= ListUtil.isNotEmpty(infoListProviders) %>">
+	<c:when test="<%= ListUtil.isNotEmpty(infoCollectionProviders) %>">
 		<aui:select label="" name="preferences--infoListProviderKey--">
 			<aui:option label="none" value="" />
 
 			<%
 			String infoListProviderKey = PrefsParamUtil.getString(portletPreferences, request, "infoListProviderKey", StringPool.BLANK);
 
-			for (InfoListProvider<?> infoListProvider : infoListProviders) {
-				String key = infoListProvider.getKey();
+			for (InfoCollectionProvider<?> infoCollectionProvider : infoCollectionProviders) {
+				String key = infoCollectionProvider.getKey();
 			%>
 
-				<aui:option label="<%= infoListProvider.getLabel(themeDisplay.getLocale()) %>" selected="<%= infoListProviderKey.equals(key) %>" value="<%= key %>" />
+				<aui:option label="<%= infoCollectionProvider.getLabel(themeDisplay.getLocale()) %>" selected="<%= infoListProviderKey.equals(key) %>" value="<%= key %>" />
 
 			<%
 			}

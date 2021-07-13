@@ -50,7 +50,10 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Zoltán Takács
  * @generated
  */
-@Component(immediate = true, service = DiscountChannelResource.Factory.class)
+@Component(
+	enabled = false, immediate = true,
+	service = DiscountChannelResource.Factory.class
+)
 @Generated("")
 public class DiscountChannelResourceFactoryImpl
 	implements DiscountChannelResource.Factory {

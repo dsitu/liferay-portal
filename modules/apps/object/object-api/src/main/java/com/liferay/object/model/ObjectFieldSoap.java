@@ -42,10 +42,12 @@ public class ObjectFieldSoap implements Serializable {
 		soapModel.setCreateDate(model.getCreateDate());
 		soapModel.setModifiedDate(model.getModifiedDate());
 		soapModel.setObjectDefinitionId(model.getObjectDefinitionId());
+		soapModel.setDBColumnName(model.getDBColumnName());
 		soapModel.setIndexed(model.isIndexed());
 		soapModel.setIndexedAsKeyword(model.isIndexedAsKeyword());
 		soapModel.setIndexedLanguageId(model.getIndexedLanguageId());
 		soapModel.setName(model.getName());
+		soapModel.setRequired(model.isRequired());
 		soapModel.setType(model.getType());
 
 		return soapModel;
@@ -172,6 +174,14 @@ public class ObjectFieldSoap implements Serializable {
 		_objectDefinitionId = objectDefinitionId;
 	}
 
+	public String getDBColumnName() {
+		return _dbColumnName;
+	}
+
+	public void setDBColumnName(String dbColumnName) {
+		_dbColumnName = dbColumnName;
+	}
+
 	public boolean getIndexed() {
 		return _indexed;
 	}
@@ -212,6 +222,18 @@ public class ObjectFieldSoap implements Serializable {
 		_name = name;
 	}
 
+	public boolean getRequired() {
+		return _required;
+	}
+
+	public boolean isRequired() {
+		return _required;
+	}
+
+	public void setRequired(boolean required) {
+		_required = required;
+	}
+
 	public String getType() {
 		return _type;
 	}
@@ -229,10 +251,12 @@ public class ObjectFieldSoap implements Serializable {
 	private Date _createDate;
 	private Date _modifiedDate;
 	private long _objectDefinitionId;
+	private String _dbColumnName;
 	private boolean _indexed;
 	private boolean _indexedAsKeyword;
 	private String _indexedLanguageId;
 	private String _name;
+	private boolean _required;
 	private String _type;
 
 }

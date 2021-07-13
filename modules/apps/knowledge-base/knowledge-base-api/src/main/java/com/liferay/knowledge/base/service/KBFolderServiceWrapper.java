@@ -32,14 +32,15 @@ public class KBFolderServiceWrapper
 
 	@Override
 	public com.liferay.knowledge.base.model.KBFolder addKBFolder(
-			long groupId, long parentResourceClassNameId,
-			long parentResourcePrimKey, String name, String description,
+			String externalReferenceCode, long groupId,
+			long parentResourceClassNameId, long parentResourcePrimKey,
+			String name, String description,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kbFolderService.addKBFolder(
-			groupId, parentResourceClassNameId, parentResourcePrimKey, name,
-			description, serviceContext);
+			externalReferenceCode, groupId, parentResourceClassNameId,
+			parentResourcePrimKey, name, description, serviceContext);
 	}
 
 	@Override

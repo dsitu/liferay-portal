@@ -1,0 +1,10 @@
+.page-editor__collection__pagination {
+	&__overlay:after {
+		content: '';
+		height: 100%;
+		left: 0;
+		position: absolute;
+		top: 0;
+		width: 100%;
+	}
+}

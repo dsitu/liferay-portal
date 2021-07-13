@@ -18,13 +18,11 @@ import com.liferay.portal.kernel.servlet.DynamicServletRequest;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.taglib.BaseBodyTagSupport;
-import com.liferay.taglib.servlet.AutoClosePageContextRegistry;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -193,23 +191,14 @@ public class ParamAndPropertyAncestorTagImpl
 	public void setPageContext(PageContext pageContext) {
 		super.setPageContext(pageContext);
 
-		HttpServletRequest httpServletRequest =
-			(HttpServletRequest)pageContext.getRequest();
+		_httpServletRequest = (HttpServletRequest)pageContext.getRequest();
 
-		_httpServletRequest = httpServletRequest;
-
-		_servletContext = (ServletContext)httpServletRequest.getAttribute(
+		_servletContext = (ServletContext)_httpServletRequest.getAttribute(
 			WebKeys.CTX);
 
 		if (_servletContext == null) {
 			_servletContext = pageContext.getServletContext();
 		}
-
-		AutoClosePageContextRegistry.registerCloseCallback(
-			pageContext,
-			() -> _atomicReferenceFieldUpdater.compareAndSet(
-				ParamAndPropertyAncestorTagImpl.this, httpServletRequest,
-				null));
 	}
 
 	public void setServletContext(ServletContext servletContext) {
@@ -220,15 +209,10 @@ public class ParamAndPropertyAncestorTagImpl
 		return _servletContext;
 	}
 
-	private static final AtomicReferenceFieldUpdater
-		_atomicReferenceFieldUpdater = AtomicReferenceFieldUpdater.newUpdater(
-			ParamAndPropertyAncestorTagImpl.class, HttpServletRequest.class,
-			"_httpServletRequest");
-
 	private boolean _allowEmptyParam;
 	private boolean _copyCurrentRenderParameters = true;
 	private DynamicServletRequest _dynamicServletRequest;
-	private volatile HttpServletRequest _httpServletRequest;
+	private HttpServletRequest _httpServletRequest;
 	private Map<String, String[]> _properties;
 	private Set<String> _removedParameterNames;
 	private ServletContext _servletContext;

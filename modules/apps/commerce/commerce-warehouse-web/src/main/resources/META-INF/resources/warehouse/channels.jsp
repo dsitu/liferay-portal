@@ -41,7 +41,7 @@ long[] commerceChannelIds = commerceInventoryWarehousesDisplayContext.getCommerc
 			for (CommerceChannel commerceChannel : commerceChannels) {
 			%>
 
-				<aui:input checked="<%= ArrayUtil.contains(commerceChannelIds, commerceChannel.getCommerceChannelId()) %>" label="<%= HtmlUtil.escape(commerceChannel.getName()) %>" name='<%= "commerceChannelId_" + commerceChannel.getCommerceChannelId() %>' onChange='<%= liferayPortletResponse.getNamespace() + "fulfillCommerceChannelIds();" %>' type="checkbox" value="<%= commerceChannel.getCommerceChannelId() %>" />
+				<aui:input checked="<%= ArrayUtil.contains(commerceChannelIds, commerceChannel.getCommerceChannelId()) %>" cssClass="channel-id-input" label="<%= HtmlUtil.escape(commerceChannel.getName()) %>" name='<%= "commerceChannelId_" + commerceChannel.getCommerceChannelId() %>' type="checkbox" value="<%= commerceChannel.getCommerceChannelId() %>" />
 
 			<%
 			}
@@ -51,16 +51,6 @@ long[] commerceChannelIds = commerceInventoryWarehousesDisplayContext.getCommerc
 	</c:otherwise>
 </c:choose>
 
-<aui:script>
-	function <portlet:namespace />fulfillCommerceChannelIds(e) {
-		var form = window.document['<portlet:namespace />fm'];
-		var values = Liferay.Util.listCheckedExcept(
-			form,
-			'<portlet:namespace />allRowIds'
-		);
-		form['<portlet:namespace />commerceChannelIds'].value = values;
-		return values;
-	}
-
-	<portlet:namespace />fulfillCommerceChannelIds();
-</aui:script>
+<liferay-frontend:component
+	module="js/warehouseChannels"
+/>

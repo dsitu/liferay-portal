@@ -20,10 +20,17 @@ import com.liferay.commerce.product.service.CPDefinitionSpecificationOptionValue
 import com.liferay.commerce.product.service.CPSpecificationOptionService;
 import com.liferay.headless.commerce.admin.catalog.dto.v1_0.ProductSpecification;
 import com.liferay.headless.commerce.core.util.LanguageUtils;
+import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.FriendlyURLNormalizerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
+
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Alessio Antonio Rendina
@@ -67,24 +74,37 @@ public class ProductSpecificationUtil {
 			ServiceContext serviceContext)
 		throws PortalException {
 
+		String specificationKey = FriendlyURLNormalizerUtil.normalize(
+			productSpecification.getSpecificationKey());
+
 		CPSpecificationOption cpSpecificationOption =
 			cpSpecificationOptionService.fetchCPSpecificationOption(
-				companyId,
-				StringUtil.toLowerCase(
-					productSpecification.getSpecificationKey()));
+				companyId, specificationKey);
+
+		Map<Locale, String> map = HashMapBuilder.put(
+			serviceContext.getLocale(),
+			() -> {
+				String[] specificationKeyParts = StringUtil.split(
+					specificationKey, CharPool.DASH);
+
+				StringBundler sb = new StringBundler(
+					specificationKeyParts.length);
+
+				for (String specificationKeyPart : specificationKeyParts) {
+					sb.append(
+						StringUtil.upperCaseFirstLetter(specificationKeyPart));
+					sb.append(CharPool.SPACE);
+				}
+
+				return sb.toString();
+			}
+		).build();
 
 		if (cpSpecificationOption == null) {
 			cpSpecificationOption =
 				cpSpecificationOptionService.addCPSpecificationOption(
-					getCPOptionCategoryId(productSpecification),
-					LanguageUtils.getLocalizedMap(
-						productSpecification.getValue()),
-					LanguageUtils.getLocalizedMap(
-						productSpecification.getValue()),
-					false,
-					StringUtil.toLowerCase(
-						productSpecification.getSpecificationKey()),
-					serviceContext);
+					getCPOptionCategoryId(productSpecification), map, map,
+					false, specificationKey, serviceContext);
 		}
 
 		return cpSpecificationOption.getCPSpecificationOptionId();

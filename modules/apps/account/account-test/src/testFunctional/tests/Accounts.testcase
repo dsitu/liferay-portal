@@ -22,134 +22,58 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LPS-101893. It asserts all accounts display properly across pages."
 	@priority = "4"
-	test AddAccountWithMultiDomains {
-		AccountConfiguration.enableAccountEmailDomain();
+	test AccountsDisplayWhenChangingPagination {
+		for (var accountNum : list "1,2,3,4,5,6") {
+			Accounts.openAccountsAdmin();
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.addCP(
-			accountDescription = "This is an Account with Multi Domains",
-			accountName = "Account with Multi Domains",
-			domainEnable = "true",
-			domainNames = "liferay.com,Google.com,si-na.com,9teen.com");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "Account with Multi Domains");
-
-		for (var domainName : list "liferay.com,Google.com,si-na.com,9teen.com") {
-			AssertElementPresent(
-				key_domainName = "${domainName}",
-				locator1 = "Account#DOMAIN_TABLE_NAME");
+			Accounts.addBusinessAccount(accountName = "Accounts Name ${accountNum}");
 		}
+
+		Accounts.openAccountsAdmin();
+
+		Pagination.changePagination(itemsPerPage = "4");
+
+		for (var accountNum : list "1,2,3,4") {
+			LexiconEntry.viewEntryName(rowEntry = "Accounts Name ${accountNum}");
+		}
+
+		Pagination.viewResults(results = "Showing 1 to 4 of 6 entries.");
+
+		Click(locator1 = "Pagination#NEXT_LINK");
+
+		for (var accountNum : list "5,6") {
+			LexiconEntry.viewEntryName(rowEntry = "Accounts Name ${accountNum}");
+		}
+
+		Pagination.viewResults(results = "Showing 5 to 6 of 6 entries.");
 	}
 
+	@description = "This test makes sure that only one user can be assigned to a Person Account. When you add another person to a Person Account with assigned user, it will only replace the existing user and not add another one."
 	@priority = "4"
-	test AddBlockedEmailDomain {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
+	test AddingSecondUserToPersonAccountWillReplaceFirstUser {
+		Accounts.openAccountsAdmin();
 
-		AccountConfiguration.enableAccountEmailDomain();
-
-		AccountConfiguration.addBlockedEmailDomain(settingValues = "yahoo.com,blocked.com");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.addCP(
-			accountDescription = "This is an Account with Multi Domains",
-			accountName = "AM Account",
-			domainEnable = "true",
-			domainNames = "liferay.com,Google.com");
-
-		AccountConfiguration.addAccountManager(
-			accountName = "AM Account",
-			orgName = "AM Organization",
-			orgRoleTitle = "Account Manager",
-			userEmailAddress = "useramea@liferay.com",
-			userFirstName = "useramfn",
-			userLastName = "useramln",
-			userScreenName = "useramsn");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "useramea@liferay.com");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		Accounts.addAssignee(
-			accountName = "AM Account",
-			addNewAssignee = "true",
-			assigneeName = "userfn",
-			assigneeType = "Users",
-			domainValidation = "Blocked",
-			invalidDomainName = "blocked.com",
-			userEmailAddress = "userea@blocked.com",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
-	}
-
-	@priority = "4"
-	test AddNewUserViaPersonAccount {
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.addCP(
+		Accounts.addPersonAccount(
 			accountDescription = "This is a Person Account.",
-			accountName = "Person Account",
-			accountType = "Person");
+			accountName = "Person Account");
 
-		Accounts.selectUser(
+		Accounts.addNewUserToPersonAccount(
 			accountName = "Person Account",
 			accountUserName = "userfn1",
-			newUser = "Yes",
 			userEmailAddress = "userfn1@liferay.com",
 			userLastName = "userln1",
 			userScreenName = "usersn1");
 
-		Accounts.selectUser(
+		Accounts.addNewUserToPersonAccount(
 			accountName = "Person Account",
 			accountUserName = "userfn2",
-			newUser = "Yes",
 			userEmailAddress = "userfn2@liferay.com",
 			userLastName = "userln2",
 			userScreenName = "usersn2");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Account Users");
+		AccountUsers.openAccountUsersAdmin();
 
 		AccountUsers.viewEntryAccounts(
 			accountName = "Person Account",
@@ -160,22 +84,16 @@ definition {
 			accountUserName = "userfn1");
 	}
 
+	@description = "This test adds a Person Account by changing the type in the dropdown upon creation."
 	@priority = "4"
-	test AddPersonAccount {
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+	test CanAddAPersonAccount {
+		Accounts.openAccountsAdmin();
 
-		Accounts.addCP(
+		Accounts.addPersonAccount(
 			accountDescription = "This is a Person Account.",
-			accountName = "Person Account",
-			accountType = "Person");
+			accountName = "Person Account");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		Search.searchCP(searchTerm = "Person Account");
 
@@ -185,162 +103,47 @@ definition {
 			accountType = "Person");
 	}
 
-	@priority = "3"
-	test AddUserWithDifferentDomain {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
-
-		AccountConfiguration.enableAccountEmailDomain();
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.addCP(
-			accountDescription = "This is an Account with Multi Domains",
-			accountName = "AM Account",
-			domainEnable = "true",
-			domainNames = "liferay.com,Google.com,9teen.com");
-
-		AccountConfiguration.addAccountManager(
-			accountName = "AM Account",
-			orgName = "AM Organization",
-			orgRoleTitle = "Account Manager",
-			userEmailAddress = "useramea@liferay.com",
-			userFirstName = "useramfn",
-			userLastName = "useramln",
-			userScreenName = "useramsn");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "useramea@liferay.com");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		Accounts.addAssignee(
-			accountName = "AM Account",
-			addNewAssignee = "true",
-			assigneeName = "userfn",
-			assigneeType = "Users",
-			domainValidation = "Invalid",
-			emailDomainName = "nodomain.com",
-			userEmailAddress = "userea@nodomain.com",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
-	}
-
-	@priority = "3"
-	test AddUserWithSameDomain {
-		property custom.properties = "jsonws.web.service.paths.excludes=";
-
-		AccountConfiguration.enableAccountEmailDomain();
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.addCP(
-			accountDescription = "This is an Account with Multi Domains",
-			accountName = "AM Account",
-			domainEnable = "true",
-			domainNames = "liferay.com,Google.com,9teen.com");
-
-		AccountConfiguration.addAccountManager(
-			accountName = "AM Account",
-			orgName = "AM Organization",
-			orgRoleTitle = "Account Manager",
-			userEmailAddress = "useramea@liferay.com",
-			userFirstName = "useramfn",
-			userLastName = "useramln",
-			userScreenName = "useramsn");
-
-		User.logoutPG();
-
-		User.loginUserPG(
-			password = "test",
-			userEmailAddress = "useramea@liferay.com");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		Accounts.addAssignee(
-			accountName = "AM Account",
-			addNewAssignee = "true",
-			assigneeName = "userfn",
-			assigneeType = "Users",
-			emailDomainName = "9teen.com",
-			userEmailAddress = "userea@9teen.com",
-			userFirstName = "userfn",
-			userLastName = "userln",
-			userScreenName = "usersn",
-			validDomainNames = "liferay.com,Google.com,9teen.com");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "AM Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
-	}
-
+	@description = "This test asserts that users can add more than one domain to a business account."
 	@priority = "4"
-	test AssignOrganizationToAccount {
+	test CanAddMultipleDomainsToAccount {
+		AccountConfiguration.enableAccountEmailDomain();
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.addAccountWithDomain(
+			accountDescription = "This is an Account with Multi Domains",
+			accountName = "Account with Multi Domains",
+			domainNames = "liferay.com,Google.com,si-na.com,9teen.com");
+
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "Account with Multi Domains");
+
+		for (var domainName : list "liferay.com,Google.com,si-na.com,9teen.com") {
+			AssertElementPresent(
+				key_domainName = "${domainName}",
+				locator1 = "Account#DOMAIN_TABLE_NAME");
+		}
+	}
+
+	@description = "This test adds an organization as an assignee of a business account."
+	@priority = "4"
+	test CanAssignOrganizationToAccount {
 		JSONOrganization.addOrganization(
 			organizationName = "Organization for Account",
 			organizationSite = "true");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
-		Accounts.addCP(
+		Accounts.addBusinessAccount(
 			accountDescription = "This is a test for adding organization to account.",
 			accountName = "Account with Organization");
 
-		Accounts.gotoAssigneeTab(assigneeTab = "Organizations");
-
-		Accounts.addAssignee(
+		Accounts.assignOrganizations(
 			accountName = "Account with Organization",
-			assigneeName = "Organization for Account",
-			assigneeType = "Organizations");
+			assigneeName = "Organization for Account");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Account with Organization");
 
@@ -349,184 +152,14 @@ definition {
 		Accounts.viewAssignee(assigneeName = "Organization for Account");
 	}
 
-	@priority = "3"
-	test AssignUserToAccountWithDomain {
-		AccountConfiguration.enableAccountEmailDomain();
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.addCP(
-			accountDescription = "This is an account with domain",
-			accountName = "Account with Domain",
-			domainEnable = "true",
-			domainNames = "liferay.com");
-
-		Navigator.gotoBack();
-
-		Accounts.addCP(
-			accountDescription = "This is an account without domain",
-			accountName = "Account no Domain",
-			domainEnable = "true");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Account Users");
-
-		AccountUsers.addUsers(
-			accountName = "Account no Domain",
-			userEmailAddress = "userea1@different.com",
-			userFirstName = "userfn1",
-			userLastName = "userln1",
-			userScreenName = "usersn1");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Account Users");
-
-		AccountUsers.addUsers(
-			accountName = "Account no Domain",
-			userEmailAddress = "userea2@liferay.com",
-			userFirstName = "userfn2",
-			userLastName = "userln2",
-			userScreenName = "usersn2");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "Account no Domain");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		for (var assigneeName : list "userfn1,userfn2") {
-			Accounts.viewAssignee(assigneeName = "${assigneeName}");
-		}
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "Account with Domain");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		LexiconEntry.gotoAdd();
-
-		Pause(locator1 = "3000");
-
-		SelectFrame(
-			key_accountName = "Account with Domain",
-			key_assigneeType = "Users",
-			locator1 = "IFrame#ADD_ASSIGNEE_TO_ACCOUNT");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn2 userln2");
-
-		LexiconEntry.viewNoEntry(rowEntry = "userfn1 userln1");
-
-		ManagementBar.setFilterAndOrder(filterBy = "All Users");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn1 userln1");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn2 userln2");
-
-		PortletEntry.selectAll();
-
-		SelectFrameTop();
-
-		Button.clickAssign();
-
-		Alert.viewSuccessMessage();
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "Account with Domain");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Users");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn1 userln1");
-
-		LexiconEntry.viewEntryName(rowEntry = "userfn2 userln2");
-	}
-
-	@priority = "3"
-	test CancelAccountCreation {
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoAdd();
-
-		AssertTextEquals(
-			locator1 = "Portlet#HEADER",
-			value1 = "Add Account");
-
-		PortletEntry.inputName(name = "Cancel Accounts Name");
-
-		Button.clickCancel();
-
-		AssertTextEquals(
-			locator1 = "Portlet#HEADER",
-			value1 = "Accounts");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Search.searchCP(searchTerm = "Cancel Accounts Name");
-
-		LexiconEntry.viewNoEntry(rowEntry = "Cancel Accounts Name");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoAdd();
-
-		AssertTextEquals(
-			locator1 = "Portlet#HEADER",
-			value1 = "Add Account");
-
-		PortletEntry.inputName(name = "Back Icon Account");
-
-		Navigator.gotoBack();
-
-		AssertTextEquals(
-			locator1 = "Portlet#HEADER",
-			value1 = "Accounts");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Search.searchCP(searchTerm = "Back Icon Account");
-
-		LexiconEntry.viewNoEntry(rowEntry = "Back Icon Account");
-	}
-
+	@description = "This test asserts that address type can be changed from Billing to Shipping and vice versa."
 	@priority = "5"
-	test ChangeAddressType {
+	test CanChangeAddressType {
 		property portal.acceptance = "true";
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
-		Accounts.addCP(
+		Accounts.addBusinessAccount(
 			accountDescription = "This is a test of changing account address type.",
 			accountName = "Change Account Address Type");
 
@@ -543,10 +176,7 @@ definition {
 			addressStreet2 = "1005 High-Tech Zone",
 			phoneNumber = "+86 (0)411 88120855");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Change Account Address Type");
 
@@ -564,10 +194,7 @@ definition {
 			addressName = "Liferay Dalian Software Co., Ltd.",
 			addressType = "Shipping");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Change Account Address Type");
 
@@ -583,10 +210,7 @@ definition {
 			addressName = "Liferay Dalian Software Co., Ltd.",
 			addressType = "Billing");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Change Account Address Type");
 
@@ -599,34 +223,60 @@ definition {
 		}
 	}
 
+	@description = "This test deactivates an active account and asserts account displays in correct filter."
+	@priority = "4"
+	test CanDeactivateAccount {
+		for (var accountNumber : list "1,2,3") {
+			Accounts.openAccountsAdmin();
+
+			Accounts.addBusinessAccount(
+				accountDescription = "Accounts Name ${accountNumber} Description",
+				accountName = "Accounts Name ${accountNumber} for Test");
+		}
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.deactivateAccount(accountName = "Accounts Name 1 for Test");
+
+		Accounts.viewInactiveAccount(accountName = "Accounts Name 1 for Test");
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.deactivateAccount(
+			accountName = "Accounts Name 2 for Test",
+			deactivateType = "Hide Icon");
+
+		Accounts.viewInactiveAccount(accountName = "Accounts Name 2 for Test");
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.deactivateAccount(
+			accountName = "Accounts Name 3 for Test",
+			deactivateType = "Management Toolbar");
+
+		Accounts.viewInactiveAccount(accountName = "Accounts Name 3 for Test");
+	}
+
+	@description = "This test asserts an account can be deleted successfully via management toolbar and menu item."
 	@priority = "5"
-	test DeleteAccount {
+	test CanDeleteAccount {
 		property portal.acceptance = "true";
 
 		for (var accountNumber : list "1,2,3") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Accounts",
-				panel = "Applications",
-				portlet = "Accounts");
+			Accounts.openAccountsAdmin();
 
-			Accounts.addCP(
+			Accounts.addBusinessAccount(
 				accountDescription = "Accounts Name ${accountNumber} Description",
 				accountName = "Delete Accounts Name ${accountNumber} for Test");
 		}
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		Accounts.deleteAccount(accountName = "Delete Accounts Name 1 for Test");
 
 		LexiconEntry.viewNoEntry(rowEntry = "Delete Accounts Name 1 for Test");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		Accounts.deleteAccount(
 			accountName = "Delete Accounts Name 2 for Test",
@@ -634,10 +284,7 @@ definition {
 
 		LexiconEntry.viewNoEntry(rowEntry = "Delete Accounts Name 2 for Test");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		Accounts.deleteAccount(
 			accountName = "Delete Accounts Name 3 for Test",
@@ -645,10 +292,7 @@ definition {
 
 		LexiconEntry.viewNoEntry(rowEntry = "Delete Accounts Name 3 for Test");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		ManagementBar.setFilterAndOrder(filterBy = "Inactive");
 
@@ -657,14 +301,12 @@ definition {
 		}
 	}
 
+	@description = "This test asserts address deletes successfully."
 	@priority = "3"
-	test DeleteAddress {
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+	test CanDeleteAddress {
+		Accounts.openAccountsAdmin();
 
-		Accounts.addCP(
+		Accounts.addBusinessAccount(
 			accountDescription = "Delete address for account.",
 			accountName = "Account Delete Address");
 
@@ -682,10 +324,7 @@ definition {
 			addressStreet3 = "1005",
 			phoneNumber = "+86 (0)411 88120855");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Account Delete Address");
 
@@ -697,10 +336,7 @@ definition {
 			menuItem = "Delete",
 			rowEntry = "Liferay Dalian Software Co., Ltd.");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Account Delete Address");
 
@@ -709,23 +345,16 @@ definition {
 		LexiconEntry.viewNoEntry(rowEntry = "Liferay Dalian Software Co., Ltd.");
 	}
 
-	@description = "This is a use case for LPS-101315."
+	@description = "This is a use case for LPS-101315. Deleting an inactive account will navigate you back to inactive filter."
 	@priority = "3"
-	test DeleteInactiveAccount {
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+	test CanDeleteAnInactiveAccount {
+		Accounts.openAccountsAdmin();
 
-		Accounts.addCP(
+		Accounts.addInactiveBusinessAccount(
 			accountDescription = "Accounts Name Description for Test",
-			accountName = "Accounts Name for Test",
-			accountStatus = "Inactive");
+			accountName = "Accounts Name for Test");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		ManagementBar.setFilterAndOrder(filterBy = "Inactive");
 
@@ -736,23 +365,98 @@ definition {
 		LexiconEntry.viewNoEntry(rowEntry = "Accounts Name for Test");
 	}
 
-	@priority = "5"
-	test EditAccount {
+	@description = "This test adds a custom field for an account entry and asserts field can be updated."
+	@priority = "4"
+	test CanEditAccountCustomField {
 		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "Custom Fields");
 
-		Accounts.addCP(
+		CustomFields.addCP(
+			customFieldName = "Text Field",
+			customFieldType = "Input Field",
+			customInputDataType = "Text",
+			resourceName = "Account Entry");
+
+		JSONAccountEntry.addAccountEntry(
+			accountEntryDescription = "This is a test try to update the custom field of Account.",
+			accountEntryName = "Accounts Name with Custom Field",
+			accountEntryStatus = "Active",
+			accountEntryType = "Business");
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.editCP(
+			accountName = "Accounts Name with Custom Field",
+			accountNameEdit = "Edit with Custom Field",
+			customFieldText = "Custom Field for Account");
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.viewAccountDetails(
+			accountName = "Edit with Custom Field",
+			customFieldText = "Custom Field for Account");
+	}
+
+	@description = "This is a use case for LPS-101221. It updates an inactive account by clicking on its link and asserts user stays on the Inactive filter when you go back to Accounts list."
+	@priority = "4"
+	test CanEditInactiveAccount {
+		Accounts.openAccountsAdmin();
+
+		Accounts.addInactiveBusinessAccount(
+			accountDescription = "Accounts Name Description for Test",
+			accountName = "Accounts Name for Test");
+
+		Navigator.gotoBack();
+
+		LexiconEntry.viewNoEntry(rowEntry = "Accounts Name for Test");
+
+		ManagementBar.setFilterAndOrder(filterBy = "Inactive");
+
+		LexiconEntry.viewEntryName(rowEntry = "Accounts Name for Test");
+
+		LexiconEntry.viewEntryStatus(
+			rowEntry = "Accounts Name for Test",
+			rowStatus = "Inactive");
+
+		LexiconEntry.gotoEntry(rowEntry = "Accounts Name for Test");
+
+		PortletEntry.inputName(name = "Update Accounts Name via Name Link");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		AssertTextEquals(
+			locator1 = "Portlet#HEADER",
+			value1 = "Edit Update Accounts Name via Name Link");
+
+		Navigator.gotoBack();
+
+		ManagementBar.viewFilterAndOrder(menuItem = "Inactive");
+
+		LexiconEntry.viewEntryName(rowEntry = "Update Accounts Name via Name Link");
+
+		LexiconEntry.viewEntryStatus(
+			rowEntry = "Update Accounts Name via Name Link",
+			rowStatus = "Inactive");
+
+		LexiconEntry.viewNoEntry(rowEntry = "Accounts Name for Test");
+	}
+
+	@description = "This test updates an account's name and description and asserts change saves successfully."
+	@priority = "5"
+	test CanEditNameAndDescription {
+		Accounts.openAccountsAdmin();
+
+		Accounts.addBusinessAccount(
 			accountDescription = "Accounts Name Description for Test",
 			accountName = "Accounts Name for Test");
 
 		AssertElementPresent(locator1 = "Icon#BACK");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		Search.searchCP(searchTerm = "Accounts Name for Test");
 
@@ -762,10 +466,7 @@ definition {
 			accountNameEdit = "Update Accounts Name for Test",
 			accountStatusEdit = "Inactive");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		ManagementBar.setFilterAndOrder(filterBy = "Inactive");
 
@@ -777,10 +478,7 @@ definition {
 
 		LexiconEntry.viewNoEntry(rowEntry = "Accounts Name for Test");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.viewNoEntry(rowEntry = "Accounts Name for Test");
 
@@ -800,10 +498,7 @@ definition {
 			locator1 = "Portlet#HEADER",
 			value1 = "Edit Update Accounts Name via Name Link");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.viewEntryName(rowEntry = "Update Accounts Name via Name Link");
 
@@ -814,63 +509,22 @@ definition {
 		LexiconEntry.viewNoEntry(rowEntry = "Update Accounts Name for Test");
 	}
 
-	@priority = "4"
-	test EditAccountCustomField {
-		ApplicationsMenu.gotoPortlet(
-			category = "Configuration",
-			panel = "Control Panel",
-			portlet = "Custom Fields");
-
-		CustomFields.addCP(
-			customFieldName = "Text Field",
-			customFieldType = "Input Field",
-			customInputDataType = "Text",
-			resourceName = "Account Entry");
-
-		JSONAccountEntry.addAccountEntry(
-			accountEntryDescription = "This is a test try to update the custom field of Account.",
-			accountEntryName = "Accounts Name with Custom Field",
-			accountEntryStatus = "Active",
-			accountEntryType = "Business");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.editCP(
-			accountName = "Accounts Name with Custom Field",
-			accountNameEdit = "Edit with Custom Field",
-			customFieldText = "Custom Field for Account");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.viewAccountDetails(
-			accountName = "Edit with Custom Field",
-			customFieldText = "Custom Field for Account");
-	}
-
+	@description = "This test asserts accounts are filtered by All Accounts by default. Changing filter to Business and Person shows accurate results."
 	@priority = "3"
-	test FilterByType {
-		for (var accountType : list "Business,Person") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Accounts",
-				panel = "Applications",
-				portlet = "Accounts");
+	test CanFilterAccountsByType {
+		Accounts.openAccountsAdmin();
 
-			Accounts.addCP(
-				accountDescription = "This is a ${accountType} Account.",
-				accountName = "${accountType} Account",
-				accountType = "${accountType}");
-		}
+		Accounts.addBusinessAccount(
+			accountDescription = "This is a Business Account.",
+			accountName = "Business Account");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
+
+		Accounts.addPersonAccount(
+			accountDescription = "This is a Person Account.",
+			accountName = "Person Account");
+
+		Accounts.openAccountsAdmin();
 
 		ManagementBar.setFilterAndOrder(filterBy = "Business");
 
@@ -891,156 +545,12 @@ definition {
 		LexiconEntry.viewEntryName(rowEntry = "Person Account");
 	}
 
-	@priority = "4"
-	test InactiveAccount {
-		for (var accountNumber : list "1,2,3") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Accounts",
-				panel = "Applications",
-				portlet = "Accounts");
-
-			Accounts.addCP(
-				accountDescription = "Accounts Name ${accountNumber} Description",
-				accountName = "Accounts Name ${accountNumber} for Test");
-		}
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.inactiveAccount(accountName = "Accounts Name 1 for Test");
-
-		Accounts.viewInactiveAccount(accountName = "Accounts Name 1 for Test");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.inactiveAccount(
-			accountName = "Accounts Name 2 for Test",
-			deactivateType = "Hide Icon");
-
-		Accounts.viewInactiveAccount(accountName = "Accounts Name 2 for Test");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.inactiveAccount(
-			accountName = "Accounts Name 3 for Test",
-			deactivateType = "Management Toolbar");
-
-		Accounts.viewInactiveAccount(accountName = "Accounts Name 3 for Test");
-	}
-
-	@description = "This is a use case for LPS-117171."
+	@description = "This test adds an address, sets it as default, and removes it as default"
 	@priority = "3"
-	test NoFilterByNavigationForPersonAccount {
-		for (var accountType : list "Business,Person") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Accounts",
-				panel = "Applications",
-				portlet = "Accounts");
+	test CanRemoveAddressAsDefault {
+		Accounts.openAccountsAdmin();
 
-			Accounts.addCP(
-				accountDescription = "This is a ${accountType} Account.",
-				accountName = "${accountType} Account",
-				accountType = "${accountType}");
-		}
-
-		for (var accountUser : list "1,2") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Accounts",
-				panel = "Applications",
-				portlet = "Account Users");
-
-			AccountUsers.addUsers(
-				accountName = "Business Account",
-				userEmailAddress = "userea${accountUser}@liferay.com",
-				userFirstName = "userfn${accountUser}",
-				userLastName = "userln${accountUser}",
-				userScreenName = "usersn${accountUser}");
-		}
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.gotoEdit(accountName = "Person Account");
-
-		AssertClick(
-			locator1 = "Account#USER_SELECT",
-			value1 = "Select");
-
-		SelectFrame(locator1 = "IFrame#ASSIGN_USER");
-
-		ManagementBar.viewNoSubheaderInFilterAndOrder(subheaderItem = "Filter by Navigation");
-	}
-
-	@priority = "5"
-	test PersonAccountSmoke {
-		for (var accountType : list "Business,Person") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Accounts",
-				panel = "Applications",
-				portlet = "Accounts");
-
-			Accounts.addCP(
-				accountDescription = "This is a ${accountType} Account.",
-				accountName = "${accountType} Account",
-				accountType = "${accountType}");
-		}
-
-		for (var accountUser : list "1,2") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Accounts",
-				panel = "Applications",
-				portlet = "Account Users");
-
-			AccountUsers.addUsers(
-				accountName = "Business Account",
-				userEmailAddress = "userea${accountUser}@liferay.com",
-				userFirstName = "userfn${accountUser}",
-				userLastName = "userln${accountUser}",
-				userScreenName = "usersn${accountUser}");
-		}
-
-		Accounts.gotoEdit(accountName = "Person Account");
-
-		for (var navTab : list "Details,Organizations,Roles") {
-			Accounts.viewAssigneeTab(navTab = "${navTab}");
-		}
-
-		Accounts.viewNoAssigneeTab(navTab = "Users");
-
-		Accounts.selectUser(accountUserName = "userfn1");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.gotoEdit(accountName = "Person Account");
-
-		Accounts.selectUser(accountUserName = "userfn2");
-
-		AssertElementNotPresent(
-			key_userName = "userfn1",
-			locator1 = "Account#USER_TABLE_NAME");
-	}
-
-	@priority = "3"
-	test RemoveAddress {
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.addCP(
+		Accounts.addBusinessAccount(
 			accountDescription = "Remove address for account.",
 			accountName = "Account Remove Address");
 
@@ -1058,15 +568,12 @@ definition {
 			addressStreet3 = "1005",
 			phoneNumber = "+86 (0)411 88120855");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Account Remove Address");
 
 		for (var addressDataType : list "shipping,billing") {
-			Accounts.setAddress(
+			Accounts.setDefaultAddress(
 				addressDataType = "${addressDataType}",
 				addressName = "Liferay Dalian Software Co., Ltd.");
 
@@ -1087,10 +594,7 @@ definition {
 			accountName = "Account Remove Address",
 			addressDataType = "billing");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Account Remove Address");
 
@@ -1098,10 +602,7 @@ definition {
 			accountName = "Account Remove Address",
 			addressDataType = "shipping");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Account Remove Address");
 
@@ -1110,34 +611,25 @@ definition {
 		LexiconEntry.viewEntryName(rowEntry = "Liferay Dalian Software Co., Ltd.");
 	}
 
+	@description = "This test removes domain set to an account."
 	@priority = "3"
-	test RemoveDomain {
+	test CanRemoveDomainFromAccount {
 		AccountConfiguration.enableAccountEmailDomain();
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
-		Accounts.addCP(
+		Accounts.addAccountWithDomain(
 			accountDescription = "Remove Domain from the Account",
 			accountName = "Remove Account Domain",
-			domainEnable = "true",
 			domainNames = "liferay.com,Google.com");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		Accounts.removeDomain(
 			accountName = "Remove Account Domain",
 			domainName = "Google.com");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Remove Account Domain");
 
@@ -1150,8 +642,9 @@ definition {
 			locator1 = "Account#DOMAIN_TABLE_NAME");
 	}
 
+	@description = "This test removes a blocked domain in Instance Settings."
 	@priority = "4"
-	test RemoveDomainFromBlacklist {
+	test CanRemoveDomainFromBlacklist {
 		AccountConfiguration.addBlockedEmailDomain(settingValues = "yahoo.com,blocked.com,google.com");
 
 		for (var settingValue : list "yahoo.com,blocked.com,google.com") {
@@ -1171,14 +664,48 @@ definition {
 			fieldValue = "blocked.com");
 	}
 
-	@priority = "3"
-	test SetDefaultAddresses {
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+	@description = "This test removes an organization as an assignee of a business account."
+	@priority = "5"
+	test CanRemoveOrganizationFromBusinessAccount {
+		property portal.acceptance = "true";
 
-		Accounts.addCP(
+		JSONOrganization.addOrganization(
+			organizationName = "Organization for Account",
+			organizationSite = "true");
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.addBusinessAccount(
+			accountDescription = "This is a test for unassign organization from account.",
+			accountName = "Unassign Organization from Account");
+
+		Accounts.assignOrganizations(
+			accountName = "Unassign Organization from Account",
+			assigneeName = "Organization for Account");
+
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "Unassign Organization from Account");
+
+		Accounts.gotoAssigneeTab(assigneeTab = "Organizations");
+
+		Accounts.removeAssignee(
+			assigneeName = "Organization for Account",
+			assigneeType = "Organizations");
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.viewNoAssignee(
+			accountName = "Unassign Organization from Account",
+			assigneeType = "Organizations");
+	}
+
+	@description = "This test sets default shipping and default billing addresses for an account."
+	@priority = "3"
+	test CanSetDefaultAddresses {
+		Accounts.openAccountsAdmin();
+
+		Accounts.addBusinessAccount(
 			accountDescription = "Set default address for account.",
 			accountName = "Account with Default Address");
 
@@ -1219,14 +746,11 @@ definition {
 			addressType = "Shipping",
 			phoneNumber = "+81 3-5456-5796");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		LexiconEntry.gotoEntry(rowEntry = "Account with Default Address");
 
-		Accounts.setAddress(
+		Accounts.setDefaultAddress(
 			addressDataType = "shipping",
 			addressName = "Liferay Japan K. K.");
 
@@ -1241,7 +765,7 @@ definition {
 			addressStreet2 = "1-26-7 Ebisu Nishi",
 			phoneNumber = "+81 3-5456-5796");
 
-		Accounts.setAddress(
+		Accounts.setDefaultAddress(
 			addressDataType = "billing",
 			addressName = "Liferay, Inc.");
 
@@ -1255,11 +779,11 @@ definition {
 			addressStreet1 = "1400 Montefino Ave",
 			phoneNumber = "+1-877-LIFERAY (1-877-543-3729)");
 
-		Accounts.setAddress(
+		Accounts.setDefaultAddress(
 			addressDataType = "shipping",
 			addressName = "Liferay Dalian Software Co., Ltd.");
 
-		Accounts.setAddress(
+		Accounts.setDefaultAddress(
 			addressDataType = "billing",
 			addressName = "Liferay Dalian Software Co., Ltd.");
 
@@ -1278,6 +802,192 @@ definition {
 		}
 	}
 
+	@description = "This tests canceling account creation will not save it."
+	@priority = "3"
+	test ClickingCancelOrBackWillNotSaveAccount {
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoAdd();
+
+		AssertTextEquals(
+			locator1 = "Portlet#HEADER",
+			value1 = "Add Account");
+
+		PortletEntry.inputName(name = "Cancel Accounts Name");
+
+		Button.clickCancel();
+
+		AssertTextEquals(
+			locator1 = "Portlet#HEADER",
+			value1 = "Accounts");
+
+		Accounts.openAccountsAdmin();
+
+		Search.searchCP(searchTerm = "Cancel Accounts Name");
+
+		LexiconEntry.viewNoEntry(rowEntry = "Cancel Accounts Name");
+
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoAdd();
+
+		AssertTextEquals(
+			locator1 = "Portlet#HEADER",
+			value1 = "Add Account");
+
+		PortletEntry.inputName(name = "Back Icon Account");
+
+		Navigator.gotoBack();
+
+		AssertTextEquals(
+			locator1 = "Portlet#HEADER",
+			value1 = "Accounts");
+
+		Accounts.openAccountsAdmin();
+
+		Search.searchCP(searchTerm = "Back Icon Account");
+
+		LexiconEntry.viewNoEntry(rowEntry = "Back Icon Account");
+	}
+
+	@description = "This is a use case for LPS-117171. It asserts that Filter By Navigation does not display when assigning a user to a Person Account since domains are not applicable for this type of account."
+	@priority = "3"
+	test NoFilterByNavigationForPersonAccount {
+		Accounts.openAccountsAdmin();
+
+		Accounts.addBusinessAccount(
+			accountDescription = "This is a Business Account.",
+			accountName = "Business Account");
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.addPersonAccount(
+			accountDescription = "This is a Person Account.",
+			accountName = "Person Account");
+
+		for (var accountUser : list "1,2") {
+			AccountUsers.openAccountUsersAdmin();
+
+			AccountUsers.addUser(
+				accountName = "Business Account",
+				userEmailAddress = "userea${accountUser}@liferay.com",
+				userFirstName = "userfn${accountUser}",
+				userLastName = "userln${accountUser}",
+				userScreenName = "usersn${accountUser}");
+		}
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.gotoEdit(accountName = "Person Account");
+
+		AssertClick(
+			locator1 = "Account#USER_SELECT",
+			value1 = "Select");
+
+		SelectFrame(locator1 = "IFrame#ASSIGN_USER");
+
+		ManagementBar.viewNoSubheaderInFilterAndOrder(subheaderItem = "Filter by Navigation");
+	}
+
+	@description = "This test sets a valid domain for a business account. It adds a user with a same domain and asserts no warning displays."
+	@priority = "3"
+	test NoWarningDisplaysWhenAddingAUserWithValidDomain {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		AccountConfiguration.enableAccountEmailDomain();
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.addAccountWithDomain(
+			accountDescription = "This is an Account with Multi Domains",
+			accountName = "AM Account",
+			domainNames = "liferay.com,Google.com,9teen.com");
+
+		AccountConfiguration.addAccountManager(
+			accountName = "AM Account",
+			orgName = "AM Organization",
+			orgRoleTitle = "Account Manager",
+			userEmailAddress = "useramea@liferay.com",
+			userFirstName = "useramfn",
+			userLastName = "useramln",
+			userScreenName = "useramsn");
+
+		User.logoutPG();
+
+		User.loginUserPG(
+			password = "test",
+			userEmailAddress = "useramea@liferay.com");
+
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+		Accounts.addNewUserWithSameDomain(
+			accountName = "AM Account",
+			assigneeName = "userfn",
+			emailDomainName = "9teen.com",
+			userEmailAddress = "userea@9teen.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn",
+			validDomainNames = "liferay.com,Google.com,9teen.com");
+
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+
+		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
+	}
+
+	@description = "This test replaces user in Person Account with another existing user. It asserts that first user was replaced by the second user and isn't assigned to the account anymore."
+	@priority = "5"
+	test SelectingUserWillReplaceExistingUserInPersonAccount {
+		Accounts.openAccountsAdmin();
+
+		Accounts.addBusinessAccount(
+			accountDescription = "This is a Business Account.",
+			accountName = "Business Account");
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.addPersonAccount(
+			accountDescription = "This is a Person Account.",
+			accountName = "Person Account");
+
+		for (var accountUser : list "1,2") {
+			AccountUsers.openAccountUsersAdmin();
+
+			AccountUsers.addUser(
+				accountName = "Business Account",
+				userEmailAddress = "userea${accountUser}@liferay.com",
+				userFirstName = "userfn${accountUser}",
+				userLastName = "userln${accountUser}",
+				userScreenName = "usersn${accountUser}");
+		}
+
+		Accounts.gotoEdit(accountName = "Person Account");
+
+		for (var navTab : list "Details,Organizations,Roles") {
+			Accounts.viewAssigneeTab(navTab = "${navTab}");
+		}
+
+		Accounts.viewNoAssigneeTab(navTab = "Users");
+
+		Accounts.assignExistingUserToPersonAccount(accountUserName = "userfn1");
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.gotoEdit(accountName = "Person Account");
+
+		Accounts.assignExistingUserToPersonAccount(accountUserName = "userfn2");
+
+		AssertElementNotPresent(
+			key_userName = "userfn1",
+			locator1 = "Account#USER_TABLE_NAME");
+	}
+
 	@priority = "5"
 	test Smoke {
 		property portal.acceptance = "true";
@@ -1287,14 +997,11 @@ definition {
 			panel = "Applications",
 			portlet = "Accounts");
 
-		Accounts.addCP(
+		Accounts.addBusinessAccount(
 			accountName = "Accounts Name for Test",
 			accountTaxID = "Z9870654786390342199899Y");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		Search.searchCP(searchTerm = "Accounts Name for Test");
 
@@ -1309,135 +1016,197 @@ definition {
 			accountTaxID = "Z9870654786390342199899Y");
 	}
 
-	@priority = "5"
-	test UnassignOrganizationFromAccount {
-		property portal.acceptance = "true";
+	@description = "This test assigns a user to an account with valid domain set. Manager can filter valid domain users and all users when assigning."
+	@priority = "3"
+	test UsersWithValidAndInvalidDomainsAreFilteredWhenAssigningUsers {
+		AccountConfiguration.enableAccountEmailDomain();
 
-		JSONOrganization.addOrganization(
-			organizationName = "Organization for Account",
-			organizationSite = "true");
+		Accounts.openAccountsAdmin();
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.addCP(
-			accountDescription = "This is a test for unassign organization from account.",
-			accountName = "Unassign Organization from Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Organizations");
-
-		Accounts.addAssignee(
-			accountName = "Unassign Organization from Account",
-			assigneeName = "Organization for Account",
-			assigneeType = "Organizations");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		LexiconEntry.gotoEntry(rowEntry = "Unassign Organization from Account");
-
-		Accounts.gotoAssigneeTab(assigneeTab = "Organizations");
-
-		Accounts.unassignAssignee(
-			assigneeName = "Organization for Account",
-			assigneeType = "Organizations");
-
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.viewNoAssignee(
-			accountName = "Unassign Organization from Account",
-			assigneeType = "Organizations");
-	}
-
-	@description = "This is a use case for LPS-101221."
-	@priority = "4"
-	test UpdateInactiveAccountViaNameLink {
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
-
-		Accounts.addCP(
-			accountDescription = "Accounts Name Description for Test",
-			accountName = "Accounts Name for Test",
-			accountStatus = "Inactive");
+		Accounts.addAccountWithDomain(
+			accountDescription = "This is an account with domain",
+			accountName = "Account with Domain",
+			domainNames = "liferay.com");
 
 		Navigator.gotoBack();
 
-		LexiconEntry.viewNoEntry(rowEntry = "Accounts Name for Test");
+		Accounts.addBusinessAccount(
+			accountDescription = "This is an account without domain",
+			accountName = "Account no Domain");
 
-		ManagementBar.setFilterAndOrder(filterBy = "Inactive");
+		AccountUsers.openAccountUsersAdmin();
 
-		LexiconEntry.viewEntryName(rowEntry = "Accounts Name for Test");
+		AccountUsers.addUser(
+			accountName = "Account no Domain",
+			userEmailAddress = "userea1@different.com",
+			userFirstName = "userfn1",
+			userLastName = "userln1",
+			userScreenName = "usersn1");
 
-		LexiconEntry.viewEntryStatus(
-			rowEntry = "Accounts Name for Test",
-			rowStatus = "Inactive");
+		AccountUsers.openAccountUsersAdmin();
 
-		LexiconEntry.gotoEntry(rowEntry = "Accounts Name for Test");
+		AccountUsers.addUser(
+			accountName = "Account no Domain",
+			userEmailAddress = "userea2@liferay.com",
+			userFirstName = "userfn2",
+			userLastName = "userln2",
+			userScreenName = "usersn2");
 
-		PortletEntry.inputName(name = "Update Accounts Name via Name Link");
+		Accounts.openAccountsAdmin();
 
-		Button.clickSave();
+		LexiconEntry.gotoEntry(rowEntry = "Account no Domain");
+
+		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+
+		for (var assigneeName : list "userfn1,userfn2") {
+			Accounts.viewAssignee(assigneeName = "${assigneeName}");
+		}
+
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "Account with Domain");
+
+		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+
+		LexiconEntry.gotoAdd();
+
+		Pause(locator1 = "3000");
+
+		SelectFrame(
+			key_title = "Assign Users to Account with Domain",
+			locator1 = "IFrame#MODAL_ANY");
+
+		LexiconEntry.viewEntryName(rowEntry = "userfn2 userln2");
+
+		LexiconEntry.viewNoEntry(rowEntry = "userfn1 userln1");
+
+		ManagementBar.setFilterAndOrder(filterBy = "All Users");
+
+		LexiconEntry.viewEntryName(rowEntry = "userfn1 userln1");
+
+		LexiconEntry.viewEntryName(rowEntry = "userfn2 userln2");
+
+		PortletEntry.selectAll();
+
+		SelectFrameTop();
+
+		Button.click(button = "Assign");
 
 		Alert.viewSuccessMessage();
 
-		AssertTextEquals(
-			locator1 = "Portlet#HEADER",
-			value1 = "Edit Update Accounts Name via Name Link");
+		Accounts.openAccountsAdmin();
 
-		Navigator.gotoBack();
+		LexiconEntry.gotoEntry(rowEntry = "Account with Domain");
 
-		ManagementBar.viewFilterAndOrder(menuItem = "Inactive");
+		Accounts.gotoAssigneeTab(assigneeTab = "Users");
 
-		LexiconEntry.viewEntryName(rowEntry = "Update Accounts Name via Name Link");
+		LexiconEntry.viewEntryName(rowEntry = "userfn1 userln1");
 
-		LexiconEntry.viewEntryStatus(
-			rowEntry = "Update Accounts Name via Name Link",
-			rowStatus = "Inactive");
-
-		LexiconEntry.viewNoEntry(rowEntry = "Accounts Name for Test");
+		LexiconEntry.viewEntryName(rowEntry = "userfn2 userln2");
 	}
 
-	@description = "This is a use case for LPS-101893."
+	@description = "This test sets a valid domain for a business account. It adds a user with a different domain and asserts that warning displays when a user attempts to do so."
+	@priority = "3"
+	test WarningDisplaysWhenAddingAUserWithInvalidDomain {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
+
+		AccountConfiguration.enableAccountEmailDomain();
+
+		Accounts.openAccountsAdmin();
+
+		Accounts.addAccountWithDomain(
+			accountDescription = "This is an Account with Multi Domains",
+			accountName = "AM Account",
+			domainNames = "liferay.com,Google.com,9teen.com");
+
+		AccountConfiguration.addAccountManager(
+			accountName = "AM Account",
+			orgName = "AM Organization",
+			orgRoleTitle = "Account Manager",
+			userEmailAddress = "useramea@liferay.com",
+			userFirstName = "useramfn",
+			userLastName = "useramln",
+			userScreenName = "useramsn");
+
+		User.logoutPG();
+
+		User.loginUserPG(
+			password = "test",
+			userEmailAddress = "useramea@liferay.com");
+
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+		Accounts.addNewUserWithInvalidDomain(
+			accountName = "AM Account",
+			assigneeName = "userfn",
+			emailDomainName = "nodomain.com",
+			userEmailAddress = "userea@nodomain.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+
+		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
+	}
+
+	@description = "This test adds a blocked domain in instance settings. Warning will display when adding a user with blocked domain."
 	@priority = "4"
-	test ViewAccountPagination {
-		for (var accountNum : list "1,2,3,4,5,6") {
-			ApplicationsMenu.gotoPortlet(
-				category = "Accounts",
-				panel = "Applications",
-				portlet = "Accounts");
+	test WarningDisplaysWhenAddingUserWithBlockedEmailDomain {
+		property custom.properties = "jsonws.web.service.paths.excludes=";
 
-			Accounts.addCP(accountName = "Accounts Name ${accountNum}");
-		}
+		AccountConfiguration.enableAccountEmailDomain();
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		AccountConfiguration.addBlockedEmailDomain(settingValues = "yahoo.com,blocked.com");
 
-		Pagination.changePagination(itemsPerPage = "4");
+		Accounts.openAccountsAdmin();
 
-		for (var accountNum : list "1,2,3,4") {
-			LexiconEntry.viewEntryName(rowEntry = "Accounts Name ${accountNum}");
-		}
+		Accounts.addAccountWithDomain(
+			accountDescription = "This is an Account with Multi Domains",
+			accountName = "AM Account",
+			domainNames = "liferay.com,Google.com");
 
-		Pagination.viewResults(results = "Showing 1 to 4 of 6 entries.");
+		AccountConfiguration.addAccountManager(
+			accountName = "AM Account",
+			orgName = "AM Organization",
+			orgRoleTitle = "Account Manager",
+			userEmailAddress = "useramea@liferay.com",
+			userFirstName = "useramfn",
+			userLastName = "useramln",
+			userScreenName = "useramsn");
 
-		Click(locator1 = "Pagination#NEXT_LINK");
+		User.logoutPG();
 
-		for (var accountNum : list "5,6") {
-			LexiconEntry.viewEntryName(rowEntry = "Accounts Name ${accountNum}");
-		}
+		User.loginUserPG(
+			password = "test",
+			userEmailAddress = "useramea@liferay.com");
 
-		Pagination.viewResults(results = "Showing 5 to 6 of 6 entries.");
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+		Accounts.addNewUserWithBlockedDomain(
+			accountName = "AM Account",
+			assigneeName = "userfn",
+			emailDomainName = "blocked.com",
+			userEmailAddress = "userea@blocked.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		Accounts.openAccountsAdmin();
+
+		LexiconEntry.gotoEntry(rowEntry = "AM Account");
+
+		Accounts.gotoAssigneeTab(assigneeTab = "Users");
+
+		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
 	}
 
 }

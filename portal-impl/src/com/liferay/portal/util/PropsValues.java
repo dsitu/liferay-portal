@@ -1556,6 +1556,9 @@ public class PropsValues {
 	public static final String LIFERAY_LIB_PORTAL_DIR = PropsUtil.get(
 		PropsKeys.LIFERAY_LIB_PORTAL_DIR);
 
+	public static final String LIFERAY_SHIELDED_CONTAINER_LIB_PORTAL_DIR =
+		PropsUtil.get(PropsKeys.LIFERAY_SHIELDED_CONTAINER_LIB_PORTAL_DIR);
+
 	public static String LIFERAY_WEB_PORTAL_CONTEXT_TEMPDIR;
 
 	public static final String LIFERAY_WEB_PORTAL_DIR = PropsUtil.get(
@@ -3006,6 +3009,9 @@ public class PropsValues {
 	public static final boolean UPGRADE_DATABASE_TRANSACTIONS_DISABLED =
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.UPGRADE_DATABASE_TRANSACTIONS_DISABLED));
+
+	public static final boolean UPGRADE_REPORT_ENABLED = GetterUtil.getBoolean(
+		PropsUtil.get(PropsKeys.UPGRADE_REPORT_ENABLED));
 
 	public static boolean USER_GROUPS_NAME_ALLOW_NUMERIC =
 		GetterUtil.getBoolean(

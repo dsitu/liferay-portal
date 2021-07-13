@@ -17,43 +17,45 @@
 <%@ include file="/dynamic_include/init.jsp" %>
 
 <script>
-	function loadZendeskScript() {
-		function setZendeskUserInfo() {
-			if ('<%= themeDisplay.isSignedIn() %>' === 'true') {
-				zE('webWidget', 'identify', {
-					email: '<%= user.getEmailAddress() %>',
-					name: '<%= user.getScreenName() %>',
-				});
+	(function () {
+		function loadZendeskScript() {
+			function setZendeskUserInfo() {
+				if ('<%= themeDisplay.isSignedIn() %>' === 'true') {
+					zE('webWidget', 'identify', {
+						email: '<%= user.getEmailAddress() %>',
+						name: '<%= user.getScreenName() %>',
+					});
+				}
+			}
+
+			if (!document.getElementById('ze-snippet')) {
+				var scriptElement = document.createElement('script');
+
+				scriptElement.setAttribute('id', 'ze-snippet');
+				scriptElement.setAttribute(
+					'src',
+					'https://static.zdassets.com/ekr/snippet.js?key=<%= clickToChatChatProviderAccountId %>'
+				);
+				scriptElement.setAttribute('type', 'text/javascript');
+				scriptElement.onload = function () {
+					setZendeskUserInfo();
+				};
+
+				var bodyElement = document.getElementsByTagName('body').item(0);
+
+				bodyElement.appendChild(scriptElement);
+			}
+			else {
+				setZendeskUserInfo();
 			}
 		}
 
-		if (!document.getElementById('ze-snippet')) {
-			var scriptElement = document.createElement('script');
+		window.onload = function () {
+			loadZendeskScript();
+		};
 
-			scriptElement.setAttribute('id', 'ze-snippet');
-			scriptElement.setAttribute(
-				'src',
-				'https://static.zdassets.com/ekr/snippet.js?key=<%= clickToChatChatProviderAccountId %>'
-			);
-			scriptElement.setAttribute('type', 'text/javascript');
-			scriptElement.onload = function () {
-				setZendeskUserInfo();
-			};
-
-			var bodyElement = document.getElementsByTagName('body').item(0);
-
-			bodyElement.appendChild(scriptElement);
+		if (document.readyState === 'complete') {
+			loadZendeskScript();
 		}
-		else {
-			setZendeskUserInfo();
-		}
-	}
-
-	window.onload = function () {
-		loadZendeskScript();
-	};
-
-	if (document.readyState === 'complete') {
-		loadZendeskScript();
-	}
+	})();
 </script>

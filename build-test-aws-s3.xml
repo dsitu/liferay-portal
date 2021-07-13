@@ -128,7 +128,7 @@
 				<contains string="${bucket.create.output}" substring="lfr-qa-poshi-test-${aws.bucket.id}" />
 			</not>
 			<then>
-				<fail>Bucket is not created.</fail>
+				<fail>Bucket was not created.</fail>
 			</then>
 		</if>
 	</target>

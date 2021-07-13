@@ -201,8 +201,7 @@ page import="com.liferay.portal.model.impl.*" %><%@
 page import="com.liferay.portal.upload.LiferayFileItem" %><%@
 page import="com.liferay.rss.util.RSSUtil" %><%@
 page import="com.liferay.taglib.search.ResultRow" %><%@
-page import="com.liferay.taglib.util.CustomAttributesUtil" %><%@
-page import="com.liferay.translation.exception.XLIFFFileException" %>
+page import="com.liferay.taglib.util.CustomAttributesUtil" %>
 
 <%@ page import="java.text.Format" %>
 

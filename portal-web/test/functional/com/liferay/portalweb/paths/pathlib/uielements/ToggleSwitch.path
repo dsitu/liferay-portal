@@ -2,11 +2,13 @@
 <head>
 <title>ToggleSwitch</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">ToggleSwitch</td></tr>
 </thead>
+
 <tbody>
 <tr>
 	<td>ACCOUNT_STATUS</td>
@@ -29,6 +31,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ANY_TOGGLE_SWITCH_IN_FIELDSET</td>
+	<td>//legend[normalize-space()='${key_fieldsetLabel}']//following-sibling::div//label[contains(.,'${key_fieldLabel}')]//input[contains(@type,'checkbox')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>DELETE_PORTLET_DATA</td>
 	<td>//label[contains(@for,'DELETE_PORTLET_DATA')]//input</td>
 	<td></td>
@@ -36,6 +43,11 @@
 <tr>
 	<td>ENABLE_SOCIAL_BOOKMARKS</td>
 	<td>//label[contains(@for,'enableSocialBookmarks')]/input/../span/span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ENABLE_TOGGLE_SWITCH_VIA_SPAN</td>
+	<td>//*[contains(text(),"${key_toggleSwitch}")]//span[contains(@class,'toggle-switch')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -59,9 +71,9 @@
 	<td></td>
 </tr>
 <tr>
-    <td>ENABLE_SPECIFIC_TOGGLE_SWITCH</td>
-    <td>//h4[contains(.,"${key_name}")]//span[contains(@id,'toggle-switch')]</td>
-    <td></td>
+	<td>ENABLE_SPECIFIC_TOGGLE_SWITCH</td>
+	<td>//h4[contains(.,"${key_name}")]//span[contains(@id,'toggle-switch')]</td>
+	<td></td>
 </tr>
 <tr>
 	<td>USE_CUSTOM_TITLE</td>

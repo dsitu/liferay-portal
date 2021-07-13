@@ -109,9 +109,10 @@ definition {
 				var key_fieldFieldLabel = "Upload";
 			}
 
-			AssertClick(
-				locator1 = "WCEditWebContent#SELECT_BUTTON",
-				value1 = "Select");
+			Click(
+				fieldLabel = "${key_fieldFieldLabel}",
+				locator1 = "Button#BUTTON_LABEL",
+				text = "Select");
 
 			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
@@ -134,10 +135,10 @@ definition {
 
 			WaitForLiferayEvent.initializeLiferayEventLog();
 
-			AssertClick(
-				key_fieldFieldLabel = "${linkToPageFieldLabel}",
-				locator1 = "WCEditWebContent#SELECT_BUTTON",
-				value1 = "Select");
+			Click(
+				fieldLabel = "${linkToPageFieldLabel}",
+				locator1 = "Button#BUTTON_LABEL",
+				text = "Select");
 
 			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
@@ -159,9 +160,10 @@ definition {
 				var key_fieldFieldLabel = "Image";
 			}
 
-			AssertClick(
-				locator1 = "WCEditWebContent#SELECT_BUTTON",
-				value1 = "Select");
+			Click(
+				fieldLabel = "${key_fieldFieldLabel}",
+				locator1 = "Button#BUTTON_LABEL",
+				text = "Select");
 
 			if ("${navTab}" == "Documents and Media") {
 				if (isSet(imageFileName)) {
@@ -198,11 +200,29 @@ definition {
 		}
 
 		if (isSet(numericField)) {
-			var key_fieldName = "Numeric";
+			if (isSet(numericFieldFieldLabel)) {
+				var key_fieldLabel = "${numericFieldFieldLabel}";
+			}
+			else {
+				var key_fieldLabel = "Numeric";
+			}
 
 			Type(
 				locator1 = "TextInput#NUMERIC",
 				value1 = "${numericField}");
+		}
+
+		if (isSet(selectFromListField)) {
+			if (isSet(fieldFieldLabel)) {
+				var key_fieldFieldLabel = "${fieldFieldLabel}";
+			}
+			else {
+				var key_fieldFieldLabel = "Select from List";
+			}
+
+			Click(locator1 = "WCEditWebContent#SELECT_FIELD_TRIGGER");
+
+			DropdownMenuItem.click(menuItem = "${selectFromListField}");
 		}
 
 		if (isSet(validationError)) {
@@ -371,7 +391,7 @@ definition {
 		}
 
 		if (isSet(numericField)) {
-			var key_fieldName = "Numeric";
+			var key_fieldLabel = "Numeric";
 
 			Type(
 				locator1 = "TextInput#NUMERIC",
@@ -398,10 +418,10 @@ definition {
 		}
 
 		if (isSet(webcontentField)) {
-			AssertClick(
-				key_fieldFieldLabel = "Web Content",
-				locator1 = "WCEditWebContent#SELECT_BUTTON",
-				value1 = "Select");
+			Click(
+				fieldLabel = "Web Content",
+				locator1 = "Button#BUTTON_LABEL",
+				text = "Select");
 
 			SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
@@ -1103,7 +1123,7 @@ definition {
 		DMDocument.expandInfo();
 
 		AssertClick.assertPartialTextClickAt(
-			locator1 = "Button#DOWNLOAD",
+			locator1 = "Button#DOWNLOAD_SIDEBAR",
 			value1 = "Download");
 	}
 
@@ -1331,9 +1351,10 @@ definition {
 				var key_fieldFieldLabel = "Image";
 			}
 
-			AssertClick(
-				locator1 = "WCEditWebContent#SELECT_BUTTON",
-				value1 = "Select");
+			Click(
+				fieldLabel = "${key_fieldFieldLabel}",
+				locator1 = "Button#BUTTON_LABEL",
+				text = "Select");
 
 			if ("${navTab}" == "Documents and Media") {
 				if (isSet(imageFileNameEdit)) {
@@ -1421,11 +1442,20 @@ definition {
 	macro editPG {
 		var key_dmDocumentTitle = "${dmDocumentTitle}";
 
-		AssertClick(
-			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE",
-			value1 = "${dmDocumentTitle}");
+		if (isSet(siteURLKey)) {
+			DMNavigator.openToEditEntryInSite(
+				dmDocumentTitle = "${dmDocumentTitle}",
+				folderName = "${folderName}",
+				groupName = "${groupName}",
+				siteURLKey = "${siteURLKey}");
+		}
+		else {
+			AssertClick(
+				locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_TITLE",
+				value1 = "${dmDocumentTitle}");
 
-		Click(locator1 = "Button#EDIT");
+			Click(locator1 = "Button#EDIT");
+		}
 
 		DMDocument.editCmd(
 			dmDocumentDescriptionEdit = "${dmDocumentDescriptionEdit}",
@@ -2260,6 +2290,18 @@ definition {
 		}
 	}
 
+	macro viewCustomFieldLocalizableLanguages {
+		Panel.expandPanel(panel = "Custom Fields");
+
+		Click(locator1 = "Button#LOCALIZATION_GENERIC");
+
+		for (var language : list "${localizableLanguages}") {
+			AssertVisible(
+				key_menuItem = "${language}",
+				locator1 = "DocumentsAndMedia#SIDEBAR_MENU_ITEM");
+		}
+	}
+
 	macro viewDefaultCP {
 		AssertElementNotPresent(locator1 = "DocumentsAndMedia#ICON_DOCUMENT_GENERIC");
 
@@ -2326,7 +2368,7 @@ definition {
 
 		var key_dmDocumentSize = "${dmDocumentSize}";
 
-		AssertElementPresent(locator1 = "Button#DOWNLOAD");
+		AssertElementPresent(locator1 = "Button#DOWNLOAD_SIDEBAR");
 
 		AssertElementPresent(locator1 = "DocumentsAndMediaDocument#DOCUMENT_INFO_GET_URL_OR_WEBDAV_URL");
 
@@ -2444,11 +2486,12 @@ definition {
 		DMDocument.expandInfo();
 
 		if (isSet(booleanValue)) {
-			var key_booleanValue = "${booleanValue}";
-
-			AssertTextEquals.assertPartialText(
-				locator1 = "DocumentsAndMediaDocument#METADATA_PANEL_BOOLEAN",
-				value1 = "${booleanValue}");
+			if ("${booleanValue}" == "checked") {
+				AssertElementPresent(locator1 = "FormFields#ANY_CHECKBOX_CHECKED");
+			}
+			else {
+				AssertElementNotPresent(locator1 = "FormFields#ANY_CHECKBOX_CHECKED");
+			}
 		}
 
 		if (isSet(imageName)) {
@@ -3188,20 +3231,35 @@ definition {
 		}
 	}
 
+	macro viewTypeFieldLocalizableLanguages {
+		if (!(isSet(currentLocale))) {
+			var key_currentLocale = "en-us";
+		}
+
+		Click(locator1 = "DocumentsAndMediaDocument#CUSTOM_FIELD_LOCALIZATION_DROPDOWN_TOGGLE");
+
+		for (var language : list "${localizableLanguages}") {
+			AssertVisible(
+				key_locale = "${language}",
+				locator1 = "Translation#DROPDOWN_MENU_ITEM");
+		}
+	}
+
 	macro viewVideoPreviewGeneratingInfo {
 		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#EMBEDDED_VIDEO_IFRAME");
 
 		if (isSet(disabled)) {
 			AssertTextEquals.assertPartialText(
+				key_text = "No video preview available.",
 				locator1 = "DocumentsAndMediaDocument#VIDEO_GENERATION_INFO",
 				value1 = "No video preview available.");
 		}
 		else {
-			AssertTextEquals.assertPartialText(
-				locator1 = "DocumentsAndMediaDocument#VIDEO_GENERATION_INFO",
-				value1 = "Generating video preview will take a few minutes.");
+			VerifyElementPresent(
+				key_text = "Generating video preview will take a few minutes.",
+				locator1 = "DocumentsAndMediaDocument#VIDEO_GENERATION_INFO");
 
-			while (IsElementPresent(locator1 = "DocumentsAndMediaDocument#VIDEO_GENERATION_INFO")) {
+			while (IsElementPresent(key_text = "Generating video preview will take a few minutes.",locator1 = "DocumentsAndMediaDocument#VIDEO_GENERATION_INFO")) {
 				Pause(locator1 = "1000");
 
 				Refresh();

@@ -57,7 +57,6 @@ import java.util.stream.Stream;
 
 /**
  * @author Riccardo Alberti
- * @see CommercePricingClassLocalServiceBaseImpl
  */
 public class CommercePricingClassLocalServiceImpl
 	extends CommercePricingClassLocalServiceBaseImpl {
@@ -98,10 +97,10 @@ public class CommercePricingClassLocalServiceImpl
 		commercePricingClass.setDescriptionMap(descriptionMap);
 		commercePricingClass.setExpandoBridgeAttributes(serviceContext);
 
-		Date now = new Date();
+		Date date = new Date();
 
 		Calendar calendar = CalendarFactoryUtil.getCalendar(
-			now.getTime(), user.getTimeZone());
+			date.getTime(), user.getTimeZone());
 
 		commercePricingClass.setLastPublishDate(calendar.getTime());
 
@@ -313,10 +312,10 @@ public class CommercePricingClassLocalServiceImpl
 		commercePricingClass.setTitleMap(titleMap);
 		commercePricingClass.setDescriptionMap(descriptionMap);
 
-		Date now = new Date();
+		Date date = new Date();
 
 		Calendar calendar = CalendarFactoryUtil.getCalendar(
-			now.getTime(), user.getTimeZone());
+			date.getTime(), user.getTimeZone());
 
 		commercePricingClass.setLastPublishDate(calendar.getTime());
 

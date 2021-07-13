@@ -26,18 +26,21 @@ function PerformanceByStepPage({query, routeParams}) {
 
 	const {processId, ...paginationParams} = routeParams;
 	const {search = null} = parse(query);
+	const filterKeys = ['processVersion'];
 
 	useProcessTitle(processId, Liferay.Language.get('performance-by-step'));
 
 	const {
-		filterValues: {dateEnd, dateStart},
+		filterValues: {dateEnd, dateStart, processVersion},
 		prefixedKeys,
-	} = useFilter({});
+		selectedFilters,
+	} = useFilter({filterKeys});
 
 	const {data, fetchData} = useFetch({
 		params: {
 			completed: true,
 			key: search,
+			processVersion,
 			...paginationParams,
 			...getTimeRangeParams(dateStart, dateEnd),
 		},
@@ -51,10 +54,14 @@ function PerformanceByStepPage({query, routeParams}) {
 			<PerformanceByStepPage.Header
 				filterKeys={prefixedKeys}
 				routeParams={{...routeParams, search}}
+				selectedFilters={selectedFilters}
 				totalCount={data.totalCount}
 			/>
 
-			<PerformanceByStepPage.Body {...data} filtered={search} />
+			<PerformanceByStepPage.Body
+				{...data}
+				filtered={search || selectedFilters.length > 0}
+			/>
 		</PromisesResolver>
 	);
 }

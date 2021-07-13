@@ -53,7 +53,9 @@ public class BatchPlannerPlanServiceHttp {
 
 	public static com.liferay.batch.planner.model.BatchPlannerPlan
 			addBatchPlannerPlan(
-				HttpPrincipal httpPrincipal, String externalType, String name)
+				HttpPrincipal httpPrincipal, boolean export,
+				String externalType, String externalURL,
+				String internalClassName, String name)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
@@ -62,7 +64,90 @@ public class BatchPlannerPlanServiceHttp {
 				_addBatchPlannerPlanParameterTypes0);
 
 			MethodHandler methodHandler = new MethodHandler(
-				methodKey, externalType, name);
+				methodKey, export, externalType, externalURL, internalClassName,
+				name);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+
+			return (com.liferay.batch.planner.model.BatchPlannerPlan)returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
+	public static com.liferay.batch.planner.model.BatchPlannerPlan
+			deleteBatchPlannerPlan(
+				HttpPrincipal httpPrincipal, long batchPlannerPlanId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				BatchPlannerPlanServiceUtil.class, "deleteBatchPlannerPlan",
+				_deleteBatchPlannerPlanParameterTypes1);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, batchPlannerPlanId);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+
+			return (com.liferay.batch.planner.model.BatchPlannerPlan)returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
+	public static com.liferay.batch.planner.model.BatchPlannerPlan
+			getBatchPlannerPlan(
+				HttpPrincipal httpPrincipal, long batchPlannerPlanId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				BatchPlannerPlanServiceUtil.class, "getBatchPlannerPlan",
+				_getBatchPlannerPlanParameterTypes2);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, batchPlannerPlanId);
 
 			Object returnObj = null;
 
@@ -101,7 +186,7 @@ public class BatchPlannerPlanServiceHttp {
 		try {
 			MethodKey methodKey = new MethodKey(
 				BatchPlannerPlanServiceUtil.class, "updateBatchPlannerPlan",
-				_updateBatchPlannerPlanParameterTypes1);
+				_updateBatchPlannerPlanParameterTypes3);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, batchPlannerPlanId, name);
@@ -138,8 +223,15 @@ public class BatchPlannerPlanServiceHttp {
 		BatchPlannerPlanServiceHttp.class);
 
 	private static final Class<?>[] _addBatchPlannerPlanParameterTypes0 =
-		new Class[] {String.class, String.class};
-	private static final Class<?>[] _updateBatchPlannerPlanParameterTypes1 =
+		new Class[] {
+			boolean.class, String.class, String.class, String.class,
+			String.class
+		};
+	private static final Class<?>[] _deleteBatchPlannerPlanParameterTypes1 =
+		new Class[] {long.class};
+	private static final Class<?>[] _getBatchPlannerPlanParameterTypes2 =
+		new Class[] {long.class};
+	private static final Class<?>[] _updateBatchPlannerPlanParameterTypes3 =
 		new Class[] {long.class, String.class};
 
 }

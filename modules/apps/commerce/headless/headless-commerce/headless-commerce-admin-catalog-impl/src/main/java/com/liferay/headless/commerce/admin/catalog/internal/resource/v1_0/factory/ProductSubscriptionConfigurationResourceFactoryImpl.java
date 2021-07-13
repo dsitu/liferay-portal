@@ -51,7 +51,7 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @generated
  */
 @Component(
-	immediate = true,
+	enabled = false, immediate = true,
 	service = ProductSubscriptionConfigurationResource.Factory.class
 )
 @Generated("")

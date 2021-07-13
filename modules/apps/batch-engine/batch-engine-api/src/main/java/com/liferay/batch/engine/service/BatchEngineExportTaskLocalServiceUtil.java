@@ -302,6 +302,20 @@ public class BatchEngineExportTaskLocalServiceUtil {
 	}
 
 	public static List<BatchEngineExportTask> getBatchEngineExportTasks(
+		long companyId, int start, int end) {
+
+		return getService().getBatchEngineExportTasks(companyId, start, end);
+	}
+
+	public static List<BatchEngineExportTask> getBatchEngineExportTasks(
+		long companyId, int start, int end,
+		OrderByComparator<BatchEngineExportTask> orderByComparator) {
+
+		return getService().getBatchEngineExportTasks(
+			companyId, start, end, orderByComparator);
+	}
+
+	public static List<BatchEngineExportTask> getBatchEngineExportTasks(
 		String executeStatus) {
 
 		return getService().getBatchEngineExportTasks(executeStatus);
@@ -314,6 +328,10 @@ public class BatchEngineExportTaskLocalServiceUtil {
 	 */
 	public static int getBatchEngineExportTasksCount() {
 		return getService().getBatchEngineExportTasksCount();
+	}
+
+	public static int getBatchEngineExportTasksCount(long companyId) {
+		return getService().getBatchEngineExportTasksCount(companyId);
 	}
 
 	public static

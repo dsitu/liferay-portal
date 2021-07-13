@@ -16,6 +16,7 @@ import './FieldBase.scss';
 
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
+import ClayLabel from '@clayui/label';
 import ClayPopover from '@clayui/popover';
 import classNames from 'classnames';
 import {
@@ -93,27 +94,33 @@ const getFieldDetails = (props) => {
 	return fieldDetails;
 };
 
-const FieldProperties = ({required, showPopover, tooltip}) => {
+const HideFieldProperty = () => {
 	return (
-		<>
-			{required && (
-				<span className="ddm-label-required reference-mark">
-					<ClayIcon symbol="asterisk" />
-				</span>
-			)}
+		<ClayLabel className="ml-1" displayType="secondary">
+			{Liferay.Language.get('hidden')}
+		</ClayLabel>
+	);
+};
 
-			{tooltip && (
-				<>
-					{showPopover ? (
-						<Popover tooltip={tooltip} />
-					) : (
-						<span className="ddm-tooltip" title={tooltip}>
-							<ClayIcon symbol="question-circle-full" />
-						</span>
-					)}
-				</>
-			)}
-		</>
+const LabelProperty = ({hideField, label}) => {
+	return hideField ? <span className="text-secondary">{label}</span> : label;
+};
+
+const RequiredProperty = () => {
+	return (
+		<span className="ddm-label-required reference-mark">
+			<ClayIcon symbol="asterisk" />
+		</span>
+	);
+};
+
+const TooltipProperty = ({showPopover, tooltip}) => {
+	return showPopover ? (
+		<Popover tooltip={tooltip} />
+	) : (
+		<span className="ddm-tooltip" title={tooltip}>
+			<ClayIcon symbol="question-circle-full" />
+		</span>
 	);
 };
 
@@ -159,6 +166,7 @@ function FieldBase({
 	displayErrors,
 	errorMessage,
 	fieldName,
+	hideField,
 	id,
 	label,
 	localizedValue = {},
@@ -191,7 +199,7 @@ function FieldBase({
 		tip,
 	});
 
-	const fieldDetailsId = id ? id + '_fieldDetails' : name + '_fieldDetails';
+	const fieldDetailsId = id || name;
 
 	const hiddenTranslations = useMemo(() => {
 		const array = [];
@@ -215,7 +223,7 @@ function FieldBase({
 
 	const inputEditedName = name + '_edited';
 	const renderLabel =
-		(label && showLabel) || required || tooltip || repeatable;
+		(label && showLabel) || hideField || repeatable || required || tooltip;
 	const repeatedIndex = useMemo(() => getRepeatedIndex(name), [name]);
 	const showLegend =
 		type &&
@@ -289,35 +297,56 @@ function FieldBase({
 								className="lfr-ddm-legend"
 								tabIndex="0"
 							>
-								{label && showLabel && label}
+								{showLabel && label}
 
-								<FieldProperties
-									required={required}
-									showPopover={showPopover}
-									tooltip={tooltip}
-								/>
+								{required && <RequiredProperty />}
+
+								{tooltip && (
+									<TooltipProperty
+										showPopover={showPopover}
+										tooltip={tooltip}
+									/>
+								)}
 							</legend>
 							{children}
 						</fieldset>
 					) : (
 						<>
 							<label
-								aria-describedby={fieldDetailsId}
 								className={classNames({
 									'ddm-empty': !showLabel && !required,
 									'ddm-label': showLabel || required,
 								})}
+								htmlFor={fieldDetailsId}
 								tabIndex="0"
 							>
-								{label && showLabel && label}
+								{showLabel && label && (
+									<LabelProperty
+										hideField={hideField}
+										label={label}
+									/>
+								)}
 
-								<FieldProperties
-									required={required}
+								{required && <RequiredProperty />}
+
+								{hideField && <HideFieldProperty />}
+
+								{showLabel && tooltip && (
+									<TooltipProperty
+										showPopover={showPopover}
+										tooltip={tooltip}
+									/>
+								)}
+							</label>
+
+							{children}
+
+							{!showLabel && tooltip && (
+								<TooltipProperty
 									showPopover={showPopover}
 									tooltip={tooltip}
 								/>
-							</label>
-							{children}
+							)}
 						</>
 					)}
 				</>

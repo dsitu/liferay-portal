@@ -65,6 +65,7 @@ import ${apiPackagePath}.service.persistence.${entity.name}Persistence;
 	import ${packagePath}.service.persistence.impl.constants.${portletShortName}PersistenceConstants;
 </#if>
 
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
@@ -366,6 +367,11 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 				}
 			</#if>
 
+			<#if serviceBuilder.isVersionGTE_7_4_0() && stringUtil.equals(entity.name, "Company")>
+				try (SafeCloseable safeCloseable =
+					CompanyThreadLocal.setWithSafeCloseable(${entity.variableName}.getPrimaryKey())) {
+			</#if>
+
 			<#if (cacheFields?size > 0)>
 				${entity.name} cached${entity.name} = (${entity.name})${entityCache}.getResult(
 					<#if serviceBuilder.isVersionLTE_7_2_0()>
@@ -399,6 +405,10 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 						${entity.variableName}.resetOriginalValues();
 					}
 				</#if>
+			</#if>
+
+			<#if serviceBuilder.isVersionGTE_7_4_0() && stringUtil.equals(entity.name, "Company")>
+				}
 			</#if>
 		}
 	}
@@ -1994,7 +2004,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 	<#if entity.isChangeTrackingEnabled()>
 		@Override
 		public Set<String> getCTColumnNames(CTColumnResolutionType ctColumnResolutionType) {
-			return _ctColumnNamesMap.get(ctColumnResolutionType);
+			return _ctColumnNamesMap.getOrDefault(ctColumnResolutionType, Collections.emptySet());
 		}
 
 		@Override
@@ -2022,28 +2032,25 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 		private static final List<String[]> _uniqueIndexColumnNames = new ArrayList<String[]>();
 
 		static {
-			Set<String> ctControlColumnNames = new HashSet<String>();
-			Set<String> ctIgnoreColumnNames = new HashSet<String>();
-			Set<String> ctMergeColumnNames = new HashSet<String>();
-			Set<String> ctStrictColumnNames = new HashSet<String>();
-
-			<#list entity.entityColumns as entityColumn>
-				<#if entityColumn.isChangeTrackingControl()>
-					ctControlColumnNames.add("${entityColumn.DBName}");
-				<#elseif entityColumn.isChangeTrackingIgnore()>
-					ctIgnoreColumnNames.add("${entityColumn.DBName}");
-				<#elseif entityColumn.isChangeTrackingMerge()>
-					ctMergeColumnNames.add("${entityColumn.DBName}");
-				<#elseif entityColumn.isChangeTrackingStrict()>
-					ctStrictColumnNames.add("${entityColumn.DBName}");
+			<#list entity.getCTColumnResolutionTypeNames() as ctColumnResolutionTypeName>
+				<#if !stringUtil.equals(ctColumnResolutionTypeName, "Pk")>
+					Set<String> ct${ctColumnResolutionTypeName}ColumnNames = new HashSet<String>();
 				</#if>
 			</#list>
 
-			_ctColumnNamesMap.put(CTColumnResolutionType.CONTROL, ctControlColumnNames);
-			_ctColumnNamesMap.put(CTColumnResolutionType.IGNORE, ctIgnoreColumnNames);
-			_ctColumnNamesMap.put(CTColumnResolutionType.MERGE, ctMergeColumnNames);
-			_ctColumnNamesMap.put(CTColumnResolutionType.PK, Collections.singleton("${entity.PKDBName}"));
-			_ctColumnNamesMap.put(CTColumnResolutionType.STRICT, ctStrictColumnNames);
+			<#list entity.entityColumns as entityColumn>
+				<#if !stringUtil.equals(entityColumn.getCTColumnResolutionTypeName(), "Pk")>
+					ct${entityColumn.getCTColumnResolutionTypeName()}ColumnNames.add("${entityColumn.DBName}");
+				</#if>
+			</#list>
+
+			<#list entity.getCTColumnResolutionTypeNames() as ctColumnResolutionTypeName>
+				<#if stringUtil.equals(ctColumnResolutionTypeName, "Pk")>
+					_ctColumnNamesMap.put(CTColumnResolutionType.${stringUtil.toUpperCase(ctColumnResolutionTypeName)}, Collections.singleton("${entity.PKDBName}"));
+				<#else>
+					_ctColumnNamesMap.put(CTColumnResolutionType.${stringUtil.toUpperCase(ctColumnResolutionTypeName)}, ct${ctColumnResolutionTypeName}ColumnNames);
+				</#if>
+			</#list>
 
 			<#list entity.entityColumns as entityColumn>
 				<#if entityColumn.isCollection() && entityColumn.isMappingManyToMany()>

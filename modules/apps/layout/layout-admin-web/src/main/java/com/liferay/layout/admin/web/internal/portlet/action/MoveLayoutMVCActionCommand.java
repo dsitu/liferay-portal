@@ -15,6 +15,7 @@
 package com.liferay.layout.admin.web.internal.portlet.action;
 
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
+import com.liferay.layout.admin.web.internal.configuration.FFLayoutTranslationConfiguration;
 import com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration;
 import com.liferay.layout.admin.web.internal.display.context.LayoutsAdminDisplayContext;
 import com.liferay.layout.admin.web.internal.display.context.MillerColumnsDisplayContext;
@@ -35,6 +36,9 @@ import com.liferay.portal.kernel.service.LayoutService;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.staging.StagingGroupHelper;
+import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterTracker;
+import com.liferay.translation.security.permission.TranslationPermission;
+import com.liferay.translation.url.provider.TranslationURLProvider;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -51,7 +55,10 @@ import org.osgi.service.component.annotations.Reference;
  * @author Eudaldo Alonso
  */
 @Component(
-	configurationPid = "com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration",
+	configurationPid = {
+		"com.liferay.layout.admin.web.internal.configuration.FFLayoutTranslationConfiguration",
+		"com.liferay.layout.admin.web.internal.configuration.LayoutConverterConfiguration"
+	},
 	immediate = true,
 	property = {
 		"javax.portlet.name=" + LayoutAdminPortletKeys.GROUP_PAGES,
@@ -64,6 +71,8 @@ public class MoveLayoutMVCActionCommand extends BaseAddLayoutMVCActionCommand {
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
+		_ffLayoutTranslationConfiguration = ConfigurableUtil.createConfigurable(
+			FFLayoutTranslationConfiguration.class, properties);
 		_layoutConverterConfiguration = ConfigurableUtil.createConfigurable(
 			LayoutConverterConfiguration.class, properties);
 	}
@@ -107,11 +116,14 @@ public class MoveLayoutMVCActionCommand extends BaseAddLayoutMVCActionCommand {
 
 			MillerColumnsDisplayContext millerColumnsDisplayContext =
 				new MillerColumnsDisplayContext(
+					_ffLayoutTranslationConfiguration,
 					new LayoutsAdminDisplayContext(
 						_layoutConverterConfiguration, _layoutConverterRegistry,
 						_layoutCopyHelper, liferayPortletRequest,
 						liferayPortletResponse, _stagingGroupHelper),
-					liferayPortletRequest, liferayPortletResponse);
+					liferayPortletRequest, liferayPortletResponse,
+					_translationInfoItemFieldValuesExporterTracker,
+					_translationPermission, _translationURLProvider);
 
 			JSONObject jsonObject = JSONUtil.put(
 				"layoutColumns",
@@ -128,6 +140,8 @@ public class MoveLayoutMVCActionCommand extends BaseAddLayoutMVCActionCommand {
 		}
 	}
 
+	private volatile FFLayoutTranslationConfiguration
+		_ffLayoutTranslationConfiguration;
 	private volatile LayoutConverterConfiguration _layoutConverterConfiguration;
 
 	@Reference
@@ -147,5 +161,15 @@ public class MoveLayoutMVCActionCommand extends BaseAddLayoutMVCActionCommand {
 
 	@Reference
 	private StagingGroupHelper _stagingGroupHelper;
+
+	@Reference
+	private TranslationInfoItemFieldValuesExporterTracker
+		_translationInfoItemFieldValuesExporterTracker;
+
+	@Reference
+	private TranslationPermission _translationPermission;
+
+	@Reference
+	private TranslationURLProvider _translationURLProvider;
 
 }

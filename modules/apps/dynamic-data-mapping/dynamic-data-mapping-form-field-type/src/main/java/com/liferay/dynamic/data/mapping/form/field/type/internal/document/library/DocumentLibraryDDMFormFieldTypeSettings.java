@@ -32,8 +32,7 @@ import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldTypeS
 			actions = {
 				"setVisible('dataType', false)",
 				"setVisible('predefinedValue', false)",
-				"setVisible('requiredErrorMessage', false)",
-				"setVisible('validation', false)"
+				"setVisible('requiredErrorMessage', getValue('required'))"
 			},
 			condition = "TRUE"
 		)
@@ -67,7 +66,7 @@ import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldTypeS
 							size = 12,
 							value = {
 								"name", "fieldReference", "predefinedValue",
-								"visibilityExpression", "validation",
+								"objectFieldName", "visibilityExpression",
 								"fieldNamespace", "indexType",
 								"labelAtStructureLevel", "localizable",
 								"readOnly", "dataType", "type", "showLabel",

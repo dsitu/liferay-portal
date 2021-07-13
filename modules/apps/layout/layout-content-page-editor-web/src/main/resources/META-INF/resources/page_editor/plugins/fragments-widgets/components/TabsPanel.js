@@ -14,16 +14,21 @@
 
 import ClayTabs from '@clayui/tabs';
 import PropTypes from 'prop-types';
-import React, {useState} from 'react';
+import React from 'react';
 
 import {FRAGMENTS_DISPLAY_STYLES} from '../../../app/config/constants/fragmentsDisplayStyles';
 import {useId} from '../../../app/utils/useId';
+import {COLLECTION_IDS} from './FragmentsSidebar';
 import TabCollection from './TabCollection';
 
 const INITIAL_EXPANDED_ITEM_COLLECTIONS = 3;
 
-export default function TabsPanel({displayStyle, tabs}) {
-	const [activeTabId, setActiveTabId] = useState(0);
+export default function TabsPanel({
+	activeTabId,
+	displayStyle,
+	setActiveTabId,
+	tabs,
+}) {
 	const tabIdNamespace = useId();
 
 	const getTabId = (tabId) => `${tabIdNamespace}tab${tabId}`;
@@ -37,13 +42,13 @@ export default function TabsPanel({displayStyle, tabs}) {
 			>
 				{tabs.map((tab, index) => (
 					<ClayTabs.Item
-						active={activeTabId === index}
+						active={tab.id === activeTabId}
 						innerProps={{
 							'aria-controls': getTabPanelId(index),
 							id: getTabId(index),
 						}}
 						key={index}
-						onClick={() => setActiveTabId(index)}
+						onClick={() => setActiveTabId(tab.id)}
 					>
 						{tab.label}
 					</ClayTabs.Item>
@@ -51,7 +56,7 @@ export default function TabsPanel({displayStyle, tabs}) {
 			</ClayTabs>
 
 			<ClayTabs.Content
-				activeIndex={activeTabId}
+				activeIndex={tabs.findIndex((tab) => tab.id === activeTabId)}
 				className="page-editor__sidebar__fragments-widgets-panel__tab-content"
 				fade
 			>
@@ -65,7 +70,11 @@ export default function TabsPanel({displayStyle, tabs}) {
 							{tab.collections.map((collection, index) => (
 								<TabCollection
 									collection={collection}
-									displayStyle={displayStyle}
+									displayStyle={
+										tab.id === COLLECTION_IDS.widgets
+											? FRAGMENTS_DISPLAY_STYLES.LIST
+											: displayStyle
+									}
 									key={index}
 									open={
 										index <

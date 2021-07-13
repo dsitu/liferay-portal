@@ -50,7 +50,10 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Jaclyn Ong
  * @generated
  */
-@Component(immediate = true, service = PunchOutSessionResource.Factory.class)
+@Component(
+	enabled = false, immediate = true,
+	service = PunchOutSessionResource.Factory.class
+)
 @Generated("")
 public class PunchOutSessionResourceFactoryImpl
 	implements PunchOutSessionResource.Factory {

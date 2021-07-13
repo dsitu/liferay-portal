@@ -60,7 +60,7 @@ public class CISystemStatusReportUtil {
 		jenkinsCohort.writeDataJavaScriptFile(filePath);
 	}
 
-	public static void writeSpiraDataJavaScriptFile(
+	public static void writeTestrayDataJavaScriptFile(
 			String filePath, TestrayRoutine testrayRoutine, String nameFilter)
 		throws IOException {
 
@@ -68,7 +68,7 @@ public class CISystemStatusReportUtil {
 
 		for (LocalDate localDate : _recentTestrayBuilds.keySet()) {
 			List<TestrayBuild> builds = testrayRoutine.getTestrayBuilds(
-				200, localDate, nameFilter);
+				200, localDate.toString(), nameFilter);
 
 			_recentTestrayBuilds.put(localDate, builds);
 
@@ -93,21 +93,23 @@ public class CISystemStatusReportUtil {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("var relevantSuiteBuildData = ");
+		sb.append(_getRelevantSuiteBuildDataJSONObject());
 
-		JSONObject relevantSuiteBuildDataJSONObject =
-			_getRelevantSuiteBuildDataJSONObject();
+		sb.append("\nvar topLevelTotalBuildDurationData = ");
+		sb.append(_getTopLevelTotalBuildDurationJSONObject());
 
-		sb.append(relevantSuiteBuildDataJSONObject.toString());
+		sb.append("\nvar topLevelActiveBuildDurationData = ");
+		sb.append(_getTopLevelActiveBuildDurationJSONObject());
 
-		sb.append("\nvar spiraDataGeneratedDate = new Date(");
+		sb.append("\nvar downstreamBuildDurationData = ");
+		sb.append(_getDownstreamBuildDurationJSONObject());
+
+		sb.append("\nvar testrayDataGeneratedDate = new Date(");
 		sb.append(JenkinsResultsParserUtil.getCurrentTimeMillis());
-		sb.append(");\nvar successRateData = ");
+		sb.append(");");
 
-		JSONArray successRateTableDataJSONArray =
-			_getSuccessRateDataJSONArray();
-
-		sb.append(successRateTableDataJSONArray.toString());
-
+		sb.append("\nvar successRateData = ");
+		sb.append(_getSuccessRateDataJSONArray());
 		sb.append(";");
 
 		JenkinsResultsParserUtil.write(filePath, sb.toString());
@@ -123,6 +125,64 @@ public class CISystemStatusReportUtil {
 		DecimalFormat decimalFormat = new DecimalFormat("###.##%");
 
 		return decimalFormat.format(quotient);
+	}
+
+	private static JSONObject _getDownstreamBuildDurationJSONObject() {
+		JSONObject datesDurationsJSONObject = new JSONObject();
+
+		JSONArray datesJSONArray = new JSONArray();
+		JSONArray durationsJSONArray = new JSONArray();
+
+		List<LocalDate> dates = new ArrayList<>(_recentTestrayBuilds.keySet());
+
+		Collections.sort(dates);
+
+		for (LocalDate date : dates) {
+			List<Long> durations = new ArrayList<>();
+
+			for (TestrayBuild testrayBuild : _recentTestrayBuilds.get(date)) {
+				List<Long> downstreamDurations =
+					testrayBuild.getDownstreamBuildDurations();
+
+				if (downstreamDurations == null) {
+					continue;
+				}
+
+				for (Long downstreamDuration : downstreamDurations) {
+					if ((downstreamDuration == null) ||
+						(downstreamDuration < 0)) {
+
+						continue;
+					}
+
+					durations.add(downstreamDuration);
+				}
+			}
+
+			durations.removeAll(Collections.singleton(null));
+
+			if (durations.isEmpty()) {
+				datesJSONArray.put(date.toString());
+			}
+			else {
+				String meanDuration = JenkinsResultsParserUtil.combine(
+					"mean: ",
+					JenkinsResultsParserUtil.toDurationString(
+						JenkinsResultsParserUtil.getAverage(durations)));
+
+				datesJSONArray.put(
+					new String[] {date.toString(), meanDuration});
+			}
+
+			Collections.sort(durations);
+
+			durationsJSONArray.put(durations);
+		}
+
+		datesDurationsJSONObject.put("dates", datesJSONArray);
+		datesDurationsJSONObject.put("durations", durationsJSONArray);
+
+		return datesDurationsJSONObject;
 	}
 
 	private static JSONObject _getRelevantSuiteBuildDataJSONObject() {
@@ -300,6 +360,104 @@ public class CISystemStatusReportUtil {
 		successRateJSONArray.put(totalBuilds);
 
 		return successRateJSONArray;
+	}
+
+	private static JSONObject _getTopLevelActiveBuildDurationJSONObject() {
+		JSONObject jsonObject = new JSONObject();
+
+		JSONArray datesJSONArray = new JSONArray();
+		JSONArray durationsJSONArray = new JSONArray();
+
+		List<LocalDate> dates = new ArrayList<>(_recentTestrayBuilds.keySet());
+
+		Collections.sort(dates);
+
+		for (LocalDate date : dates) {
+			List<Long> durations = new ArrayList<>();
+
+			for (TestrayBuild testrayBuild : _recentTestrayBuilds.get(date)) {
+				Long duration = testrayBuild.getTopLevelActiveBuildDuration();
+
+				if ((duration == null) || (duration < 0)) {
+					continue;
+				}
+
+				durations.add(duration);
+			}
+
+			durations.removeAll(Collections.singleton(null));
+
+			if (durations.isEmpty()) {
+				datesJSONArray.put(date.toString());
+			}
+			else {
+				String meanDuration = JenkinsResultsParserUtil.combine(
+					"mean: ",
+					JenkinsResultsParserUtil.toDurationString(
+						JenkinsResultsParserUtil.getAverage(durations)));
+
+				datesJSONArray.put(
+					new String[] {date.toString(), meanDuration});
+			}
+
+			Collections.sort(durations);
+
+			durationsJSONArray.put(durations);
+		}
+
+		jsonObject.put("dates", datesJSONArray);
+		jsonObject.put("durations", durationsJSONArray);
+
+		return jsonObject;
+	}
+
+	private static JSONObject _getTopLevelTotalBuildDurationJSONObject() {
+		JSONObject jsonObject = new JSONObject();
+
+		JSONArray datesJSONArray = new JSONArray();
+		JSONArray durationsJSONArray = new JSONArray();
+
+		List<LocalDate> dates = new ArrayList<>(_recentTestrayBuilds.keySet());
+
+		Collections.sort(dates);
+
+		for (LocalDate date : dates) {
+			List<Long> durations = new ArrayList<>();
+
+			for (TestrayBuild testrayBuild : _recentTestrayBuilds.get(date)) {
+				Long duration = testrayBuild.getTopLevelBuildDuration();
+
+				if ((duration == null) || (duration < 0)) {
+					continue;
+				}
+
+				durations.add(duration);
+			}
+
+			durations.removeAll(Collections.singleton(null));
+
+			if (durations.isEmpty()) {
+				datesJSONArray.put(date.toString());
+			}
+			else {
+				String meanDuration = JenkinsResultsParserUtil.combine(
+					"mean: ",
+					JenkinsResultsParserUtil.toDurationString(
+						JenkinsResultsParserUtil.getAverage(durations)));
+
+				datesJSONArray.put(
+					new String[] {date.toString(), meanDuration});
+			}
+
+			Collections.sort(durations);
+
+			durationsJSONArray.put(durations);
+		}
+
+		jsonObject.put("dates", datesJSONArray);
+		jsonObject.put("durations", durationsJSONArray);
+
+		return jsonObject;
 	}
 
 	private static final int _DAYS_PER_WEEK = 7;

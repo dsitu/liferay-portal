@@ -934,6 +934,24 @@ public interface PropsKeys {
 	public static final String DL_EMAIL_FILE_ENTRY_ADDED_SUBJECT =
 		"dl.email.file.entry.added.subject";
 
+	public static final String DL_EMAIL_FILE_ENTRY_EXPIRED_BODY =
+		"dl.email.file.entry.expired.body";
+
+	public static final String DL_EMAIL_FILE_ENTRY_EXPIRED_ENABLED =
+		"dl.email.file.entry.expired.enabled";
+
+	public static final String DL_EMAIL_FILE_ENTRY_EXPIRED_SUBJECT =
+		"dl.email.file.entry.expired.subject";
+
+	public static final String DL_EMAIL_FILE_ENTRY_REVIEW_BODY =
+		"dl.email.file.entry.review.body";
+
+	public static final String DL_EMAIL_FILE_ENTRY_REVIEW_ENABLED =
+		"dl.email.file.entry.review.enabled";
+
+	public static final String DL_EMAIL_FILE_ENTRY_REVIEW_SUBJECT =
+		"dl.email.file.entry.review.subject";
+
 	public static final String DL_EMAIL_FILE_ENTRY_UPDATED_BODY =
 		"dl.email.file.entry.updated.body";
 
@@ -1789,6 +1807,9 @@ public interface PropsKeys {
 
 	public static final String LIFERAY_LIB_PORTAL_DIR =
 		"liferay.lib.portal.dir";
+
+	public static final String LIFERAY_SHIELDED_CONTAINER_LIB_PORTAL_DIR =
+		"liferay.shielded.container.lib.portal.dir";
 
 	public static final String LIFERAY_WEB_PORTAL_DIR =
 		"liferay.web.portal.dir";
@@ -3354,6 +3375,9 @@ public interface PropsKeys {
 
 	public static final String UPGRADE_DATABASE_TRANSACTIONS_DISABLED =
 		"upgrade.database.transactions.disabled";
+
+	public static final String UPGRADE_REPORT_ENABLED =
+		"upgrade.report.enabled";
 
 	public static final String USER_GROUPS_NAME_ALLOW_NUMERIC =
 		"user.groups.name.allow.numeric";

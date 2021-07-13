@@ -64,7 +64,7 @@ definition {
 		Click(locator1 = "FormFields#FIELD_ADD_DUPLICATE");
 
 		Type(
-			key_fieldName = "Numeric",
+			key_fieldLabel = "Numeric",
 			locator1 = "TextInput#NUMERIC",
 			value1 = "123");
 
@@ -170,7 +170,7 @@ definition {
 		DMNavigator.gotoAddDocumentTypeCP(dmDocumentTypeName = "DM Document Type Name");
 
 		Type(
-			key_fieldName = "Numeric",
+			key_fieldLabel = "Numeric",
 			locator1 = "TextInput#NUMERIC",
 			value1 = "123");
 
@@ -346,6 +346,34 @@ definition {
 		AssertElementPresent(
 			key_imageFileName = "Document_2",
 			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_PREDEFINED_IMAGE");
+	}
+
+	@description = "This test covers LPS-109066. It ensures that the localizable field available languages can be displayed correctly."
+	@priority = "3"
+	test CanViewLocalizableFieldCorrectAvailableLanguages {
+		CustomFields.addCP(
+			customFieldName = "Document Text Field",
+			customFieldType = "Input Field",
+			customInputDataType = "Text",
+			localization = "true",
+			modelResource = "com.liferay.document.library.kernel.model.DLFileEntry");
+
+		DMNavigator.openToAddDocumentType(siteURLKey = "guest");
+
+		DMDocumentType.add(
+			dmDocumentTypeDescription = "DM Document Type Description",
+			dmDocumentTypeFieldNames = "Text",
+			dmDocumentTypeName = "DM Document Type Name",
+			skipNavigation = "true");
+
+		DMNavigator.openToAddEntry(
+			documentTypeName = "DM Document Type Name",
+			groupName = "Guest",
+			siteURLKey = "guest");
+
+		DMDocument.viewTypeFieldLocalizableLanguages(localizableLanguages = "ar-SA,ca-ES,zh-CN,nl-NL,fi-FI,fr-FR,de-DE,hu-HU,ja-JP,pt-BR,es-ES,sv-SE");
+
+		DMDocument.viewCustomFieldLocalizableLanguages(localizableLanguages = "ar-SA,ca-ES,zh-CN,nl-NL,fi-FI,fr-FR,de-DE,hu-HU,ja-JP,pt-BR,es-ES,sv-SE");
 	}
 
 	@description = "This test covers LPS-127598. It ensures that a user can check out a document with the custom field via editing."
@@ -995,10 +1023,10 @@ definition {
 
 		Click(locator1 = "FormFields#FIELD_ADD_DUPLICATE");
 
-		AssertClick(
-			key_fieldFieldLabel = "Image",
-			locator1 = "WCEditWebContent#SELECT_BUTTON",
-			value1 = "Select");
+		Click(
+			fieldLabel = "Image",
+			locator1 = "Button#BUTTON_LABEL",
+			text = "Select");
 
 		ItemSelector.uploadFile(uploadFileName = "Document_1.jpg");
 

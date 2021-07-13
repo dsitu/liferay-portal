@@ -50,7 +50,10 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Zoltán Takács
  * @generated
  */
-@Component(immediate = true, service = PriceListDiscountResource.Factory.class)
+@Component(
+	enabled = false, immediate = true,
+	service = PriceListDiscountResource.Factory.class
+)
 @Generated("")
 public class PriceListDiscountResourceFactoryImpl
 	implements PriceListDiscountResource.Factory {

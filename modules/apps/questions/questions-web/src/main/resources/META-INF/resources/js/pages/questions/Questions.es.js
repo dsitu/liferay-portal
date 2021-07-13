@@ -35,9 +35,11 @@ import {
 	getSectionBySectionTitleQuery,
 	getSectionThreadsQuery,
 	getSectionsQuery,
+	getSubscriptionsQuery,
 	getThreadsQuery,
 } from '../../utils/client.es';
 import {
+	deleteCacheKey,
 	getBasePath,
 	getFullPath,
 	historyPushWithSlug,
@@ -107,6 +109,8 @@ export default withRouter(
 		const [questions, setQuestions] = useState([]);
 		const [search, setSearch] = useState(null);
 		const [section, setSection] = useState({});
+		const [sectionQuery, setSectionQuery] = useState('');
+		const [sectionQueryVariables, setSectionQueryVariables] = useState({});
 		const [totalCount, setTotalCount] = useState(0);
 
 		const queryParams = useQueryParams(location);
@@ -114,11 +118,6 @@ export default withRouter(
 		const context = useContext(AppContext);
 
 		const siteKey = context.siteKey;
-
-		const historyPushParser = useCallback(
-			(url) => historyPushWithSlug(history.push)(url),
-			[history.push]
-		);
 
 		const [getSections] = useManualQuery(getSectionsQuery, {
 			variables: {siteKey: context.siteKey},
@@ -346,20 +345,21 @@ export default withRouter(
 					pageSize,
 					search,
 					section,
-					siteKey
+					siteKey,
+					'dateCreated:desc'
 				);
 			}
 
-			fn.then(({data, loading}) => {
+			fn.then(({data}) => {
 				setQuestions(data || []);
-				setLoading(loading);
-			}).catch((error) => {
-				if (process.env.NODE_ENV === 'development') {
-					console.error(error);
-				}
-				setLoading(false);
-				setError({message: 'Loading Questions', title: 'Error'});
-			});
+			})
+				.catch((error) => {
+					if (process.env.NODE_ENV === 'development') {
+						console.error(error);
+					}
+					setError({message: 'Loading Questions', title: 'Error'});
+				})
+				.finally(() => setLoading(false));
 		}, [
 			creatorId,
 			currentTag,
@@ -373,8 +373,10 @@ export default withRouter(
 			getThreadsCallback,
 		]);
 
+		const historyPushParser = historyPushWithSlug(history.push);
+
 		function buildURL(search, page, pageSize) {
-			let url = (context.historyRouterBasePath || '#') + '/questions';
+			let url = '/questions';
 
 			if (sectionTitle || sectionTitle === '0') {
 				url += `/${sectionTitle}`;
@@ -398,26 +400,36 @@ export default withRouter(
 			return url;
 		}
 
-		const [debounceCallback] = useDebounceCallback((search) => {
-			setLoading(true);
-			historyPushParser(buildURL(search, 1, 20));
-		}, 500);
+		function changePage(search, page, pageSize) {
+			historyPushParser(buildURL(search, page, pageSize));
+		}
+
+		const [debounceCallback] = useDebounceCallback(
+			(search) => changePage(search, 1, 20),
+			500
+		);
 
 		useEffect(() => {
 			if (sectionTitle && sectionTitle !== '0') {
+				const variables = {
+					filter: `title eq '${slugToText(
+						sectionTitle
+					)}' or id eq '${slugToText(sectionTitle)}'`,
+					siteKey: context.siteKey,
+				};
 				getSectionBySectionTitle({
-					variables: {
-						filter: `title eq '${slugToText(
-							sectionTitle
-						)}' or id eq '${slugToText(sectionTitle)}'`,
-						siteKey: context.siteKey,
-					},
-				}).then(({data}) =>
-					setSection(data.messageBoardSections.items[0])
-				);
+					variables,
+				}).then(({data}) => {
+					setSection(data.messageBoardSections.items[0]);
+					setSectionQuery(getSectionBySectionTitleQuery);
+					setSectionQueryVariables(variables);
+				});
 			}
 			else if (sectionTitle === '0') {
-				getSections({variables: {siteKey: context.siteKey}})
+				const variables = {siteKey: context.siteKey};
+				getSections({
+					variables,
+				})
 					.then(({data: {messageBoardSections}}) => ({
 						actions: messageBoardSections.actions,
 						id: 0,
@@ -427,7 +439,11 @@ export default withRouter(
 							messageBoardSections.items &&
 							messageBoardSections.items.length,
 					}))
-					.then(setSection);
+					.then((section) => {
+						setSection(section);
+						setSectionQuery(getSectionsQuery);
+						setSectionQueryVariables(variables);
+					});
 			}
 		}, [
 			sectionTitle,
@@ -437,6 +453,12 @@ export default withRouter(
 		]);
 
 		const filterOptions = getFilterOptions();
+
+		function isVotedFilter(filter) {
+			return (
+				filter == 'month' || filter == 'most-voted' || filter == 'week'
+			);
+		}
 
 		const navigateToNewQuestion = () => {
 			if (context.redirectToLogin && !themeDisplay.isSignedIn()) {
@@ -454,8 +476,6 @@ export default withRouter(
 
 			return false;
 		};
-
-		const hrefConstructor = (page) => buildURL(search, page, pageSize);
 
 		return (
 			<section className="questions-section questions-section-list">
@@ -480,10 +500,17 @@ export default withRouter(
 						<PaginatedList
 							activeDelta={pageSize}
 							activePage={page}
-							changeDelta={setPageSize}
+							changeDelta={(pageSize) =>
+								changePage(search, page, pageSize)
+							}
+							changePage={(page) =>
+								changePage(search, page, pageSize)
+							}
 							data={questions}
 							emptyState={
-								sectionTitle && !search && !filter ? (
+								sectionTitle &&
+								!search &&
+								!isVotedFilter(filter) ? (
 									<ClayEmptyState
 										description={Liferay.Language.get(
 											'there-are-no-questions-inside-this-topic-be-the-first-to-ask-something'
@@ -517,7 +544,6 @@ export default withRouter(
 									/>
 								)
 							}
-							hrefConstructor={hrefConstructor}
 							loading={loading}
 							totalCount={totalCount}
 						>
@@ -547,7 +573,22 @@ export default withRouter(
 							section.actions &&
 							section.actions.subscribe && (
 								<div className="c-ml-3">
-									<SectionSubscription section={section} />
+									<SectionSubscription
+										onSubscription={() => {
+											deleteCacheKey(
+												sectionQuery,
+												sectionQueryVariables
+											);
+											deleteCacheKey(
+												getSubscriptionsQuery,
+												{
+													contentType:
+														'MessageBoardSection',
+												}
+											);
+										}}
+										section={section}
+									/>
 								</div>
 							)}
 					</div>

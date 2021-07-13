@@ -15,10 +15,12 @@
 package com.liferay.account.internal.upgrade;
 
 import com.liferay.account.internal.upgrade.v1_1_0.SchemaUpgradeProcess;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.upgrade.DummyUpgradeStep;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Pei-Jung Lan
@@ -77,6 +79,14 @@ public class AccountServiceUpgrade implements UpgradeStepRegistrator {
 			"2.0.0", "2.1.0",
 			new com.liferay.account.internal.upgrade.v2_1_0.
 				AccountGroupUpgradeProcess());
+
+		registry.register(
+			"2.1.0", "2.2.0",
+			new com.liferay.account.internal.upgrade.v2_2_0.
+				AccountGroupRelUpgradeProcess(_companyLocalService));
 	}
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
 
 }

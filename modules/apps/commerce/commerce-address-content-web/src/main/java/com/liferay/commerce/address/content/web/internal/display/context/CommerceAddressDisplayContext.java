@@ -198,7 +198,7 @@ public class CommerceAddressDisplayContext {
 		).setMVCRenderCommandName(
 			"/commerce_address_content/edit_commerce_address"
 		).setRedirect(
-			String.valueOf(_liferayPortletResponse.createRenderURL())
+			(PortletURL)_liferayPortletResponse.createRenderURL()
 		).setParameter(
 			"commerceAddressId", commerceAddressId
 		).buildString();

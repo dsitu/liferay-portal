@@ -61,17 +61,17 @@ public class KBArticleLocalServiceWrapper
 
 	@Override
 	public com.liferay.knowledge.base.model.KBArticle addKBArticle(
-			long userId, long parentResourceClassNameId,
-			long parentResourcePrimKey, String title, String urlTitle,
-			String content, String description, String sourceURL,
-			String[] sections, String[] selectedFileNames,
+			String externalReferenceCode, long userId,
+			long parentResourceClassNameId, long parentResourcePrimKey,
+			String title, String urlTitle, String content, String description,
+			String sourceURL, String[] sections, String[] selectedFileNames,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kbArticleLocalService.addKBArticle(
-			userId, parentResourceClassNameId, parentResourcePrimKey, title,
-			urlTitle, content, description, sourceURL, sections,
-			selectedFileNames, serviceContext);
+			externalReferenceCode, userId, parentResourceClassNameId,
+			parentResourcePrimKey, title, urlTitle, content, description,
+			sourceURL, sections, selectedFileNames, serviceContext);
 	}
 
 	@Override
@@ -405,6 +405,16 @@ public class KBArticleLocalServiceWrapper
 
 	@Override
 	public com.liferay.knowledge.base.model.KBArticle
+		fetchLatestKBArticleByExternalReferenceCode(
+			long groupId, String externalReferenceCode) {
+
+		return _kbArticleLocalService.
+			fetchLatestKBArticleByExternalReferenceCode(
+				groupId, externalReferenceCode);
+	}
+
+	@Override
+	public com.liferay.knowledge.base.model.KBArticle
 		fetchLatestKBArticleByUrlTitle(
 			long groupId, long kbFolderId, String urlTitle, int status) {
 
@@ -693,6 +703,16 @@ public class KBArticleLocalServiceWrapper
 
 		return _kbArticleLocalService.getLatestKBArticle(
 			resourcePrimKey, status);
+	}
+
+	@Override
+	public com.liferay.knowledge.base.model.KBArticle
+			getLatestKBArticleByExternalReferenceCode(
+				long groupId, String externalReferenceCode)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _kbArticleLocalService.getLatestKBArticleByExternalReferenceCode(
+			groupId, externalReferenceCode);
 	}
 
 	@Override

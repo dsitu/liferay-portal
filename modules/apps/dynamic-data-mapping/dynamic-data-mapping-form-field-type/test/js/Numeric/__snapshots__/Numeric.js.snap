@@ -1,0 +1,323 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Field Numeric Integer Input Mask toggle has an inputMaskFormat 1`] = `
+<div>
+  <div
+    aria-labelledby="numericField"
+    class="form-group hide"
+    data-field-name="numericField"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="numericField_masked"
+      placeholder="+__ (__) ____-____"
+      type="text"
+      value="+12 (34) 5678-9012"
+    />
+    <input
+      name="numericField"
+      type="hidden"
+      value="123456789012"
+    />
+    <input
+      name="numericField_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric has a helptext 1`] = `
+<div>
+  <div
+    class="form-group hide"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="undefined"
+      type="text"
+      value=""
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    <span
+      aria-hidden="true"
+      class="form-text"
+    >
+      Type something
+    </span>
+    <span
+      class="sr-only"
+    >
+      Type something
+      <br />
+    </span>
+  </div>
+</div>
+`;
+
+exports[`Field Numeric has a key 1`] = `
+<div>
+  <div
+    class="form-group hide"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="undefined"
+      type="text"
+      value=""
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric has a label 1`] = `
+<div>
+  <div
+    class="form-group hide"
+  >
+    <label
+      class="ddm-label"
+      tabindex="0"
+    >
+      label
+    </label>
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="undefined"
+      type="text"
+      value=""
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric has a name 1`] = `
+<div>
+  <div
+    aria-labelledby="numericField"
+    class="form-group hide"
+    data-field-name="numericField"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="numericField"
+      type="text"
+      value=""
+    />
+    <input
+      name="numericField_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric has a placeholder 1`] = `
+<div>
+  <div
+    class="form-group hide"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="undefined"
+      placeholder="Placeholder"
+      type="text"
+      value=""
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric has a value 1`] = `
+<div>
+  <div
+    class="form-group hide"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="undefined"
+      type="text"
+      value="123"
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric has an id 1`] = `
+<div>
+  <div
+    aria-labelledby="ID"
+    class="form-group hide"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      id="ID"
+      lang="en_US"
+      name="undefined"
+      type="text"
+      value=""
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric is not readOnly 1`] = `
+<div>
+  <div
+    class="form-group hide"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="undefined"
+      type="text"
+      value=""
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric is not required 1`] = `
+<div>
+  <div
+    class="form-group hide"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="undefined"
+      type="text"
+      value=""
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric renders Label if showLabel is true 1`] = `
+<div>
+  <div
+    class="form-group hide"
+  >
+    <label
+      class="ddm-label"
+      tabindex="0"
+    >
+      Numeric Field
+    </label>
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="undefined"
+      type="text"
+      value=""
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Field Numeric renders the default markup 1`] = `
+<div>
+  <div
+    class="form-group hide"
+    tabindex="0"
+  >
+    <input
+      class="form-control"
+      dir="rtl"
+      lang="en_US"
+      name="undefined"
+      type="text"
+      value=""
+    />
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
+    
+  </div>
+</div>
+`;

@@ -33,6 +33,8 @@ else {
 }
 %>
 
+<liferay-ui:success key='<%= portletDisplay.getId() + "requestProcessed" %>' message="your-request-completed-successfully" />
+
 <portlet:actionURL name="/journal/restore_trash_entries" var="restoreTrashEntriesURL" />
 
 <liferay-trash:undo
@@ -143,7 +145,7 @@ else {
 
 	<div>
 		<react:component
-			module="js/export_translation/ExportTranslation.es"
+			module="js/JournalExportTranslation"
 			props="<%= journalDisplayContext.getExportTranslationData() %>"
 		/>
 	</div>

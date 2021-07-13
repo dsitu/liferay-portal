@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 7.4.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_7_4_0.dtd">
 
-<service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.object">
+<service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.object" short-no-such-exception-enabled="false">
 	<author>Marco Leo</author>
 	<namespace>Object</namespace>
 	<entity local-service="true" name="ObjectDefinition" remote-service="true" uuid="true">
@@ -20,12 +20,20 @@
 
 		<!-- Other fields -->
 
+		<column method-name="DBTableName" name="dbTableName" type="String" />
 		<column name="name" type="String" />
+		<column method-name="PKObjectFieldDBColumnName" name="pkObjectFieldDBColumnName" type="String" />
+		<column method-name="PKObjectFieldName" name="pkObjectFieldName" type="String" />
+		<column name="system" type="boolean" />
+		<column name="version" type="int" />
 
 		<!-- Finder methods -->
 
 		<finder name="CompanyId" return-type="Collection">
 			<finder-column name="companyId" />
+		</finder>
+		<finder name="System" return-type="Collection">
+			<finder-column name="system" />
 		</finder>
 		<finder name="C_N" return-type="ObjectDefinition">
 			<finder-column name="companyId" />
@@ -94,10 +102,12 @@
 		<!-- Other fields -->
 
 		<column name="objectDefinitionId" type="long" />
+		<column method-name="DBColumnName" name="dbColumnName" type="String" />
 		<column name="indexed" type="boolean" />
 		<column name="indexedAsKeyword" type="boolean" />
 		<column name="indexedLanguageId" type="String" />
 		<column name="name" type="String" />
+		<column name="required" type="boolean" />
 		<column name="type" type="String" />
 
 		<!-- Finder methods -->
@@ -176,6 +186,7 @@
 		<exception>DuplicateObjectDefinition</exception>
 		<exception>DuplicateObjectField</exception>
 		<exception>ObjectDefinitionName</exception>
+		<exception>ObjectDefinitionVersion</exception>
 		<exception>ObjectEntryValues</exception>
 		<exception>ObjectFieldName</exception>
 		<exception>ObjectFieldType</exception>

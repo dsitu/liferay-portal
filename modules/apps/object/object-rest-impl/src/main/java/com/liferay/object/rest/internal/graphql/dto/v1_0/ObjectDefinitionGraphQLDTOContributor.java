@@ -17,8 +17,8 @@ package com.liferay.object.rest.internal.graphql.dto.v1_0;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
-import com.liferay.object.rest.internal.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.rest.internal.odata.entity.v1_0.ObjectEntryEntityModel;
+import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -56,7 +56,7 @@ public class ObjectDefinitionGraphQLDTOContributor
 
 		graphQLDTOProperties.add(
 			GraphQLDTOProperty.of(
-				objectDefinition.getPrimaryKeyColumnName(), Long.class));
+				objectDefinition.getPKObjectFieldName(), Long.class));
 
 		for (ObjectField objectField : objectFields) {
 			graphQLDTOProperties.add(
@@ -68,9 +68,9 @@ public class ObjectDefinitionGraphQLDTOContributor
 
 		return new ObjectDefinitionGraphQLDTOContributor(
 			new ObjectEntryEntityModel(objectFields), graphQLDTOProperties,
-			objectDefinition.getPrimaryKeyColumnName(),
+			objectDefinition.getPKObjectFieldName(),
 			objectDefinition.getObjectDefinitionId(), objectEntryManager,
-			objectDefinition.getName());
+			objectDefinition.getShortName());
 	}
 
 	@Override

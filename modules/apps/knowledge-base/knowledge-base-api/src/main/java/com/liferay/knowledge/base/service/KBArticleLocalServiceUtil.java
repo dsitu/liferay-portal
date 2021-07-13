@@ -71,17 +71,17 @@ public class KBArticleLocalServiceUtil {
 	}
 
 	public static KBArticle addKBArticle(
-			long userId, long parentResourceClassNameId,
-			long parentResourcePrimKey, String title, String urlTitle,
-			String content, String description, String sourceURL,
-			String[] sections, String[] selectedFileNames,
+			String externalReferenceCode, long userId,
+			long parentResourceClassNameId, long parentResourcePrimKey,
+			String title, String urlTitle, String content, String description,
+			String sourceURL, String[] sections, String[] selectedFileNames,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws PortalException {
 
 		return getService().addKBArticle(
-			userId, parentResourceClassNameId, parentResourcePrimKey, title,
-			urlTitle, content, description, sourceURL, sections,
-			selectedFileNames, serviceContext);
+			externalReferenceCode, userId, parentResourceClassNameId,
+			parentResourcePrimKey, title, urlTitle, content, description,
+			sourceURL, sections, selectedFileNames, serviceContext);
 	}
 
 	public static void addKBArticleResources(
@@ -363,6 +363,13 @@ public class KBArticleLocalServiceUtil {
 		return getService().fetchLatestKBArticle(resourcePrimKey, groupId);
 	}
 
+	public static KBArticle fetchLatestKBArticleByExternalReferenceCode(
+		long groupId, String externalReferenceCode) {
+
+		return getService().fetchLatestKBArticleByExternalReferenceCode(
+			groupId, externalReferenceCode);
+	}
+
 	public static KBArticle fetchLatestKBArticleByUrlTitle(
 		long groupId, long kbFolderId, String urlTitle, int status) {
 
@@ -591,6 +598,14 @@ public class KBArticleLocalServiceUtil {
 		throws PortalException {
 
 		return getService().getLatestKBArticle(resourcePrimKey, status);
+	}
+
+	public static KBArticle getLatestKBArticleByExternalReferenceCode(
+			long groupId, String externalReferenceCode)
+		throws PortalException {
+
+		return getService().getLatestKBArticleByExternalReferenceCode(
+			groupId, externalReferenceCode);
 	}
 
 	public static KBArticle getLatestKBArticleByUrlTitle(

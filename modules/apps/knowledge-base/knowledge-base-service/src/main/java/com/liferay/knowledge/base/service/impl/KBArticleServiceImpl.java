@@ -84,28 +84,19 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 
 	@Override
 	public KBArticle addKBArticle(
-			String portletId, long parentResourceClassNameId,
-			long parentResourcePrimKey, String title, String urlTitle,
-			String content, String description, String sourceURL,
-			String[] sections, String[] selectedFileNames,
+			String externalReferenceCode, String portletId,
+			long parentResourceClassNameId, long parentResourcePrimKey,
+			String title, String urlTitle, String content, String description,
+			String sourceURL, String[] sections, String[] selectedFileNames,
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		if (portletId.equals(KBPortletKeys.KNOWLEDGE_BASE_ADMIN)) {
-			_adminPortletResourcePermission.check(
-				getPermissionChecker(), serviceContext.getScopeGroupId(),
-				KBActionKeys.ADD_KB_ARTICLE);
-		}
-		else if (portletId.equals(KBPortletKeys.KNOWLEDGE_BASE_DISPLAY)) {
-			_displayPortletResourcePermission.check(
-				getPermissionChecker(), serviceContext.getScopeGroupId(),
-				KBActionKeys.ADD_KB_ARTICLE);
-		}
+		_checkKBArticlePermissions(portletId, serviceContext);
 
 		return kbArticleLocalService.addKBArticle(
-			getUserId(), parentResourceClassNameId, parentResourcePrimKey,
-			title, urlTitle, content, description, sourceURL, sections,
-			selectedFileNames, serviceContext);
+			externalReferenceCode, getUserId(), parentResourceClassNameId,
+			parentResourcePrimKey, title, urlTitle, content, description,
+			sourceURL, sections, selectedFileNames, serviceContext);
 	}
 
 	@Override
@@ -225,6 +216,25 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 
 		KBArticle kbArticle = kbArticleLocalService.fetchLatestKBArticle(
 			resourcePrimKey, status);
+
+		if ((kbArticle != null) &&
+			_kbArticleModelResourcePermission.contains(
+				getPermissionChecker(), kbArticle, ActionKeys.VIEW)) {
+
+			return kbArticle;
+		}
+
+		return null;
+	}
+
+	@Override
+	public KBArticle fetchLatestKBArticleByExternalReferenceCode(
+			long groupId, String externalReferenceCode)
+		throws PortalException {
+
+		KBArticle kbArticle =
+			kbArticleLocalService.fetchLatestKBArticleByExternalReferenceCode(
+				groupId, externalReferenceCode);
 
 		if ((kbArticle != null) &&
 			_kbArticleModelResourcePermission.contains(
@@ -594,6 +604,21 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	@Override
+	public KBArticle getLatestKBArticleByExternalReferenceCode(
+			long groupId, String externalReferenceCode)
+		throws PortalException {
+
+		KBArticle kbArticle =
+			kbArticleLocalService.getLatestKBArticleByExternalReferenceCode(
+				groupId, externalReferenceCode);
+
+		_kbArticleModelResourcePermission.check(
+			getPermissionChecker(), kbArticle, KBActionKeys.VIEW);
+
+		return kbArticle;
+	}
+
+	@Override
 	public KBArticle[] getPreviousAndNextKBArticles(long kbArticleId)
 		throws PortalException {
 
@@ -953,6 +978,22 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 		else {
 			_kbArticleModelResourcePermission.check(
 				getPermissionChecker(), resourcePrimKey, KBActionKeys.UPDATE);
+		}
+	}
+
+	private void _checkKBArticlePermissions(
+			String portletId, ServiceContext serviceContext)
+		throws PortalException {
+
+		if (portletId.equals(KBPortletKeys.KNOWLEDGE_BASE_ADMIN)) {
+			_adminPortletResourcePermission.check(
+				getPermissionChecker(), serviceContext.getScopeGroupId(),
+				KBActionKeys.ADD_KB_ARTICLE);
+		}
+		else if (portletId.equals(KBPortletKeys.KNOWLEDGE_BASE_DISPLAY)) {
+			_displayPortletResourcePermission.check(
+				getPermissionChecker(), serviceContext.getScopeGroupId(),
+				KBActionKeys.ADD_KB_ARTICLE);
 		}
 	}
 

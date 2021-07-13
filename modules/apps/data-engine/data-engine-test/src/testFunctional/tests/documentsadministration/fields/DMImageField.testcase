@@ -330,9 +330,7 @@ definition {
 	test ShowAndHideImageFieldLabel {
 		DMDocument.addImageField();
 
-		DataEngine.editShowOrHideLabel(
-			fieldFieldLabel = "Image",
-			showLabel = "false");
+		DataEngine.toggleShowLabel(fieldLabel = "Image");
 
 		DDLDataDefinition.save();
 

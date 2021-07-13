@@ -200,11 +200,11 @@ public class ObjectLayoutUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout
-	 * @throws NoSuchLayoutException if a matching object layout could not be found
+	 * @throws NoSuchObjectLayoutException if a matching object layout could not be found
 	 */
 	public static ObjectLayout findByUuid_First(
 			String uuid, OrderByComparator<ObjectLayout> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutException {
 
 		return getPersistence().findByUuid_First(uuid, orderByComparator);
 	}
@@ -228,11 +228,11 @@ public class ObjectLayoutUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout
-	 * @throws NoSuchLayoutException if a matching object layout could not be found
+	 * @throws NoSuchObjectLayoutException if a matching object layout could not be found
 	 */
 	public static ObjectLayout findByUuid_Last(
 			String uuid, OrderByComparator<ObjectLayout> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutException {
 
 		return getPersistence().findByUuid_Last(uuid, orderByComparator);
 	}
@@ -257,12 +257,12 @@ public class ObjectLayoutUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	public static ObjectLayout[] findByUuid_PrevAndNext(
 			long objectLayoutId, String uuid,
 			OrderByComparator<ObjectLayout> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutException {
 
 		return getPersistence().findByUuid_PrevAndNext(
 			objectLayoutId, uuid, orderByComparator);
@@ -370,12 +370,12 @@ public class ObjectLayoutUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout
-	 * @throws NoSuchLayoutException if a matching object layout could not be found
+	 * @throws NoSuchObjectLayoutException if a matching object layout could not be found
 	 */
 	public static ObjectLayout findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayout> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutException {
 
 		return getPersistence().findByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -404,12 +404,12 @@ public class ObjectLayoutUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout
-	 * @throws NoSuchLayoutException if a matching object layout could not be found
+	 * @throws NoSuchObjectLayoutException if a matching object layout could not be found
 	 */
 	public static ObjectLayout findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayout> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutException {
 
 		return getPersistence().findByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -439,12 +439,12 @@ public class ObjectLayoutUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	public static ObjectLayout[] findByUuid_C_PrevAndNext(
 			long objectLayoutId, String uuid, long companyId,
 			OrderByComparator<ObjectLayout> orderByComparator)
-		throws com.liferay.object.exception.NoSuchLayoutException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutException {
 
 		return getPersistence().findByUuid_C_PrevAndNext(
 			objectLayoutId, uuid, companyId, orderByComparator);
@@ -504,10 +504,10 @@ public class ObjectLayoutUtil {
 	 *
 	 * @param objectLayoutId the primary key of the object layout
 	 * @return the object layout that was removed
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	public static ObjectLayout remove(long objectLayoutId)
-		throws com.liferay.object.exception.NoSuchLayoutException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutException {
 
 		return getPersistence().remove(objectLayoutId);
 	}
@@ -517,14 +517,14 @@ public class ObjectLayoutUtil {
 	}
 
 	/**
-	 * Returns the object layout with the primary key or throws a <code>NoSuchLayoutException</code> if it could not be found.
+	 * Returns the object layout with the primary key or throws a <code>NoSuchObjectLayoutException</code> if it could not be found.
 	 *
 	 * @param objectLayoutId the primary key of the object layout
 	 * @return the object layout
-	 * @throws NoSuchLayoutException if a object layout with the primary key could not be found
+	 * @throws NoSuchObjectLayoutException if a object layout with the primary key could not be found
 	 */
 	public static ObjectLayout findByPrimaryKey(long objectLayoutId)
-		throws com.liferay.object.exception.NoSuchLayoutException {
+		throws com.liferay.object.exception.NoSuchObjectLayoutException {
 
 		return getPersistence().findByPrimaryKey(objectLayoutId);
 	}

@@ -12,14 +12,12 @@
  * details.
  */
 
-const PAGINATION = {
-	CHANGE: 'pagination_change',
-	NEXT: 'pagination_next',
-	PREVIOUS: 'pagination_previous',
+const BUILDER_PAGES = {
+	UPDATE: 'builder_pages_update',
 };
 
-const RULES = {
-	UPDATE: 'rules_update',
+const OBJECT_FIELDS = {
+	ADD: 'object_fields_add',
 };
 
 const PAGE = {
@@ -31,7 +29,19 @@ const PAGE = {
 	TITLE_CHANGE: 'page_title_change',
 };
 
+const PAGINATION = {
+	CHANGE: 'pagination_change',
+	NEXT: 'pagination_next',
+	PREVIOUS: 'pagination_previous',
+};
+
+const RULES = {
+	UPDATE: 'rules_update',
+};
+
 export const EVENT_TYPES = {
+	BUILDER_PAGES,
+	OBJECT_FIELDS,
 	PAGE,
 	PAGINATION,
 	RULES,

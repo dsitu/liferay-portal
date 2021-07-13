@@ -52,6 +52,8 @@
 			).put(
 				"tagSelectorURL", renderRequest.getAttribute(QuestionsWebKeys.TAG_SELECTOR_URL)
 			).put(
+				"trustedUser", renderRequest.getAttribute(QuestionsWebKeys.TRUSTED_USER)
+			).put(
 				"userId", String.valueOf(themeDisplay.getUserId())
 			).put(
 				"useTopicNamesInURL", questionsConfiguration.useTopicNamesInURL()

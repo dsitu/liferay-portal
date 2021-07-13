@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence;
 
-import com.liferay.object.exception.NoSuchFieldException;
+import com.liferay.object.exception.NoSuchObjectFieldException;
 import com.liferay.object.model.ObjectField;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
@@ -107,13 +107,13 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public ObjectField findByUuid_First(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectField>
 				orderByComparator)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Returns the first object field in the ordered set where uuid = &#63;.
@@ -133,13 +133,13 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public ObjectField findByUuid_Last(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectField>
 				orderByComparator)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Returns the last object field in the ordered set where uuid = &#63;.
@@ -160,13 +160,13 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	public ObjectField[] findByUuid_PrevAndNext(
 			long objectFieldId, String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectField>
 				orderByComparator)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Removes all the object fields where uuid = &#63; from the database.
@@ -256,13 +256,13 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public ObjectField findByUuid_C_First(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectField>
 				orderByComparator)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Returns the first object field in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -284,13 +284,13 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public ObjectField findByUuid_C_Last(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectField>
 				orderByComparator)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Returns the last object field in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -313,13 +313,13 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	public ObjectField[] findByUuid_C_PrevAndNext(
 			long objectFieldId, String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectField>
 				orderByComparator)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Removes all the object fields where uuid = &#63; and companyId = &#63; from the database.
@@ -406,13 +406,13 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public ObjectField findByObjectDefinitionId_First(
 			long objectDefinitionId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectField>
 				orderByComparator)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Returns the first object field in the ordered set where objectDefinitionId = &#63;.
@@ -432,13 +432,13 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public ObjectField findByObjectDefinitionId_Last(
 			long objectDefinitionId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectField>
 				orderByComparator)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Returns the last object field in the ordered set where objectDefinitionId = &#63;.
@@ -459,13 +459,13 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @param objectDefinitionId the object definition ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	public ObjectField[] findByObjectDefinitionId_PrevAndNext(
 			long objectFieldId, long objectDefinitionId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectField>
 				orderByComparator)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Removes all the object fields where objectDefinitionId = &#63; from the database.
@@ -483,15 +483,15 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	public int countByObjectDefinitionId(long objectDefinitionId);
 
 	/**
-	 * Returns the object field where objectDefinitionId = &#63; and name = &#63; or throws a <code>NoSuchFieldException</code> if it could not be found.
+	 * Returns the object field where objectDefinitionId = &#63; and name = &#63; or throws a <code>NoSuchObjectFieldException</code> if it could not be found.
 	 *
 	 * @param objectDefinitionId the object definition ID
 	 * @param name the name
 	 * @return the matching object field
-	 * @throws NoSuchFieldException if a matching object field could not be found
+	 * @throws NoSuchObjectFieldException if a matching object field could not be found
 	 */
 	public ObjectField findByODI_N(long objectDefinitionId, String name)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Returns the object field where objectDefinitionId = &#63; and name = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
@@ -521,7 +521,7 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 * @return the object field that was removed
 	 */
 	public ObjectField removeByODI_N(long objectDefinitionId, String name)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Returns the number of object fields where objectDefinitionId = &#63; and name = &#63;.
@@ -559,21 +559,22 @@ public interface ObjectFieldPersistence extends BasePersistence<ObjectField> {
 	 *
 	 * @param objectFieldId the primary key of the object field
 	 * @return the object field that was removed
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
-	public ObjectField remove(long objectFieldId) throws NoSuchFieldException;
+	public ObjectField remove(long objectFieldId)
+		throws NoSuchObjectFieldException;
 
 	public ObjectField updateImpl(ObjectField objectField);
 
 	/**
-	 * Returns the object field with the primary key or throws a <code>NoSuchFieldException</code> if it could not be found.
+	 * Returns the object field with the primary key or throws a <code>NoSuchObjectFieldException</code> if it could not be found.
 	 *
 	 * @param objectFieldId the primary key of the object field
 	 * @return the object field
-	 * @throws NoSuchFieldException if a object field with the primary key could not be found
+	 * @throws NoSuchObjectFieldException if a object field with the primary key could not be found
 	 */
 	public ObjectField findByPrimaryKey(long objectFieldId)
-		throws NoSuchFieldException;
+		throws NoSuchObjectFieldException;
 
 	/**
 	 * Returns the object field with the primary key or returns <code>null</code> if it could not be found.

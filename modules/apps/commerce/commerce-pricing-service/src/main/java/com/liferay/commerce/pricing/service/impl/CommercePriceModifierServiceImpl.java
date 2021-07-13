@@ -32,7 +32,6 @@ import java.util.List;
 
 /**
  * @author Riccardo Alberti
- * @see CommercePriceModifierServiceBaseImpl
  */
 public class CommercePriceModifierServiceImpl
 	extends CommercePriceModifierServiceBaseImpl {

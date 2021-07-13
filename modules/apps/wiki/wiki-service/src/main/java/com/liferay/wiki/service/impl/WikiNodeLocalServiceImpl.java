@@ -129,7 +129,7 @@ public class WikiNodeLocalServiceImpl extends WikiNodeLocalServiceBaseImpl {
 
 		long nodeId = counterLocalService.increment();
 
-		if (externalReferenceCode == null) {
+		if (Validator.isNull(externalReferenceCode)) {
 			externalReferenceCode = String.valueOf(nodeId);
 		}
 
@@ -664,7 +664,7 @@ public class WikiNodeLocalServiceImpl extends WikiNodeLocalServiceBaseImpl {
 			throw new DuplicateNodeExternalReferenceCodeException(
 				StringBundler.concat(
 					"Duplicate node external reference code ",
-					externalReferenceCode, "in group ", groupId));
+					externalReferenceCode, " in group ", groupId));
 		}
 	}
 

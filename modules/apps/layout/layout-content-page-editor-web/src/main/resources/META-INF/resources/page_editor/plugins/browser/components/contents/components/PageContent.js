@@ -38,6 +38,7 @@ import {
 	useSelectorCallback,
 } from '../../../../../app/contexts/StoreContext';
 import {selectPageContentDropdownItems} from '../../../../../app/selectors/selectPageContentDropdownItems';
+import ImageEditorModal from './ImageEditorModal';
 
 export default function PageContent({
 	classNameId,
@@ -47,10 +48,6 @@ export default function PageContent({
 	subtype,
 	title,
 }) {
-	const dropdownItems = useSelectorCallback(
-		selectPageContentDropdownItems(classPK),
-		[classPK]
-	);
 	const editableProcessorUniqueId = useEditableProcessorUniqueId();
 	const hoverItem = useHoverItem();
 	const hoveredItemId = useHoveredItemId();
@@ -62,11 +59,38 @@ export default function PageContent({
 	] = useState(null);
 	const selectItem = useSelectItem();
 	const setEditableProcessorUniqueId = useSetEditableProcessorUniqueId();
+	const [imageEditorParams, setImageEditorParams] = useState(null);
 	const toControlsId = useToControlsId();
 
 	const isBeingEdited = useMemo(
 		() => toControlsId(editableId) === editableProcessorUniqueId,
 		[toControlsId, editableId, editableProcessorUniqueId]
+	);
+
+	const dropdownItems = useSelectorCallback(
+		(state) => {
+			const pageContentDropdownItems = selectPageContentDropdownItems(
+				classPK
+			)(state);
+
+			return pageContentDropdownItems?.map((item) => {
+				if (item.label === Liferay.Language.get('edit-image')) {
+					return {
+						...item,
+						onClick: () => {
+							setImageEditorParams({
+								editImageURL: item.editImageURL,
+								fileEntryId: item.fileEntryId,
+								previewURL: item.previewURL,
+							});
+						},
+					};
+				}
+
+				return item;
+			});
+		},
+		[classPK]
 	);
 
 	useEffect(() => {
@@ -183,7 +207,7 @@ export default function PageContent({
 					)}
 				</ClayLayout.ContentCol>
 
-				{dropdownItems ? (
+				{dropdownItems?.length ? (
 					<ClayDropDownWithItems
 						items={dropdownItems}
 						trigger={
@@ -214,6 +238,16 @@ export default function PageContent({
 					</ClayButton>
 				)}
 			</div>
+
+			{imageEditorParams && (
+				<ImageEditorModal
+					editImageURL={imageEditorParams.editImageURL}
+					fileEntryId={imageEditorParams.fileEntryId}
+					fragmentEntryLinks={fragmentEntryLinks}
+					onCloseModal={() => setImageEditorParams(null)}
+					previewURL={imageEditorParams.previewURL}
+				/>
+			)}
 		</li>
 	);
 }

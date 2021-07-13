@@ -30,13 +30,17 @@ public interface DSEnvelopeManager {
 		long companyId, long groupId, DSEnvelope dsEnvelope);
 
 	public void deleteDSEnvelopes(
-		long companyId, long groupId, String... dsEnvelopeIds);
+			long companyId, long groupId, String... dsEnvelopeIds)
+		throws Exception;
 
 	public DSEnvelope getDSEnvelope(
 		long companyId, long groupId, String dsEnvelopeId);
 
+	public DSEnvelope getDSEnvelope(
+		long companyId, long groupId, String dsEnvelopeId, String include);
+
 	public Page<DSEnvelope> getDSEnvelopesPage(
-		long companyId, long groupId, String fromDateString, String order,
-		Pagination pagination);
+		long companyId, long groupId, String fromDateString, String keywords,
+		String order, Pagination pagination, String status);
 
 }

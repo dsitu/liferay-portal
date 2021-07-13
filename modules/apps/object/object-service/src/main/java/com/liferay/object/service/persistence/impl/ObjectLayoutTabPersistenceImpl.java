@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence.impl;
 
-import com.liferay.object.exception.NoSuchLayoutTabException;
+import com.liferay.object.exception.NoSuchObjectLayoutTabException;
 import com.liferay.object.model.ObjectLayoutTab;
 import com.liferay.object.model.ObjectLayoutTabTable;
 import com.liferay.object.model.impl.ObjectLayoutTabImpl;
@@ -281,12 +281,12 @@ public class ObjectLayoutTabPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	@Override
 	public ObjectLayoutTab findByUuid_First(
 			String uuid, OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		ObjectLayoutTab objectLayoutTab = fetchByUuid_First(
 			uuid, orderByComparator);
@@ -304,7 +304,7 @@ public class ObjectLayoutTabPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutTabException(sb.toString());
+		throw new NoSuchObjectLayoutTabException(sb.toString());
 	}
 
 	/**
@@ -333,12 +333,12 @@ public class ObjectLayoutTabPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	@Override
 	public ObjectLayoutTab findByUuid_Last(
 			String uuid, OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		ObjectLayoutTab objectLayoutTab = fetchByUuid_Last(
 			uuid, orderByComparator);
@@ -356,7 +356,7 @@ public class ObjectLayoutTabPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutTabException(sb.toString());
+		throw new NoSuchObjectLayoutTabException(sb.toString());
 	}
 
 	/**
@@ -393,13 +393,13 @@ public class ObjectLayoutTabPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutTab[] findByUuid_PrevAndNext(
 			long objectLayoutTabId, String uuid,
 			OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -831,13 +831,13 @@ public class ObjectLayoutTabPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	@Override
 	public ObjectLayoutTab findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		ObjectLayoutTab objectLayoutTab = fetchByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -858,7 +858,7 @@ public class ObjectLayoutTabPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutTabException(sb.toString());
+		throw new NoSuchObjectLayoutTabException(sb.toString());
 	}
 
 	/**
@@ -891,13 +891,13 @@ public class ObjectLayoutTabPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	@Override
 	public ObjectLayoutTab findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		ObjectLayoutTab objectLayoutTab = fetchByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -918,7 +918,7 @@ public class ObjectLayoutTabPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchLayoutTabException(sb.toString());
+		throw new NoSuchObjectLayoutTabException(sb.toString());
 	}
 
 	/**
@@ -958,13 +958,13 @@ public class ObjectLayoutTabPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutTab[] findByUuid_C_PrevAndNext(
 			long objectLayoutTabId, String uuid, long companyId,
 			OrderByComparator<ObjectLayoutTab> orderByComparator)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -1329,11 +1329,11 @@ public class ObjectLayoutTabPersistenceImpl
 	 *
 	 * @param objectLayoutTabId the primary key of the object layout tab
 	 * @return the object layout tab that was removed
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutTab remove(long objectLayoutTabId)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		return remove((Serializable)objectLayoutTabId);
 	}
@@ -1343,11 +1343,11 @@ public class ObjectLayoutTabPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object layout tab
 	 * @return the object layout tab that was removed
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutTab remove(Serializable primaryKey)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		Session session = null;
 
@@ -1362,13 +1362,13 @@ public class ObjectLayoutTabPersistenceImpl
 					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
-				throw new NoSuchLayoutTabException(
+				throw new NoSuchObjectLayoutTabException(
 					_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			return remove(objectLayoutTab);
 		}
-		catch (NoSuchLayoutTabException noSuchEntityException) {
+		catch (NoSuchObjectLayoutTabException noSuchEntityException) {
 			throw noSuchEntityException;
 		}
 		catch (Exception exception) {
@@ -1502,11 +1502,11 @@ public class ObjectLayoutTabPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the object layout tab
 	 * @return the object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutTab findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		ObjectLayoutTab objectLayoutTab = fetchByPrimaryKey(primaryKey);
 
@@ -1515,7 +1515,7 @@ public class ObjectLayoutTabPersistenceImpl
 				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			throw new NoSuchLayoutTabException(
+			throw new NoSuchObjectLayoutTabException(
 				_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 		}
 
@@ -1523,15 +1523,15 @@ public class ObjectLayoutTabPersistenceImpl
 	}
 
 	/**
-	 * Returns the object layout tab with the primary key or throws a <code>NoSuchLayoutTabException</code> if it could not be found.
+	 * Returns the object layout tab with the primary key or throws a <code>NoSuchObjectLayoutTabException</code> if it could not be found.
 	 *
 	 * @param objectLayoutTabId the primary key of the object layout tab
 	 * @return the object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	@Override
 	public ObjectLayoutTab findByPrimaryKey(long objectLayoutTabId)
-		throws NoSuchLayoutTabException {
+		throws NoSuchObjectLayoutTabException {
 
 		return findByPrimaryKey((Serializable)objectLayoutTabId);
 	}

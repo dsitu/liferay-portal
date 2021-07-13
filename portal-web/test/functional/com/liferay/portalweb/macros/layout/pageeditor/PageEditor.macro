@@ -5,8 +5,6 @@ definition {
 
 		PageEditor.gotoTab(tabName = "Comments");
 
-		Pause(locator1 = "3000");
-
 		if (IsElementNotPresent(key_fragmentName = "${fragmentName}", locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENT_SECTION_NAME")) {
 			Click(
 				key_fragmentName = "${fragmentName}",
@@ -583,9 +581,7 @@ definition {
 			locator1 = "PageEditor#EXPERIENCE_NAME",
 			value1 = "${experienceName}");
 
-		Click(locator1 = "PageEditor#EXPERIENCE_SEGMENT_ANYONE");
-
-		AssertClick(
+		Select(
 			locator1 = "PageEditor#EXPERIENCE_SELECT_SEGMENT",
 			value1 = "${segmentName}");
 
@@ -623,9 +619,7 @@ definition {
 			checkboxName = "${language}",
 			locator1 = "Checkbox#ANY_CHECKBOX");
 
-		Click(locator1 = "PageEditor#EXPERIENCE_SEGMENT_ANYONE");
-
-		AssertClick(
+		Select(
 			locator1 = "PageEditor#EXPERIENCE_SELECT_SEGMENT",
 			value1 = "${segmentName}");
 
@@ -1149,16 +1143,16 @@ definition {
 	}
 
 	macro clickManagementBar {
-		var elementHeight = selenium.getElementHeight("PageEditor#MANAGEMENT_BAR");
-		var offSetY = MathUtil.product("10","${elementHeight}");
+		var elementHeight = selenium.getElementHeight("PageEditor#FRAGMENT_SIDEBAR_BODY");
+		var offSetY = MathUtil.product("25","${elementHeight}");
 		var offSetY = MathUtil.quotient("${offSetY}","100");
 
-		var elementWidth = selenium.getElementWidth("PageEditor#MANAGEMENT_BAR");
-		var offSetX = MathUtil.product("50","${elementWidth}");
+		var elementWidth = selenium.getElementWidth("PageEditor#FRAGMENT_SIDEBAR_BODY");
+		var offSetX = MathUtil.product("0","${elementWidth}");
 		var offSetX = MathUtil.quotient("${offSetX}","100");
 
 		Click.clickAt(
-			locator1 = "PageEditor#MANAGEMENT_BAR",
+			locator1 = "PageEditor#FRAGMENT_SIDEBAR_BODY",
 			value1 = "${offSetX},${offSetY}");
 	}
 
@@ -1470,6 +1464,10 @@ definition {
 				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT");
 		}
 		else {
+			WaitForElementPresent(
+				key_fieldLabel = "Source",
+				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT_WITH_LABEL");
+
 			var itemSelectorContentInputValue = selenium.getElementValue("//label[normalize-space(text())='Source']/following-sibling::div//input[contains(@class,'item-selector__content-input')]");
 
 			if ("${itemSelectorContentInputValue}" == "") {
@@ -1491,22 +1489,22 @@ definition {
 				columnName = "name",
 				tableEntry = "${vocabularyName}");
 
-			for (var categoryName : list "${categoryNameList}") {
+			for (var category : list "${categoryNameList}") {
 				AssertVisible(
 					key_columnName = "name",
-					key_tableEntry = "${categoryName}",
+					key_tableEntry = "${category}",
 					locator1 = "LexiconTable#TABLE_ENTRY_COLUMN_LINK");
 			}
 
-			if (isSet(subcategoryName)) {
+			if (isSet(categoryName)) {
 				LexiconTable.clickTableEntryColumnLink(
 					columnName = "name",
 					tableEntry = "${categoryName}");
 
-				for (var subcategoryName : list "${subcategoryNameList}") {
+				for (var subcategory : list "${subcategoryNameList}") {
 					AssertVisible(
 						key_columnName = "name",
-						key_tableEntry = "${subcategoryName}",
+						key_tableEntry = "${subcategory}",
 						locator1 = "LexiconTable#TABLE_ENTRY_COLUMN_LINK");
 				}
 
@@ -1529,25 +1527,39 @@ definition {
 			}
 		}
 
-		if (isSet(multipleSelection)) {
-			while (IsNotChecked.isNotCheckedNotVisible(checkboxName = "Multiple Selection", locator1 = "Checkbox#ANY_CHECKBOX")) {
+		if (isSet(singleSelection)) {
+			while (IsNotChecked.isNotCheckedNotVisible(checkboxName = "Single Selection", locator1 = "Checkbox#ANY_CHECKBOX")) {
 				Click.clickAtNotVisible(
-					checkboxName = "Multiple Selection",
+					checkboxName = "Single Selection",
 					locator1 = "Checkbox#ANY_CHECKBOX");
 			}
 
 			Pause(locator1 = "3000");
 
 			AssertChecked.assertCheckedNotVisible(
-				checkboxName = "Multiple Selection",
+				checkboxName = "Single Selection",
 				locator1 = "Checkbox#ANY_CHECKBOX");
 		}
 	}
 
 	macro editCollectionDisplay {
-		var key_fragmentName = "${fragmentName}";
+		if (!(isSet(index))) {
+			var index = "1";
+		}
 
-		Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER");
+		var key_fragmentName = "${fragmentName}";
+		var key_index = "${index}";
+
+		if (isSet(columnNumber)) {
+			Click.clickNoWaitForVisible(
+				key_columnNumber = "${columnNumber}",
+				key_elementHeader = "//li[contains(@class,'topper__title') and contains(.,'${key_fragmentName}')]",
+				key_position = "1",
+				locator1 = "PageEditor#GRID_COLUMN_NESTED_ELEMENT");
+		}
+		else {
+			Click.clickNoWaitForVisible(locator1 = "Fragment#FRAGMENT_HEADER_ANY");
+		}
 
 		PageEditor.gotoTab(tabName = "Selection");
 
@@ -1562,6 +1574,10 @@ definition {
 				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT");
 		}
 		else {
+			WaitForElementPresent(
+				key_fieldLabel = "Collection",
+				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT_WITH_LABEL");
+
 			var itemSelectorContentInputValue = selenium.getElementValue("//label[normalize-space(text())='Collection']/following-sibling::div//input[contains(@class,'item-selector__content-input')]");
 
 			if ("${itemSelectorContentInputValue}" == "") {
@@ -1719,23 +1735,27 @@ definition {
 				value1 = "${templateOption}");
 		}
 		else {
-			var itemSelectorContentInputValue = selenium.getElementValue("//label[normalize-space(text())='Content']/following-sibling::div//input[contains(@class,'item-selector__content-input')]");
+			WaitForElementPresent(
+				key_fieldLabel = "Item",
+				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT_WITH_LABEL");
+
+			var itemSelectorContentInputValue = selenium.getElementValue("//label[normalize-space(text())='Item']/following-sibling::div//input[contains(@class,'item-selector__content-input')]");
 
 			if ("${itemSelectorContentInputValue}" == "") {
 				Click(
-					key_fieldLabel = "Content",
+					key_fieldLabel = "Item",
 					key_text = "plus",
 					locator1 = "Icon#ANY_ITEM_SELECTOR");
 			}
 			else {
 				Click(
-					key_fieldLabel = "Content",
+					key_fieldLabel = "Item",
 					key_text = "change",
 					locator1 = "Icon#ANY_ITEM_SELECTOR");
 			}
 
-			if (IsElementPresent(key_menuItem = "Select Content...",locator1 = "MenuItem#ANY_MENU_ITEM")) {
-				MenuItem.click(menuItem = "Select Content...");
+			if (IsElementPresent(key_menuItem = "Select Item...",locator1 = "MenuItem#ANY_MENU_ITEM")) {
+				MenuItem.click(menuItem = "Select Item...");
 			}
 
 			SelectFrame(locator1 = "IFrame#MODAL_BODY");
@@ -1992,6 +2012,10 @@ definition {
 				value1 = "Direct");
 		}
 
+		WaitForElementPresent(
+			key_fieldLabel = "Image",
+			locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT_WITH_LABEL");
+
 		var itemSelectorContentInputValue = selenium.getElementValue("//label[normalize-space(text())='Image']/following-sibling::div//input[contains(@class,'item-selector__content-input')]");
 
 		if ("${itemSelectorContentInputValue}" == "") {
@@ -2060,19 +2084,23 @@ definition {
 			fragmentName = "${fragmentName}",
 			id = "${id}");
 
-		if ("${contributed}" == "false") {
+		if (isSet(text)) {
 			Type(
-				id = "${id}",
-				key_fragmentName = "${fragmentName}",
-				locator1 = "Fragment#EDITABLE_FIELD_CK_EDITOR",
+				key_editor = "content",
+				locator1 = "AlloyEditor#EDITOR",
 				value1 = "${text}");
 		}
-		else {
-			Type(
-				id = "${id}",
-				key_fragmentName = "${fragmentName}",
-				locator1 = "Fragment#CONTRIBUTED_FRAGMENT_EDITABLE_FIELD_CK_EDITOR",
-				value1 = "${text}");
+
+		if (isSet(style)) {
+			SelectFieldText(
+				key_editor = "content",
+				locator1 = "AlloyEditor#EDITOR");
+
+			Click(locator1 = "AlloyEditor#TEXT_FORMATTING_STYLE");
+
+			Click(
+				key_styleFormat = "${style}",
+				locator1 = "AlloyEditor#TEXT_FORMATTING_STYLE_DROPDOWN");
 		}
 
 		PageEditor.clickManagementBar();
@@ -2154,6 +2182,10 @@ definition {
 				}
 
 				if ("${backgroundImage}" == "Direct") {
+					WaitForElementPresent(
+						key_fieldLabel = "Background Image",
+						locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT_WITH_LABEL");
+
 					var itemSelectorContentInputValue = selenium.getElementValue("//label[normalize-space(text())='Background Image']/following-sibling::div//input[contains(@class,'item-selector__content-input')]");
 
 					if ("${itemSelectorContentInputValue}" == "") {
@@ -2427,7 +2459,8 @@ definition {
 			}
 			else {
 				Type(
-					locator1 = "PageEditorEditableLink#URL",
+					key_text = "URL",
+					locator1 = "TextInput#ANY",
 					value1 = "${url}");
 
 				Click(
@@ -2705,8 +2738,6 @@ definition {
 
 		Click(locator1 = "Fragment#FRAGMENT_COMMENT_ICON");
 
-		Pause(locator1 = "3000");
-
 		if (IsElementNotPresent(locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENT_SECTION_NAME")) {
 			Click(
 				key_content = "${content}",
@@ -2809,17 +2840,21 @@ definition {
 			locator1 = "PageEditor#NAV_ITEM_BUTTON",
 			value1 = "General");
 
-		var itemSelectorContentInputValue = selenium.getElementValue("//label[normalize-space(text())='Content']/following-sibling::div//input[contains(@class,'item-selector__content-input')]");
+		WaitForElementPresent(
+			key_fieldLabel = "Item",
+			locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT_WITH_LABEL");
+
+		var itemSelectorContentInputValue = selenium.getElementValue("//label[normalize-space(text())='Item']/following-sibling::div//input[contains(@class,'item-selector__content-input')]");
 
 		if ("${itemSelectorContentInputValue}" == "") {
 			Click(
-				key_fieldLabel = "Content",
+				key_fieldLabel = "Item",
 				key_text = "plus",
 				locator1 = "Icon#ANY_ITEM_SELECTOR");
 		}
 		else {
 			Click(
-				key_fieldLabel = "Content",
+				key_fieldLabel = "Item",
 				key_text = "change",
 				locator1 = "Icon#ANY_ITEM_SELECTOR");
 		}
@@ -3294,7 +3329,8 @@ definition {
 	macro viewDuplicateFragment {
 		AssertElementPresent(
 			key_fragmentName = "${fragmentName}",
-			locator1 = "Fragment#FRAGMENT_HEADER_2");
+			key_index = "2",
+			locator1 = "Fragment#FRAGMENT_HEADER_ANY");
 	}
 
 	macro viewEditorEmpty {
@@ -3332,12 +3368,25 @@ definition {
 	}
 
 	macro viewFragmentEditableText {
+		if (!(isSet(position))) {
+			var position = "1";
+		}
+
 		if ("${contributed}" == "false") {
 			AssertTextEquals(
 				id = "${id}",
 				key_fragmentName = "${fragmentName}",
 				locator1 = "Fragment#EDITABLE_FIELD",
 				value1 = "${editableText}");
+
+			if (isSet(style)) {
+				AssertVisible(
+					id = "${id}",
+					key_position = "${position}",
+					key_style = "${style}",
+					key_text = "${editableText}",
+					locator1 = "Fragment#INLINE_RICH_TEXT_STYLE");
+			}
 		}
 		else {
 			AssertTextEquals(
@@ -3345,6 +3394,15 @@ definition {
 				key_fragmentName = "${fragmentName}",
 				locator1 = "Fragment#CONTRIBUTED_FRAGMENT_EDITABLE_FIELD",
 				value1 = "${editableText}");
+
+			if (isSet(style)) {
+				AssertVisible(
+					id = "${id}",
+					key_position = "${position}",
+					key_style = "${style}",
+					key_text = "${editableText}",
+					locator1 = "Fragment#CONTRIBUTED_FRAGMENT_INLINE_RICH_TEXT_STYLE");
+			}
 		}
 	}
 
@@ -3602,6 +3660,28 @@ definition {
 				key_verticalAlignment = "bottom",
 				locator1 = "PageEditor#GRID_CONFIGURATION_VERTICAL_ALIGNMENT");
 		}
+	}
+
+	macro viewMentionsDisplayOption {
+		Click.clickAt(locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENTS");
+
+		Type.sendKeys(
+			locator1 = "PageEditor#FRAGMENT_SIDEBAR_COMMENTS",
+			value1 = "${fragmentComment}");
+
+		if (isSet(noMentionsUserScreenName)) {
+			AssertElementNotPresent(
+				key_mentionsUserScreenName = "${noMentionsUserScreenName}",
+				locator1 = "Mentions#MENTIONS_USER_DISPLAY_OPTION");
+		}
+
+		AssertElementPresent(
+			key_mentionsUserScreenName = "${mentionsUserScreenName}",
+			locator1 = "Mentions#MENTIONS_USER_DISPLAY_OPTION");
+
+		Click.clickNoMouseOver(
+			key_mentionsUserScreenName = "${mentionsUserScreenName}",
+			locator1 = "Mentions#MENTIONS_USER_DISPLAY_OPTION");
 	}
 
 	macro viewNoFragment {

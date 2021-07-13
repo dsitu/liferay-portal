@@ -69,11 +69,7 @@ definition {
 			locator1 = "DocumentsAndMedia#ICON_DOCUMENT_WORKFLOW_STATUS",
 			value1 = "Pending");
 
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "site-name");
-
-		BlogsNavigator.gotoAddEntry();
-
-		Pause(locator1 = "5000");
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -120,9 +116,7 @@ definition {
 			dmDocumentStatus = "Approved",
 			dmDocumentTitle = "Document_1.jpg");
 
-		BlogsNavigator.openBlogsAdmin(siteURLKey = "site-name");
-
-		BlogsNavigator.gotoAddEntry();
+		BlogsNavigator.openToAddEntry(siteURLKey = "site-name");
 
 		BlogsNavigator.gotoSelectFile();
 
@@ -309,7 +303,7 @@ definition {
 			assetType = "Web Content Article",
 			user = "Test Test");
 
-		Workflow.assignByDetails(user = "userfn userln");
+		Workflow.assignByDetails(user = "usersn (userfn userln)");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "user1@liferay.com",
@@ -877,7 +871,7 @@ definition {
 			assetType = "Web Content Article",
 			user = "Test Test");
 
-		Workflow.assignByDetails(user = "userfn userln");
+		Workflow.assignByDetails(user = "usersn (userfn userln)");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "user1@liferay.com",
@@ -1018,11 +1012,7 @@ definition {
 
 		Depot.viewDMWorkflowPresent(dmFolderName = "DM Folder Name");
 
-		DepotNavigator.openDepotAdmin();
-
-		DepotNavigator.gotoDepotPortlet(
-			depotName = "Test Depot Name",
-			portlet = "Settings");
+		DepotNavigator.openDepotSettingsGeneral(depotName = "Test Depot Name");
 
 		Depot.configureApplication(
 			applicationList = "Web Content",

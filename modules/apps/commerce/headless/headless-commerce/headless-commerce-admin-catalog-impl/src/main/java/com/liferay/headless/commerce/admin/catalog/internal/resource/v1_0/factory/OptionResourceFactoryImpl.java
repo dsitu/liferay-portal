@@ -50,7 +50,9 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Zoltán Takács
  * @generated
  */
-@Component(immediate = true, service = OptionResource.Factory.class)
+@Component(
+	enabled = false, immediate = true, service = OptionResource.Factory.class
+)
 @Generated("")
 public class OptionResourceFactoryImpl implements OptionResource.Factory {
 

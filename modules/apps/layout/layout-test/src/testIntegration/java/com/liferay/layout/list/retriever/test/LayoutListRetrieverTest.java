@@ -19,14 +19,11 @@ import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
-import com.liferay.info.list.provider.InfoItemRelatedListProvider;
-import com.liferay.info.list.provider.InfoListProvider;
-import com.liferay.info.list.provider.InfoListProviderContext;
-import com.liferay.info.list.provider.item.selector.criterion.InfoItemRelatedListProviderItemSelectorReturnType;
+import com.liferay.info.collection.provider.CollectionQuery;
+import com.liferay.info.collection.provider.InfoCollectionProvider;
+import com.liferay.info.collection.provider.RelatedInfoItemCollectionProvider;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
 import com.liferay.info.pagination.InfoPage;
-import com.liferay.info.pagination.Pagination;
-import com.liferay.info.sort.Sort;
 import com.liferay.layout.list.retriever.DefaultLayoutListRetrieverContext;
 import com.liferay.layout.list.retriever.KeyListObjectReference;
 import com.liferay.layout.list.retriever.LayoutListRetriever;
@@ -54,6 +51,7 @@ import com.liferay.registry.ServiceRegistration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -90,28 +88,28 @@ public class LayoutListRetrieverTest {
 	}
 
 	@Test
-	public void testAssetInfoItemRelatedListProviderLayoutListRetriever()
+	public void testAssetRelatedInfoItemCollectionProviderLayoutListRetriever()
 		throws Exception {
 
 		Registry registry = RegistryUtil.getRegistry();
 
-		ServiceRegistration<InfoItemRelatedListProvider<?, ?>>
+		ServiceRegistration<RelatedInfoItemCollectionProvider<?, ?>>
 			serviceRegistration = registry.registerService(
-				(Class<InfoItemRelatedListProvider<?, ?>>)
-					(Class<?>)InfoItemRelatedListProvider.class,
-				new AssetEntryInfoItemRelatedListProvider());
+				(Class<RelatedInfoItemCollectionProvider<?, ?>>)
+					(Class<?>)RelatedInfoItemCollectionProvider.class,
+				new AssetEntryRelatedInfoItemCollectionProvider());
 
 		LayoutListRetriever<?, KeyListObjectReference> layoutListRetriever =
 			(LayoutListRetriever<?, KeyListObjectReference>)
 				_layoutListRetrieverTracker.getLayoutListRetriever(
-					InfoItemRelatedListProviderItemSelectorReturnType.class.
-						getName());
+					InfoListProviderItemSelectorReturnType.class.getName());
 
 		KeyListObjectReference keyListObjectReference =
 			new KeyListObjectReference(
 				JSONUtil.put(
 					"key",
-					AssetEntryInfoItemRelatedListProvider.class.getName()));
+					AssetEntryRelatedInfoItemCollectionProvider.class.
+						getName()));
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -146,13 +144,14 @@ public class LayoutListRetrieverTest {
 	}
 
 	@Test
-	public void testInfoListProviderLayoutListRetriever() {
+	public void testInfoCollectionProviderLayoutListRetriever() {
 		Registry registry = RegistryUtil.getRegistry();
 
-		ServiceRegistration<InfoListProvider<?>> serviceRegistration =
+		ServiceRegistration<InfoCollectionProvider<?>> serviceRegistration =
 			registry.registerService(
-				(Class<InfoListProvider<?>>)(Class<?>)InfoListProvider.class,
-				new TestInfoListProvider());
+				(Class<InfoCollectionProvider<?>>)
+					(Class<?>)InfoCollectionProvider.class,
+				new TestInfoCollectionProvider());
 
 		LayoutListRetriever<?, KeyListObjectReference> layoutListRetriever =
 			(LayoutListRetriever<?, KeyListObjectReference>)
@@ -161,13 +160,15 @@ public class LayoutListRetrieverTest {
 
 		KeyListObjectReference keyListObjectReference =
 			new KeyListObjectReference(
-				JSONUtil.put("key", TestInfoListProvider.class.getName()));
+				JSONUtil.put(
+					"key", TestInfoCollectionProvider.class.getName()));
 
 		List<Object> list = layoutListRetriever.getList(
 			keyListObjectReference, new DefaultLayoutListRetrieverContext());
 
 		Assert.assertEquals(list.toString(), 1, list.size());
-		Assert.assertEquals(TestInfoListProvider.class.getName(), list.get(0));
+		Assert.assertEquals(
+			TestInfoCollectionProvider.class.getName(), list.get(0));
 
 		serviceRegistration.unregister();
 	}
@@ -178,49 +179,46 @@ public class LayoutListRetrieverTest {
 	@Inject
 	private LayoutListRetrieverTracker _layoutListRetrieverTracker;
 
-	private static class AssetEntryInfoItemRelatedListProvider
-		implements InfoItemRelatedListProvider<AssetEntry, AssetTag> {
+	private static class AssetEntryRelatedInfoItemCollectionProvider
+		implements RelatedInfoItemCollectionProvider<AssetEntry, AssetTag> {
+
+		@Override
+		public InfoPage<AssetTag> getCollectionInfoPage(
+			CollectionQuery collectionQuery) {
+
+			Optional<Object> relatedItemOptional =
+				collectionQuery.getRelatedItemObjectOptional();
+
+			Object relatedItem = relatedItemOptional.orElse(null);
+
+			if (!(relatedItem instanceof AssetEntry)) {
+				return InfoPage.of(
+					Collections.emptyList(), collectionQuery.getPagination(),
+					0);
+			}
+
+			AssetEntry assetEntry = (AssetEntry)relatedItem;
+
+			return InfoPage.of(assetEntry.getTags());
+		}
 
 		@Override
 		public String getLabel(Locale locale) {
 			return StringPool.BLANK;
 		}
 
-		@Override
-		public InfoPage<AssetTag> getRelatedItemsInfoPage(
-			AssetEntry assetEntry,
-			InfoListProviderContext infoListProviderContext,
-			Pagination pagination, Sort sort) {
-
-			return InfoPage.of(assetEntry.getTags());
-		}
-
 	}
 
-	private static class TestInfoListProvider
-		implements InfoListProvider<String> {
+	private static class TestInfoCollectionProvider
+		implements InfoCollectionProvider<String> {
 
 		@Override
-		public List<String> getInfoList(
-			InfoListProviderContext infoListProviderContext) {
+		public InfoPage<String> getCollectionInfoPage(
+			CollectionQuery collectionQuery) {
 
-			return getInfoList(infoListProviderContext, null, null);
-		}
-
-		@Override
-		public List<String> getInfoList(
-			InfoListProviderContext infoListProviderContext,
-			Pagination pagination, Sort sort) {
-
-			return Collections.singletonList(
-				TestInfoListProvider.class.getName());
-		}
-
-		@Override
-		public int getInfoListCount(
-			InfoListProviderContext infoListProviderContext) {
-
-			return 1;
+			return InfoPage.of(
+				Collections.singletonList(
+					TestInfoCollectionProvider.class.getName()));
 		}
 
 		@Override

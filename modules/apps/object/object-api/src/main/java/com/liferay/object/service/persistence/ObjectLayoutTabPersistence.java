@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence;
 
-import com.liferay.object.exception.NoSuchLayoutTabException;
+import com.liferay.object.exception.NoSuchObjectLayoutTabException;
 import com.liferay.object.model.ObjectLayoutTab;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
@@ -108,13 +108,13 @@ public interface ObjectLayoutTabPersistence
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	public ObjectLayoutTab findByUuid_First(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutTab>
 				orderByComparator)
-		throws NoSuchLayoutTabException;
+		throws NoSuchObjectLayoutTabException;
 
 	/**
 	 * Returns the first object layout tab in the ordered set where uuid = &#63;.
@@ -134,13 +134,13 @@ public interface ObjectLayoutTabPersistence
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	public ObjectLayoutTab findByUuid_Last(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutTab>
 				orderByComparator)
-		throws NoSuchLayoutTabException;
+		throws NoSuchObjectLayoutTabException;
 
 	/**
 	 * Returns the last object layout tab in the ordered set where uuid = &#63;.
@@ -161,13 +161,13 @@ public interface ObjectLayoutTabPersistence
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	public ObjectLayoutTab[] findByUuid_PrevAndNext(
 			long objectLayoutTabId, String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutTab>
 				orderByComparator)
-		throws NoSuchLayoutTabException;
+		throws NoSuchObjectLayoutTabException;
 
 	/**
 	 * Removes all the object layout tabs where uuid = &#63; from the database.
@@ -257,13 +257,13 @@ public interface ObjectLayoutTabPersistence
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	public ObjectLayoutTab findByUuid_C_First(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutTab>
 				orderByComparator)
-		throws NoSuchLayoutTabException;
+		throws NoSuchObjectLayoutTabException;
 
 	/**
 	 * Returns the first object layout tab in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -285,13 +285,13 @@ public interface ObjectLayoutTabPersistence
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout tab
-	 * @throws NoSuchLayoutTabException if a matching object layout tab could not be found
+	 * @throws NoSuchObjectLayoutTabException if a matching object layout tab could not be found
 	 */
 	public ObjectLayoutTab findByUuid_C_Last(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutTab>
 				orderByComparator)
-		throws NoSuchLayoutTabException;
+		throws NoSuchObjectLayoutTabException;
 
 	/**
 	 * Returns the last object layout tab in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -314,13 +314,13 @@ public interface ObjectLayoutTabPersistence
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	public ObjectLayoutTab[] findByUuid_C_PrevAndNext(
 			long objectLayoutTabId, String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutTab>
 				orderByComparator)
-		throws NoSuchLayoutTabException;
+		throws NoSuchObjectLayoutTabException;
 
 	/**
 	 * Removes all the object layout tabs where uuid = &#63; and companyId = &#63; from the database.
@@ -366,22 +366,22 @@ public interface ObjectLayoutTabPersistence
 	 *
 	 * @param objectLayoutTabId the primary key of the object layout tab
 	 * @return the object layout tab that was removed
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	public ObjectLayoutTab remove(long objectLayoutTabId)
-		throws NoSuchLayoutTabException;
+		throws NoSuchObjectLayoutTabException;
 
 	public ObjectLayoutTab updateImpl(ObjectLayoutTab objectLayoutTab);
 
 	/**
-	 * Returns the object layout tab with the primary key or throws a <code>NoSuchLayoutTabException</code> if it could not be found.
+	 * Returns the object layout tab with the primary key or throws a <code>NoSuchObjectLayoutTabException</code> if it could not be found.
 	 *
 	 * @param objectLayoutTabId the primary key of the object layout tab
 	 * @return the object layout tab
-	 * @throws NoSuchLayoutTabException if a object layout tab with the primary key could not be found
+	 * @throws NoSuchObjectLayoutTabException if a object layout tab with the primary key could not be found
 	 */
 	public ObjectLayoutTab findByPrimaryKey(long objectLayoutTabId)
-		throws NoSuchLayoutTabException;
+		throws NoSuchObjectLayoutTabException;
 
 	/**
 	 * Returns the object layout tab with the primary key or returns <code>null</code> if it could not be found.

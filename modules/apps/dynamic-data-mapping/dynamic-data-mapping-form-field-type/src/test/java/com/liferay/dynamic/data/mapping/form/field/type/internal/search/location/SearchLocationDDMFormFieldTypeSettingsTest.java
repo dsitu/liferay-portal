@@ -74,6 +74,8 @@ public class SearchLocationDDMFormFieldTypeSettingsTest
 		Assert.assertNotNull(layoutDDMFormField.getLabel());
 		Assert.assertEquals("select", layoutDDMFormField.getType());
 		Assert.assertNotNull(layoutDDMFormField.getPredefinedValue());
+		Assert.assertEquals(
+			"false", layoutDDMFormField.getProperty("showEmptyOption"));
 
 		DDMFormField placeholderDDMFormField = ddmFormFieldsMap.get(
 			"placeholder");
@@ -87,7 +89,9 @@ public class SearchLocationDDMFormFieldTypeSettingsTest
 
 		Assert.assertNotNull(visibleFieldsDDMFormField);
 		Assert.assertNotNull(visibleFieldsDDMFormField.getLabel());
-		Assert.assertEquals("select", visibleFieldsDDMFormField.getType());
+		Assert.assertEquals(
+			"multi_language_option_select",
+			visibleFieldsDDMFormField.getType());
 		Assert.assertNotNull(visibleFieldsDDMFormField.getPredefinedValue());
 
 		List<DDMFormRule> ddmFormRules = ddmForm.getDDMFormRules();
@@ -113,7 +117,8 @@ public class SearchLocationDDMFormFieldTypeSettingsTest
 		Assert.assertEquals(sb.toString(), actions.get(1));
 
 		Assert.assertEquals(
-			"setVisible('requiredErrorMessage', false)", actions.get(2));
+			"setVisible('requiredErrorMessage', getValue('required'))",
+			actions.get(2));
 	}
 
 	@Override

@@ -33,7 +33,7 @@ public class DDMFormEvaluatorFormValuesHelper {
 		createDDMFormFieldValuesMap(ddmFormValues);
 	}
 
-	public Set<DDMFormEvaluatorFieldContextKey> getDDMFormFieldContextKeySet(
+	public Set<DDMFormEvaluatorFieldContextKey> getDDMFormFieldContextKeys(
 		String fieldName) {
 
 		Map<DDMFormEvaluatorFieldContextKey, DDMFormFieldValue> map =

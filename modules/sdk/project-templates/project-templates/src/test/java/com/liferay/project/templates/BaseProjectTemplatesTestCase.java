@@ -15,14 +15,13 @@
 package com.liferay.project.templates;
 
 import aQute.bnd.main.bnd;
-import aQute.bnd.version.Version;
-import aQute.bnd.version.VersionRange;
 
 import com.liferay.maven.executor.MavenExecutor;
 import com.liferay.project.templates.extensions.ProjectTemplatesArgs;
 import com.liferay.project.templates.extensions.util.FileUtil;
 import com.liferay.project.templates.extensions.util.ProjectTemplatesUtil;
 import com.liferay.project.templates.extensions.util.Validator;
+import com.liferay.project.templates.extensions.util.VersionUtil;
 import com.liferay.project.templates.extensions.util.WorkspaceUtil;
 import com.liferay.project.templates.util.FileTestUtil;
 import com.liferay.project.templates.util.StringTestUtil;
@@ -675,12 +674,12 @@ public interface BaseProjectTemplatesTestCase {
 			else if (liferayVersion.startsWith("7.3")) {
 				writeGradlePropertiesInWorkspace(
 					workspaceDir,
-					"liferay.workspace.target.platform.version=7.3.6");
+					"liferay.workspace.target.platform.version=7.3.7");
 			}
 			else if (liferayVersion.startsWith("7.4")) {
 				writeGradlePropertiesInWorkspace(
 					workspaceDir,
-					"liferay.workspace.target.platform.version=7.4.0");
+					"liferay.workspace.target.platform.version=7.4.1-1");
 			}
 		}
 		else {
@@ -1124,11 +1123,7 @@ public interface BaseProjectTemplatesTestCase {
 			gradleWorkspaceModulesDir, template, name, "--liferay-version",
 			liferayVersion);
 
-		Version version = Version.parseVersion(liferayVersion);
-
-		VersionRange versionRange = new VersionRange("[7.0,7.3)");
-
-		if (versionRange.includes(version)) {
+		if (VersionUtil.getMinorVersion(liferayVersion) < 3) {
 			testContains(
 				gradleProjectDir, "build.gradle", DEPENDENCY_JAVAX_PORTLET_API,
 				DEPENDENCY_JAVAX_SERVLET_API, DEPENDENCY_ORG_OSGI_ANNOTATIONS);
@@ -1264,7 +1259,7 @@ public interface BaseProjectTemplatesTestCase {
 			mavenExecutor, "-DclassName=" + className,
 			"-Dpackage=" + packageName, "-DliferayVersion=" + liferayVersion);
 
-		if (!liferayVersion.equals("7.0.6") && !template.contains("war")) {
+		if (!liferayVersion.startsWith("7.0") && !template.contains("war")) {
 			testContains(
 				mavenProjectDir, "bnd.bnd",
 				"-contract: JavaPortlet,JavaServlet");
@@ -1310,12 +1305,12 @@ public interface BaseProjectTemplatesTestCase {
 		else if (liferayVersion.startsWith("7.3")) {
 			writeGradlePropertiesInWorkspace(
 				gradleWorkspaceDir,
-				"liferay.workspace.target.platform.version=7.3.6");
+				"liferay.workspace.target.platform.version=7.3.7");
 		}
 		else {
 			writeGradlePropertiesInWorkspace(
 				gradleWorkspaceDir,
-				"liferay.workspace.target.platform.version=7.4.0");
+				"liferay.workspace.target.platform.version=7.4.1-1");
 		}
 
 		File modulesDir = new File(gradleWorkspaceDir, "modules");
@@ -1467,30 +1462,41 @@ public interface BaseProjectTemplatesTestCase {
 
 		File workspaceDir = null;
 
-		if (argsList.contains("7.0.6")) {
-			workspaceDir = buildWorkspace(temporaryFolder, "7.0.6");
+		if (argsList.contains("7.0.6-2")) {
+			workspaceDir = buildWorkspace(temporaryFolder, "7.0.6-2");
 
 			writeGradlePropertiesInWorkspace(
-				workspaceDir, "liferay.workspace.product=portal-7.0-ga7");
+				workspaceDir,
+				"liferay.workspace.target.platform.version=7.0.6-2");
 		}
-		else if (argsList.contains("7.1.3")) {
-			workspaceDir = buildWorkspace(temporaryFolder, "7.1.3");
+		else if (argsList.contains("7.1.3-1")) {
+			workspaceDir = buildWorkspace(temporaryFolder, "7.1.3-1");
 
 			writeGradlePropertiesInWorkspace(
-				workspaceDir, "liferay.workspace.product=portal-7.1-ga4");
+				workspaceDir,
+				"liferay.workspace.target.platform.version=7.1.3-1");
 		}
-		else if (argsList.contains("7.2.1")) {
-			workspaceDir = buildWorkspace(temporaryFolder, "7.2.1");
+		else if (argsList.contains("7.2.1-1")) {
+			workspaceDir = buildWorkspace(temporaryFolder, "7.2.1-1");
 
 			writeGradlePropertiesInWorkspace(
-				workspaceDir, "liferay.workspace.product=portal-7.2-ga2");
+				workspaceDir,
+				"liferay.workspace.target.platform.version=7.2.1-1");
+		}
+		else if (argsList.contains("7.3.7")) {
+			workspaceDir = buildWorkspace(temporaryFolder, "7.3.7");
+
+			writeGradlePropertiesInWorkspace(
+				workspaceDir,
+				"liferay.workspace.target.platform.version=7.3.7");
 		}
 		else {
 			workspaceDir = buildWorkspace(
 				temporaryFolder, getDefaultLiferayVersion());
 
 			writeGradlePropertiesInWorkspace(
-				workspaceDir, "liferay.workspace.product=portal-7.3-ga6");
+				workspaceDir,
+				"liferay.workspace.target.platform.version=7.4.1-1");
 		}
 
 		File modulesDir = new File(workspaceDir, "modules");

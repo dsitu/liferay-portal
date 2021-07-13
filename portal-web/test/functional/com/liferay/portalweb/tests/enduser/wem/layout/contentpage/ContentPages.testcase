@@ -35,6 +35,67 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-134599. The fragmentElementId variable will have the same value with the id of wrapping div in a fragment on page."
+	@priority = "4"
+	test AddFragmentWithFreemarkerVariableToContentPage {
+		task ("Add a fragment collection") {
+			JSONFragment.addFragmentCollection(
+				groupName = "Test Site Name",
+				name = "Collection Name");
+		}
+
+		task ("Add a fragment with fragmentElementId and fragmentEntryLinkNamespace freemarker variables") {
+			var newLine = '''
+''';
+
+			var htmlSnippet = '''
+<div class="gf-1">
+	<h1>${fragmentElementId}</h1>
+	<h1>${fragmentEntryLinkNamespace}</h1>
+</div>
+			''';
+			var htmlSnippet = StringUtil.regexReplaceAll("${htmlSnippet}", "${newLine}", "");
+
+			var fragmentEntryId = JSONFragment.addSection(
+				collectionName = "Collection Name",
+				fragmentStatus = "Approved",
+				groupName = "Test Site Name",
+				html = "${htmlSnippet}",
+				name = "Fragment Name");
+		}
+
+		task ("Add a new fragment to page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addFragment(
+				collectionName = "Collection Name",
+				fragmentName = "Fragment Name");
+		}
+
+		task ("Get the fragmentEntryLinkNamespace") {
+			var fragmentEntryLinkNamespace = selenium.getText("xpath=(//div[@class='gf-1']/h1)[2]");
+
+			TestUtils.assertNotEquals(
+				actual = "${fragmentEntryLinkNamespace}",
+				expected = "");
+		}
+
+		task ("View the id of wrapping div equals fragment-fragmentEntryId-fragmentEntryLinkNamespace equals the fragmentElementId") {
+			AssertAttributeValue(
+				attribute1 = "id",
+				locator1 = "//div[@class='gf-1']/parent::div",
+				value1 = "fragment-${fragmentEntryId}-${fragmentEntryLinkNamespace}");
+
+			var fragmentElementId = selenium.getText("xpath=(//div[@class='gf-1']/h1)[1]");
+
+			TestUtils.assertEquals(
+				actual = "${fragmentElementId}",
+				expected = "fragment-${fragmentEntryId}-${fragmentEntryLinkNamespace}");
+		}
+	}
+
 	@description = "Users can only edit content pages in edit mode."
 	@priority = "5"
 	test CannotEditInViewMode {
@@ -67,7 +128,7 @@ definition {
 		}
 	}
 
-	@description = "This is for LPS-106813. Can set permissions for widgets in content page."
+	@description = "This is a test for LPS-106813. Can set permissions for widgets in content page."
 	@priority = "5"
 	test ConfigurePermissionsOfAssetPublisher {
 		property portal.acceptance = "true";
@@ -509,6 +570,88 @@ definition {
 		}
 	}
 
+	@description = "This is a test for LPS-129536. View the configuration settings of widget after execute Clean Up Orphaned Theme Portlet Preferences."
+	@priority = "4"
+	test ViewConfigurationSettingsOfWidgetAfterCleanUpOrphanedThemePortletPreferences {
+		property test.name.skip.portal.instance = "ContentPages#ViewConfigurationSettingsOfWidgetAfterCleanUpOrphanedThemePortletPreferences";
+
+		task ("Add a web content") {
+			JSONWebcontent.addWebContent(
+				content = "Web Content Content",
+				groupName = "Test Site Name",
+				title = "Web Content Title");
+		}
+
+		task ("Add an Asset Publisher widget to the page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addWidget(portletName = "Asset Publisher");
+		}
+
+		task ("Change the display template to Title List") {
+			Portlet.gotoPortletOptions(
+				portletName = "Asset Publisher",
+				portletOption = "Configuration");
+
+			AssetPublisherPortlet.configureDisplayTemplatePG(displayTemplate = "Title List");
+
+			IFrame.closeFrame();
+		}
+
+		task ("View web content displayed at Title List in Asset Publisher at edit mode") {
+			AssertTextEquals.assertText(
+				locator1 = "Relatedassets#ASSET_ROW_ENTRY_TITLE",
+				rowNumber = "1",
+				value1 = "Web Content Title");
+
+			PageEditor.clickPublish();
+		}
+
+		task ("View web content displayed at Title List in Asset Publisher at view mode") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			AssertTextEquals.assertText(
+				locator1 = "Relatedassets#ASSET_ROW_ENTRY_TITLE",
+				rowNumber = "1",
+				value1 = "Web Content Title");
+		}
+
+		task ("Execute Clean Up Orphaned Theme Portlet Preferences in Server Administration") {
+			ApplicationsMenu.gotoPortlet(
+				category = "System",
+				panel = "Control Panel",
+				portlet = "Server Administration");
+
+			ServerAdministration.executeServerResourcesActions(actionsDescription = "Clean Up Orphaned Theme Portlet Preferences");
+		}
+
+		task ("View web content displayed at Title List in Asset Publisher at view mode") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			AssertTextEquals.assertText(
+				locator1 = "Relatedassets#ASSET_ROW_ENTRY_TITLE",
+				rowNumber = "1",
+				value1 = "Web Content Title");
+		}
+
+		task ("View web content displayed at Title List in Asset Publisher at edit mode") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			AssertTextEquals.assertText(
+				locator1 = "Relatedassets#ASSET_ROW_ENTRY_TITLE",
+				rowNumber = "1",
+				value1 = "Web Content Title");
+		}
+	}
+
 	@description = "This is a test for LPS-81870. In edit mode the page should still show the elements of the page that are not from the page itself, like the header, footer, or elements defined by the theme."
 	@priority = "5"
 	@uitest
@@ -585,6 +728,66 @@ definition {
 			Click(locator1 = "PageEditor#FRAGMENT_DROP_TARGET");
 
 			AssertElementNotPresent(locator1 = "PageEditor#CONTENT_PAGE_DISABLED_POPOVER");
+		}
+	}
+
+	@description = "This is a test for LPS-130083. View the ellipsis button on the topper of fragment when the fragment is inside a nested Grid."
+	@priority = "4"
+	@uitest
+	test ViewEllipsisButtonOnTheTopperOfFragmentInsideNestedGrid {
+		task ("Add a Grid element to the content page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addFragment(
+				collectionName = "Layout Elements",
+				fragmentName = "Grid");
+		}
+
+		task ("Add a second Grid to the second module of Grid") {
+			PageEditor.addElementToColumn(
+				collectionName = "Layout Elements",
+				columnNumber = "2",
+				fragmentName = "Grid",
+				navTab = "Fragments");
+		}
+
+		task ("Add a Heading fragment to the first module of inner Grid") {
+			PageEditor.addElementToColumn(
+				collectionName = "Basic Components",
+				columnNumber = "1",
+				fragmentName = "Heading",
+				navTab = "Fragments",
+				position = "2");
+		}
+
+		task ("Add a Button fragment to the second module of inner Grid") {
+			PageEditor.addElementToColumn(
+				collectionName = "Basic Components",
+				columnNumber = "2",
+				fragmentName = "Button",
+				navTab = "Fragments",
+				position = "2");
+		}
+
+		task ("Add a Paragraph fragment to the third module of inner Grid") {
+			PageEditor.addElementToColumn(
+				collectionName = "Basic Components",
+				columnNumber = "3",
+				fragmentName = "Paragraph",
+				navTab = "Fragments",
+				position = "2");
+		}
+
+		task ("View the ellipsis button is visible on topper of fragments inside inner Grid") {
+			for (var fragmentName : list "Heading,Button,Paragraph") {
+				PageEditor.clickConfigurableField(fragmentName = "${fragmentName}");
+
+				AssertVisible(
+					key_fragmentName = "${fragmentName}",
+					locator1 = "Fragment#FRAGMENT_HEADER_ELLIPSIS");
+			}
 		}
 	}
 
@@ -852,6 +1055,8 @@ definition {
 			Click(locator1 = "Icon#CLOSE");
 
 			Button.click(button = "Publish Master");
+
+			Alert.viewSuccessMessage();
 		}
 
 		task ("Apply the master page template to page") {

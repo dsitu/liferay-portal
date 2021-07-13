@@ -15,9 +15,15 @@ definition {
 			widgetName = "${widgetName}");
 	}
 
+	macro clearSearchBar {
+		Click(locator1 = "ACUtils#CLEAR_SEARCH_BAR_BUTTON");
+	}
+
 	macro closeAllSessions {
+		var analyticsCloudAsahCuratorURL = PropsUtil.get("analytics.cloud.asah.curator.url");
+
 		var cleanCurl = '''
-			http://localhost:8082/admin/sessions/close \
+			${analyticsCloudAsahCuratorURL}/admin/sessions/close \
 			-H 'Content-Type: application/json' \
 			-d '{
 				"query": {
@@ -29,15 +35,22 @@ definition {
 		com.liferay.poshi.runner.util.JSONCurlUtil.post("${cleanCurl}");
 	}
 
+	macro closeModal {
+		Click(locator1 = "ACUtils#MODAL_CLOSE_BUTTON");
+	}
+
 	macro createBlogsAndAddToPage {
 		ACUtils.addWidgetToPage(widgetName = "Blogs");
 
 		Navigator.openSiteURL(siteName = "Site Name");
 
+		if (!(isSet(entryTitle))) {
+			entryTitle = "Blogs AC Title";
+		}
 		Blogs.addEntry(
 			entryContent = "This is the blog test for AC",
 			entrySubtitle = "Blogs AC Subtitle",
-			entryTitle = "Blogs AC Title");
+			entryTitle = "${entryTitle}");
 
 		Navigator.gotoSitePage(
 			pageName = "AC Page",
@@ -109,9 +122,11 @@ definition {
 	macro launchAC {
 		var analyticsCloudURL = PropsUtil.get("analytics.cloud.url");
 
-		Navigator.openURL(baseURL = "${analyticsCloudURL}");
+		Open(locator1 = "${analyticsCloudURL}");
 
-		ACLogin.loginAs();
+		if (IsElementPresent(locator1 = "ACLogin#EMAIL_LOGIN_FIELD")) {
+			ACLogin.loginAs();
+		}
 
 		ACWorkspace.openWorkspace();
 	}
@@ -124,12 +139,24 @@ definition {
 		}
 	}
 
+	macro searchBar {
+		Click(locator1 = "ACSettings#SEARCH_BAR");
+
+		Type(
+			locator1 = "ACSettings#SEARCH_BAR",
+			value1 = "${searchItem}");
+
+		KeyPress(
+			locator1 = "ACSettings#SEARCH_BAR",
+			value1 = "\ENTER");
+	}
+
 	macro tearDownAC {
 		ACUtils.launchAC();
 
 		ACSettings.deleteAllProperties();
 
-		ACSettings.deleteDataSource(dataSourceName = "Liferay DXP");
+		ACSettings.deleteDataSource();
 	}
 
 	macro tearDownDXP {

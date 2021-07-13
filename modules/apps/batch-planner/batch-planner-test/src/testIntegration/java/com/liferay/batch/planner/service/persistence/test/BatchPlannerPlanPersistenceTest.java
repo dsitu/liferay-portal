@@ -138,6 +138,8 @@ public class BatchPlannerPlanPersistenceTest {
 
 		newBatchPlannerPlan.setActive(RandomTestUtil.randomBoolean());
 
+		newBatchPlannerPlan.setExport(RandomTestUtil.randomBoolean());
+
 		newBatchPlannerPlan.setExternalType(RandomTestUtil.randomString());
 
 		newBatchPlannerPlan.setExternalURL(RandomTestUtil.randomString());
@@ -145,8 +147,6 @@ public class BatchPlannerPlanPersistenceTest {
 		newBatchPlannerPlan.setInternalClassName(RandomTestUtil.randomString());
 
 		newBatchPlannerPlan.setName(RandomTestUtil.randomString());
-
-		newBatchPlannerPlan.setExport(RandomTestUtil.randomBoolean());
 
 		_batchPlannerPlans.add(_persistence.update(newBatchPlannerPlan));
 
@@ -178,6 +178,9 @@ public class BatchPlannerPlanPersistenceTest {
 			existingBatchPlannerPlan.isActive(),
 			newBatchPlannerPlan.isActive());
 		Assert.assertEquals(
+			existingBatchPlannerPlan.isExport(),
+			newBatchPlannerPlan.isExport());
+		Assert.assertEquals(
 			existingBatchPlannerPlan.getExternalType(),
 			newBatchPlannerPlan.getExternalType());
 		Assert.assertEquals(
@@ -188,9 +191,6 @@ public class BatchPlannerPlanPersistenceTest {
 			newBatchPlannerPlan.getInternalClassName());
 		Assert.assertEquals(
 			existingBatchPlannerPlan.getName(), newBatchPlannerPlan.getName());
-		Assert.assertEquals(
-			existingBatchPlannerPlan.isExport(),
-			newBatchPlannerPlan.isExport());
 	}
 
 	@Test
@@ -244,9 +244,9 @@ public class BatchPlannerPlanPersistenceTest {
 		return OrderByComparatorFactoryUtil.create(
 			"BatchPlannerPlan", "mvccVersion", true, "batchPlannerPlanId", true,
 			"companyId", true, "userId", true, "userName", true, "createDate",
-			true, "modifiedDate", true, "active", true, "externalType", true,
-			"externalURL", true, "internalClassName", true, "name", true,
-			"export", true);
+			true, "modifiedDate", true, "active", true, "export", true,
+			"externalType", true, "externalURL", true, "internalClassName",
+			true, "name", true);
 	}
 
 	@Test
@@ -549,6 +549,8 @@ public class BatchPlannerPlanPersistenceTest {
 
 		batchPlannerPlan.setActive(RandomTestUtil.randomBoolean());
 
+		batchPlannerPlan.setExport(RandomTestUtil.randomBoolean());
+
 		batchPlannerPlan.setExternalType(RandomTestUtil.randomString());
 
 		batchPlannerPlan.setExternalURL(RandomTestUtil.randomString());
@@ -556,8 +558,6 @@ public class BatchPlannerPlanPersistenceTest {
 		batchPlannerPlan.setInternalClassName(RandomTestUtil.randomString());
 
 		batchPlannerPlan.setName(RandomTestUtil.randomString());
-
-		batchPlannerPlan.setExport(RandomTestUtil.randomBoolean());
 
 		_batchPlannerPlans.add(_persistence.update(batchPlannerPlan));
 

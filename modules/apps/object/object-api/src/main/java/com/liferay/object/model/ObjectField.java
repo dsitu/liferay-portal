@@ -56,6 +56,4 @@ public interface ObjectField extends ObjectFieldModel, PersistedModel {
 
 		};
 
-	public String getDBColumnName();
-
 }

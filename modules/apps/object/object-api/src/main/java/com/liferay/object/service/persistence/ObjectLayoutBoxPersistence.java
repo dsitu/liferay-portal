@@ -14,7 +14,7 @@
 
 package com.liferay.object.service.persistence;
 
-import com.liferay.object.exception.NoSuchLayoutBoxException;
+import com.liferay.object.exception.NoSuchObjectLayoutBoxException;
 import com.liferay.object.model.ObjectLayoutBox;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 
@@ -108,13 +108,13 @@ public interface ObjectLayoutBoxPersistence
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	public ObjectLayoutBox findByUuid_First(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutBox>
 				orderByComparator)
-		throws NoSuchLayoutBoxException;
+		throws NoSuchObjectLayoutBoxException;
 
 	/**
 	 * Returns the first object layout box in the ordered set where uuid = &#63;.
@@ -134,13 +134,13 @@ public interface ObjectLayoutBoxPersistence
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	public ObjectLayoutBox findByUuid_Last(
 			String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutBox>
 				orderByComparator)
-		throws NoSuchLayoutBoxException;
+		throws NoSuchObjectLayoutBoxException;
 
 	/**
 	 * Returns the last object layout box in the ordered set where uuid = &#63;.
@@ -161,13 +161,13 @@ public interface ObjectLayoutBoxPersistence
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	public ObjectLayoutBox[] findByUuid_PrevAndNext(
 			long objectLayoutBoxId, String uuid,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutBox>
 				orderByComparator)
-		throws NoSuchLayoutBoxException;
+		throws NoSuchObjectLayoutBoxException;
 
 	/**
 	 * Removes all the object layout boxes where uuid = &#63; from the database.
@@ -257,13 +257,13 @@ public interface ObjectLayoutBoxPersistence
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	public ObjectLayoutBox findByUuid_C_First(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutBox>
 				orderByComparator)
-		throws NoSuchLayoutBoxException;
+		throws NoSuchObjectLayoutBoxException;
 
 	/**
 	 * Returns the first object layout box in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -285,13 +285,13 @@ public interface ObjectLayoutBoxPersistence
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching object layout box
-	 * @throws NoSuchLayoutBoxException if a matching object layout box could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a matching object layout box could not be found
 	 */
 	public ObjectLayoutBox findByUuid_C_Last(
 			String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutBox>
 				orderByComparator)
-		throws NoSuchLayoutBoxException;
+		throws NoSuchObjectLayoutBoxException;
 
 	/**
 	 * Returns the last object layout box in the ordered set where uuid = &#63; and companyId = &#63;.
@@ -314,13 +314,13 @@ public interface ObjectLayoutBoxPersistence
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	public ObjectLayoutBox[] findByUuid_C_PrevAndNext(
 			long objectLayoutBoxId, String uuid, long companyId,
 			com.liferay.portal.kernel.util.OrderByComparator<ObjectLayoutBox>
 				orderByComparator)
-		throws NoSuchLayoutBoxException;
+		throws NoSuchObjectLayoutBoxException;
 
 	/**
 	 * Removes all the object layout boxes where uuid = &#63; and companyId = &#63; from the database.
@@ -366,22 +366,22 @@ public interface ObjectLayoutBoxPersistence
 	 *
 	 * @param objectLayoutBoxId the primary key of the object layout box
 	 * @return the object layout box that was removed
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	public ObjectLayoutBox remove(long objectLayoutBoxId)
-		throws NoSuchLayoutBoxException;
+		throws NoSuchObjectLayoutBoxException;
 
 	public ObjectLayoutBox updateImpl(ObjectLayoutBox objectLayoutBox);
 
 	/**
-	 * Returns the object layout box with the primary key or throws a <code>NoSuchLayoutBoxException</code> if it could not be found.
+	 * Returns the object layout box with the primary key or throws a <code>NoSuchObjectLayoutBoxException</code> if it could not be found.
 	 *
 	 * @param objectLayoutBoxId the primary key of the object layout box
 	 * @return the object layout box
-	 * @throws NoSuchLayoutBoxException if a object layout box with the primary key could not be found
+	 * @throws NoSuchObjectLayoutBoxException if a object layout box with the primary key could not be found
 	 */
 	public ObjectLayoutBox findByPrimaryKey(long objectLayoutBoxId)
-		throws NoSuchLayoutBoxException;
+		throws NoSuchObjectLayoutBoxException;
 
 	/**
 	 * Returns the object layout box with the primary key or returns <code>null</code> if it could not be found.

@@ -53,6 +53,22 @@ public class CompanyThreadLocal {
 		return _deleteInProcess.get();
 	}
 
+	public static boolean isLocked() {
+		return _locked.get();
+	}
+
+	public static SafeCloseable lock(long companyId) {
+		SafeCloseable safeCloseable = setWithSafeCloseable(companyId);
+
+		_locked.set(true);
+
+		return () -> {
+			_locked.set(false);
+
+			safeCloseable.close();
+		};
+	}
+
 	public static void setCompanyId(Long companyId) {
 		if (_setCompanyId(companyId)) {
 			CTCollectionThreadLocal.removeCTCollectionId();
@@ -178,6 +194,11 @@ public class CompanyThreadLocal {
 			return false;
 		}
 
+		if (isLocked()) {
+			throw new UnsupportedOperationException(
+				"CompanyThreadLocal modification is not allowed");
+		}
+
 		if (_log.isDebugEnabled()) {
 			_log.debug("setCompanyId " + companyId);
 		}
@@ -226,5 +247,8 @@ public class CompanyThreadLocal {
 		new CentralizedThreadLocal<>(
 			CompanyThreadLocal.class + "._deleteInProcess",
 			() -> Boolean.FALSE);
+	private static final ThreadLocal<Boolean> _locked =
+		new CentralizedThreadLocal<>(
+			CompanyThreadLocal.class + "._locked", () -> Boolean.FALSE);
 
 }

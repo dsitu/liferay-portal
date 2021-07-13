@@ -16,6 +16,7 @@ package com.liferay.portal.kernel.util;
 
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 
 import java.io.IOException;
@@ -2219,7 +2220,7 @@ public class StringUtil {
 				throw new IOException(
 					StringBundler.concat(
 						"Unable to open resource ", name, " in class loader ",
-						String.valueOf(classLoader)));
+						classLoader));
 			}
 
 			return read(inputStream);

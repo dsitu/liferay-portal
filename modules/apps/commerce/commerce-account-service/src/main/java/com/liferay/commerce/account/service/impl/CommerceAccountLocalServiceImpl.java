@@ -14,11 +14,7 @@
 
 package com.liferay.commerce.account.service.impl;
 
-import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
-import com.liferay.account.model.AccountEntryOrganizationRelTable;
-import com.liferay.account.model.AccountEntryTable;
-import com.liferay.account.model.AccountEntryUserRelTable;
 import com.liferay.commerce.account.constants.CommerceAccountConstants;
 import com.liferay.commerce.account.exception.CommerceAccountNameException;
 import com.liferay.commerce.account.exception.CommerceAccountOrdersException;
@@ -27,34 +23,23 @@ import com.liferay.commerce.account.model.CommerceAccount;
 import com.liferay.commerce.account.model.impl.CommerceAccountImpl;
 import com.liferay.commerce.account.service.base.CommerceAccountLocalServiceBaseImpl;
 import com.liferay.commerce.account.util.CommerceAccountRoleHelper;
-import com.liferay.petra.sql.dsl.DSLFunctionFactoryUtil;
-import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
-import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
-import com.liferay.petra.sql.dsl.query.FromStep;
-import com.liferay.petra.sql.dsl.query.GroupByStep;
-import com.liferay.petra.sql.dsl.query.JoinStep;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
-import com.liferay.portal.kernel.model.Organization;
-import com.liferay.portal.kernel.model.PersistedModel;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.model.UserTable;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -66,9 +51,7 @@ import java.io.Serializable;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * @author Marco Leo
@@ -225,15 +208,6 @@ public class CommerceAccountLocalServiceImpl
 			accountEntryLocalService.createAccountEntry(commerceAccountId));
 	}
 
-	@Override
-	public PersistedModel createPersistedModel(Serializable primaryKeyObj)
-		throws PortalException {
-
-		return CommerceAccountImpl.fromAccountEntry(
-			(AccountEntry)accountEntryLocalService.createPersistedModel(
-				primaryKeyObj));
-	}
-
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
@@ -308,17 +282,6 @@ public class CommerceAccountLocalServiceImpl
 	}
 
 	@Override
-	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
-		throws PortalException {
-
-		CommerceAccount commerceAccount = (CommerceAccount)persistedModel;
-
-		return accountEntryLocalService.deletePersistedModel(
-			accountEntryLocalService.getPersistedModel(
-				commerceAccount.getPrimaryKeyObj()));
-	}
-
-	@Override
 	public <T> T dslQuery(DSLQuery dslQuery) {
 		throw new UnsupportedOperationException();
 	}
@@ -332,7 +295,7 @@ public class CommerceAccountLocalServiceImpl
 		}
 
 		return CommerceAccountImpl.fromAccountEntry(
-			accountEntryLocalService.fetchAccountEntryByReferenceCode(
+			accountEntryLocalService.fetchAccountEntryByExternalReferenceCode(
 				companyId, externalReferenceCode));
 	}
 
@@ -347,7 +310,7 @@ public class CommerceAccountLocalServiceImpl
 		long companyId, String externalReferenceCode) {
 
 		return CommerceAccountImpl.fromAccountEntry(
-			accountEntryLocalService.fetchAccountEntryByReferenceCode(
+			accountEntryLocalService.fetchAccountEntryByExternalReferenceCode(
 				companyId, externalReferenceCode));
 	}
 
@@ -365,7 +328,8 @@ public class CommerceAccountLocalServiceImpl
 		throws PortalException {
 
 		return CommerceAccountImpl.fromAccountEntry(
-			_fetchUserAccountEntry(userId, commerceAccountId));
+			accountEntryLocalService.fetchUserAccountEntry(
+				userId, commerceAccountId));
 	}
 
 	@Override
@@ -405,15 +369,6 @@ public class CommerceAccountLocalServiceImpl
 	}
 
 	@Override
-	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
-		throws PortalException {
-
-		return CommerceAccountImpl.fromAccountEntry(
-			(AccountEntry)accountEntryLocalService.getPersistedModel(
-				primaryKeyObj));
-	}
-
-	@Override
 	public CommerceAccount getPersonalCommerceAccount(long userId)
 		throws PortalException {
 
@@ -442,16 +397,10 @@ public class CommerceAccountLocalServiceImpl
 		throws PortalException {
 
 		return TransformUtil.transform(
-			accountEntryLocalService.dslQuery(
-				_getGroupByStep(
-					DSLQueryFactoryUtil.selectDistinct(
-						AccountEntryTable.INSTANCE),
-					userId, parentCommerceAccountId, keywords,
-					CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
-					CommerceAccountImpl.toAccountEntryStatus(active)
-				).limit(
-					start, end
-				)),
+			accountEntryLocalService.getUserAccountEntries(
+				userId, parentCommerceAccountId, keywords,
+				CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
+				CommerceAccountImpl.toAccountEntryStatus(active), start, end),
 			CommerceAccountImpl::fromAccountEntry);
 	}
 
@@ -462,16 +411,10 @@ public class CommerceAccountLocalServiceImpl
 		throws PortalException {
 
 		return TransformUtil.transform(
-			accountEntryLocalService.dslQuery(
-				_getGroupByStep(
-					DSLQueryFactoryUtil.selectDistinct(
-						AccountEntryTable.INSTANCE),
-					userId, parentCommerceAccountId, keywords,
-					CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
-					WorkflowConstants.STATUS_ANY
-				).limit(
-					start, end
-				)),
+			accountEntryLocalService.getUserAccountEntries(
+				userId, parentCommerceAccountId, keywords,
+				CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
+				WorkflowConstants.STATUS_ANY, start, end),
 			CommerceAccountImpl::fromAccountEntry);
 	}
 
@@ -491,13 +434,10 @@ public class CommerceAccountLocalServiceImpl
 			String keywords, Boolean active)
 		throws PortalException {
 
-		return accountEntryLocalService.dslQueryCount(
-			_getGroupByStep(
-				DSLQueryFactoryUtil.countDistinct(
-					AccountEntryTable.INSTANCE.accountEntryId),
-				userId, parentCommerceAccountId, keywords,
-				CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
-				CommerceAccountImpl.toAccountEntryStatus(active)));
+		return accountEntryLocalService.getUserAccountEntriesCount(
+			userId, parentCommerceAccountId, keywords,
+			CommerceAccountImpl.toAccountEntryTypes(commerceSiteType),
+			CommerceAccountImpl.toAccountEntryStatus(active));
 	}
 
 	@Override
@@ -747,173 +687,8 @@ public class CommerceAccountLocalServiceImpl
 		}
 	}
 
-	private AccountEntry _fetchUserAccountEntry(
-		long userId, long accountEntryId) {
-
-		// TODO Remove when other services are bridged
-
-		JoinStep joinStep = DSLQueryFactoryUtil.selectDistinct(
-			AccountEntryTable.INSTANCE
-		).from(
-			UserTable.INSTANCE
-		).leftJoinOn(
-			AccountEntryUserRelTable.INSTANCE,
-			AccountEntryUserRelTable.INSTANCE.accountUserId.eq(
-				UserTable.INSTANCE.userId)
-		);
-
-		Predicate accountEntryTablePredicate =
-			AccountEntryTable.INSTANCE.accountEntryId.eq(
-				AccountEntryUserRelTable.INSTANCE.accountEntryId
-			).or(
-				AccountEntryTable.INSTANCE.userId.eq(UserTable.INSTANCE.userId)
-			);
-
-		Long[] organizationIds = _getOrganizationIds(userId);
-
-		if (ArrayUtil.isNotEmpty(organizationIds)) {
-			joinStep = joinStep.leftJoinOn(
-				AccountEntryOrganizationRelTable.INSTANCE,
-				AccountEntryOrganizationRelTable.INSTANCE.organizationId.in(
-					organizationIds));
-
-			accountEntryTablePredicate = accountEntryTablePredicate.or(
-				AccountEntryTable.INSTANCE.accountEntryId.eq(
-					AccountEntryOrganizationRelTable.INSTANCE.accountEntryId));
-		}
-
-		joinStep = joinStep.leftJoinOn(
-			AccountEntryTable.INSTANCE, accountEntryTablePredicate);
-
-		DSLQuery dslQuery = joinStep.where(
-			UserTable.INSTANCE.userId.eq(
-				userId
-			).and(
-				AccountEntryTable.INSTANCE.type.neq(
-					AccountConstants.ACCOUNT_ENTRY_TYPE_GUEST)
-			).and(
-				AccountEntryTable.INSTANCE.accountEntryId.eq(accountEntryId)
-			)
-		).limit(
-			0, 1
-		);
-
-		List<AccountEntry> accountEntries = accountEntryLocalService.dslQuery(
-			dslQuery);
-
-		if (accountEntries.isEmpty()) {
-			return null;
-		}
-
-		return accountEntries.get(0);
-	}
-
-	private GroupByStep _getGroupByStep(
-			FromStep fromStep, long userId, Long parentAccountId,
-			String keywords, String[] types, Integer status)
-		throws PortalException {
-
-		JoinStep joinStep = fromStep.from(
-			UserTable.INSTANCE
-		).leftJoinOn(
-			AccountEntryUserRelTable.INSTANCE,
-			AccountEntryUserRelTable.INSTANCE.accountUserId.eq(
-				UserTable.INSTANCE.userId)
-		);
-
-		Long[] organizationIds = _getOrganizationIds(userId);
-
-		if (ArrayUtil.isNotEmpty(organizationIds)) {
-			joinStep = joinStep.leftJoinOn(
-				AccountEntryOrganizationRelTable.INSTANCE,
-				AccountEntryOrganizationRelTable.INSTANCE.organizationId.in(
-					organizationIds));
-		}
-
-		Predicate accountEntryPredicate =
-			AccountEntryTable.INSTANCE.accountEntryId.eq(
-				AccountEntryUserRelTable.INSTANCE.accountEntryId
-			).or(
-				AccountEntryTable.INSTANCE.userId.eq(userId)
-			);
-
-		if (ArrayUtil.isNotEmpty(organizationIds)) {
-			accountEntryPredicate = accountEntryPredicate.or(
-				AccountEntryTable.INSTANCE.accountEntryId.eq(
-					AccountEntryOrganizationRelTable.INSTANCE.accountEntryId));
-		}
-
-		joinStep = joinStep.leftJoinOn(
-			AccountEntryTable.INSTANCE, accountEntryPredicate);
-
-		return joinStep.where(
-			() -> {
-				Predicate predicate = UserTable.INSTANCE.userId.eq(userId);
-
-				if (parentAccountId != null) {
-					predicate = predicate.and(
-						AccountEntryTable.INSTANCE.parentAccountEntryId.eq(
-							parentAccountId));
-				}
-
-				if (Validator.isNotNull(keywords)) {
-					predicate = predicate.and(
-						Predicate.withParentheses(
-							_customSQL.getKeywordsPredicate(
-								DSLFunctionFactoryUtil.lower(
-									AccountEntryTable.INSTANCE.name),
-								_customSQL.keywords(keywords, true))));
-				}
-
-				if (types != null) {
-					predicate = predicate.and(
-						AccountEntryTable.INSTANCE.type.in(types));
-				}
-
-				if ((status != null) &&
-					(status != WorkflowConstants.STATUS_ANY)) {
-
-					predicate = predicate.and(
-						AccountEntryTable.INSTANCE.status.eq(status));
-				}
-
-				return predicate;
-			});
-	}
-
-	private Long[] _getOrganizationIds(long userId) {
-		List<Organization> organizations =
-			organizationLocalService.getUserOrganizations(userId);
-
-		ListIterator<Organization> listIterator = organizations.listIterator();
-
-		while (listIterator.hasNext()) {
-			Organization organization = listIterator.next();
-
-			for (Organization curOrganization :
-					organizationLocalService.getOrganizations(
-						organization.getCompanyId(),
-						organization.getTreePath() + "%")) {
-
-				listIterator.add(curOrganization);
-			}
-		}
-
-		Stream<Organization> stream = organizations.stream();
-
-		return stream.map(
-			Organization::getOrganizationId
-		).distinct(
-		).toArray(
-			Long[]::new
-		);
-	}
-
 	@ServiceReference(type = CommerceAccountRoleHelper.class)
 	private CommerceAccountRoleHelper _commerceAccountRoleHelper;
-
-	@ServiceReference(type = CustomSQL.class)
-	private CustomSQL _customSQL;
 
 	@ServiceReference(type = Portal.class)
 	private Portal _portal;

@@ -50,7 +50,10 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Andrea Sbarra
  * @generated
  */
-@Component(immediate = true, service = TaxCategoryResource.Factory.class)
+@Component(
+	enabled = false, immediate = true,
+	service = TaxCategoryResource.Factory.class
+)
 @Generated("")
 public class TaxCategoryResourceFactoryImpl
 	implements TaxCategoryResource.Factory {

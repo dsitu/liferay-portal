@@ -22,16 +22,16 @@ definition {
 
 		SystemSettings.gotoConfiguration(
 			configurationCategory = "Pages",
-			configurationName = "Google PageSpeed",
+			configurationName = "Google PageSpeed Insights",
 			configurationScope = "Virtual Instance Scope");
 
-		if (IsChecked(locator1 = "Checkbox#ANY_CHECKBOX", checkboxName = "Enabled")) {
+		if (IsChecked(locator1 = "Checkbox#ANY_CHECKBOX", checkboxName = "Enable")) {
 			Click.javaScriptClick(
-				checkboxName = "Enabled",
+				checkboxName = "Enable",
 				locator1 = "Checkbox#ANY_CHECKBOX");
 
 			AssertNotChecked.assertNotCheckedNotVisible(
-				checkboxName = "Enabled",
+				checkboxName = "Enable",
 				locator1 = "Checkbox#ANY_CHECKBOX");
 		}
 
@@ -52,16 +52,16 @@ definition {
 
 		SystemSettings.gotoConfiguration(
 			configurationCategory = "Pages",
-			configurationName = "Google PageSpeed",
+			configurationName = "Google PageSpeed Insights",
 			configurationScope = "Virtual Instance Scope");
 
-		if (IsNotChecked.isNotCheckedNotVisible(locator1 = "Checkbox#ANY_CHECKBOX", checkboxName = "Enabled")) {
+		if (IsNotChecked.isNotCheckedNotVisible(locator1 = "Checkbox#ANY_CHECKBOX", checkboxName = "Enable")) {
 			Click.javaScriptClick(
-				checkboxName = "Enabled",
+				checkboxName = "Enable",
 				locator1 = "Checkbox#ANY_CHECKBOX");
 
 			AssertChecked.assertCheckedNotVisible(
-				checkboxName = "Enabled",
+				checkboxName = "Enable",
 				locator1 = "Checkbox#ANY_CHECKBOX");
 		}
 
@@ -74,10 +74,69 @@ definition {
 		}
 	}
 
-	macro openPageAuditPanel {
-		while (IsElementNotPresent(locator1 = "PageAudit#CONNECT_TO_GOOGLE_PAGESPEED_BUTTON")) {
+	macro openPanelAfterConfiguration {
+		if (IsElementNotPresent(locator1 = "PageAudit#PANEL_PAGE_TITLE")) {
 			Click(locator1 = "PageAudit#PAGE_AUDIT_BUTTON");
 		}
+
+		if (IsElementPresent(locator1 = "PageAudit#LAUNCH_PAGE_AUDIT_BUTTON")) {
+			Click(locator1 = "PageAudit#LAUNCH_PAGE_AUDIT_BUTTON");
+		}
+		else {
+			Click(locator1 = "PageAudit#RELAUNCH_PAGE_AUDIT_BUTTON");
+		}
+	}
+
+	macro openPanelBeforeConfiguration {
+		if (IsElementNotPresent(locator1 = "PageAudit#CONNECT_TO_GOOGLE_PAGESPEED_BUTTON")) {
+			Click(locator1 = "PageAudit#PAGE_AUDIT_BUTTON");
+		}
+	}
+
+	macro setAPIViaSystemSettings {
+		ApplicationsMenu.gotoPortlet(
+			category = "Configuration",
+			panel = "Control Panel",
+			portlet = "System Settings");
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Pages",
+			configurationName = "Google PageSpeed Insights",
+			configurationScope = "Site Scope");
+
+		Click(locator1 = "PageAudit#API_FIELD");
+
+		Type(
+			locator1 = "PageAudit#API_FIELD",
+			value1 = "${apiKey}");
+
+		if (IsElementPresent(locator1 = "Button#SAVE")) {
+			Click(locator1 = "Button#SAVE");
+		}
+
+		if (IsElementPresent(locator1 = "Button#UPDATE")) {
+			Click(locator1 = "Button#UPDATE");
+		}
+	}
+
+	macro setSEOcanonicalURL {
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/content-page");
+
+		Navigator.gotoEditPageViaControlMenu(pageName = "Content Page");
+
+		Navigator.gotoNavTab(navTab = "SEO");
+
+		var checkboxName = "Use Custom Canonical URL";
+
+		if (IsNotChecked(locator1 = "Checkbox#ANY_CHECKBOX")) {
+			Click(locator1 = "Checkbox#ANY_CHECKBOX");
+		}
+
+		Type(
+			locator1 = "TextInput#CUSTOM_CANONICAL_URL",
+			value1 = "https://liferay-tango.github.io/liferay-portal/page-audit-test");
+
+		PortletEntry.save();
 	}
 
 }

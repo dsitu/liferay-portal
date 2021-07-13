@@ -15,7 +15,7 @@
 package com.liferay.object.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.object.exception.NoSuchLayoutTabException;
+import com.liferay.object.exception.NoSuchObjectLayoutTabException;
 import com.liferay.object.model.ObjectLayoutTab;
 import com.liferay.object.service.ObjectLayoutTabLocalServiceUtil;
 import com.liferay.object.service.persistence.ObjectLayoutTabPersistence;
@@ -194,7 +194,7 @@ public class ObjectLayoutTabPersistenceTest {
 		Assert.assertEquals(existingObjectLayoutTab, newObjectLayoutTab);
 	}
 
-	@Test(expected = NoSuchLayoutTabException.class)
+	@Test(expected = NoSuchObjectLayoutTabException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 

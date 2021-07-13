@@ -18,7 +18,7 @@ import com.liferay.object.deployer.ObjectDefinitionDeployer;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.rest.internal.graphql.dto.v1_0.ObjectDefinitionGraphQLDTOContributor;
 import com.liferay.object.rest.internal.jaxrs.context.provider.ObjectDefinitionContextProvider;
-import com.liferay.object.rest.internal.manager.v1_0.ObjectEntryManager;
+import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
@@ -45,6 +45,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = ObjectDefinitionDeployer.class)
 public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
+	@Override
 	public List<ServiceRegistration<?>> deploy(
 		ObjectDefinition objectDefinition) {
 
@@ -64,7 +65,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 						"osgi.jaxrs.extension.select",
 						"(osgi.jaxrs.name=Liferay.Vulcan)"
 					).put(
-						"osgi.jaxrs.name", objectDefinition.getName()
+						"osgi.jaxrs.name", objectDefinition.getShortName()
 					).build()),
 				_objectEntryResourceComponentFactory.newInstance(
 					HashMapDictionaryBuilder.<String, Object>put(
@@ -73,12 +74,13 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 						"batch.engine.task.item.delegate", "true"
 					).put(
 						"batch.engine.task.item.delegate.name",
-						objectDefinition.getName()
+						objectDefinition.getShortName()
 					).put(
 						"osgi.jaxrs.resource", "true"
 					).put(
 						"osgi.jaxrs.application.select",
-						"(osgi.jaxrs.name=" + objectDefinition.getName() + ")"
+						"(osgi.jaxrs.name=" + objectDefinition.getShortName() +
+							")"
 					).build())));
 
 		return Arrays.asList(
@@ -87,7 +89,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				new ObjectDefinitionContextProvider(objectDefinition),
 				HashMapDictionaryBuilder.<String, Object>put(
 					"osgi.jaxrs.application.select",
-					"(osgi.jaxrs.name=" + objectDefinition.getName() + ")"
+					"(osgi.jaxrs.name=" + objectDefinition.getShortName() + ")"
 				).put(
 					"osgi.jaxrs.extension", "true"
 				).put(
@@ -109,9 +111,9 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	}
 
 	@Override
-	public void undeploy(long objectDefinitionId) {
+	public void undeploy(ObjectDefinition objectDefinition) {
 		List<ComponentInstance> componentInstances = _componentInstancesMap.get(
-			objectDefinitionId);
+			objectDefinition.getObjectDefinitionId());
 
 		for (ComponentInstance componentInstance : componentInstances) {
 			componentInstance.dispose();

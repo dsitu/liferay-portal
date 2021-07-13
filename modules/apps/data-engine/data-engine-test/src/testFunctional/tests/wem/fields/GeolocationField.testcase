@@ -148,29 +148,23 @@ definition {
 	test ShowAndHideGeolocationLabel {
 		var key_fieldName = "Geolocation";
 
-		DataEngine.editShowOrHideLabel(
-			fieldFieldLabel = "${key_fieldName}",
-			showLabel = "true");
+		DataEngine.toggleShowLabel(fieldLabel = "${key_fieldName}");
 
 		WebContentStructures.saveCP();
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
 
-		AssertElementPresent(
-			key_fieldFieldLabel = "${key_fieldName}",
-			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		DataEngine.assertFieldNotPresent(fieldFieldLabel = "${key_fieldName}");
 
-		DataEngine.editShowOrHideLabel(
-			fieldFieldLabel = "${key_fieldName}",
-			showLabel = "false");
+		DataEngine.toggleShowLabel();
 
 		WebContentStructures.saveCP();
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Title");
 
-		AssertElementNotPresent(
-			key_fieldFieldLabel = "${key_fieldName}",
-			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		DataEngine.viewField(
+			fieldFieldLabel = "${key_fieldName}",
+			fieldName = "${key_fieldName}");
 	}
 
 	@description = "This test ensures a repeatable geolocation field can be duplicated on the Web Content."

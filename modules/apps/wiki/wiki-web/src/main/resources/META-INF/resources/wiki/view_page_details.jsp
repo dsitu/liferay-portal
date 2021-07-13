@@ -43,7 +43,7 @@ PortletURL editPageURL = PortletURLBuilder.createRenderURL(
 ).setRedirect(
 	currentURL
 ).setParameter(
-	"nodeId", String.valueOf(node.getNodeId())
+	"nodeId", node.getNodeId()
 ).setParameter(
 	"title", wikiPage.getTitle()
 ).build();
@@ -358,7 +358,7 @@ PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "details
 								).setMVCRenderCommandName(
 									"/wiki/move_page"
 								).setRedirect(
-									viewPageURL.toString()
+									viewPageURL
 								).buildString()
 							%>'
 						/>

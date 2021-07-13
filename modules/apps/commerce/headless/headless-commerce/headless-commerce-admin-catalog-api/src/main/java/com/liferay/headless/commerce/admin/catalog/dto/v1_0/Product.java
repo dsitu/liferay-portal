@@ -296,6 +296,35 @@ public class Product implements Serializable {
 	protected Date createDate;
 
 	@Schema
+	@Valid
+	public CustomField[] getCustomFields() {
+		return customFields;
+	}
+
+	public void setCustomFields(CustomField[] customFields) {
+		this.customFields = customFields;
+	}
+
+	@JsonIgnore
+	public void setCustomFields(
+		UnsafeSupplier<CustomField[], Exception> customFieldsUnsafeSupplier) {
+
+		try {
+			customFields = customFieldsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected CustomField[] customFields;
+
+	@Schema
 	public String getDefaultSku() {
 		return defaultSku;
 	}
@@ -697,6 +726,70 @@ public class Product implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Boolean neverExpire;
+
+	@Schema
+	public Boolean getProductAccountGroupFilter() {
+		return productAccountGroupFilter;
+	}
+
+	public void setProductAccountGroupFilter(
+		Boolean productAccountGroupFilter) {
+
+		this.productAccountGroupFilter = productAccountGroupFilter;
+	}
+
+	@JsonIgnore
+	public void setProductAccountGroupFilter(
+		UnsafeSupplier<Boolean, Exception>
+			productAccountGroupFilterUnsafeSupplier) {
+
+		try {
+			productAccountGroupFilter =
+				productAccountGroupFilterUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean productAccountGroupFilter;
+
+	@Schema
+	@Valid
+	public ProductAccountGroup[] getProductAccountGroups() {
+		return productAccountGroups;
+	}
+
+	public void setProductAccountGroups(
+		ProductAccountGroup[] productAccountGroups) {
+
+		this.productAccountGroups = productAccountGroups;
+	}
+
+	@JsonIgnore
+	public void setProductAccountGroups(
+		UnsafeSupplier<ProductAccountGroup[], Exception>
+			productAccountGroupsUnsafeSupplier) {
+
+		try {
+			productAccountGroups = productAccountGroupsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected ProductAccountGroup[] productAccountGroups;
 
 	@Schema
 	public Boolean getProductChannelFilter() {
@@ -1389,6 +1482,26 @@ public class Product implements Serializable {
 			sb.append("\"");
 		}
 
+		if (customFields != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"customFields\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < customFields.length; i++) {
+				sb.append(String.valueOf(customFields[i]));
+
+				if ((i + 1) < customFields.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		if (defaultSku != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -1557,6 +1670,36 @@ public class Product implements Serializable {
 			sb.append("\"neverExpire\": ");
 
 			sb.append(neverExpire);
+		}
+
+		if (productAccountGroupFilter != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"productAccountGroupFilter\": ");
+
+			sb.append(productAccountGroupFilter);
+		}
+
+		if (productAccountGroups != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"productAccountGroups\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < productAccountGroups.length; i++) {
+				sb.append(String.valueOf(productAccountGroups[i]));
+
+				if ((i + 1) < productAccountGroups.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		if (productChannelFilter != null) {

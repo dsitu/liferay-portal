@@ -279,29 +279,23 @@ definition {
 	@description = "This test verifies that a user can toggle hide/show the field label."
 	@priority = "3"
 	test ShowAndHideRichTextLabel {
-		DataEngine.editShowOrHideLabel(
-			fieldFieldLabel = "Rich Text",
-			showLabel = "true");
+		DataEngine.toggleShowLabel(fieldLabel = "Rich Text");
 
 		WebContentStructures.saveCP();
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
 
-		AssertVisible(
-			key_fieldFieldLabel = "Rich Text",
-			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		DataEngine.assertFieldNotPresent(fieldFieldLabel = "Rich Text");
 
-		DataEngine.editShowOrHideLabel(
-			fieldFieldLabel = "Rich Text",
-			showLabel = "false");
+		DataEngine.toggleShowLabel();
 
 		WebContentStructures.saveCP();
 
 		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
 
-		AssertElementNotPresent(
-			key_fieldFieldLabel = "Rich Text",
-			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		DataEngine.viewField(
+			fieldFieldLabel = "Rich Text",
+			fieldName = "Rich Text");
 	}
 
 	@description = "This test verifies that a user can see the Tip(Help Text) if it was defined."

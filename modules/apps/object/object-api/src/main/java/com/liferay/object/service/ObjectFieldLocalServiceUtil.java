@@ -45,14 +45,14 @@ public class ObjectFieldLocalServiceUtil {
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectFieldLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
 	public static ObjectField addObjectField(
-			long userId, long objectDefinitionId, boolean indexed,
-			boolean indexedAsKeyword, String indexedLanguageId, String name,
-			String type)
+			long userId, long objectDefinitionId, String dbColumnName,
+			boolean indexed, boolean indexedAsKeyword, String indexedLanguageId,
+			String name, boolean required, String type)
 		throws PortalException {
 
 		return getService().addObjectField(
-			userId, objectDefinitionId, indexed, indexedAsKeyword,
-			indexedLanguageId, name, type);
+			userId, objectDefinitionId, dbColumnName, indexed, indexedAsKeyword,
+			indexedLanguageId, name, required, type);
 	}
 
 	/**
@@ -266,6 +266,13 @@ public class ObjectFieldLocalServiceUtil {
 		return getService().getObjectField(objectFieldId);
 	}
 
+	public static ObjectField getObjectField(
+			long objectDefinitionId, String name)
+		throws PortalException {
+
+		return getService().getObjectField(objectDefinitionId, name);
+	}
+
 	/**
 	 * Returns the object field with the matching UUID and company.
 	 *
@@ -339,6 +346,10 @@ public class ObjectFieldLocalServiceUtil {
 	 */
 	public static ObjectField updateObjectField(ObjectField objectField) {
 		return getService().updateObjectField(objectField);
+	}
+
+	public static void validateType(String type) throws PortalException {
+		getService().validateType(type);
 	}
 
 	public static ObjectFieldLocalService getService() {

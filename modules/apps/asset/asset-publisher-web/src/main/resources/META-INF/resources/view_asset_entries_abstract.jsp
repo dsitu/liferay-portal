@@ -22,7 +22,13 @@ long previewClassPK = ParamUtil.getLong(request, "previewClassPK");
 int previewType = ParamUtil.getInteger(request, "previewType");
 
 AssetEntryResult assetEntryResult = (AssetEntryResult)request.getAttribute("view.jsp-assetEntryResult");
+%>
 
+<c:if test="<%= Validator.isNotNull(assetEntryResult.getTitle()) %>">
+	<p class="asset-entries-group-label h3"><%= HtmlUtil.escape(assetEntryResult.getTitle()) %></p>
+</c:if>
+
+<%
 for (AssetEntry assetEntry : assetEntryResult.getAssetEntries()) {
 	AssetRendererFactory<?> assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassNameId(assetEntry.getClassNameId());
 
@@ -362,10 +368,10 @@ for (AssetEntry assetEntry : assetEntryResult.getAssetEntries()) {
 						<%
 						PortletURL exportAssetURL = PortletURLBuilder.create(
 							assetRenderer.getURLExport(liferayPortletRequest, liferayPortletResponse)
+						).setPortletResource(
+							portletDisplay.getId()
 						).setParameter(
 							"plid", themeDisplay.getPlid()
-						).setParameter(
-							"portletResource", portletDisplay.getId()
 						).setWindowState(
 							LiferayWindowState.EXCLUSIVE
 						).build();

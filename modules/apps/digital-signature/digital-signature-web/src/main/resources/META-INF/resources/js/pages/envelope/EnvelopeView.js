@@ -16,24 +16,31 @@ import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayLabel from '@clayui/label';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
-import {createResourceURL, fetch, openToast} from 'frontend-js-web';
+import {createActionURL, fetch, openToast} from 'frontend-js-web';
 import React, {useContext, useEffect, useState} from 'react';
 
 import {AppContext} from '../../AppContext';
-import DocumentPreviewer from '../../components/document-previewer/DocumentPreviewer';
-import EmptyState from '../../components/table/EmptyState';
+import {BackButtonPortal} from '../../components/control-menu/ControlMenu';
+import DocumentPreviewerWrapper from '../../components/document-previewer/DocumentPreviewerWrapper';
 import {DOCUSIGN_STATUS} from '../../utils/contants';
+import {toLocalDateTimeFormatted} from '../../utils/moment';
 import {concatValues} from '../../utils/utils';
 
-const QuestionLine = ({children, colon = true, question}) => (
-	<div>
+const QuestionLine = ({children, className, colon = true, question}) => (
+	<div className={className}>
 		<b>{`${question}${colon ? ':' : ''}`}</b>
 		<span className="ml-1">{children}</span>
 	</div>
 );
 
 const EnvelopeDetail = ({
-	envelope: {emailBlurb, emailSubject, recipients, senderEmailAddress},
+	envelope: {
+		createdLocalDateTime,
+		emailBlurb,
+		emailSubject,
+		recipients,
+		senderEmailAddress,
+	},
 	envelopeId,
 }) => (
 	<div className="envelope-view__details">
@@ -42,7 +49,17 @@ const EnvelopeDetail = ({
 		</div>
 		<hr />
 
-		<QuestionLine colon={false} question={emailSubject} />
+		<div className="d-flex">
+			<QuestionLine
+				className="flex-grow-1"
+				colon={false}
+				question={emailSubject}
+			/>
+			<QuestionLine
+				colon={false}
+				question={toLocalDateTimeFormatted(createdLocalDateTime)}
+			/>
+		</div>
 		<QuestionLine question={Liferay.Language.get('to')}>
 			{concatValues(recipients?.signers.map(({email}) => email))}
 		</QuestionLine>
@@ -70,11 +87,14 @@ const EnvelopeHeader = ({docusignStatus, emailSubject, envelopeId}) => {
 			<ClayButton
 				onClick={() =>
 					window.open(
-						createResourceURL(baseResourceURL, {
-							dsEnvelopeId: envelopeId,
-							p_p_resource_id:
-								'/digital_signature/get_ds_documents_as_bytes',
-						}),
+						Liferay.Util.PortletURL.createResourceURL(
+							baseResourceURL,
+							{
+								dsEnvelopeId: envelopeId,
+								p_p_resource_id:
+									'/digital_signature/get_ds_documents_as_bytes',
+							}
+						),
 						'_blank'
 					)
 				}
@@ -98,8 +118,6 @@ function EnvelopeView({
 		isLoading: true,
 	});
 
-	const fileEntry = fileEntries[0] || {};
-
 	const docusignStatus = DOCUSIGN_STATUS[envelope?.status] || {
 		...DOCUSIGN_STATUS.other,
 		label: envelope?.status,
@@ -108,7 +126,7 @@ function EnvelopeView({
 	const getEnvelope = async () => {
 		try {
 			const response = await fetch(
-				createResourceURL(baseResourceURL, {
+				Liferay.Util.PortletURL.createResourceURL(baseResourceURL, {
 					dsEnvelopeId: envelopeId,
 					p_p_resource_id: '/digital_signature/get_ds_envelope',
 				})
@@ -118,7 +136,7 @@ function EnvelopeView({
 
 			setEnvelope({...data, isLoading: false});
 		}
-		catch (e) {
+		catch (error) {
 			openToast({
 				message: Liferay.Language.get('an-unexpected-error-occurred'),
 				title: Liferay.Language.get('error'),
@@ -140,29 +158,27 @@ function EnvelopeView({
 
 	return (
 		<div className="envelope-view">
+			<BackButtonPortal />
+
 			<EnvelopeHeader
 				docusignStatus={docusignStatus}
 				emailSubject={envelope.emailSubject}
 				envelopeId={envelopeId}
 			/>
 
-			{fileEntries.length === 0 ? (
-				<EmptyState
-					className="mb-2 mt-4"
-					description={Liferay.Language.get(
-						'the-document-does-not-have-a-preview'
-					)}
-					title={Liferay.Language.get('no-preview-available')}
-				/>
-			) : (
-				<DocumentPreviewer
-					baseImageURL={fileEntry.previewFileURL}
-					initialPage={fileEntry.initialPage}
-					totalPages={fileEntry.previewFileCount}
-				/>
-			)}
+			<DocumentPreviewerWrapper fileEntries={fileEntries} />
 
 			<EnvelopeDetail envelope={envelope} envelopeId={envelopeId} />
+
+			<input
+				type="hidden"
+				value={createActionURL(baseResourceURL, {
+					dsEnvelopeId: envelopeId,
+					'javax.portlet.action':
+						'/digital_signature/delete_ds_envelope',
+					p_auth: Liferay.authToken,
+				})}
+			/>
 		</div>
 	);
 }

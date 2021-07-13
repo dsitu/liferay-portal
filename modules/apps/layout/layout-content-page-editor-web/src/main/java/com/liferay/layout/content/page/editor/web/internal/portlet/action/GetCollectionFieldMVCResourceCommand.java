@@ -15,8 +15,13 @@
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
 import com.liferay.asset.info.display.contributor.util.ContentAccessor;
+import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
 import com.liferay.fragment.entry.processor.helper.FragmentEntryProcessorHelper;
+import com.liferay.info.collection.provider.item.selector.criterion.InfoCollectionProviderItemSelectorCriterion;
+import com.liferay.info.collection.provider.item.selector.criterion.RelatedInfoItemCollectionProviderItemSelectorCriterion;
 import com.liferay.info.exception.NoSuchInfoItemException;
 import com.liferay.info.field.InfoField;
 import com.liferay.info.field.InfoFieldValue;
@@ -26,12 +31,17 @@ import com.liferay.info.item.InfoItemIdentifier;
 import com.liferay.info.item.InfoItemReference;
 import com.liferay.info.item.InfoItemServiceTracker;
 import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
+import com.liferay.info.item.provider.InfoItemFormProvider;
 import com.liferay.info.item.provider.InfoItemObjectProvider;
+import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
 import com.liferay.info.list.renderer.DefaultInfoListRendererContext;
 import com.liferay.info.list.renderer.InfoListRenderer;
 import com.liferay.info.list.renderer.InfoListRendererTracker;
 import com.liferay.info.pagination.Pagination;
 import com.liferay.info.type.WebImage;
+import com.liferay.item.selector.ItemSelector;
+import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
+import com.liferay.item.selector.criteria.info.item.criterion.InfoListItemSelectorCriterion;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.list.retriever.DefaultLayoutListRetrieverContext;
 import com.liferay.layout.list.retriever.LayoutListRetriever;
@@ -39,6 +49,7 @@ import com.liferay.layout.list.retriever.LayoutListRetrieverTracker;
 import com.liferay.layout.list.retriever.ListObjectReference;
 import com.liferay.layout.list.retriever.ListObjectReferenceFactory;
 import com.liferay.layout.list.retriever.ListObjectReferenceFactoryTracker;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -48,6 +59,7 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
+import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -57,11 +69,14 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.util.PropsValues;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import javax.portlet.PortletURL;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 
@@ -98,21 +113,36 @@ public class GetCollectionFieldMVCResourceCommand
 		String languageId = ParamUtil.getString(
 			resourceRequest, "languageId", themeDisplay.getLanguageId());
 
+		int activePage = ParamUtil.getInteger(resourceRequest, "activePage");
 		String layoutObjectReference = ParamUtil.getString(
 			resourceRequest, "layoutObjectReference");
 		String listStyle = ParamUtil.getString(resourceRequest, "listStyle");
 		String listItemStyle = ParamUtil.getString(
 			resourceRequest, "listItemStyle");
+		int numberOfItems = ParamUtil.getInteger(
+			resourceRequest, "numberOfItems");
+
+		int numberOfItemsPerPage = ParamUtil.getInteger(
+			resourceRequest, "numberOfItemsPerPage");
+
+		if (numberOfItemsPerPage >
+				PropsValues.SEARCH_CONTAINER_PAGE_MAX_DELTA) {
+
+			numberOfItemsPerPage = PropsValues.SEARCH_CONTAINER_PAGE_MAX_DELTA;
+		}
+
+		String paginationType = ParamUtil.getString(
+			resourceRequest, "paginationType");
 		String templateKey = ParamUtil.getString(
 			resourceRequest, "templateKey");
-		int size = ParamUtil.getInteger(resourceRequest, "size");
 
 		try {
 			jsonObject = _getCollectionFieldsJSONObject(
 				_portal.getHttpServletRequest(resourceRequest),
-				_portal.getHttpServletResponse(resourceResponse), languageId,
-				layoutObjectReference, listStyle, listItemStyle, templateKey,
-				size);
+				_portal.getHttpServletResponse(resourceResponse), activePage,
+				languageId, layoutObjectReference, listStyle, listItemStyle,
+				resourceResponse.getNamespace(), numberOfItems,
+				numberOfItemsPerPage, paginationType, templateKey);
 		}
 		catch (Exception exception) {
 			_log.error("Unable to get collection field", exception);
@@ -129,9 +159,10 @@ public class GetCollectionFieldMVCResourceCommand
 
 	private JSONObject _getCollectionFieldsJSONObject(
 			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse, String languageId,
-			String layoutObjectReference, String listStyle,
-			String listItemStyle, String templateKey, int size)
+			HttpServletResponse httpServletResponse, int activePage,
+			String languageId, String layoutObjectReference, String listStyle,
+			String listItemStyle, String namespace, int numberOfItems,
+			int numberOfItemsPerPage, String paginationType, String templateKey)
 		throws PortalException {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
@@ -161,12 +192,33 @@ public class GetCollectionFieldMVCResourceCommand
 						infoItem);
 				}
 
-				defaultLayoutListRetrieverContext.setPagination(
-					Pagination.of(size, 0));
-
 				ListObjectReference listObjectReference =
 					listObjectReferenceFactory.getListObjectReference(
 						layoutObjectReferenceJSONObject);
+
+				int end = numberOfItems;
+				int start = 0;
+
+				int listCount = layoutListRetriever.getListCount(
+					listObjectReference, defaultLayoutListRetrieverContext);
+
+				if (Objects.equals(paginationType, "regular") ||
+					Objects.equals(paginationType, "simple")) {
+
+					if (activePage < 1) {
+						activePage = 1;
+					}
+
+					end = Math.min(
+						Math.min(
+							activePage * numberOfItemsPerPage, numberOfItems),
+						listCount);
+
+					start = (activePage - 1) * numberOfItemsPerPage;
+				}
+
+				defaultLayoutListRetrieverContext.setPagination(
+					Pagination.of(end, start));
 
 				// LPS-111037
 
@@ -234,16 +286,80 @@ public class GetCollectionFieldMVCResourceCommand
 				}
 
 				jsonObject.put(
+					"customCollectionSelectorURL",
+					_getCustomCollectionSelectorURL(
+						httpServletRequest, itemType, namespace)
+				).put(
 					"items", jsonArray
 				).put(
 					"length",
 					layoutListRetriever.getListCount(
 						listObjectReference, defaultLayoutListRetrieverContext)
+				).put(
+					"totalNumberOfItems", Math.min(listCount, numberOfItems)
 				);
 			}
 		}
 
 		return jsonObject;
+	}
+
+	private String _getCustomCollectionSelectorURL(
+		HttpServletRequest httpServletRequest, String itemType,
+		String namespace) {
+
+		InfoListItemSelectorCriterion infoListItemSelectorCriterion =
+			new InfoListItemSelectorCriterion();
+
+		infoListItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
+			new InfoListItemSelectorReturnType());
+		infoListItemSelectorCriterion.setItemTypes(
+			_getInfoItemFormProviderClassNames());
+
+		InfoCollectionProviderItemSelectorCriterion
+			infoCollectionProviderItemSelectorCriterion =
+				new InfoCollectionProviderItemSelectorCriterion();
+
+		infoCollectionProviderItemSelectorCriterion.
+			setDesiredItemSelectorReturnTypes(
+				new InfoListProviderItemSelectorReturnType());
+		infoCollectionProviderItemSelectorCriterion.setItemTypes(
+			_getInfoItemFormProviderClassNames());
+
+		RelatedInfoItemCollectionProviderItemSelectorCriterion
+			relatedInfoItemCollectionProviderItemSelectorCriterion =
+				new RelatedInfoItemCollectionProviderItemSelectorCriterion();
+
+		relatedInfoItemCollectionProviderItemSelectorCriterion.
+			setDesiredItemSelectorReturnTypes(
+				new InfoListProviderItemSelectorReturnType());
+
+		List<String> sourceItemTypes = new ArrayList<>();
+
+		sourceItemTypes.add(itemType);
+
+		AssetRendererFactory<?> assetRendererFactory =
+			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
+				itemType);
+
+		if (assetRendererFactory != null) {
+			sourceItemTypes.add(AssetEntry.class.getName());
+		}
+
+		relatedInfoItemCollectionProviderItemSelectorCriterion.
+			setSourceItemTypes(sourceItemTypes);
+
+		PortletURL infoListSelectorURL = _itemSelector.getItemSelectorURL(
+			RequestBackedPortletURLFactoryUtil.create(httpServletRequest),
+			namespace + "selectInfoList", infoListItemSelectorCriterion,
+			infoCollectionProviderItemSelectorCriterion,
+			relatedInfoItemCollectionProviderItemSelectorCriterion);
+
+		if (infoListSelectorURL == null) {
+			return StringPool.BLANK;
+		}
+
+		return infoListSelectorURL.toString();
 	}
 
 	private JSONObject _getDisplayObjectJSONObject(
@@ -296,6 +412,9 @@ public class GetCollectionFieldMVCResourceCommand
 		if (infoItemReference != null) {
 			displayObjectJSONObject.put(
 				"className", infoItemReference.getClassName()
+			).put(
+				"classNameId",
+				_portal.getClassNameId(infoItemReference.getClassName())
 			).put(
 				"classPK", infoItemReference.getClassPK()
 			);
@@ -363,6 +482,19 @@ public class GetCollectionFieldMVCResourceCommand
 		return null;
 	}
 
+	private List<String> _getInfoItemFormProviderClassNames() {
+		List<String> infoItemClassNames =
+			_infoItemServiceTracker.getInfoItemClassNames(
+				InfoItemFormProvider.class);
+
+		if (infoItemClassNames.contains(FileEntry.class.getName())) {
+			infoItemClassNames.add(DLFileEntryConstants.getClassName());
+			infoItemClassNames.remove(FileEntry.class.getName());
+		}
+
+		return infoItemClassNames;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		GetCollectionFieldMVCResourceCommand.class);
 
@@ -374,6 +506,9 @@ public class GetCollectionFieldMVCResourceCommand
 
 	@Reference
 	private InfoListRendererTracker _infoListRendererTracker;
+
+	@Reference
+	private ItemSelector _itemSelector;
 
 	@Reference
 	private LayoutListRetrieverTracker _layoutListRetrieverTracker;

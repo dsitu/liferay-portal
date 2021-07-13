@@ -51,7 +51,13 @@ public class ObjectDefinitionWrapper
 		attributes.put("userName", getUserName());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
+		attributes.put("dbTableName", getDBTableName());
 		attributes.put("name", getName());
+		attributes.put(
+			"pkObjectFieldDBColumnName", getPKObjectFieldDBColumnName());
+		attributes.put("pkObjectFieldName", getPKObjectFieldName());
+		attributes.put("system", isSystem());
+		attributes.put("version", getVersion());
 
 		return attributes;
 	}
@@ -106,10 +112,41 @@ public class ObjectDefinitionWrapper
 			setModifiedDate(modifiedDate);
 		}
 
+		String dbTableName = (String)attributes.get("dbTableName");
+
+		if (dbTableName != null) {
+			setDBTableName(dbTableName);
+		}
+
 		String name = (String)attributes.get("name");
 
 		if (name != null) {
 			setName(name);
+		}
+
+		String pkObjectFieldDBColumnName = (String)attributes.get(
+			"pkObjectFieldDBColumnName");
+
+		if (pkObjectFieldDBColumnName != null) {
+			setPKObjectFieldDBColumnName(pkObjectFieldDBColumnName);
+		}
+
+		String pkObjectFieldName = (String)attributes.get("pkObjectFieldName");
+
+		if (pkObjectFieldName != null) {
+			setPKObjectFieldName(pkObjectFieldName);
+		}
+
+		Boolean system = (Boolean)attributes.get("system");
+
+		if (system != null) {
+			setSystem(system);
+		}
+
+		Integer version = (Integer)attributes.get("version");
+
+		if (version != null) {
+			setVersion(version);
 		}
 	}
 
@@ -138,11 +175,11 @@ public class ObjectDefinitionWrapper
 		return model.getCreateDate();
 	}
 
-	@Override
-	public String getDBPrimaryKeyColumnName() {
-		return model.getDBPrimaryKeyColumnName();
-	}
-
+	/**
+	 * Returns the db table name of this object definition.
+	 *
+	 * @return the db table name of this object definition
+	 */
 	@Override
 	public String getDBTableName() {
 		return model.getDBTableName();
@@ -188,6 +225,26 @@ public class ObjectDefinitionWrapper
 		return model.getObjectDefinitionId();
 	}
 
+	/**
+	 * Returns the pk object field db column name of this object definition.
+	 *
+	 * @return the pk object field db column name of this object definition
+	 */
+	@Override
+	public String getPKObjectFieldDBColumnName() {
+		return model.getPKObjectFieldDBColumnName();
+	}
+
+	/**
+	 * Returns the pk object field name of this object definition.
+	 *
+	 * @return the pk object field name of this object definition
+	 */
+	@Override
+	public String getPKObjectFieldName() {
+		return model.getPKObjectFieldName();
+	}
+
 	@Override
 	public String getPortletId() {
 		return model.getPortletId();
@@ -204,13 +261,23 @@ public class ObjectDefinitionWrapper
 	}
 
 	@Override
-	public String getPrimaryKeyColumnName() {
-		return model.getPrimaryKeyColumnName();
+	public String getRESTContextPath() {
+		return model.getRESTContextPath();
 	}
 
 	@Override
-	public String getRESTContextPath() {
-		return model.getRESTContextPath();
+	public String getShortName() {
+		return model.getShortName();
+	}
+
+	/**
+	 * Returns the system of this object definition.
+	 *
+	 * @return the system of this object definition
+	 */
+	@Override
+	public boolean getSystem() {
+		return model.getSystem();
 	}
 
 	/**
@@ -253,6 +320,26 @@ public class ObjectDefinitionWrapper
 		return model.getUuid();
 	}
 
+	/**
+	 * Returns the version of this object definition.
+	 *
+	 * @return the version of this object definition
+	 */
+	@Override
+	public int getVersion() {
+		return model.getVersion();
+	}
+
+	/**
+	 * Returns <code>true</code> if this object definition is system.
+	 *
+	 * @return <code>true</code> if this object definition is system; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isSystem() {
+		return model.isSystem();
+	}
+
 	@Override
 	public void persist() {
 		model.persist();
@@ -276,6 +363,16 @@ public class ObjectDefinitionWrapper
 	@Override
 	public void setCreateDate(Date createDate) {
 		model.setCreateDate(createDate);
+	}
+
+	/**
+	 * Sets the db table name of this object definition.
+	 *
+	 * @param dbTableName the db table name of this object definition
+	 */
+	@Override
+	public void setDBTableName(String dbTableName) {
+		model.setDBTableName(dbTableName);
 	}
 
 	/**
@@ -319,6 +416,26 @@ public class ObjectDefinitionWrapper
 	}
 
 	/**
+	 * Sets the pk object field db column name of this object definition.
+	 *
+	 * @param pkObjectFieldDBColumnName the pk object field db column name of this object definition
+	 */
+	@Override
+	public void setPKObjectFieldDBColumnName(String pkObjectFieldDBColumnName) {
+		model.setPKObjectFieldDBColumnName(pkObjectFieldDBColumnName);
+	}
+
+	/**
+	 * Sets the pk object field name of this object definition.
+	 *
+	 * @param pkObjectFieldName the pk object field name of this object definition
+	 */
+	@Override
+	public void setPKObjectFieldName(String pkObjectFieldName) {
+		model.setPKObjectFieldName(pkObjectFieldName);
+	}
+
+	/**
 	 * Sets the primary key of this object definition.
 	 *
 	 * @param primaryKey the primary key of this object definition
@@ -326,6 +443,16 @@ public class ObjectDefinitionWrapper
 	@Override
 	public void setPrimaryKey(long primaryKey) {
 		model.setPrimaryKey(primaryKey);
+	}
+
+	/**
+	 * Sets whether this object definition is system.
+	 *
+	 * @param system the system of this object definition
+	 */
+	@Override
+	public void setSystem(boolean system) {
+		model.setSystem(system);
 	}
 
 	/**
@@ -366,6 +493,16 @@ public class ObjectDefinitionWrapper
 	@Override
 	public void setUuid(String uuid) {
 		model.setUuid(uuid);
+	}
+
+	/**
+	 * Sets the version of this object definition.
+	 *
+	 * @param version the version of this object definition
+	 */
+	@Override
+	public void setVersion(int version) {
+		model.setVersion(version);
 	}
 
 	@Override

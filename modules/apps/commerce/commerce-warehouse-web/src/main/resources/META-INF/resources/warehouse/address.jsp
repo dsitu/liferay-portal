@@ -33,60 +33,36 @@ String commerceRegionCode = BeanParamUtil.getString(commerceInventoryWarehouse, 
 <aui:model-context bean="<%= commerceInventoryWarehouse %>" model="<%= CommerceInventoryWarehouse.class %>" />
 
 <aui:fieldset>
-	<div class="col-md-6">
-		<aui:input name="street1" />
+	<div class="row">
+		<div class="col-md-6">
+			<aui:input name="street1" />
 
-		<aui:input name="street2" />
+			<aui:input name="street2" />
 
-		<aui:input name="street3" />
+			<aui:input name="street3" />
 
-		<aui:select label="country" name="countryTwoLettersISOCode" />
+			<aui:select label="country" name="countryTwoLettersISOCode" />
 
-		<aui:select label="region" name="commerceRegionCode" />
-	</div>
+			<aui:select label="region" name="commerceRegionCode" />
+		</div>
 
-	<div class="col-md-6">
-		<aui:input label="postal-code" name="zip" />
+		<div class="col-md-6">
+			<aui:input label="postal-code" name="zip" />
 
-		<aui:input name="city" />
+			<aui:input name="city" />
+		</div>
 	</div>
 </aui:fieldset>
 
-<aui:script use="liferay-dynamic-select">
-	new Liferay.DynamicSelect([
-		{
-			select: '<portlet:namespace />countryTwoLettersISOCode',
-			selectData: function (callback) {
-				Liferay.Service(
-					'/country/get-company-countries',
-					{
-						active: true,
-						companyId: <%= company.getCompanyId() %>,
-					},
-					callback
-				);
-			},
-			selectDesc: 'nameCurrentValue',
-			selectId: 'a2',
-			selectSort: '<%= true %>',
-			selectVal: '<%= HtmlUtil.escape(countryTwoLettersISOCode) %>',
-		},
-		{
-			select: '<portlet:namespace />commerceRegionCode',
-			selectData: function (callback, selectKey) {
-				Liferay.Service(
-					'/region/get-regions',
-					{
-						a2: selectKey,
-						active: true,
-						companyId: <%= company.getCompanyId() %>,
-					},
-					callback
-				);
-			},
-			selectDesc: 'name',
-			selectId: 'regionCode',
-			selectVal: '<%= HtmlUtil.escape(commerceRegionCode) %>',
-		},
-	]);
-</aui:script>
+<liferay-frontend:component
+	context='<%=
+		HashMapBuilder.<String, Object>put(
+			"commerceRegionCode", commerceRegionCode
+		).put(
+			"companyId", company.getCompanyId()
+		).put(
+			"countryTwoLettersISOCode", HtmlUtil.escape(countryTwoLettersISOCode)
+		).build()
+	%>'
+	module="js/warehouseAddress"
+/>

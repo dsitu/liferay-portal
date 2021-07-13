@@ -71,6 +71,9 @@ export const PARAM_CONFIGURATION_PORTLET_NAME =
 
 export const PARAM_MODE_KEY = 'p_l_mode';
 
+export const PARAM_PAGE_EDITOR_PORTLET_NAME =
+	'com_liferay_layout_content_page_editor_web_internal_portlet_ContentPageEditorPortlet';
+
 export const PARAM_VIEW_MODE = 'view';
 
 // Read metrics Constants
@@ -92,6 +95,8 @@ export const TRACK_DEFAULT_OPTIONS = {
 };
 
 // Validation
+
+export const VALIDATION_PROPERTIES_MAXIMUM_LENGTH = 25;
 
 export const VALIDATION_PROPERTY_NAME_MAXIMUM_LENGTH = 255;
 

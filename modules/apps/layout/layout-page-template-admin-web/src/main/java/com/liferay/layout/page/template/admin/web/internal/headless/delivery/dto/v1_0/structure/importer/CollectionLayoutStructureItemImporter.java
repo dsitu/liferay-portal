@@ -17,15 +17,15 @@ package com.liferay.layout.page.template.admin.web.internal.headless.delivery.dt
 import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.asset.list.service.AssetListEntryLocalService;
 import com.liferay.headless.delivery.dto.v1_0.CollectionConfig;
+import com.liferay.headless.delivery.dto.v1_0.PageCollectionDefinition;
 import com.liferay.headless.delivery.dto.v1_0.PageElement;
-import com.liferay.info.list.provider.InfoListProvider;
-import com.liferay.info.list.provider.InfoListProviderTracker;
+import com.liferay.info.collection.provider.InfoCollectionProvider;
+import com.liferay.info.item.InfoItemServiceTracker;
 import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderItemSelectorReturnType;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
 import com.liferay.layout.util.structure.CollectionStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
-import com.liferay.petra.reflect.GenericUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -84,6 +84,17 @@ public class CollectionLayoutStructureItemImporter
 				(Integer)definitionMap.get("numberOfColumns"));
 			collectionStyledLayoutStructureItem.setNumberOfItems(
 				(Integer)definitionMap.get("numberOfItems"));
+
+			Integer numberOfItemsPerPage = (Integer)definitionMap.get(
+				"numberOfItemsPerPage");
+
+			if (numberOfItemsPerPage != null) {
+				collectionStyledLayoutStructureItem.setNumberOfItemsPerPage(
+					numberOfItemsPerPage);
+			}
+
+			collectionStyledLayoutStructureItem.setPaginationType(
+				_toPaginationType((String)definitionMap.get("paginationType")));
 			collectionStyledLayoutStructureItem.setTemplateKey(
 				(String)definitionMap.get("templateKey"));
 
@@ -191,19 +202,20 @@ public class CollectionLayoutStructureItemImporter
 
 		String className = (String)collectionReference.get("className");
 
-		InfoListProvider<?> infoListProvider =
-			_infoListProviderTracker.getInfoListProvider(className);
+		InfoCollectionProvider<?> infoCollectionProvider =
+			_infoItemServiceTracker.getInfoItemService(
+				InfoCollectionProvider.class, className);
 
-		if (infoListProvider == null) {
+		if (infoCollectionProvider == null) {
 			return null;
 		}
 
 		return JSONUtil.put(
-			"itemType", GenericUtil.getGenericClassName(infoListProvider)
+			"itemType", infoCollectionProvider.getCollectionItemClassName()
 		).put(
 			"key", className
 		).put(
-			"title", infoListProvider.getLabel(LocaleUtil.getDefault())
+			"title", infoCollectionProvider.getLabel(LocaleUtil.getDefault())
 		).put(
 			"type", InfoListProviderItemSelectorReturnType.class.getName()
 		);
@@ -233,6 +245,35 @@ public class CollectionLayoutStructureItemImporter
 		return classPK;
 	}
 
+	private String _toPaginationType(String paginationType) {
+		if (Validator.isNull(paginationType)) {
+			return null;
+		}
+
+		if (Objects.equals(
+				paginationType,
+				PageCollectionDefinition.PaginationType.NONE.getValue())) {
+
+			return "none";
+		}
+
+		if (Objects.equals(
+				paginationType,
+				PageCollectionDefinition.PaginationType.REGULAR.getValue())) {
+
+			return "regular";
+		}
+
+		if (Objects.equals(
+				paginationType,
+				PageCollectionDefinition.PaginationType.SIMPLE.getValue())) {
+
+			return "simple";
+		}
+
+		return null;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		CollectionLayoutStructureItemImporter.class);
 
@@ -240,6 +281,6 @@ public class CollectionLayoutStructureItemImporter
 	private AssetListEntryLocalService _assetListEntryLocalService;
 
 	@Reference
-	private InfoListProviderTracker _infoListProviderTracker;
+	private InfoItemServiceTracker _infoItemServiceTracker;
 
 }

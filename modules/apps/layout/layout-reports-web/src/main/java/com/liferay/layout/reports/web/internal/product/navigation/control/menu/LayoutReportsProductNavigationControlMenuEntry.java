@@ -86,7 +86,10 @@ import org.osgi.service.component.annotations.Reference;
 		"product.navigation.control.menu.category.key=" + ProductNavigationControlMenuCategoryKeys.USER,
 		"product.navigation.control.menu.entry.order:Integer=550"
 	},
-	service = ProductNavigationControlMenuEntry.class
+	service = {
+		LayoutReportsProductNavigationControlMenuEntry.class,
+		ProductNavigationControlMenuEntry.class
+	}
 )
 public class LayoutReportsProductNavigationControlMenuEntry
 	extends BaseProductNavigationControlMenuEntry {
@@ -143,7 +146,7 @@ public class LayoutReportsProductNavigationControlMenuEntry
 
 		Map<String, String> values = new HashMap<>();
 
-		if (_isPanelStateOpen(httpServletRequest)) {
+		if (isPanelStateOpen(httpServletRequest)) {
 			values.put("cssClass", "active");
 		}
 		else {
@@ -180,13 +183,26 @@ public class LayoutReportsProductNavigationControlMenuEntry
 		return true;
 	}
 
+	public boolean isPanelStateOpen(HttpServletRequest httpServletRequest) {
+		String layoutReportsPanelState = SessionClicks.get(
+			httpServletRequest, _SESSION_CLICKS_KEY, "closed");
+
+		if (Objects.equals(layoutReportsPanelState, "open")) {
+			return true;
+		}
+
+		return false;
+	}
+
 	@Override
 	public boolean isShow(HttpServletRequest httpServletRequest)
 		throws PortalException {
 
-		if (!_layoutReportsGooglePageSpeedConfigurationProvider.isEnabled(
-				_groupLocalService.getGroup(
-					_portal.getScopeGroupId(httpServletRequest)))) {
+		long scopeGroupId = _portal.getScopeGroupId(httpServletRequest);
+
+		if ((scopeGroupId == 0) ||
+			!_layoutReportsGooglePageSpeedConfigurationProvider.isEnabled(
+				_groupLocalService.getGroup(scopeGroupId))) {
 
 			return false;
 		}
@@ -202,6 +218,13 @@ public class LayoutReportsProductNavigationControlMenuEntry
 		}
 
 		return super.isShow(httpServletRequest);
+	}
+
+	public void setPanelState(
+		HttpServletRequest httpServletRequest, String panelState) {
+
+		SessionClicks.put(
+			httpServletRequest, _SESSION_CLICKS_KEY, panelState);
 	}
 
 	public static class ProcessBodyBottomTagBodyException
@@ -264,18 +287,6 @@ public class LayoutReportsProductNavigationControlMenuEntry
 			layoutFriendlyURL.equals(
 				PropsUtil.get(PropsKeys.CONTROL_PANEL_LAYOUT_FRIENDLY_URL))) {
 
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean _isPanelStateOpen(HttpServletRequest httpServletRequest) {
-		String layoutReportsPanelState = SessionClicks.get(
-			httpServletRequest,
-			"com.liferay.layout.reports.web_layoutReportsPanelState", "closed");
-
-		if (Objects.equals(layoutReportsPanelState, "open")) {
 			return true;
 		}
 
@@ -346,7 +357,7 @@ public class LayoutReportsProductNavigationControlMenuEntry
 
 		sb.append("<div class=\"");
 
-		if (_isPanelStateOpen(httpServletRequest)) {
+		if (isPanelStateOpen(httpServletRequest)) {
 			sb.append("lfr-has-layout-reports-panel open-admin-panel ");
 		}
 
@@ -386,7 +397,7 @@ public class LayoutReportsProductNavigationControlMenuEntry
 					_npmResolver.resolveModuleName("layout-reports-web") +
 						"/js/App"),
 				HashMapBuilder.<String, Object>put(
-					"isPanelStateOpen", _isPanelStateOpen(httpServletRequest)
+					"isPanelStateOpen", isPanelStateOpen(httpServletRequest)
 				).put(
 					"layoutReportsDataURL",
 					_getLayoutReportsDataURL(httpServletRequest)
@@ -404,6 +415,9 @@ public class LayoutReportsProductNavigationControlMenuEntry
 
 	private static final String _ICON_TMPL_CONTENT = StringUtil.read(
 		LayoutReportsProductNavigationControlMenuEntry.class, "icon.tmpl");
+
+	private static final String _SESSION_CLICKS_KEY =
+		"com.liferay.layout.reports.web_layoutReportsPanelState";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		LayoutReportsProductNavigationControlMenuEntry.class);

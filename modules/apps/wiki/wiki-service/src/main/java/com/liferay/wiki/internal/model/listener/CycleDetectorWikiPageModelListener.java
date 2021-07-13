@@ -37,8 +37,6 @@ public class CycleDetectorWikiPageModelListener
 				"Unable to create wiki page " + model.getTitle() +
 					" because a cycle was detected");
 		}
-
-		super.onBeforeCreate(model);
 	}
 
 	@Override
@@ -48,8 +46,6 @@ public class CycleDetectorWikiPageModelListener
 				"Unable to update wiki page " + model.getTitle() +
 					" because a cycle was detected");
 		}
-
-		super.onBeforeUpdate(model);
 	}
 
 	protected boolean isCycleDetectedInWikiPagesGraph(WikiPage wikiPage) {

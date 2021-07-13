@@ -50,7 +50,10 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Andrea Sbarra
  * @generated
  */
-@Component(immediate = true, service = AttachmentResource.Factory.class)
+@Component(
+	enabled = false, immediate = true,
+	service = AttachmentResource.Factory.class
+)
 @Generated("")
 public class AttachmentResourceFactoryImpl
 	implements AttachmentResource.Factory {

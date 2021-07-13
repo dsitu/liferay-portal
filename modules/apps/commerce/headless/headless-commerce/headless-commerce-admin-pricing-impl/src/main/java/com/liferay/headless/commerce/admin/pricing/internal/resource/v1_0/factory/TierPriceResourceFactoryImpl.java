@@ -50,7 +50,9 @@ import org.osgi.service.component.annotations.ReferenceScope;
  * @author Zoltán Takács
  * @generated
  */
-@Component(immediate = true, service = TierPriceResource.Factory.class)
+@Component(
+	enabled = false, immediate = true, service = TierPriceResource.Factory.class
+)
 @Generated("")
 public class TierPriceResourceFactoryImpl implements TierPriceResource.Factory {
 

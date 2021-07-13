@@ -2,11 +2,13 @@
 <head>
 <title>RolesPermissions</title>
 </head>
+
 <body>
-<table cellpadding="1" cellspacing="1" border="1">
+<table border="1" cellpadding="1" cellspacing="1">
 <thead>
 <tr><td rowspan="1" colspan="3">RolesPermissions</td></tr>
 </thead>
+
 <tbody>
 <tr>
 	<td>PERMISSION_HEADER</td>
@@ -1187,6 +1189,11 @@
 <tr>
 	<td>SITE_ADMIN_APPLICATIONS_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_VIEW_CHECKBOX</td>
 	<td>//input[contains(@value,'DLFileEntryVIEW')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SITE_ADMIN_APPLICATIONS_DOCUMENTS_AND_MEDIA_RESOURCE_PERMISSIONS_DOCUMENT_VIEW_REMOVE_SITE_SCOPE</td>
+	<td>//span[contains(@id,'DLFileEntryVIE')]/span[contains(.,'${key_removeSiteScope}')]/span//button[*[name()='svg'][contains(@class,'times-small')]]</td>
 	<td></td>
 </tr>
 <tr>

@@ -85,9 +85,9 @@ AccountEntryDisplay accountEntryDisplay = (AccountEntryDisplay)request.getAttrib
 
 				<c:if test="<%= accountEntryDisplay.getDefaultBillingAddress() != null %>">
 					<portlet:actionURL name="/account_admin/update_account_entry_default_address" var="removeDefaultBillingAddressURL">
+						<portlet:param name="redirect" value="<%= currentURL %>" />
 						<portlet:param name="accountEntryId" value="<%= String.valueOf(accountEntryDisplay.getAccountEntryId()) %>" />
 						<portlet:param name="addressId" value="0" />
-						<portlet:param name="redirect" value="<%= currentURL %>" />
 						<portlet:param name="type" value="billing" />
 					</portlet:actionURL>
 
@@ -152,9 +152,9 @@ AccountEntryDisplay accountEntryDisplay = (AccountEntryDisplay)request.getAttrib
 
 				<c:if test="<%= accountEntryDisplay.getDefaultShippingAddress() != null %>">
 					<portlet:actionURL name="/account_admin/update_account_entry_default_address" var="removeDefaultShippingAddressURL">
+						<portlet:param name="redirect" value="<%= currentURL %>" />
 						<portlet:param name="accountEntryId" value="<%= String.valueOf(accountEntryDisplay.getAccountEntryId()) %>" />
 						<portlet:param name="addressId" value="0" />
-						<portlet:param name="redirect" value="<%= currentURL %>" />
 						<portlet:param name="type" value="shipping" />
 					</portlet:actionURL>
 
@@ -178,8 +178,8 @@ AccountEntryDisplay accountEntryDisplay = (AccountEntryDisplay)request.getAttrib
 </portlet:renderURL>
 
 <portlet:actionURL name="/account_admin/update_account_entry_default_address" var="updateAccountEntryDefaultAddressURL">
-	<portlet:param name="accountEntryId" value="<%= String.valueOf(accountEntryDisplay.getAccountEntryId()) %>" />
 	<portlet:param name="redirect" value="<%= currentURL %>" />
+	<portlet:param name="accountEntryId" value="<%= String.valueOf(accountEntryDisplay.getAccountEntryId()) %>" />
 </portlet:actionURL>
 
 <liferay-frontend:component

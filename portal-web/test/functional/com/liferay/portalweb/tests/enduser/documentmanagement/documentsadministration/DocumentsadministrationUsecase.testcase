@@ -668,7 +668,6 @@ definition {
 	@refactorneeded
 	test ConfigureFFmpegVideoPreviewSizePG {
 		property custom.properties = "dl.file.entry.preview.video.width=0${line.separator}dl.file.entry.preview.video.height=0";
-		property dummy.socket.proxy.disabled = "true";
 		property test.assert.warning.exceptions = "false";
 		property test.name.skip.portal.instance = "DocumentsadministrationUsecase#ConfigureFFmpegVideoPreviewSizePG";
 
@@ -2034,6 +2033,28 @@ definition {
 		DMDocument.checkDocumentCheckboxCP(dmDocumentTitle = "DM Document2 Title");
 
 		AssertChecked.assertCheckedNotVisible(locator1 = "Checkbox#LEXICON_SELECT_ALL_INPUT");
+	}
+
+	@description = "This test ensures that the DM widgets can be accessible."
+	@priority = "4"
+	test WidgetsCanBeAccessible {
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Documents and Media Page");
+
+		for (var widgetName : list "Documents and Media,Media Gallery") {
+			JSONLayout.addWidgetToPublicLayout(
+				column = "1",
+				groupName = "Guest",
+				layoutName = "Documents and Media Page",
+				widgetName = "${widgetName}");
+		}
+
+		Navigator.openSitePage(
+			pageName = "Documents and Media Page",
+			siteName = "Guest");
+
+		AssertAccessible();
 	}
 
 }

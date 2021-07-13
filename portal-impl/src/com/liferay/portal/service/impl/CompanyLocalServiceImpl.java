@@ -466,6 +466,12 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			UnsafeConsumer<Company, E> unsafeConsumer, List<Company> companies)
 		throws E {
 
+		if (CompanyThreadLocal.isLocked()) {
+			companies = new ArrayList<>();
+
+			companies.add(fetchCompanyById(CompanyThreadLocal.getCompanyId()));
+		}
+
 		for (Company company : companies) {
 			try (SafeCloseable safeCloseable =
 					CompanyThreadLocal.setWithSafeCloseable(
@@ -494,6 +500,10 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	public <E extends Exception> void forEachCompanyId(
 			UnsafeConsumer<Long, E> unsafeConsumer, long[] companyIds)
 		throws E {
+
+		if (CompanyThreadLocal.isLocked()) {
+			companyIds = new long[] {CompanyThreadLocal.getCompanyId()};
+		}
 
 		for (long companyId : companyIds) {
 			try (SafeCloseable safeCloseable =
@@ -1053,13 +1063,13 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 					// Invalidate cache of all layout set prototypes that belong
 					// to this company. See LPS-36403.
 
-					Date now = new Date();
+					Date date = new Date();
 
 					for (LayoutSetPrototype layoutSetPrototype :
 							layoutSetPrototypeLocalService.
 								getLayoutSetPrototypes(companyId)) {
 
-						layoutSetPrototype.setModifiedDate(now);
+						layoutSetPrototype.setModifiedDate(date);
 
 						layoutSetPrototypeLocalService.updateLayoutSetPrototype(
 							layoutSetPrototype);
@@ -1827,7 +1837,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 	}
 
 	private User _addDefaultUser(Company company) {
-		Date now = new Date();
+		Date date = new Date();
 
 		User defaultUser = userPersistence.create(
 			counterLocalService.increment());
@@ -1856,7 +1866,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		defaultUser.setGreeting(greeting + StringPool.EXCLAMATION);
 
-		defaultUser.setLoginDate(now);
+		defaultUser.setLoginDate(date);
 		defaultUser.setFailedLoginAttempts(0);
 		defaultUser.setAgreedToTermsOfUse(true);
 		defaultUser.setStatus(WorkflowConstants.STATUS_APPROVED);
@@ -1884,7 +1894,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		defaultContact.setMiddleName(StringPool.BLANK);
 		defaultContact.setLastName(StringPool.BLANK);
 		defaultContact.setMale(true);
-		defaultContact.setBirthday(now);
+		defaultContact.setBirthday(date);
 
 		contactPersistence.update(defaultContact);
 

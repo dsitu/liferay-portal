@@ -334,9 +334,6 @@ public class ExportImportPerformanceTest {
 			FragmentEntry fragmentEntry =
 				_fragmentCollectionContributorTracker.getFragmentEntry(
 					"FEATURED_CONTENT-highlights-circle");
-			JournalArticle journalArticle1 = _addJournalArticle();
-			JournalArticle journalArticle2 = _addJournalArticle();
-			JournalArticle journalArticle3 = _addJournalArticle();
 
 			_fragmentEntryLinkLocalService.addFragmentEntryLink(
 				TestPropsValues.getUserId(), _group.getGroupId(), 0,
@@ -351,13 +348,31 @@ public class ExportImportPerformanceTest {
 							_portal.getClassNameId(JournalArticle.class))
 					).put(
 						"classPK_1",
-						String.valueOf(journalArticle1.getResourcePrimKey())
+						() -> {
+							JournalArticle journalArticle1 =
+								_addJournalArticle();
+
+							return String.valueOf(
+								journalArticle1.getResourcePrimKey());
+						}
 					).put(
 						"classPK_2",
-						String.valueOf(journalArticle2.getResourcePrimKey())
+						() -> {
+							JournalArticle journalArticle2 =
+								_addJournalArticle();
+
+							return String.valueOf(
+								journalArticle2.getResourcePrimKey());
+						}
 					).put(
 						"classPK_3",
-						String.valueOf(journalArticle3.getResourcePrimKey())
+						() -> {
+							JournalArticle journalArticle3 =
+								_addJournalArticle();
+
+							return String.valueOf(
+								journalArticle3.getResourcePrimKey());
+						}
 					).build()),
 				StringPool.BLANK, 0, null, _serviceContext);
 		}
@@ -399,10 +414,11 @@ public class ExportImportPerformanceTest {
 			LocaleUtil.toLanguageId(defaultLocale));
 
 		return _journalArticleLocalService.addArticle(
-			_serviceContext.getUserId(), _group.getGroupId(),
+			null, _serviceContext.getUserId(), _group.getGroupId(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			JournalArticleConstants.CLASS_NAME_ID_DEFAULT, 0, StringPool.BLANK,
 			true, JournalArticleConstants.VERSION_DEFAULT,
+			RandomTestUtil.randomLocaleStringMap(defaultLocale),
 			RandomTestUtil.randomLocaleStringMap(defaultLocale),
 			RandomTestUtil.randomLocaleStringMap(defaultLocale), content,
 			_ddmStructure.getStructureKey(), _ddmTemplate.getTemplateKey(),

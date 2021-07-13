@@ -16,7 +16,6 @@ import {ClassicEditor} from 'frontend-editor-ckeditor-web';
 import React, {useEffect, useRef, useState} from 'react';
 
 import {FieldBase} from '../FieldBase/ReactFieldBase.es';
-import {useSyncValue} from '../hooks/useSyncValue.es';
 
 const RichText = ({
 	editingLanguageId,
@@ -30,10 +29,6 @@ const RichText = ({
 	visible,
 	...otherProps
 }) => {
-	const [currentValue, setCurrentValue] = useSyncValue(
-		value ? value : predefinedValue
-	);
-
 	const [dirty, setDirty] = useState(false);
 
 	const editorRef = useRef();
@@ -51,6 +46,8 @@ const RichText = ({
 		}
 	}, [editingLanguageId, editorRef]);
 
+	const currentValue = value ?? predefinedValue;
+
 	return (
 		<FieldBase
 			{...otherProps}
@@ -62,32 +59,20 @@ const RichText = ({
 		>
 			<ClassicEditor
 				contents={currentValue}
-				data={currentValue}
 				editorConfig={editorConfig}
 				name={name}
 				onChange={(data) => {
 					if (currentValue?.trim() !== data?.trim()) {
-						setCurrentValue(data);
 						setDirty(true);
-
-						onChange({}, data);
+						onChange({target: {value: data}});
 					}
 					else if (!dirty) {
-						CKEDITOR.instances[name].resetUndo();
+						CKEDITOR.instances[name]?.resetUndo();
 					}
 				}}
-				onMode={({editor}) => {
-					if (editor.mode === 'source') {
-						editor.on('afterSetData', ({data}) => {
-							const {dataValue} = data;
-
-							setCurrentValue(dataValue);
-
-							onChange({}, dataValue);
-						});
-					}
-					else {
-						editor.removeListener('afterSetData');
+				onSetData={({data: {dataValue: value}, editor: {mode}}) => {
+					if (mode === 'source') {
+						onChange({target: {value}});
 					}
 				}}
 				readOnly={readOnly}

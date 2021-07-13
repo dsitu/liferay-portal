@@ -178,6 +178,8 @@ public interface ${schemaName}Resource {
 							return ${javaMethodSignature.returnType}.valueOf(content);
 						<#elseif stringUtil.equals(javaMethodSignature.returnType, "java.lang.Number")>
 							return Double.valueOf(content);
+						<#elseif stringUtil.equals(javaMethodSignature.returnType, "java.lang.Object")>
+							return (Object)content;
 						<#elseif stringUtil.equals(javaMethodSignature.returnType, "java.math.BigDecimal")>
 							return new java.math.BigDecimal(content);
 						<#elseif stringUtil.equals(javaMethodSignature.returnType, "java.util.Date")>
@@ -199,7 +201,7 @@ public interface ${schemaName}Resource {
 			public HttpInvoker.HttpResponse ${javaMethodSignature.methodName}HttpResponse(${parameters}) throws Exception {
 				HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
 
-				<#if freeMarkerTool.hasHTTPMethod(javaMethodSignature, "patch", "post", "put")>
+				<#if freeMarkerTool.hasHTTPMethod(javaMethodSignature, "delete", "patch", "post", "put")>
 					<#if freeMarkerTool.hasRequestBodyMediaType(javaMethodSignature, "multipart/form-data")>
 						httpInvoker.multipart();
 
@@ -209,25 +211,36 @@ public interface ${schemaName}Resource {
 							httpInvoker.part(entry.getKey(), entry.getValue());
 						}
 					<#else>
-						httpInvoker.body(
+						<#assign
+							bodyJavaMethodParameters = freeMarkerTool.getBodyJavaMethodParameters(javaMethodSignature)
+						/>
 
-						<#list javaMethodSignature.javaMethodParameters as javaMethodParameter>
-							<#if javaMethodParameter?is_last>
-								<#if javaMethodParameter.parameterType?starts_with("[L")>
-									Stream.of(
-										${javaMethodParameter.parameterName}
-									).map(
-										value -> String.valueOf(value)
-									).collect(
-										Collectors.toList()
-									).toString()
-								<#else>
-									${javaMethodParameter.parameterName}.toString()
-								</#if>
-							</#if>
-						</#list>
+						<#if bodyJavaMethodParameters?has_content>
+							httpInvoker.body(
+								<#list bodyJavaMethodParameters as javaMethodParameter>
+									<#if javaMethodParameter?is_last>
+										<#if javaMethodParameter.parameterType?starts_with("[L")>
+											Stream.of(
+												${javaMethodParameter.parameterName}
+											).map(
+												value ->
 
-						, "application/json");
+												<#if javaMethodParameter.parameterType?contains("String")>
+													"\"" + String.valueOf(value) + "\""
+												<#else>
+													String.valueOf(value)
+												</#if>
+											).collect(
+												Collectors.toList()
+											).toString()
+										<#else>
+											${javaMethodParameter.parameterName}.toString()
+										</#if>
+									</#if>
+								</#list>
+
+								, "application/json");
+						</#if>
 					</#if>
 				</#if>
 

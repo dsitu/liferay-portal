@@ -52,10 +52,12 @@ public class ObjectFieldWrapper
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
 		attributes.put("objectDefinitionId", getObjectDefinitionId());
+		attributes.put("dbColumnName", getDBColumnName());
 		attributes.put("indexed", isIndexed());
 		attributes.put("indexedAsKeyword", isIndexedAsKeyword());
 		attributes.put("indexedLanguageId", getIndexedLanguageId());
 		attributes.put("name", getName());
+		attributes.put("required", isRequired());
 		attributes.put("type", getType());
 
 		return attributes;
@@ -117,6 +119,12 @@ public class ObjectFieldWrapper
 			setObjectDefinitionId(objectDefinitionId);
 		}
 
+		String dbColumnName = (String)attributes.get("dbColumnName");
+
+		if (dbColumnName != null) {
+			setDBColumnName(dbColumnName);
+		}
+
 		Boolean indexed = (Boolean)attributes.get("indexed");
 
 		if (indexed != null) {
@@ -139,6 +147,12 @@ public class ObjectFieldWrapper
 
 		if (name != null) {
 			setName(name);
+		}
+
+		Boolean required = (Boolean)attributes.get("required");
+
+		if (required != null) {
+			setRequired(required);
 		}
 
 		String type = (String)attributes.get("type");
@@ -168,6 +182,11 @@ public class ObjectFieldWrapper
 		return model.getCreateDate();
 	}
 
+	/**
+	 * Returns the db column name of this object field.
+	 *
+	 * @return the db column name of this object field
+	 */
 	@Override
 	public String getDBColumnName() {
 		return model.getDBColumnName();
@@ -264,6 +283,16 @@ public class ObjectFieldWrapper
 	}
 
 	/**
+	 * Returns the required of this object field.
+	 *
+	 * @return the required of this object field
+	 */
+	@Override
+	public boolean getRequired() {
+		return model.getRequired();
+	}
+
+	/**
 	 * Returns the type of this object field.
 	 *
 	 * @return the type of this object field
@@ -333,6 +362,16 @@ public class ObjectFieldWrapper
 		return model.isIndexedAsKeyword();
 	}
 
+	/**
+	 * Returns <code>true</code> if this object field is required.
+	 *
+	 * @return <code>true</code> if this object field is required; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isRequired() {
+		return model.isRequired();
+	}
+
 	@Override
 	public void persist() {
 		model.persist();
@@ -356,6 +395,16 @@ public class ObjectFieldWrapper
 	@Override
 	public void setCreateDate(Date createDate) {
 		model.setCreateDate(createDate);
+	}
+
+	/**
+	 * Sets the db column name of this object field.
+	 *
+	 * @param dbColumnName the db column name of this object field
+	 */
+	@Override
+	public void setDBColumnName(String dbColumnName) {
+		model.setDBColumnName(dbColumnName);
 	}
 
 	/**
@@ -446,6 +495,16 @@ public class ObjectFieldWrapper
 	@Override
 	public void setPrimaryKey(long primaryKey) {
 		model.setPrimaryKey(primaryKey);
+	}
+
+	/**
+	 * Sets whether this object field is required.
+	 *
+	 * @param required the required of this object field
+	 */
+	@Override
+	public void setRequired(boolean required) {
+		model.setRequired(required);
 	}
 
 	/**

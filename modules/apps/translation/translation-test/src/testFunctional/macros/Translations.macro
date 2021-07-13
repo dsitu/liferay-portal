@@ -46,7 +46,9 @@ definition {
 	}
 
 	macro exportTranslation {
-		AssertElementPresent(locator1 = "Language#EXPORT_TRANSLATION_ORIGIN_LANGUAGE");
+		AssertElementPresent(
+			key_defaultLanguage = "English (United States)",
+			locator1 = "Language#EXPORT_TRANSLATION_DEFAULT_ORIGINAL_LANGUAGE");
 
 		AssertElementPresent(
 			key_checkboxName = "${defaultLanguage}",
@@ -121,6 +123,21 @@ definition {
 		}
 	}
 
+	macro openToTranslateEntry {
+		var classNameId = JSONClassname._getClassNameId(value = "com.liferay.journal.model.JournalArticle");
+
+		var urlTitle = StringUtil.replace("${webContentTitle}", " ", "-");
+		var urlTitle = StringUtil.lowerCase("${urlTitle}");
+
+		var resourcePrimKey = JSONWebcontentAPI._getResourcePrimKeyByURLTitle(
+			groupName = "${groupName}",
+			urlTitle = "${urlTitle}");
+
+		Navigator.openWithAppendToBaseURL(
+			baseURL = "${baseURL}",
+			urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_translation_web_internal_portlet_TranslationPortlet&_com_liferay_translation_web_internal_portlet_TranslationPortlet_mvcRenderCommandName=%2Ftranslation%2Ftranslate&_com_liferay_translation_web_internal_portlet_TranslationPortlet_classNameId=${classNameId}&_com_liferay_translation_web_internal_portlet_TranslationPortlet_classPK=${resourcePrimKey}&_com_liferay_translation_web_internal_portlet_TranslationPortlet_sourceLanguageId=${sourceLanguageId}&_com_liferay_translation_web_internal_portlet_TranslationPortlet_targetLanguageId=${targetLanguageId}");
+	}
+
 	macro openTranslationAdmin {
 		Navigator.openWithAppendToBaseURL(
 			baseURL = "${baseURL}",
@@ -139,6 +156,62 @@ definition {
 		Button.clickSave();
 
 		Alert.viewErrorMessage(errorMessage = " The service account private key must be in JSON format.");
+	}
+
+	macro setGoogleCloudTranslationServiceKey {
+		var lineSeparater = "\n";
+
+		var value1 = PropsUtil.get("google.cloud.translation.service.key.type");
+		var value2 = PropsUtil.get("google.cloud.translation.service.key.project.id");
+		var value3 = PropsUtil.get("google.cloud.translation.service.key.private.key.id");
+		var value5 = PropsUtil.get("google.cloud.translation.service.key.client.email");
+		var value6 = PropsUtil.get("google.cloud.translation.service.key.client.id");
+		var value7 = PropsUtil.get("google.cloud.translation.service.key.auth.uri");
+		var value8 = PropsUtil.get("google.cloud.translation.service.key.token.uri");
+		var value9 = PropsUtil.get("google.cloud.translation.service.key.auth.provider.x509.cert.url");
+		var value10 = PropsUtil.get("google.cloud.translation.service.key.client.x509.cert.url");
+
+		var keys = PropsUtil.get("google.cloud.translation.service.key.private.key");
+
+		var list = ListUtil.newList();
+
+		for (var key : list "${keys}") {
+			var value = '''${lineSeparater}${key}''';
+
+			ListUtil.add("${list}", "${value}");
+		}
+
+		var value4 = ListUtil.toString("${list}","");
+		var value4 = '''-----BEGIN PRIVATE KEY-----${value4}=${lineSeparater}-----END PRIVATE KEY-----${lineSeparater}''';
+
+		var attribute1 = '''"type" : "${value1}"''';
+		var attribute2 = '''"project_id" : "${value2}"''';
+		var attribute3 = '''"private_key_id" : "${value3}"''';
+		var attribute4 = '''"private_key" : "${value4}"''';
+		var attribute5 = '''"client_email" : "${value5}"''';
+		var attribute6 = '''"client_id" : "${value6}"''';
+		var attribute7 = '''"auth_uri" : "${value7}"''';
+		var attribute8 = '''"token_uri" : "${value8}"''';
+		var attribute9 = '''"auth_provider_x509_cert_url" : "${value9}"''';
+		var attribute10 = '''"client_x509_cert_url" : "${value10}"''';
+
+		var list = ListUtil.newList();
+
+		ListUtil.add("${list}", "${attribute1}");
+		ListUtil.add("${list}", "${attribute2}");
+		ListUtil.add("${list}", "${attribute3}");
+		ListUtil.add("${list}", "${attribute4}");
+		ListUtil.add("${list}", "${attribute5}");
+		ListUtil.add("${list}", "${attribute6}");
+		ListUtil.add("${list}", "${attribute7}");
+		ListUtil.add("${list}", "${attribute8}");
+		ListUtil.add("${list}", "${attribute9}");
+		ListUtil.add("${list}", "${attribute10}");
+
+		var attributes = ListUtil.toString("${list}");
+		var attributes = '''{${attributes}}''';
+
+		return "${attributes}";
 	}
 
 	macro translateFields {
@@ -216,6 +289,19 @@ definition {
 		AntCommand(
 			locator1 = "build-test.xml",
 			value1 = "update-translation-file -Dtranslation.content.target.original=<![CDATA[<p>${webContentContent}</p>]]></target> -Dtranslation.content.target=<![CDATA[<p>${contentTranslateion}</p>]]></target> -Dtranslation.description.target.original=<![CDATA[<p>${webContentDescription}</p>]]></target> -Dtranslation.description.target=<![CDATA[<p>${descriptionTranslateion}</p>]]></target> -Dtranslation.file.encoding=${encoding} -Dtranslation.title.target.original=<![CDATA[${webContentTitle}]]></target> -Dtranslation.title.target=<![CDATA[${titleTranslation}]]></target> -Dtranslation.zip.file.name=${translationZipFileName} -Dtranslation.file.name=${translationFileName} -Dtranslation.file.rename=${translationFileRename}");
+	}
+
+	macro translateSpecificFieldsWithGoogle {
+		for (var fieldName : list "${fieldNameList}") {
+			Click.clickNoMouseOver(
+				key_title = "Auto Translate ${fieldName} Field",
+				locator1 = "Button#ANY_TITLE");
+
+			AssertTextEquals(
+				key_fieldName = "${fieldName}",
+				locator1 = "Message#SUCCESS_SPECIFIC_FORM_FIELD_REQUIRED",
+				value1 = "Field Translated");
+		}
 	}
 
 	macro translateWithGoogle {
@@ -296,6 +382,22 @@ definition {
 					key_fieldValue = "${webContentNumeric}",
 					locator1 = "Translation#BASE_LANGUAGE_FIELD");
 			}
+		}
+	}
+
+	macro viewDisabledFieldTranslationButtons {
+		for (var fieldName : list "${fieldNameList}") {
+			AssertVisible(
+				key_title = "Auto Translate ${fieldName} Field",
+				locator1 = "Button#ANY_TITLE_DISABLED");
+		}
+	}
+
+	macro viewEnabledFieldTranslationButtons {
+		for (var fieldName : list "${fieldNameList}") {
+			AssertVisible(
+				key_title = "Auto Translate ${fieldName} Field",
+				locator1 = "Button#ANY_TITLE");
 		}
 	}
 

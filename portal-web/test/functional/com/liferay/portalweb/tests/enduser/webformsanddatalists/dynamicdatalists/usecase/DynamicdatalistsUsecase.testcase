@@ -402,7 +402,7 @@ definition {
 	@description = "This is a use case for LPS-66229."
 	@priority = "3"
 	test AddRecordWithBlankWebContentField {
-		property portal.acceptance = "quarantine";
+		property portal.upstream = "quarantine";
 
 		Navigator.openURL();
 
@@ -449,7 +449,7 @@ definition {
 	@description = "This is a use case for LPS-66439."
 	@priority = "5"
 	test AddRecordWithPopulatedWebContentField {
-		property portal.acceptance = "quarantine";
+		property portal.upstream = "quarantine";
 
 		Navigator.openURL();
 
@@ -930,6 +930,8 @@ definition {
 	@description = "This is a use case for LPS-50549."
 	@priority = "4"
 	test AddXSSToHTMLField {
+		property portal.upstream = "quarantine";
+
 		var ddlRecordFieldData1 = '''<img src=x onerror=alert(/xss/) />''';
 
 		var ddlRecordFieldData2 = ''''+alert('xss')+'"+alert("xss")+"''';
