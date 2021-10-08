@@ -16,13 +16,23 @@ import AJAX from '../../../utilities/AJAX/index';
 
 const ACCOUNTS_PATH = '/accounts';
 
+const BY_CHANNEL_ID_PATH = '/by-channelId';
+
 const VERSION = 'v1.0';
+
+function resolveAccountsByChannelIdPath(basePath = '', channelId) {
+	return `${basePath}${VERSION}${ACCOUNTS_PATH}${BY_CHANNEL_ID_PATH}/${channelId}`;
+}
 
 function resolvePath(basePath = '') {
 	return `${basePath}${VERSION}${ACCOUNTS_PATH}`;
 }
 
 export default (basePath) => ({
+	accountsByChannelIdURL: (channelId) =>
+		resolveAccountsByChannelIdPath(basePath, channelId),
+
 	baseURL: resolvePath(basePath),
+
 	getAccounts: (...params) => AJAX.GET(resolvePath(basePath), ...params),
 });

@@ -103,6 +103,7 @@ function AccountSelector({
 				{currentView === VIEWS.ACCOUNTS_LIST && (
 					<AccountsListView
 						changeAccount={changeAccount}
+						commerceChannelId={commerceChannelId}
 						currentAccount={currentAccount}
 						disabled={!active}
 						setCurrentView={setCurrentView}

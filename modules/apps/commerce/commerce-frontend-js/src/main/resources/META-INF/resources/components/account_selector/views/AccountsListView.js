@@ -14,7 +14,7 @@
 
 import {ClayButtonWithIcon} from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
-import React, {useRef} from 'react';
+import React, {useMemo, useRef} from 'react';
 
 import ServiceProvider from '../../../ServiceProvider/index';
 import Sticker from '../Sticker';
@@ -22,16 +22,18 @@ import {VIEWS} from '../util/constants';
 import EmptyListView from './EmptyListView';
 import ListView from './ListView';
 
-const {baseURL: ACCOUNTS_RESOURCE_ENDPOINT} = ServiceProvider.AdminAccountAPI(
-	'v1'
-);
-
 function AccountsListView({
 	changeAccount,
+	commerceChannelId,
 	currentAccount,
 	disabled,
 	setCurrentView,
 }) {
+	const AccountResource = useMemo(
+		() => ServiceProvider.AdminAccountAPI('v1'),
+		[]
+	);
+
 	const accountsListRef = useRef();
 
 	return (
@@ -56,7 +58,9 @@ function AccountsListView({
 
 			<ClayDropDown.Section>
 				<ListView
-					apiUrl={ACCOUNTS_RESOURCE_ENDPOINT}
+					apiUrl={AccountResource.accountsByChannelIdURL(
+						commerceChannelId
+					)}
 					contentWrapperRef={accountsListRef}
 					customView={({items, loading}) => {
 						if (!items || !items.length) {
