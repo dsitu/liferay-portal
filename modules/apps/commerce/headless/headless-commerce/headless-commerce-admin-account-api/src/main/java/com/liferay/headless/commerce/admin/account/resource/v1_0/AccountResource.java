@@ -77,6 +77,11 @@ public interface AccountResource {
 	public Response postAccountBatch(String callbackURL, Object object)
 		throws Exception;
 
+	public Page<Account> getAccountsPageByChannelId(
+			Long channelId, String search, Filter filter, Pagination pagination,
+			Sort[] sorts)
+		throws Exception;
+
 	public Response deleteAccountByExternalReferenceCode(
 			String externalReferenceCode)
 		throws Exception;
