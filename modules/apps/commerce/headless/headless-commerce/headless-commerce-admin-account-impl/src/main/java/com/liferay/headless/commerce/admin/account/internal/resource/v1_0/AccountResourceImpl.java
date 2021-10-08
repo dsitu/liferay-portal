@@ -15,6 +15,7 @@
 package com.liferay.headless.commerce.admin.account.internal.resource.v1_0;
 
 import com.liferay.account.model.AccountEntry;
+import com.liferay.account.settings.AccountEntryGroupSettings;
 import com.liferay.commerce.account.constants.CommerceAccountConstants;
 import com.liferay.commerce.account.exception.NoSuchAccountException;
 import com.liferay.commerce.account.exception.NoSuchAccountGroupException;
@@ -32,6 +33,8 @@ import com.liferay.commerce.account.service.persistence.CommerceAccountOrganizat
 import com.liferay.commerce.account.service.persistence.CommerceAccountUserRelPK;
 import com.liferay.commerce.constants.CommerceAddressConstants;
 import com.liferay.commerce.model.CommerceAddress;
+import com.liferay.commerce.product.model.CommerceChannel;
+import com.liferay.commerce.product.service.CommerceChannelService;
 import com.liferay.commerce.service.CommerceAddressService;
 import com.liferay.headless.commerce.admin.account.dto.v1_0.Account;
 import com.liferay.headless.commerce.admin.account.dto.v1_0.AccountAddress;
@@ -216,6 +219,41 @@ public class AccountResourceImpl
 					SearchContext searchContext = (SearchContext)object;
 
 					searchContext.setCompanyId(contextCompany.getCompanyId());
+				}
+
+			},
+			sorts,
+			document -> _toAccount(
+				_commerceAccountService.fetchCommerceAccount(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))));
+	}
+
+	@Override
+	public Page<Account> getAccountsPageByChannelId(
+			Long channelId, String search, Filter filter, Pagination pagination,
+			Sort[] sorts)
+		throws Exception {
+
+		return SearchUtil.search(
+			Collections.emptyMap(),
+			booleanQuery -> booleanQuery.getPreBooleanFilter(), filter,
+			AccountEntry.class.getName(), search, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			new UnsafeConsumer() {
+
+				public void accept(Object object) throws Exception {
+					SearchContext searchContext = (SearchContext)object;
+
+					searchContext.setCompanyId(contextCompany.getCompanyId());
+
+					CommerceChannel commerceChannel =
+						_commerceChannelService.getCommerceChannel(channelId);
+
+					searchContext.setAttribute(
+						"types",
+						_accountEntryGroupSettings.getAllowedTypes(
+							commerceChannel.getGroupId()));
 				}
 
 			},
@@ -655,6 +693,9 @@ public class AccountResourceImpl
 	private AccountDTOConverter _accountDTOConverter;
 
 	@Reference
+	private AccountEntryGroupSettings _accountEntryGroupSettings;
+
+	@Reference
 	private CommerceAccountGroupCommerceAccountRelService
 		_commerceAccountGroupCommerceAccountRelService;
 
@@ -673,6 +714,9 @@ public class AccountResourceImpl
 
 	@Reference
 	private CommerceAddressService _commerceAddressService;
+
+	@Reference
+	private CommerceChannelService _commerceChannelService;
 
 	@Reference
 	private CountryService _countryService;
