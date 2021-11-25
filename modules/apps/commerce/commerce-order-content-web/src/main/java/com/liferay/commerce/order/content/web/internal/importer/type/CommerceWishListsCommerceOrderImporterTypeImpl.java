@@ -176,6 +176,10 @@ public class CommerceWishListsCommerceOrderImporterTypeImpl
 			CommerceWishListItem commerceWishListItem)
 		throws Exception {
 
+		if (Validator.isNull(commerceWishListItem.getCPInstanceUuid())) {
+			return null;
+		}
+
 		CommerceOrderImporterItemImpl commerceOrderImporterItemImpl =
 			new CommerceOrderImporterItemImpl();
 
