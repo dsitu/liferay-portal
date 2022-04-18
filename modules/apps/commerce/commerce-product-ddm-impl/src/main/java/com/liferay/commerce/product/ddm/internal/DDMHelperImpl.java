@@ -18,7 +18,6 @@ import com.liferay.commerce.account.util.CommerceAccountHelper;
 import com.liferay.commerce.constants.CommerceWebKeys;
 import com.liferay.commerce.context.CommerceContext;
 import com.liferay.commerce.media.CommerceMediaResolver;
-import com.liferay.commerce.product.constants.CPConstants;
 import com.liferay.commerce.product.ddm.DDMHelper;
 import com.liferay.commerce.product.model.CPDefinitionOptionRel;
 import com.liferay.commerce.product.model.CPDefinitionOptionValueRel;
@@ -440,33 +439,12 @@ public class DDMHelperImpl implements DDMHelper {
 		CPDefinitionOptionRel cpDefinitionOptionRel,
 		boolean ignoreSKUCombinations, boolean publicStore) {
 
-		if (_isIterableCPDefinitionOptionRelFieldType(cpDefinitionOptionRel) &&
-			!_cpDefinitionOptionValueRelLocalService.
-				hasCPDefinitionOptionValueRels(
-					cpDefinitionOptionRel.getCPDefinitionOptionRelId())) {
-
-			return false;
-		}
-
 		if (ignoreSKUCombinations) {
 			return cpDefinitionOptionRel.isRequired();
 		}
 
 		if (cpDefinitionOptionRel.isSkuContributor() ||
 			(publicStore && cpDefinitionOptionRel.isRequired())) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean _isIterableCPDefinitionOptionRelFieldType(
-		CPDefinitionOptionRel cpDefinitionOptionRel) {
-
-		if (ArrayUtil.contains(
-				CPConstants.PRODUCT_OPTION_MULTIPLE_VALUES_FIELD_TYPES,
-				cpDefinitionOptionRel.getDDMFormFieldTypeName())) {
 
 			return true;
 		}
