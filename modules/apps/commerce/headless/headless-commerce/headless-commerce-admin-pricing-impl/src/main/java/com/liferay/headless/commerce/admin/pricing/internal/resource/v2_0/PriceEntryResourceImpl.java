@@ -52,8 +52,6 @@ import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.math.BigDecimal;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.MultivaluedMap;
@@ -131,7 +129,8 @@ public class PriceEntryResourceImpl extends BasePriceEntryResourceImpl {
 
 	@Override
 	public Page<PriceEntry> getPriceListByExternalReferenceCodePriceEntriesPage(
-			String externalReferenceCode, Pagination pagination)
+			String externalReferenceCode, String search, Filter filter,
+			Pagination pagination, Sort[] sorts)
 		throws Exception {
 
 		CommercePriceList commercePriceList =
@@ -144,17 +143,9 @@ public class PriceEntryResourceImpl extends BasePriceEntryResourceImpl {
 					externalReferenceCode);
 		}
 
-		List<CommercePriceEntry> commercePriceEntries =
-			_commercePriceEntryService.getCommercePriceEntries(
-				commercePriceList.getCommercePriceListId(),
-				pagination.getStartPosition(), pagination.getEndPosition());
-
-		int totalItems =
-			_commercePriceEntryService.getCommercePriceEntriesCount(
-				commercePriceList.getCommercePriceListId());
-
-		return Page.of(
-			_toPriceEntries(commercePriceEntries), pagination, totalItems);
+		return getPriceListIdPriceEntriesPage(
+			commercePriceList.getCommercePriceListId(), search, filter,
+			pagination, sorts);
 	}
 
 	@Override
@@ -335,20 +326,6 @@ public class PriceEntryResourceImpl extends BasePriceEntryResourceImpl {
 				"UPDATE", commercePriceEntry.getCommercePriceEntryId(),
 				"patchPriceEntry", _commercePriceEntryModelResourcePermission)
 		).build();
-	}
-
-	private List<PriceEntry> _toPriceEntries(
-			List<CommercePriceEntry> commercePriceEntries)
-		throws Exception {
-
-		List<PriceEntry> priceEntries = new ArrayList<>();
-
-		for (CommercePriceEntry commercePriceEntry : commercePriceEntries) {
-			priceEntries.add(
-				_toPriceEntry(commercePriceEntry.getCommercePriceEntryId()));
-		}
-
-		return priceEntries;
 	}
 
 	private PriceEntry _toPriceEntry(CommercePriceEntry commercePriceEntry)

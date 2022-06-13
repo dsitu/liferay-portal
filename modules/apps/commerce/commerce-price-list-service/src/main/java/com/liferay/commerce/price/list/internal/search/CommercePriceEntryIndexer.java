@@ -95,6 +95,8 @@ public class CommercePriceEntryIndexer extends BaseIndexer<CommercePriceEntry> {
 			searchQuery, searchContext, FIELD_EXTERNAL_REFERENCE_CODE, false);
 
 		addSearchTerm(searchQuery, searchContext, "sku", false);
+		addSearchTerm(
+			searchQuery, searchContext, "skuExternalReferenceCode", false);
 		addSearchLocalizedTerm(
 			searchQuery, searchContext, "cpDefinitionName", false);
 
@@ -141,6 +143,8 @@ public class CommercePriceEntryIndexer extends BaseIndexer<CommercePriceEntry> {
 
 		document.addKeyword("cpInstanceId", cpInstance.getCPInstanceId());
 		document.addKeyword("sku", cpInstance.getSku());
+		document.addKeyword(
+			"skuExternalReferenceCode", cpInstance.getExternalReferenceCode());
 
 		CPDefinition cpDefinition = cpInstance.getCPDefinition();
 
