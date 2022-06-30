@@ -32,14 +32,14 @@
 	<div class="form-group-autofit">
 		<div class="form-group-item">
 			<div class="sheet-text">
-				<clay:data-set-display
+				<frontend-data-set:classic-display
 					contextParams='<%=
 						HashMapBuilder.<String, String>put(
 							"accountEntryId", String.valueOf(commerceAccountDisplayContext.getAccountEntryId())
 						).build()
 					%>'
-					dataProviderKey="<%= CommerceAccountDataSetConstants.COMMERCE_DATA_SET_KEY_ACCOUNT_ENTRY_DEFAULT_SHIPPING_OPTIONS %>"
-					id="<%= CommerceAccountDataSetConstants.COMMERCE_DATA_SET_KEY_ACCOUNT_ENTRY_DEFAULT_SHIPPING_OPTIONS %>"
+					dataProviderKey="<%= CommerceAccountFDSNames.DEFAULT_SHIPPING_OPTIONS %>"
+					id="<%= CommerceAccountFDSNames.DEFAULT_SHIPPING_OPTIONS %>"
 					itemsPerPage="<%= 10 %>"
 					namespace="<%= liferayPortletResponse.getNamespace() %>"
 					pageNumber="<%= 1 %>"
