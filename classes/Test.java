@@ -29,4 +29,38 @@ public class Test {
 		System.out.println("Test");
 	}
 
+    // BasePersistence (replace throws Exception with PortalException)
+
+    public interface A {
+        public void doSomething() throws Exception;
+    }
+
+    // BasePeristenceImpl
+
+    public abstract class BaseA implements A {
+
+        public void doSomething() {
+
+        }
+
+    }
+
+    // UserPersistence
+
+    public interface B extends A {
+
+        public void doSomething();
+
+    }
+
+    // UserPersitenceImpl
+
+    public class BImpl extends BaseA implements B {
+
+        public void doSomething() {
+
+        }
+
+    }
+
 }

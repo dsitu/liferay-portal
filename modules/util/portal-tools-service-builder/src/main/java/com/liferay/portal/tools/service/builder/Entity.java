@@ -817,6 +817,10 @@ public class Entity implements Comparable<Entity> {
 		return _versionEntity;
 	}
 
+	public boolean hasUpdateImplThrowsPortalException {
+		
+	}
+
 	public boolean hasActionableDynamicQuery() {
 		if (hasEntityColumns() && hasLocalService()) {
 			if (hasCompoundPK()) {
