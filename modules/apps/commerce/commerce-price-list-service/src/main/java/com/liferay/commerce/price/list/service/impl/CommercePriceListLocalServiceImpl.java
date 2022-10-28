@@ -50,6 +50,7 @@ import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.sql.dsl.query.FromStep;
 import com.liferay.petra.sql.dsl.query.GroupByStep;
 import com.liferay.petra.sql.dsl.query.JoinStep;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
@@ -346,7 +347,11 @@ public class CommercePriceListLocalServiceImpl
 		throws PortalException {
 
 		if (commercePriceList.isCatalogBasePriceList()) {
-			throw new CommerceBasePriceListCannotDeleteException();
+			String commercePriceListType = StringUtil.replace(
+				commercePriceList.getType(), CharPool.DASH, CharPool.SPACE);
+
+			throw new CommerceBasePriceListCannotDeleteException(
+				"Unable to delete base " + commercePriceListType);
 		}
 
 		return commercePriceListLocalService.forceDeleteCommercePriceList(

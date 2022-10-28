@@ -15,7 +15,8 @@
 package com.liferay.headless.commerce.admin.pricing.internal.jaxrs.exception.mapper;
 
 import com.liferay.commerce.price.list.exception.CommerceBasePriceListCannotDeleteException;
-import com.liferay.headless.commerce.core.exception.mapper.BaseExceptionMapper;
+import com.liferay.portal.vulcan.jaxrs.exception.mapper.BaseExceptionMapper;
+import com.liferay.portal.vulcan.jaxrs.exception.mapper.Problem;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -39,13 +40,19 @@ public class BasePriceListCannotDeleteExceptionMapper
 	extends BaseExceptionMapper<CommerceBasePriceListCannotDeleteException> {
 
 	@Override
-	public String getErrorDescription() {
-		return "Unable to delete base price list";
+	protected Problem getProblem(
+		CommerceBasePriceListCannotDeleteException
+			commerceBasePriceListCannotDeleteException) {
+
+		return new Problem(
+			null, Response.Status.BAD_REQUEST,
+			commerceBasePriceListCannotDeleteException.getMessage(),
+			"CommerceBasePriceListCannotDeleteException");
 	}
 
 	@Override
-	public Response.Status getStatus() {
-		return Response.Status.BAD_REQUEST;
+	protected boolean isSanitize() {
+		return false;
 	}
 
 }
