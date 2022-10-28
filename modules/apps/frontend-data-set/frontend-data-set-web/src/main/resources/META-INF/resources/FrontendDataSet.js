@@ -531,8 +531,20 @@ const FrontendDataSet = ({
 			},
 			method,
 		})
-			.then((_) => {
+			.then((response) => {
 				return delay(500).then(() => {
+					if (!response.ok) {
+						return response
+							.json()
+							.then((jsonResponse) =>
+								Promise.reject(
+									jsonResponse.title
+										? new Error(jsonResponse.title)
+										: new Error()
+								)
+							);
+					}
+
 					if (isMounted()) {
 						Liferay.fire(DATASET_ACTION_PERFORMED, {
 							id,
@@ -545,9 +557,13 @@ const FrontendDataSet = ({
 			.catch((error) => {
 				logError(error);
 				openToast({
-					message: Liferay.Language.get('unexpected-error'),
+					message: error.message
+						? error.message
+						: Liferay.Language.get('unexpected-error'),
 					type: 'danger',
 				});
+
+				throw error;
 			});
 	}
 
