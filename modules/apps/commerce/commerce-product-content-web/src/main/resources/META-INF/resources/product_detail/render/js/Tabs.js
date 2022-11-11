@@ -39,6 +39,7 @@ export default function ({
 	hasReplacements,
 	namespace,
 	navCPMediaId,
+	navCommentsId,
 	navDescriptionId,
 	navReplacementsId,
 	navSpecificationsId,
@@ -63,11 +64,16 @@ export default function ({
 			display(navReplacementsId);
 			setActiveTabKeyValue(3);
 		}
+		else {
+			display(navCommentsId);
+			setActiveTabKeyValue(4);
+		}
 	}, [
 		hasCPDefinitionSpecificationOptionValues,
 		hasCPMedia,
 		hasDescription,
 		hasReplacements,
+		navCommentsId,
 		navCPMediaId,
 		navDescriptionId,
 		navReplacementsId,
@@ -128,6 +134,19 @@ export default function ({
 					}}
 				>
 					{Liferay.Language.get('replacements')}
+				</ClayTabs.Item>
+
+				<ClayTabs.Item
+					active={activeTabKeyValue === 4}
+					innerProps={{
+						'aria-controls': 'tabpanel-5',
+					}}
+					onClick={() => {
+						display(navCommentsId);
+						setActiveTabKeyValue(4);
+					}}
+				>
+					{Liferay.Language.get('review')}
 				</ClayTabs.Item>
 			</ClayTabs>
 		</>
