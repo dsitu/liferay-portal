@@ -90,9 +90,8 @@ public class AddToCartTag extends IncludeTag {
 				_cpInstanceId = cpSku.getCPInstanceId();
 				_disabled =
 					!cpSku.isPurchasable() ||
-					((_commerceAccountId <= 0) &&
-					 !_commerceOrderHttpHelper.isGuestCheckoutEnabled(
-						 httpServletRequest));
+					((_commerceAccountId == 0));
+
 				sku = cpSku.getSku();
 
 				if (commerceOrder != null) {
