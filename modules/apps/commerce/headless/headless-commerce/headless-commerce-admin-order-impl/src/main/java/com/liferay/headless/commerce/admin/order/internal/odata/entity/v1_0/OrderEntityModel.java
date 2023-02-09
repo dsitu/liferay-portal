@@ -43,7 +43,7 @@ public class OrderEntityModel implements EntityModel {
 				locale -> Field.getSortableFieldName(Field.CREATE_DATE),
 				locale -> Field.CREATE_DATE),
 			new StringEntityField(
-				"createdByEmailAddress", locale -> "orderCreatorEmailAddress"),
+				"creatorEmailAddress", locale -> "orderCreatorEmailAddress"),
 			new DateTimeEntityField(
 				"modifiedDate",
 				locale -> Field.getSortableFieldName(Field.MODIFIED_DATE),

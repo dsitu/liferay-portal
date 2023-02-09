@@ -141,7 +141,7 @@ public class OrderResourceTest extends BaseOrderResourceTestCase {
 		for (EntityField entityField : entityFields) {
 			String entityFieldName = entityField.getName();
 
-			if (entityFieldName.equals("createdByEmailAddress")) {
+			if (entityFieldName.equals("creatorEmailAddress")) {
 				@SuppressWarnings("PMD.UnusedLocalVariable")
 				Order order1 = testGetOrdersPage_addOrder(randomOrder());
 

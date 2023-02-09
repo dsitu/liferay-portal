@@ -124,7 +124,7 @@ public class OrderDTOConverter implements DTOConverter<CommerceOrder, Order> {
 				channelId = commerceChannel.getCommerceChannelId();
 				couponCode = commerceOrder.getCouponCode();
 				createDate = commerceOrder.getCreateDate();
-				createdByEmailAddress = user.getEmailAddress();
+				creatorEmailAddress = user.getEmailAddress();
 				currencyCode = commerceCurrency.getCode();
 				customFields = expandoBridge.getAttributes();
 				deliveryTermDescription =
