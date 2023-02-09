@@ -190,7 +190,7 @@ public abstract class BaseOrderResourceTestCase {
 		order.setAdvanceStatus(regex);
 		order.setChannelExternalReferenceCode(regex);
 		order.setCouponCode(regex);
-		order.setCreatedByEmailAddress(regex);
+		order.setCreatorEmailAddress(regex);
 		order.setCurrencyCode(regex);
 		order.setDeliveryTermDescription(regex);
 		order.setDeliveryTermName(regex);
@@ -228,7 +228,7 @@ public abstract class BaseOrderResourceTestCase {
 		Assert.assertEquals(regex, order.getAdvanceStatus());
 		Assert.assertEquals(regex, order.getChannelExternalReferenceCode());
 		Assert.assertEquals(regex, order.getCouponCode());
-		Assert.assertEquals(regex, order.getCreatedByEmailAddress());
+		Assert.assertEquals(regex, order.getCreatorEmailAddress());
 		Assert.assertEquals(regex, order.getCurrencyCode());
 		Assert.assertEquals(regex, order.getDeliveryTermDescription());
 		Assert.assertEquals(regex, order.getDeliveryTermName());
@@ -990,9 +990,9 @@ public abstract class BaseOrderResourceTestCase {
 			}
 
 			if (Objects.equals(
-					"createdByEmailAddress", additionalAssertFieldName)) {
+					"creatorEmailAddress", additionalAssertFieldName)) {
 
-				if (order.getCreatedByEmailAddress() == null) {
+				if (order.getCreatorEmailAddress() == null) {
 					valid = false;
 				}
 
@@ -2117,11 +2117,11 @@ public abstract class BaseOrderResourceTestCase {
 			}
 
 			if (Objects.equals(
-					"createdByEmailAddress", additionalAssertFieldName)) {
+					"creatorEmailAddress", additionalAssertFieldName)) {
 
 				if (!Objects.deepEquals(
-						order1.getCreatedByEmailAddress(),
-						order2.getCreatedByEmailAddress())) {
+						order1.getCreatorEmailAddress(),
+						order2.getCreatorEmailAddress())) {
 
 					return false;
 				}
@@ -3474,9 +3474,9 @@ public abstract class BaseOrderResourceTestCase {
 			return sb.toString();
 		}
 
-		if (entityFieldName.equals("createdByEmailAddress")) {
+		if (entityFieldName.equals("creatorEmailAddress")) {
 			sb.append("'");
-			sb.append(String.valueOf(order.getCreatedByEmailAddress()));
+			sb.append(String.valueOf(order.getCreatorEmailAddress()));
 			sb.append("'");
 
 			return sb.toString();
@@ -4221,7 +4221,7 @@ public abstract class BaseOrderResourceTestCase {
 				couponCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				createDate = RandomTestUtil.nextDate();
-				createdByEmailAddress = StringUtil.toLowerCase(
+				creatorEmailAddress = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				currencyCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
