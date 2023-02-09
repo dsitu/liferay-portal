@@ -131,6 +131,10 @@ public class OrderResourceTest extends BaseOrderResourceTestCase {
 	@Override
 	@Test
 	public void testGetOrdersPageWithFilterStringEquals() throws Exception {
+		super.testGetOrdersPageWithFilterStringEquals();
+
+		// TODO Give this block a better comment
+
 		List<EntityField> entityFields = getEntityFields(
 			EntityField.Type.STRING);
 
@@ -142,9 +146,10 @@ public class OrderResourceTest extends BaseOrderResourceTestCase {
 			String entityFieldName = entityField.getName();
 
 			if (entityFieldName.equals("creatorEmailAddress")) {
-				@SuppressWarnings("PMD.UnusedLocalVariable")
 				Order order1 = testGetOrdersPage_addOrder(randomOrder());
 
+				Role role = RoleLocalServiceUtil.getRole(
+					testCompany.getCompanyId(), RoleConstants.ADMINISTRATOR);
 				User user = UserTestUtil.addUser(
 					testCompany.getCompanyId(), testCompany.getUserId(), "test",
 					"UserServiceTest." + RandomTestUtil.nextLong() +
@@ -153,12 +158,9 @@ public class OrderResourceTest extends BaseOrderResourceTestCase {
 					"UserServiceTest", "UserServiceTest", null,
 					_serviceContext);
 
-				Role role = RoleLocalServiceUtil.getRole(
-					testCompany.getCompanyId(), RoleConstants.ADMINISTRATOR);
-
 				UserLocalServiceUtil.addRoleUser(role.getRoleId(), user);
 
-				OrderResource orderResource2 = OrderResource.builder(
+				OrderResource orderResource = OrderResource.builder(
 				).authentication(
 					user.getEmailAddress(), "test"
 				).locale(
@@ -167,9 +169,9 @@ public class OrderResourceTest extends BaseOrderResourceTestCase {
 					"nestedFields", "orderItems,orderItems.shippingAddress"
 				).build();
 
-				Order order2 = orderResource2.postOrder(randomOrder());
+				Order order2 = orderResource.postOrder(randomOrder());
 
-				Page<Order> page = orderResource2.getOrdersPage(
+				Page<Order> page = orderResource.getOrdersPage(
 					null, getFilterString(entityField, "eq", order2),
 					Pagination.of(1, 2), null);
 
@@ -180,8 +182,6 @@ public class OrderResourceTest extends BaseOrderResourceTestCase {
 				return;
 			}
 		}
-
-		super.testGetOrdersPageWithFilterStringEquals();
 	}
 
 	@Override
