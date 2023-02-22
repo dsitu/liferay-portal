@@ -1,0 +1,3 @@
+Bundle-Name: Liferay Headless Commerce Admin Catalog Implementation
+Bundle-SymbolicName: com.liferay.headless.commerce.admin.catalog.impl.v2
+Bundle-Version: 1.0

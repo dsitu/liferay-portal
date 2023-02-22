@@ -1,0 +1,6 @@
+Bundle-Name: Liferay Headless Commerce Admin Catalog API V2
+Bundle-SymbolicName: com.liferay.headless.commerce.admin.catalog.api.v2
+Bundle-Version: 1.0
+Export-Package:\
+	com.liferay.headless.commerce.admin.catalog.dto.v2_0,\
+	com.liferay.headless.commerce.admin.catalog.resource.v2_0
