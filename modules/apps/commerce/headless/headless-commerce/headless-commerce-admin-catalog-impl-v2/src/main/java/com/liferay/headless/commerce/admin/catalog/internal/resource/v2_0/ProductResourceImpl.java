@@ -888,7 +888,7 @@ public class ProductResourceImpl extends BaseProductResourceImpl {
 
 		// Images
 
-		Attachment[] images = product.getImages();
+		Attachment[] images = product.getImageAttachments();
 
 		if (images != null) {
 			for (Attachment attachment : images) {

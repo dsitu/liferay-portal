@@ -48,7 +48,7 @@ public class LinkedProductResourceImpl
 
 	@NestedField(parentClass = Product.class, value = "linkedProducts")
 	@Override
-	public Page<LinkedProduct> getProductIdLinkedProductsPage(
+	public Page<LinkedProduct> getProductLinkedProductsPage(
 			@NestedFieldId(value = "productId") Long productId,
 			Pagination pagination)
 		throws Exception {

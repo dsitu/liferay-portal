@@ -879,7 +879,7 @@ components:
                     minimum: 0
                     readOnly: true
                     type: integer
-                images:
+                imageAttachments:
                     items:
                         $ref: "#/components/schemas/Attachment"
                     type: array
@@ -8817,7 +8817,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product shipping configuration of a product.
             tags: ["ProductShippingConfiguration"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/skus:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/skus":
         get:
             operationId: getProductByExternalReferenceCodeSkusPage
             parameters:
@@ -11418,7 +11418,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product by ID.
             tags: ["ProductShippingConfiguration"]
-    /products/{id}/skus:
+    "/products/{id}/skus":
         get:
             operationId: getProductIdSkusPage
             parameters:

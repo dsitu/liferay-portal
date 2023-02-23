@@ -123,7 +123,7 @@ public class MappedProductResourceImpl
 
 	@NestedField(parentClass = Product.class, value = "mappedProducts")
 	@Override
-	public Page<MappedProduct> getProductIdMappedProductsPage(
+	public Page<MappedProduct> getProductMappedProductsPage(
 			Long productId, String search, Pagination pagination, Sort[] sorts)
 		throws Exception {
 
@@ -205,7 +205,7 @@ public class MappedProductResourceImpl
 	}
 
 	@Override
-	public MappedProduct postProductIdMappedProduct(
+	public MappedProduct postProductMappedProduct(
 			Long productId, MappedProduct mappedProduct)
 		throws Exception {
 

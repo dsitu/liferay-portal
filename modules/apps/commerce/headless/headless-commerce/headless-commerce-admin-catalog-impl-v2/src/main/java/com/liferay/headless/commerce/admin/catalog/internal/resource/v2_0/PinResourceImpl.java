@@ -131,7 +131,7 @@ public class PinResourceImpl
 
 	@NestedField(parentClass = Product.class, value = "pins")
 	@Override
-	public Page<Pin> getProductIdPinsPage(
+	public Page<Pin> getProductPinsPage(
 			Long productId, String search, Pagination pagination, Sort[] sorts)
 		throws Exception {
 
@@ -189,7 +189,7 @@ public class PinResourceImpl
 	}
 
 	@Override
-	public Pin postProductIdPin(Long productId, Pin pin) throws Exception {
+	public Pin postProductPin(Long productId, Pin pin) throws Exception {
 		CPDefinition cpDefinition =
 			_cpDefinitionService.fetchCPDefinitionByCProductId(productId);
 

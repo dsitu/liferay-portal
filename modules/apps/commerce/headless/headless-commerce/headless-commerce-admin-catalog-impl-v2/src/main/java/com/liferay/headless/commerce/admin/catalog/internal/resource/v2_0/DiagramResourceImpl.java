@@ -78,7 +78,7 @@ public class DiagramResourceImpl
 
 	@NestedField(parentClass = Product.class, value = "diagram")
 	@Override
-	public Diagram getProductIdDiagram(Long productId) throws Exception {
+	public Diagram getProductDiagram(Long productId) throws Exception {
 		CPDefinition cpDefinition =
 			_cpDefinitionService.fetchCPDefinitionByCProductId(productId);
 
@@ -140,7 +140,7 @@ public class DiagramResourceImpl
 	}
 
 	@Override
-	public Diagram postProductIdDiagram(Long productId, Diagram diagram)
+	public Diagram postProductDiagram(Long productId, Diagram diagram)
 		throws Exception {
 
 		CPDefinition cpDefinition =

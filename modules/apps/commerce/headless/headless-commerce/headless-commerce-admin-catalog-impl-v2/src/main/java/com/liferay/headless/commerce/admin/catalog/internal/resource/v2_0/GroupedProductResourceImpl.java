@@ -73,7 +73,7 @@ public class GroupedProductResourceImpl extends BaseGroupedProductResourceImpl {
 	}
 
 	@Override
-	public Page<GroupedProduct> getProductIdGroupedProductsPage(
+	public Page<GroupedProduct> getProductGroupedProductsPage(
 			Long productId, Pagination pagination)
 		throws Exception {
 
@@ -136,7 +136,7 @@ public class GroupedProductResourceImpl extends BaseGroupedProductResourceImpl {
 	}
 
 	@Override
-	public GroupedProduct postProductIdGroupedProduct(
+	public GroupedProduct postProductGroupedProduct(
 			Long productId, GroupedProduct groupedProduct)
 		throws Exception {
 
