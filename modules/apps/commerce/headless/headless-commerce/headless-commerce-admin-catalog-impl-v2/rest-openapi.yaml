@@ -1652,7 +1652,7 @@ info:
     version: v2.0
 openapi: 3.0.0
 paths:
-    /catalog/by-externalReferenceCode/{externalReferenceCode}:
+    "/catalog/by-externalReferenceCode/{externalReferenceCode}":
         delete:
             operationId: deleteCatalogByExternalReferenceCode
             parameters:
@@ -1828,7 +1828,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a catalog by external reference code.
             tags: ["Catalog"]
-    /catalog/{id}:
+    "/catalog/{id}":
         delete:
             operationId: deleteCatalog
             parameters:
@@ -2007,7 +2007,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a catalog by ID.
             tags: ["Catalog"]
-    /catalogs:
+    "/catalogs":
         get:
             operationId: getCatalogsPage
             parameters:
@@ -2156,7 +2156,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a catalog.
             tags: ["Catalog"]
-    /diagrams/{diagramId}:
+    "/diagrams/{diagramId}":
         get:
             operationId: getDiagram
             parameters:
@@ -2299,7 +2299,7 @@ paths:
             summary: Updates a diagram by its ID.
             tags:
                 - Diagram
-    /grouped-products/{groupedProductId}:
+    "/grouped-products/{groupedProductId}":
         delete:
             operationId: deleteGroupedProduct
             parameters:
@@ -2480,7 +2480,7 @@ paths:
             summary: Updates a group product by its ID.
             tags:
                 - GroupedProduct
-    /mapped-products/{mappedProductId}:
+    "/mapped-products/{mappedProductId}":
         delete:
             operationId: deleteMappedProduct
             parameters:
@@ -2661,7 +2661,7 @@ paths:
             summary: Updates a mapped product by its ID.
             tags:
                 - MappedProduct
-    /optionCategories:
+    "/optionCategories":
         get:
             operationId: getOptionCategoriesPage
             parameters:
@@ -2805,7 +2805,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a option category.
             tags: ["OptionCategory"]
-    /optionCategories/{id}:
+    "/optionCategories/{id}":
         delete:
             operationId: deleteOptionCategory
             parameters:
@@ -2984,7 +2984,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a option category by ID.
             tags: ["OptionCategory"]
-    /optionValues/by-externalReferenceCode/{externalReferenceCode}:
+    "/optionValues/by-externalReferenceCode/{externalReferenceCode}":
         delete:
             operationId: deleteOptionValueByExternalReferenceCode
             parameters:
@@ -3160,7 +3160,7 @@ paths:
             summary: Updates an option by ID.
             tags:
                 - OptionValue
-    /optionValues/{id}:
+    "/optionValues/{id}":
         delete:
             operationId: deleteOptionValue
             parameters:
@@ -3339,7 +3339,7 @@ paths:
             summary: Updates an option by ID.
             tags:
                 - OptionValue
-    /options:
+    "/options":
         get:
             operationId: getOptionsPage
             parameters:
@@ -3487,7 +3487,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates an option.
             tags: ["Option"]
-    /options/by-externalReferenceCode/{externalReferenceCode}:
+    "/options/by-externalReferenceCode/{externalReferenceCode}":
         delete:
             operationId: deleteOptionByExternalReferenceCode
             parameters:
@@ -3663,7 +3663,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates an option by external reference code.
             tags: ["Option"]
-    /options/by-externalReferenceCode/{externalReferenceCode}/optionValues:
+    "/options/by-externalReferenceCode/{externalReferenceCode}/optionValues":
         get:
             operationId: getOptionByExternalReferenceCodeOptionValuesPage
             parameters:
@@ -3834,7 +3834,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a value related to an option.
             tags: ["OptionValue"]
-    /options/{id}:
+    "/options/{id}":
         delete:
             operationId: deleteOption
             parameters:
@@ -4013,7 +4013,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates an option by ID.
             tags: ["Option"]
-    /options/{id}/optionValues:
+    "/options/{id}/optionValues":
         get:
             operationId: getOptionIdOptionValuesPage
             parameters:
@@ -4186,7 +4186,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a value related to an option.
             tags: ["OptionValue"]
-    /pins/{pinId}:
+    "/pins/{pinId}":
         delete:
             operationId: deletePin
             parameters:
@@ -4367,7 +4367,7 @@ paths:
             summary: Updates a pin by its ID.
             tags:
                 - Pin
-    /product-account-groups/{id}:
+    "/product-account-groups/{id}":
         delete:
             operationId: deleteProductAccountGroup
             parameters:
@@ -4471,7 +4471,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a related product by ID.
             tags: ["ProductAccountGroup"]
-    /product-channels/{id}:
+    "/product-channels/{id}":
         delete:
             operationId: deleteProductChannel
             parameters:
@@ -4575,7 +4575,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a related product by ID.
             tags: ["ProductChannel"]
-    /product-group-products/{id}:
+    "/product-group-products/{id}":
         delete:
             operationId: deleteProductGroupProduct
             parameters:
@@ -4613,7 +4613,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Deletes a product in a product group by ID.
             tags: ["ProductGroupProduct"]
-    /product-groups:
+    "/product-groups":
         get:
             operationId: getProductGroupsPage
             parameters:
@@ -4762,7 +4762,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a product group.
             tags: ["ProductGroup"]
-    /product-groups/by-externalReferenceCode/{externalReferenceCode}:
+    "/product-groups/by-externalReferenceCode/{externalReferenceCode}":
         delete:
             operationId: deleteProductGroupByExternalReferenceCode
             parameters:
@@ -4938,7 +4938,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product group by external reference code.
             tags: ["ProductGroup"]
-    /product-groups/by-externalReferenceCode/{externalReferenceCode}/product-group-products:
+    "/product-groups/by-externalReferenceCode/{externalReferenceCode}/product-group-products":
         get:
             operationId: getProductGroupByExternalReferenceCodeProductGroupProductsPage
             parameters:
@@ -5099,7 +5099,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a product related to a product group.
             tags: ["ProductGroupProduct"]
-    /product-groups/{id}:
+    "/product-groups/{id}":
         delete:
             operationId: deleteProductGroup
             parameters:
@@ -5278,7 +5278,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product group by ID.
             tags: ["ProductGroup"]
-    /product-groups/{id}/product-group-products:
+    "/product-groups/{id}/product-group-products":
         get:
             operationId: getProductGroupIdProductGroupProductsPage
             parameters:
@@ -5441,7 +5441,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a product related to a product group.
             tags: ["ProductGroupProduct"]
-    /productOptions/{id}:
+    "/productOptions/{id}":
         delete:
             operationId: deleteProductOption
             parameters:
@@ -5620,7 +5620,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product option by ID.
             tags: ["ProductOption"]
-    /productOptions/{id}/productOptionValues:
+    "/productOptions/{id}/productOptionValues":
         get:
             operationId: getProductOptionIdProductOptionValuesPage
             parameters:
@@ -5793,7 +5793,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a value related to a product option.
             tags: ["ProductOptionValue"]
-    /productSpecifications/{id}:
+    "/productSpecifications/{id}":
         delete:
             operationId: deleteProductSpecification
             parameters:
@@ -5978,7 +5978,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product specification by ID.
             tags: ["ProductSpecification"]
-    /products:
+    "/products":
         get:
             operationId: getProductsPage
             parameters:
@@ -6127,7 +6127,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a product.
             tags: ["Product"]
-    /products/by-externalReferenceCode/{externalReferenceCode}:
+    "/products/by-externalReferenceCode/{externalReferenceCode}":
         delete:
             operationId: deleteProductByExternalReferenceCode
             parameters:
@@ -6303,7 +6303,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product by external reference code.
             tags: ["Product"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/attachments:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/attachments":
         get:
             operationId: getProductByExternalReferenceCodeAttachmentsPage
             parameters:
@@ -6464,7 +6464,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a attachment related to a product.
             tags: ["Attachment"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/attachments/by-base64:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/attachments/by-base64":
         post:
             operationId: postProductByExternalReferenceCodeAttachmentByBase64
             parameters:
@@ -6545,7 +6545,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/attachments/by-url:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/attachments/by-url":
         post:
             operationId: postProductByExternalReferenceCodeAttachmentByUrl
             parameters:
@@ -6626,7 +6626,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/by-version/{version}:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/by-version/{version}":
         delete:
             operationId: deleteProductByExternalReferenceCodeByVersion
             parameters:
@@ -6752,7 +6752,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a product by External Reference Code.
             tags: ["Product"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/catalog:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/catalog":
         get:
             operationId: getProductByExternalReferenceCodeCatalog
             parameters:
@@ -6825,7 +6825,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets the catalog related to a product.
             tags: ["Catalog"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/categories:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/categories":
         get:
             operationId: getProductByExternalReferenceCodeCategoriesPage
             parameters:
@@ -6906,7 +6906,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a list of category related to a product.
             tags: ["Category"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/clone:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/clone":
         post:
             operationId: postProductByExternalReferenceCodeClone
             parameters:
@@ -6983,7 +6983,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Clone a product.
             tags: ["Product"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/configuration:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/configuration":
         get:
             operationId: getProductByExternalReferenceCodeConfiguration
             parameters:
@@ -7123,7 +7123,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product configuration of a product.
             tags: ["ProductConfiguration"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/diagrams:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/diagrams":
         get:
             operationId: getProductByExternalReferenceCodeDiagram
             parameters:
@@ -7265,7 +7265,7 @@ paths:
             summary: Creates or updates a diagram by product external reference code.
             tags:
                 - Diagram
-    /products/by-externalReferenceCode/{externalReferenceCode}/grouped-products:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/grouped-products":
         get:
             operationId: getProductByExternalReferenceCodeGroupedProductsPage
             parameters:
@@ -7425,7 +7425,7 @@ paths:
             summary: Creates a grouped product related to a product by external reference code.
             tags:
                 - GroupedProduct
-    /products/by-externalReferenceCode/{externalReferenceCode}/images:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/images":
         get:
             operationId: getProductByExternalReferenceCodeImagesPage
             parameters:
@@ -7586,7 +7586,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/images/by-base64:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/images/by-base64":
         post:
             operationId: postProductByExternalReferenceCodeImageByBase64
             parameters:
@@ -7667,7 +7667,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/images/by-url:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/images/by-url":
         post:
             operationId: postProductByExternalReferenceCodeImageByUrl
             parameters:
@@ -7748,7 +7748,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/mapped-products:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/mapped-products":
         get:
             operationId: getProductByExternalReferenceCodeMappedProductsPage
             parameters:
@@ -7918,7 +7918,7 @@ paths:
             summary: Creates a mapped product related to a product by external reference code.
             tags:
                 - MappedProduct
-    /products/by-externalReferenceCode/{externalReferenceCode}/mapped-products/by-sequence/{sequence}:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/mapped-products/by-sequence/{sequence}":
         get:
             operationId: getProductByExternalReferenceCodeMappedProductBySequence
             parameters:
@@ -7995,7 +7995,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a mapped product by sequence.
             tags: ["MappedProduct"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/pins:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/pins":
         get:
             operationId: getProductByExternalReferenceCodePinsPage
             parameters:
@@ -8165,7 +8165,7 @@ paths:
             summary: Creates a pin related to a product by external reference code.
             tags:
                 - Pin
-    /products/by-externalReferenceCode/{externalReferenceCode}/product-account-groups:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/product-account-groups":
         get:
             operationId: getProductByExternalReferenceCodeProductAccountGroupsPage
             parameters:
@@ -8246,7 +8246,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a list of channel related to a product.
             tags: ["ProductAccountGroup"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/product-channels:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/product-channels":
         get:
             operationId: getProductByExternalReferenceCodeProductChannelsPage
             parameters:
@@ -8327,7 +8327,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a list of channel related to a product.
             tags: ["ProductChannel"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/productOptions:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/productOptions":
         get:
             operationId: getProductByExternalReferenceCodeProductOptionsPage
             parameters:
@@ -8509,7 +8509,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a list of product options of a product.
             tags: ["ProductOption"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/relatedProducts:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/relatedProducts":
         get:
             operationId: getProductByExternalReferenceCodeRelatedProductsPage
             parameters:
@@ -8677,7 +8677,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a related product of a product
             tags: ["RelatedProduct"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/shippingConfiguration:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/shippingConfiguration":
         get:
             operationId: getProductByExternalReferenceCodeShippingConfiguration
             parameters:
@@ -8978,7 +8978,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a sku related to a product.
             tags: ["Sku"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/subscriptionConfiguration:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/subscriptionConfiguration":
         get:
             operationId: getProductByExternalReferenceCodeSubscriptionConfiguration
             parameters:
@@ -9118,7 +9118,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product subscription configuration of a product.
             tags: ["ProductSubscriptionConfiguration"]
-    /products/by-externalReferenceCode/{externalReferenceCode}/taxConfiguration:
+    "/products/by-externalReferenceCode/{externalReferenceCode}/taxConfiguration":
         get:
             operationId: getProductByExternalReferenceCodeTaxConfiguration
             parameters:
@@ -9437,7 +9437,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product by ID.
             tags: ["Product"]
-    /products/{id}/attachments:
+    "/products/{id}/attachments":
         get:
             operationId: getProductIdAttachmentsPage
             parameters:
@@ -9600,7 +9600,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a attachment related to a product.
             tags: ["Attachment"]
-    /products/{id}/attachments/by-base64:
+    "/products/{id}/attachments/by-base64":
         post:
             operationId: postProductIdAttachmentByBase64
             parameters:
@@ -9682,7 +9682,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/{id}/attachments/by-url:
+    "/products/{id}/attachments/by-url":
         post:
             operationId: postProductIdAttachmentByUrl
             parameters:
@@ -9764,7 +9764,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/{id}/by-version/{version}:
+    "/products/{id}/by-version/{version}":
         delete:
             operationId: deleteProductByVersion
             parameters:
@@ -9892,7 +9892,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a product by ID.
             tags: ["Product"]
-    /products/{id}/catalog:
+    "/products/{id}/catalog":
         get:
             operationId: getProductIdCatalog
             parameters:
@@ -9966,7 +9966,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets the catalog related to a product.
             tags: ["Catalog"]
-    /products/{id}/categories:
+    "/products/{id}/categories":
         get:
             operationId: getProductIdCategoriesPage
             parameters:
@@ -10048,7 +10048,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a list of category related to a product.
             tags: ["Category"]
-    /products/{id}/clone:
+    "/products/{id}/clone":
         post:
             operationId: postProductClone
             parameters:
@@ -10126,7 +10126,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a product by ID.
             tags: ["Product"]
-    /products/{id}/configuration:
+    "/products/{id}/configuration":
         get:
             operationId: getProductIdConfiguration
             parameters:
@@ -10268,7 +10268,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product by ID.
             tags: ["ProductConfiguration"]
-    /products/{id}/images:
+    "/products/{id}/images":
         get:
             operationId: getProductIdImagesPage
             parameters:
@@ -10431,7 +10431,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/{id}/images/by-base64:
+    "/products/{id}/images/by-base64":
         post:
             operationId: postProductIdImageByBase64
             parameters:
@@ -10513,7 +10513,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/{id}/images/by-url:
+    "/products/{id}/images/by-url":
         post:
             operationId: postProductIdImageByUrl
             parameters:
@@ -10595,7 +10595,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a image related to a product.
             tags: ["Attachment"]
-    /products/{id}/product-account-groups:
+    "/products/{id}/product-account-groups":
         get:
             operationId: getProductIdProductAccountGroupsPage
             parameters:
@@ -10677,7 +10677,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a list of channel related to a product.
             tags: ["ProductAccountGroup"]
-    /products/{id}/product-channels:
+    "/products/{id}/product-channels":
         get:
             operationId: getProductIdProductChannelsPage
             parameters:
@@ -10759,7 +10759,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a list of channel related to a product.
             tags: ["ProductChannel"]
-    /products/{id}/productOptions:
+    "/products/{id}/productOptions":
         get:
             operationId: getProductIdProductOptionsPage
             parameters:
@@ -10943,7 +10943,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a list of product options related to a product.
             tags: ["ProductOption"]
-    /products/{id}/productSpecifications:
+    "/products/{id}/productSpecifications":
         get:
             operationId: getProductIdProductSpecificationsPage
             parameters:
@@ -11106,7 +11106,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a value related to a specification
             tags: ["ProductSpecification"]
-    /products/{id}/relatedProducts:
+    "/products/{id}/relatedProducts":
         get:
             operationId: getProductIdRelatedProductsPage
             parameters:
@@ -11276,7 +11276,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a related product of a product
             tags: ["RelatedProduct"]
-    /products/{id}/shippingConfiguration:
+    "/products/{id}/shippingConfiguration":
         get:
             operationId: getProductIdShippingConfiguration
             parameters:
@@ -11723,7 +11723,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product by ID.
             tags: ["ProductSubscriptionConfiguration"]
-    /products/{id}/taxConfiguration:
+    "/products/{id}/taxConfiguration":
         get:
             operationId: getProductIdTaxConfiguration
             parameters:
@@ -11865,7 +11865,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a product by ID.
             tags: ["ProductTaxConfiguration"]
-    /products/{productId}/diagrams:
+    "/products/{productId}/diagrams":
         get:
             operationId: getProductDiagram
             parameters:
@@ -12009,7 +12009,7 @@ paths:
             summary: Creates or updates a diagram by product ID.
             tags:
                 - Diagram
-    /products/{productId}/grouped-products:
+    "/products/{productId}/grouped-products":
         get:
             operationId: getProductGroupedProductsPage
             parameters:
@@ -12171,7 +12171,7 @@ paths:
             summary: Creates a grouped product related to a product.
             tags:
                 - GroupedProduct
-    /products/{productId}/linked-products:
+    "/products/{productId}/linked-products":
         get:
             operationId: getProductLinkedProductsPage
             parameters:
@@ -12257,7 +12257,7 @@ paths:
             summary: Gets a list of grouped product.
             tags:
                 - LinkedProduct
-    /products/{productId}/mapped-products:
+    "/products/{productId}/mapped-products":
         get:
             operationId: getProductMappedProductsPage
             parameters:
@@ -12429,7 +12429,7 @@ paths:
             summary: Creates a mapped product related to a product.
             tags:
                 - MappedProduct
-    /products/{productId}/mapped-products/by-sequence/{sequence}:
+    "/products/{productId}/mapped-products/by-sequence/{sequence}":
         get:
             operationId: getProductMappedProductBySequence
             parameters:
@@ -12507,7 +12507,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a mapped product by product ID and sequence.
             tags: ["MappedProduct"]
-    /products/{productId}/pins:
+    "/products/{productId}/pins":
         get:
             operationId: getProductPinsPage
             parameters:
@@ -12679,7 +12679,7 @@ paths:
             summary: Creates a pin related to a product.
             tags:
                 - Pin
-    /relatedProducts/{id}:
+    "/relatedProducts/{id}":
         delete:
             operationId: deleteRelatedProduct
             parameters:
@@ -12783,7 +12783,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a related product by ID.
             tags: ["RelatedProduct"]
-    /skus:
+    "/skus":
         get:
             operationId: getSkusPage
             parameters:
@@ -12867,7 +12867,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.read
             summary: Gets a list of skus.
             tags: ["Sku"]
-    /skus/by-externalReferenceCode/{externalReferenceCode}:
+    "/skus/by-externalReferenceCode/{externalReferenceCode}":
         delete:
             operationId: deleteSkuByExternalReferenceCode
             parameters:
@@ -13043,7 +13043,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a sku by external reference code.
             tags: ["Sku"]
-    /skus/{id}:
+    "/skus/{id}":
         delete:
             operationId: deleteSku
             parameters:
@@ -13222,7 +13222,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Updates a sku by ID.
             tags: ["Sku"]
-    /specifications:
+    "/specifications":
         get:
             operationId: getSpecificationsPage
             parameters:
@@ -13370,7 +13370,7 @@ paths:
                       - HeadlessCommerceAdminCatalog.write
             summary: Creates or updates a specification.
             tags: ["Specification"]
-    /specifications/{id}:
+    "/specifications/{id}":
         delete:
             operationId: deleteSpecification
             parameters:
