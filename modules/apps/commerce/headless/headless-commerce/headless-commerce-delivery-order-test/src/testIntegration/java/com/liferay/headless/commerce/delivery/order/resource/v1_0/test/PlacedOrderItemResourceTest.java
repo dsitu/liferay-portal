@@ -17,7 +17,6 @@ package com.liferay.headless.commerce.delivery.order.resource.v1_0.test;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.commerce.account.model.CommerceAccount;
 import com.liferay.commerce.account.service.CommerceAccountLocalService;
 import com.liferay.commerce.constants.CommerceOrderConstants;
 import com.liferay.commerce.currency.model.CommerceCurrency;
@@ -188,18 +187,14 @@ public class PlacedOrderItemResourceTest
 			PlacedOrderItem placedOrderItem)
 		throws Exception {
 
-		CommerceAccount commerceAccount =
-			_commerceAccountLocalService.getCommerceAccount(
-				_accountEntry.getAccountEntryId());
-
 		CommerceOrderItem commerceOrderItem =
 			_commerceOrderItemLocalService.addCommerceOrderItem(
 				_commerceOrder.getCommerceOrderId(), placedOrderItem.getSkuId(),
 				null, placedOrderItem.getQuantity(),
 				placedOrderItem.getQuantity(),
 				new TestCommerceContext(
-					_commerceCurrency, _commerceChannel, _user, testGroup,
-					commerceAccount, _commerceOrder),
+					_accountEntry, _commerceCurrency, _commerceChannel, _user,
+					testGroup, _commerceOrder),
 				_serviceContext);
 
 		_commerceOrderItems.add(commerceOrderItem);
