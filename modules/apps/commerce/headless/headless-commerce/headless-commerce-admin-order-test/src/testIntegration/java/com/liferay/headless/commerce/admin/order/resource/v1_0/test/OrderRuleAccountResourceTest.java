@@ -95,8 +95,8 @@ public class OrderRuleAccountResourceTest
 	protected OrderRuleAccount randomOrderRuleAccount() throws Exception {
 		User defaultUser = testCompany.getDefaultUser();
 
-		CommerceAccount commerceAccount =
-			CommerceAccountTestUtil.addBusinessCommerceAccount(
+		AccountEntry accountEntry =
+			CommerceAccountTestUtil.addBusinessAccountEntry(
 				defaultUser.getUserId(), RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + "@liferay.com",
 				RandomTestUtil.randomString(), new long[] {_user.getUserId()},
@@ -105,8 +105,8 @@ public class OrderRuleAccountResourceTest
 		return new OrderRuleAccount() {
 			{
 				accountExternalReferenceCode =
-					commerceAccount.getExternalReferenceCode();
-				accountId = commerceAccount.getCommerceAccountId();
+					accountEntry.getExternalReferenceCode();
+				accountId = accountEntry.getAccountEntryId();
 				orderRuleAccountId = RandomTestUtil.randomLong();
 				orderRuleExternalReferenceCode =
 					_corEntry.getExternalReferenceCode();
