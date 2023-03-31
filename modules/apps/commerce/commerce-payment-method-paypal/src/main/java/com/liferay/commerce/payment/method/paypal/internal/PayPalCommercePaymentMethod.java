@@ -14,7 +14,7 @@
 
 package com.liferay.commerce.payment.method.paypal.internal;
 
-import com.liferay.commerce.account.model.CommerceAccount;
+import com.liferay.account.model.AccountEntry;
 import com.liferay.commerce.constants.CommerceOrderConstants;
 import com.liferay.commerce.constants.CommerceOrderPaymentConstants;
 import com.liferay.commerce.constants.CommercePaymentConstants;
@@ -1076,11 +1076,10 @@ public class PayPalCommercePaymentMethod implements CommercePaymentMethod {
 		CommerceAddress commerceAddress = commerceOrder.getShippingAddress();
 
 		if (commerceAddress == null) {
-			CommerceAccount commerceAccount =
-				commerceOrder.getCommerceAccount();
+			AccountEntry accountEntry = commerceOrder.getAccountEntry();
 
 			commerceAddress = _commerceAddressLocalService.fetchCommerceAddress(
-				commerceAccount.getDefaultShippingAddressId());
+				accountEntry.getDefaultShippingAddressId());
 		}
 
 		if (commerceAddress == null) {
