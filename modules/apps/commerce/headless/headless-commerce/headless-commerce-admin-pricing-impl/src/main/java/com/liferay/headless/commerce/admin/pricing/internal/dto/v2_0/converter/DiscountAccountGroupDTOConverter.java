@@ -52,17 +52,18 @@ public class DiscountAccountGroupDTOConverter
 					getCommerceDiscountCommerceAccountGroupRel(
 						(Long)dtoConverterContext.getId());
 
-		AccountGroup accountGroup = _accountGroupLocalService.getAccountGroup(
-			commerceDiscountCommerceAccountGroupRel.
-				getCommerceAccountGroupId());
+		AccountGroup discountAccountGroup =
+			_accountGroupLocalService.getAccountGroup(
+				commerceDiscountCommerceAccountGroupRel.
+					getCommerceAccountGroupId());
 		CommerceDiscount commerceDiscount =
 			commerceDiscountCommerceAccountGroupRel.getCommerceDiscount();
 
 		return new DiscountAccountGroup() {
 			{
 				accountGroupExternalReferenceCode =
-					accountGroup.getExternalReferenceCode();
-				accountGroupId = accountGroup.getAccountGroupId();
+					discountAccountGroup.getExternalReferenceCode();
+				accountGroupId = discountAccountGroup.getAccountGroupId();
 				actions = dtoConverterContext.getActions();
 				discountAccountGroupId =
 					commerceDiscountCommerceAccountGroupRel.
