@@ -64,6 +64,11 @@ public interface AccountGroupService extends BaseService {
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public AccountGroup fetchAccountGroupByExternalReferenceCode(
+			String externalReferenceCode, long companyId)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public AccountGroup getAccountGroup(long accountGroupId)
 		throws PortalException;
 
