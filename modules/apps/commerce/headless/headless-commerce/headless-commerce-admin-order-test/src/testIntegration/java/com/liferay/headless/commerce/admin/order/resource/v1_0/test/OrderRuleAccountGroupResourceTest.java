@@ -15,9 +15,8 @@
 package com.liferay.headless.commerce.admin.order.resource.v1_0.test;
 
 import com.liferay.account.model.AccountGroup;
+import com.liferay.account.service.AccountGroupLocalService;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.commerce.account.model.CommerceAccountGroup;
-import com.liferay.commerce.account.service.CommerceAccountGroupLocalService;
 import com.liferay.commerce.order.rule.model.COREntry;
 import com.liferay.commerce.order.rule.model.COREntryRel;
 import com.liferay.commerce.order.rule.service.COREntryLocalService;
@@ -94,17 +93,16 @@ public class OrderRuleAccountGroupResourceTest
 	protected OrderRuleAccountGroup randomOrderRuleAccountGroup()
 		throws Exception {
 
-		CommerceAccountGroup commerceAccountGroup =
-			_commerceAccountGroupLocalService.addCommerceAccountGroup(
-				_user.getCompanyId(), RandomTestUtil.randomString(), 0, false,
-				null, _serviceContext);
+		AccountGroup orderRuleAccountGroup =
+			_accountGroupLocalService.addAccountGroup(
+				_user.getUserId(), RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(), _serviceContext);
 
 		return new OrderRuleAccountGroup() {
 			{
 				accountGroupExternalReferenceCode =
-					commerceAccountGroup.getExternalReferenceCode();
-				accountGroupId =
-					commerceAccountGroup.getCommerceAccountGroupId();
+					orderRuleAccountGroup.getExternalReferenceCode();
+				accountGroupId = orderRuleAccountGroup.getAccountGroupId();
 				orderRuleAccountGroupId = RandomTestUtil.randomLong();
 				orderRuleExternalReferenceCode =
 					_corEntry.getExternalReferenceCode();
@@ -180,18 +178,16 @@ public class OrderRuleAccountGroupResourceTest
 			COREntryRel corEntryRel)
 		throws Exception {
 
-		CommerceAccountGroup commerceAccountGroup =
-			_commerceAccountGroupLocalService.getCommerceAccountGroup(
-				corEntryRel.getClassPK());
+		AccountGroup orderRuleAccountGroup =
+			_accountGroupLocalService.getAccountGroup(corEntryRel.getClassPK());
 		COREntry corEntry = _corEntryLocalService.fetchCOREntry(
 			corEntryRel.getCOREntryId());
 
 		return new OrderRuleAccountGroup() {
 			{
 				accountGroupExternalReferenceCode =
-					commerceAccountGroup.getExternalReferenceCode();
-				accountGroupId =
-					commerceAccountGroup.getCommerceAccountGroupId();
+					orderRuleAccountGroup.getExternalReferenceCode();
+				accountGroupId = orderRuleAccountGroup.getAccountGroupId();
 				orderRuleAccountGroupId = corEntryRel.getCOREntryRelId();
 				orderRuleExternalReferenceCode =
 					corEntry.getExternalReferenceCode();
@@ -201,7 +197,7 @@ public class OrderRuleAccountGroupResourceTest
 	}
 
 	@Inject
-	private CommerceAccountGroupLocalService _commerceAccountGroupLocalService;
+	private AccountGroupLocalService _accountGroupLocalService;
 
 	private COREntry _corEntry;
 

@@ -14,8 +14,9 @@
 
 package com.liferay.headless.commerce.admin.pricing.resource.v2_0.test;
 
+import com.liferay.account.model.AccountGroup;
+import com.liferay.account.service.AccountGroupLocalServiceUtil;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.commerce.account.model.CommerceAccountGroup;
 import com.liferay.commerce.account.service.CommerceAccountGroupLocalServiceUtil;
 import com.liferay.commerce.discount.constants.CommerceDiscountConstants;
 import com.liferay.commerce.discount.model.CommerceDiscount;
@@ -261,17 +262,16 @@ public class DiscountAccountGroupResourceTest
 				calendar.get(Calendar.YEAR), calendar.get(Calendar.HOUR_OF_DAY),
 				calendar.get(Calendar.MINUTE), true, _serviceContext);
 
-		CommerceAccountGroup commerceAccountGroup =
-			CommerceAccountGroupLocalServiceUtil.addCommerceAccountGroup(
-				testCompany.getCompanyId(), RandomTestUtil.randomString(), 0,
-				false, null, _serviceContext);
+		AccountGroup discountAccountGroup =
+			AccountGroupLocalServiceUtil.addAccountGroup(
+				_user.getUserId(), RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(), _serviceContext);
 
 		return new DiscountAccountGroup() {
 			{
 				accountGroupExternalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
-				accountGroupId =
-					commerceAccountGroup.getCommerceAccountGroupId();
+				accountGroupId = discountAccountGroup.getAccountGroupId();
 				discountExternalReferenceCode = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				discountId = commerceDiscount.getCommerceDiscountId();
@@ -342,13 +342,13 @@ public class DiscountAccountGroupResourceTest
 				Long id, DiscountAccountGroup discountAccountGroup)
 		throws Exception {
 
-		CommerceAccountGroup commerceAccountGroup =
-			CommerceAccountGroupLocalServiceUtil.addCommerceAccountGroup(
-				testCompany.getCompanyId(), RandomTestUtil.randomString(), 0,
-				false, null, _serviceContext);
+		AccountGroup accountGroup =
+			AccountGroupLocalServiceUtil.addAccountGroup(
+				_user.getUserId(), RandomTestUtil.randomString(),
+				RandomTestUtil.randomString(), _serviceContext);
 
 		discountAccountGroup.setAccountGroupId(
-			commerceAccountGroup.getCommerceAccountGroupId());
+			accountGroup.getAccountGroupId());
 
 		discountAccountGroup.setDiscountId(id);
 
@@ -435,17 +435,18 @@ public class DiscountAccountGroupResourceTest
 				commerceDiscountCommerceAccountGroupRel)
 		throws Exception {
 
-		CommerceAccountGroup commerceAccountGroup =
-			commerceDiscountCommerceAccountGroupRel.getCommerceAccountGroup();
+		AccountGroup discountAccountGroup =
+			AccountGroupLocalServiceUtil.getAccountGroup(
+				commerceDiscountCommerceAccountGroupRel.
+					getCommerceAccountGroupId());
 		CommerceDiscount commerceDiscount =
 			commerceDiscountCommerceAccountGroupRel.getCommerceDiscount();
 
 		return new DiscountAccountGroup() {
 			{
 				accountGroupExternalReferenceCode =
-					commerceAccountGroup.getExternalReferenceCode();
-				accountGroupId =
-					commerceAccountGroup.getCommerceAccountGroupId();
+					discountAccountGroup.getExternalReferenceCode();
+				accountGroupId = discountAccountGroup.getAccountGroupId();
 				discountAccountGroupId =
 					commerceDiscountCommerceAccountGroupRel.
 						getCommerceDiscountCommerceAccountGroupRelId();

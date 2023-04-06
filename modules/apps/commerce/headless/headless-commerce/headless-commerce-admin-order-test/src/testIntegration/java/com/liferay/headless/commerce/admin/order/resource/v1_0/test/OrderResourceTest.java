@@ -14,8 +14,9 @@
 
 package com.liferay.headless.commerce.admin.order.resource.v1_0.test;
 
+import com.liferay.account.model.AccountEntry;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.commerce.account.model.CommerceAccount;
+import com.liferay.commerce.account.test.util.CommerceAccountTestUtil;
 import com.liferay.commerce.currency.model.CommerceCurrency;
 import com.liferay.commerce.currency.test.util.CommerceCurrencyTestUtil;
 import com.liferay.commerce.model.CommerceAddress;
@@ -70,14 +71,15 @@ public class OrderResourceTest extends BaseOrderResourceTestCase {
 
 		_user = UserTestUtil.addUser(testCompany);
 
-		_commerceAccount = CommerceTestUtil.addAccount(
-			testGroup.getGroupId(), _user.getUserId());
 		_commerceCurrency = CommerceCurrencyTestUtil.addCommerceCurrency(
 			_user.getCompanyId());
 
 		_serviceContext = ServiceContextTestUtil.getServiceContext(
 			testCompany.getCompanyId(), testGroup.getGroupId(),
 			_user.getUserId());
+
+		_accountEntry = CommerceAccountTestUtil.addPersonAccountEntry(
+			_user.getUserId(), _serviceContext);
 
 		_commerceChannel = _commerceChannelLocalService.addCommerceChannel(
 			StringPool.BLANK, testGroup.getGroupId(),
@@ -251,7 +253,7 @@ public class OrderResourceTest extends BaseOrderResourceTestCase {
 	protected Order randomOrder() throws Exception {
 		Order order = super.randomOrder();
 
-		order.setAccountId(_commerceAccount.getCommerceAccountId());
+		order.setAccountId(_accountEntry.getAccountEntryId());
 		order.setChannelId(_commerceChannel.getCommerceChannelId());
 		order.setCurrencyCode(_commerceCurrency.getCode());
 
@@ -377,7 +379,7 @@ public class OrderResourceTest extends BaseOrderResourceTestCase {
 		};
 	}
 
-	private CommerceAccount _commerceAccount;
+	private AccountEntry _accountEntry;
 	private CommerceChannel _commerceChannel;
 
 	@Inject

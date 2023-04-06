@@ -12,11 +12,11 @@
  * details.
  */
 
-package com.liferay.headless.commerce.admin.pricing.client.resource.v2_0;
+package com.liferay.headless.commerce.admin.order.client.resource.v1_0;
 
-import com.liferay.headless.commerce.admin.pricing.client.dto.v2_0.AccountGroup;
-import com.liferay.headless.commerce.admin.pricing.client.http.HttpInvoker;
-import com.liferay.headless.commerce.admin.pricing.client.problem.Problem;
+import com.liferay.headless.commerce.admin.order.client.dto.v1_0.OrderAccountGroup;
+import com.liferay.headless.commerce.admin.order.client.http.HttpInvoker;
+import com.liferay.headless.commerce.admin.order.client.problem.Problem;
 
 import java.util.LinkedHashMap;
 import java.util.Locale;
@@ -27,32 +27,23 @@ import java.util.logging.Logger;
 import javax.annotation.Generated;
 
 /**
- * @author Zoltán Takács
+ * @author Alessio Antonio Rendina
  * @generated
  */
 @Generated("")
-public interface AccountGroupResource {
+public interface OrderAccountGroupResource {
 
 	public static Builder builder() {
 		return new Builder();
 	}
 
-	public AccountGroup getDiscountAccountGroupAccountGroup(
-			Long discountAccountGroupId)
+	public OrderAccountGroup getOrderRuleAccountGroupAccountGroup(
+			Long orderRuleAccountGroupId)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse
-			getDiscountAccountGroupAccountGroupHttpResponse(
-				Long discountAccountGroupId)
-		throws Exception;
-
-	public AccountGroup getPriceListAccountGroupAccountGroup(
-			Long priceListAccountGroupId)
-		throws Exception;
-
-	public HttpInvoker.HttpResponse
-			getPriceListAccountGroupAccountGroupHttpResponse(
-				Long priceListAccountGroupId)
+			getOrderRuleAccountGroupAccountGroupHttpResponse(
+				Long orderRuleAccountGroupId)
 		throws Exception;
 
 	public static class Builder {
@@ -68,8 +59,8 @@ public interface AccountGroupResource {
 			return header("Authorization", "Bearer " + token);
 		}
 
-		public AccountGroupResource build() {
-			return new AccountGroupResourceImpl(this);
+		public OrderAccountGroupResource build() {
+			return new OrderAccountGroupResourceImpl(this);
 		}
 
 		public Builder contextPath(String contextPath) {
@@ -157,16 +148,16 @@ public interface AccountGroupResource {
 
 	}
 
-	public static class AccountGroupResourceImpl
-		implements AccountGroupResource {
+	public static class OrderAccountGroupResourceImpl
+		implements OrderAccountGroupResource {
 
-		public AccountGroup getDiscountAccountGroupAccountGroup(
-				Long discountAccountGroupId)
+		public OrderAccountGroup getOrderRuleAccountGroupAccountGroup(
+				Long orderRuleAccountGroupId)
 			throws Exception {
 
 			HttpInvoker.HttpResponse httpResponse =
-				getDiscountAccountGroupAccountGroupHttpResponse(
-					discountAccountGroupId);
+				getOrderRuleAccountGroupAccountGroupHttpResponse(
+					orderRuleAccountGroupId);
 
 			String content = httpResponse.getContent();
 
@@ -194,8 +185,8 @@ public interface AccountGroupResource {
 			}
 
 			try {
-				return com.liferay.headless.commerce.admin.pricing.client.
-					serdes.v2_0.AccountGroupSerDes.toDTO(content);
+				return com.liferay.headless.commerce.admin.order.client.serdes.
+					v1_0.OrderAccountGroupSerDes.toDTO(content);
 			}
 			catch (Exception e) {
 				_logger.log(
@@ -207,8 +198,8 @@ public interface AccountGroupResource {
 		}
 
 		public HttpInvoker.HttpResponse
-				getDiscountAccountGroupAccountGroupHttpResponse(
-					Long discountAccountGroupId)
+				getOrderRuleAccountGroupAccountGroupHttpResponse(
+					Long orderRuleAccountGroupId)
 			throws Exception {
 
 			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
@@ -235,9 +226,10 @@ public interface AccountGroupResource {
 			httpInvoker.path(
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
-						"/o/headless-commerce-admin-pricing/v2.0/discount-account-groups/{discountAccountGroupId}/account-group");
+						"/o/headless-commerce-admin-order/v1.0/order-rule-account-groups/{orderRuleAccountGroupId}/account-group");
 
-			httpInvoker.path("discountAccountGroupId", discountAccountGroupId);
+			httpInvoker.path(
+				"orderRuleAccountGroupId", orderRuleAccountGroupId);
 
 			httpInvoker.userNameAndPassword(
 				_builder._login + ":" + _builder._password);
@@ -245,98 +237,12 @@ public interface AccountGroupResource {
 			return httpInvoker.invoke();
 		}
 
-		public AccountGroup getPriceListAccountGroupAccountGroup(
-				Long priceListAccountGroupId)
-			throws Exception {
-
-			HttpInvoker.HttpResponse httpResponse =
-				getPriceListAccountGroupAccountGroupHttpResponse(
-					priceListAccountGroupId);
-
-			String content = httpResponse.getContent();
-
-			if ((httpResponse.getStatusCode() / 100) != 2) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response content: " + content);
-				_logger.log(
-					Level.WARNING,
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.log(
-					Level.WARNING,
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-			else {
-				_logger.fine("HTTP response content: " + content);
-				_logger.fine(
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.fine(
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-			}
-
-			try {
-				return com.liferay.headless.commerce.admin.pricing.client.
-					serdes.v2_0.AccountGroupSerDes.toDTO(content);
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-		}
-
-		public HttpInvoker.HttpResponse
-				getPriceListAccountGroupAccountGroupHttpResponse(
-					Long priceListAccountGroupId)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port + _builder._contextPath +
-						"/o/headless-commerce-admin-pricing/v2.0/price-list-account-groups/{priceListAccountGroupId}/account-group");
-
-			httpInvoker.path(
-				"priceListAccountGroupId", priceListAccountGroupId);
-
-			httpInvoker.userNameAndPassword(
-				_builder._login + ":" + _builder._password);
-
-			return httpInvoker.invoke();
-		}
-
-		private AccountGroupResourceImpl(Builder builder) {
+		private OrderAccountGroupResourceImpl(Builder builder) {
 			_builder = builder;
 		}
 
 		private static final Logger _logger = Logger.getLogger(
-			AccountGroupResource.class.getName());
+			OrderAccountGroupResource.class.getName());
 
 		private Builder _builder;
 

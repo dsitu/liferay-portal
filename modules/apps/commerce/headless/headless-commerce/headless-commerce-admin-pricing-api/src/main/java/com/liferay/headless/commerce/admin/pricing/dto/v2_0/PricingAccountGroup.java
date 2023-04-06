@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.headless.commerce.admin.order.dto.v1_0;
+package com.liferay.headless.commerce.admin.pricing.dto.v2_0;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -41,21 +41,22 @@ import javax.validation.constraints.DecimalMin;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * @author Alessio Antonio Rendina
+ * @author Zoltán Takács
  * @generated
  */
 @Generated("")
-@GraphQLName("AccountGroup")
+@GraphQLName("PricingAccountGroup")
 @JsonFilter("Liferay.Vulcan")
-@XmlRootElement(name = "AccountGroup")
-public class AccountGroup implements Serializable {
+@XmlRootElement(name = "PricingAccountGroup")
+public class PricingAccountGroup implements Serializable {
 
-	public static AccountGroup toDTO(String json) {
-		return ObjectMapperUtil.readValue(AccountGroup.class, json);
+	public static PricingAccountGroup toDTO(String json) {
+		return ObjectMapperUtil.readValue(PricingAccountGroup.class, json);
 	}
 
-	public static AccountGroup unsafeToDTO(String json) {
-		return ObjectMapperUtil.unsafeReadValue(AccountGroup.class, json);
+	public static PricingAccountGroup unsafeToDTO(String json) {
+		return ObjectMapperUtil.unsafeReadValue(
+			PricingAccountGroup.class, json);
 	}
 
 	@DecimalMin("0")
@@ -117,13 +118,13 @@ public class AccountGroup implements Serializable {
 			return true;
 		}
 
-		if (!(object instanceof AccountGroup)) {
+		if (!(object instanceof PricingAccountGroup)) {
 			return false;
 		}
 
-		AccountGroup accountGroup = (AccountGroup)object;
+		PricingAccountGroup pricingAccountGroup = (PricingAccountGroup)object;
 
-		return Objects.equals(toString(), accountGroup.toString());
+		return Objects.equals(toString(), pricingAccountGroup.toString());
 	}
 
 	@Override
@@ -169,7 +170,7 @@ public class AccountGroup implements Serializable {
 
 	@Schema(
 		accessMode = Schema.AccessMode.READ_ONLY,
-		defaultValue = "com.liferay.headless.commerce.admin.order.dto.v1_0.AccountGroup",
+		defaultValue = "com.liferay.headless.commerce.admin.pricing.dto.v2_0.PricingAccountGroup",
 		name = "x-class-name"
 	)
 	public String xClassName;

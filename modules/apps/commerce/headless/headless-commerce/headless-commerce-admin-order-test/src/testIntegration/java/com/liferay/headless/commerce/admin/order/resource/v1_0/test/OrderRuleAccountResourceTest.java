@@ -15,9 +15,8 @@
 package com.liferay.headless.commerce.admin.order.resource.v1_0.test;
 
 import com.liferay.account.model.AccountEntry;
+import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.commerce.account.model.CommerceAccount;
-import com.liferay.commerce.account.service.CommerceAccountLocalService;
 import com.liferay.commerce.account.test.util.CommerceAccountTestUtil;
 import com.liferay.commerce.order.rule.model.COREntry;
 import com.liferay.commerce.order.rule.model.COREntryRel;
@@ -180,17 +179,16 @@ public class OrderRuleAccountResourceTest
 	private OrderRuleAccount _toOrderRuleAccount(COREntryRel corEntryRel)
 		throws Exception {
 
-		CommerceAccount commerceAccount =
-			_commerceAccountLocalService.getCommerceAccount(
-				corEntryRel.getClassPK());
+		AccountEntry accountEntry = _accountEntryLocalService.getAccountEntry(
+			corEntryRel.getClassPK());
 		COREntry corEntry = _corEntryLocalService.fetchCOREntry(
 			corEntryRel.getCOREntryId());
 
 		return new OrderRuleAccount() {
 			{
 				accountExternalReferenceCode =
-					commerceAccount.getExternalReferenceCode();
-				accountId = commerceAccount.getCommerceAccountId();
+					accountEntry.getExternalReferenceCode();
+				accountId = accountEntry.getAccountEntryId();
 				orderRuleAccountId = corEntryRel.getCOREntryRelId();
 				orderRuleExternalReferenceCode =
 					corEntry.getExternalReferenceCode();
@@ -200,7 +198,7 @@ public class OrderRuleAccountResourceTest
 	}
 
 	@Inject
-	private CommerceAccountLocalService _commerceAccountLocalService;
+	private AccountEntryLocalService _accountEntryLocalService;
 
 	private COREntry _corEntry;
 

@@ -12,17 +12,20 @@
  * details.
  */
 
-package com.liferay.headless.commerce.admin.pricing.resource.v2_0.test;
+package com.liferay.headless.commerce.admin.order.internal.resource.v1_0;
 
-import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.headless.commerce.admin.order.resource.v1_0.OrderAccountGroupResource;
 
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ServiceScope;
 
 /**
- * @author Zoltán Takács
+ * @author Alessio Antonio Rendina
  */
-@Ignore
-@RunWith(Arquillian.class)
-public class AccountGroupResourceTest extends BaseAccountGroupResourceTestCase {
+@Component(
+	properties = "OSGI-INF/liferay/rest/v1_0/order-account-group.properties",
+	scope = ServiceScope.PROTOTYPE, service = OrderAccountGroupResource.class
+)
+public class OrderAccountGroupResourceImpl
+	extends BaseOrderAccountGroupResourceImpl {
 }
