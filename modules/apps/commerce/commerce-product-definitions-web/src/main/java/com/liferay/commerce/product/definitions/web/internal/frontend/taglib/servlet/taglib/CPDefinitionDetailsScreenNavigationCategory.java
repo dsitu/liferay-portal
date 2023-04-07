@@ -14,7 +14,7 @@
 
 package com.liferay.commerce.product.definitions.web.internal.frontend.taglib.servlet.taglib;
 
-import com.liferay.commerce.account.service.CommerceAccountGroupRelService;
+import com.liferay.account.service.AccountGroupRelLocalService;
 import com.liferay.commerce.product.definitions.web.internal.display.context.CPDefinitionsDisplayContext;
 import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.product.model.CommerceCatalog;
@@ -124,10 +124,10 @@ public class CPDefinitionDetailsScreenNavigationCategory
 
 		CPDefinitionsDisplayContext cpDefinitionsDisplayContext =
 			new CPDefinitionsDisplayContext(
-				_actionHelper, httpServletRequest,
-				_commerceAccountGroupRelService, _commerceCatalogService,
-				_commerceChannelRelService, _configurationProvider,
-				_cpDefinitionService, _cpFriendlyURL, _itemSelector);
+				_actionHelper, httpServletRequest, _accountGroupRelLocalService,
+				_commerceCatalogService, _commerceChannelRelService,
+				_configurationProvider, _cpDefinitionService, _cpFriendlyURL,
+				_itemSelector);
 
 		httpServletRequest.setAttribute(
 			WebKeys.PORTLET_DISPLAY_CONTEXT, cpDefinitionsDisplayContext);
@@ -141,10 +141,10 @@ public class CPDefinitionDetailsScreenNavigationCategory
 		CPDefinitionDetailsScreenNavigationCategory.class);
 
 	@Reference
-	private ActionHelper _actionHelper;
+	private AccountGroupRelLocalService _accountGroupRelLocalService;
 
 	@Reference
-	private CommerceAccountGroupRelService _commerceAccountGroupRelService;
+	private ActionHelper _actionHelper;
 
 	@Reference(
 		target = "(model.class.name=com.liferay.commerce.product.model.CommerceCatalog)"
