@@ -16,8 +16,10 @@ package com.liferay.account.service.impl;
 
 import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.exception.AccountGroupNameException;
+import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountGroup;
 import com.liferay.account.model.AccountGroupRel;
+import com.liferay.account.service.AccountGroupRelLocalService;
 import com.liferay.account.service.base.AccountGroupLocalServiceBaseImpl;
 import com.liferay.account.service.persistence.AccountGroupRelPersistence;
 import com.liferay.petra.function.transform.TransformUtil;
@@ -50,6 +52,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
@@ -197,6 +200,29 @@ public class AccountGroupLocalServiceImpl
 		long[] accountGroupIds) {
 
 		return accountGroupPersistence.findByAccountGroupId(accountGroupIds);
+	}
+
+	@Override
+	public List<AccountGroup> getAccountGroupsByAccountId(
+		long accountEntryId, int start, int end) {
+
+		List<AccountGroupRel> accountGroupRels =
+			_accountGroupRelLocalService.getAccountGroupRels(
+				AccountEntry.class.getName(), accountEntryId, start, end, null);
+
+		if (accountGroupRels.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		return accountGroupPersistence.findByAccountGroupId(
+			TransformUtil.transformToLongArray(
+				accountGroupRels, AccountGroupRel::getAccountGroupId));
+	}
+
+	@Override
+	public int getAccountGroupsByAccountIdCount(long accountEntryId) {
+		return _accountGroupRelLocalService.getAccountGroupRelsCount(
+			AccountEntry.class.getName(), accountEntryId);
 	}
 
 	@Override
@@ -399,6 +425,9 @@ public class AccountGroupLocalServiceImpl
 	private static final String[] _SELECTED_FIELD_NAMES = {
 		Field.ENTRY_CLASS_PK, Field.COMPANY_ID
 	};
+
+	@Reference
+	private AccountGroupRelLocalService _accountGroupRelLocalService;
 
 	@Reference
 	private AccountGroupRelPersistence _accountGroupRelPersistence;
