@@ -131,12 +131,11 @@ public class AccountOrganizationResourceImpl
 		}
 
 		List<AccountEntryOrganizationRel> accountEntryOrganizationRels =
-			_accountEntryOrganizationRelService.
-				getAccountEntryOrganizationRels(
-					accountEntry.getAccountEntryId(),
-					pagination.getStartPosition(), pagination.getEndPosition());
+			_accountEntryOrganizationRelService.getAccountEntryOrganizationRels(
+				accountEntry.getAccountEntryId(), pagination.getStartPosition(),
+				pagination.getEndPosition());
 
-		int totalItems =
+		long totalItems =
 			_accountEntryOrganizationRelService.
 				getAccountEntryOrganizationRelsCount(
 					accountEntry.getAccountEntryId());
@@ -168,12 +167,10 @@ public class AccountOrganizationResourceImpl
 		throws Exception {
 
 		List<AccountEntryOrganizationRel> accountEntryOrganizationRels =
-			_accountEntryOrganizationRelService.
-				getAccountEntryOrganizationRels(
-					id, pagination.getStartPosition(),
-					pagination.getEndPosition());
+			_accountEntryOrganizationRelService.getAccountEntryOrganizationRels(
+				id, pagination.getStartPosition(), pagination.getEndPosition());
 
-		int totalItems =
+		long totalItems =
 			_accountEntryOrganizationRelService.
 				getAccountEntryOrganizationRelsCount(id);
 
