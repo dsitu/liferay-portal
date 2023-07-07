@@ -11,7 +11,7 @@ definition {
 	setUp {
 		CommerceConfiguration.commerceSetUp(minium = "true");
 
-		CommerceConfiguration.setupB2BGuestCheckout(siteName = "minium");
+		CommerceConfiguration.setupB2BGuestCheckout(siteName = "Minium");
 	}
 
 	tearDown {
