@@ -293,7 +293,7 @@ definition {
 				PagesAdmin.gotoPageEllipsisMenuItem(
 					menuItem = "Permissions",
 					pageName = ${pageName},
-					parentPagesHierarchy = "Catalog");
+					parentPagesHierarchy = "Pending Orders");
 			}
 			else {
 				PagesAdmin.gotoPageEllipsisMenuItem(
