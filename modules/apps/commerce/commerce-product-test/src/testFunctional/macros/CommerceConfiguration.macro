@@ -282,7 +282,7 @@ definition {
 			}
 		}
 	}
-	
+
 	macro setupB2BGuestCheckoutPages {
 		Variables.assertDefined(parameterList = "${pageNameList},${siteName}");
 
