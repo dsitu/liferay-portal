@@ -45,7 +45,6 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.settings.GroupServiceSettingsLocator;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
@@ -102,10 +101,11 @@ public class CommerceGuestCheckoutAuthenticationCommerceHealthStatus
 			privateLayout = false;
 		}
 
-		ServiceContext serviceContext =
-			ServiceContextThreadLocal.getServiceContext();
+		ServiceContext serviceContext = new ServiceContext();
 
+		serviceContext.setScopeGroupId(commerceChannel.getSiteGroupId());
 		serviceContext.setTimeZone(TimeZone.getDefault());
+		serviceContext.setUserId(PrincipalThreadLocal.getUserId());
 
 		Layout layout = _layoutService.addLayout(
 			commerceChannel.getSiteGroupId(), privateLayout,
