@@ -346,11 +346,7 @@ public class OrderSummaryCommerceCheckoutStep extends BaseCommerceCheckoutStep {
 		String commercePaymentMethodKey =
 			commerceOrder.getCommercePaymentMethodKey();
 
-		if (commercePaymentMethodKey.isEmpty() &&
-			_commerceCheckoutStepHttpHelper.
-				isActivePaymentMethodCommerceCheckoutStep(
-					httpServletRequest, commerceOrder)) {
-
+		if (commercePaymentMethodKey.isEmpty()) {
 			throw new CommerceOrderPaymentMethodException();
 		}
 
