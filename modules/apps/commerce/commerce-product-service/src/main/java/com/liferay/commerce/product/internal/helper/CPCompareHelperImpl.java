@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-package com.liferay.commerce.product.internal.util;
+package com.liferay.commerce.product.internal.helper;
 
 import com.liferay.commerce.product.catalog.CPCatalogEntry;
-import com.liferay.commerce.product.util.CPCompareHelper;
+import com.liferay.commerce.product.helper.CPCompareHelper;
 import com.liferay.commerce.product.util.CPDefinitionHelper;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
