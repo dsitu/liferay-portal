@@ -24,7 +24,7 @@ import com.liferay.commerce.pricing.constants.CommercePricingConstants;
 import com.liferay.commerce.product.model.CPInstance;
 import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.option.CommerceOptionValue;
-import com.liferay.commerce.product.option.CommerceOptionValueHelper;
+import com.liferay.commerce.product.option.helper.CommerceOptionValueHelper;
 import com.liferay.commerce.product.service.CPInstanceLocalService;
 import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.commerce.service.CPDefinitionInventoryLocalService;

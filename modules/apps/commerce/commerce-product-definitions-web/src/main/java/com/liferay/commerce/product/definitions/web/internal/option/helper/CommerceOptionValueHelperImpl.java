@@ -3,14 +3,14 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-package com.liferay.commerce.product.definitions.web.internal.option;
+package com.liferay.commerce.product.definitions.web.internal.option.helper;
 
 import com.liferay.commerce.product.helper.CPCollectionProviderHelper;
 import com.liferay.commerce.product.model.CPDefinitionOptionRel;
 import com.liferay.commerce.product.model.CPDefinitionOptionValueRel;
 import com.liferay.commerce.product.model.CPInstance;
 import com.liferay.commerce.product.option.CommerceOptionValue;
-import com.liferay.commerce.product.option.CommerceOptionValueHelper;
+import com.liferay.commerce.product.option.helper.CommerceOptionValueHelper;
 import com.liferay.commerce.product.service.CPDefinitionOptionRelLocalService;
 import com.liferay.commerce.product.service.CPDefinitionOptionValueRelLocalService;
 import com.liferay.commerce.product.util.CPJSONUtil;

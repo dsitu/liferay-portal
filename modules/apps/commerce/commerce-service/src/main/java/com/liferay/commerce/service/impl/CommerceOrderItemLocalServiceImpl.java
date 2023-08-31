@@ -42,7 +42,7 @@ import com.liferay.commerce.product.model.CPInstance;
 import com.liferay.commerce.product.model.CPInstanceUnitOfMeasure;
 import com.liferay.commerce.product.model.CPMeasurementUnit;
 import com.liferay.commerce.product.option.CommerceOptionValue;
-import com.liferay.commerce.product.option.CommerceOptionValueHelper;
+import com.liferay.commerce.product.option.helper.CommerceOptionValueHelper;
 import com.liferay.commerce.product.service.CPDefinitionLocalService;
 import com.liferay.commerce.product.service.CPDefinitionOptionRelLocalService;
 import com.liferay.commerce.product.service.CPInstanceLocalService;

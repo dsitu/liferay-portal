@@ -29,7 +29,7 @@ import com.liferay.commerce.percentage.PercentageFormatter;
 import com.liferay.commerce.price.CommerceOrderPriceCalculation;
 import com.liferay.commerce.price.CommerceProductPriceCalculation;
 import com.liferay.commerce.product.model.CommerceChannel;
-import com.liferay.commerce.product.option.CommerceOptionValueHelper;
+import com.liferay.commerce.product.option.helper.CommerceOptionValueHelper;
 import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.commerce.product.util.CPInstanceHelper;
 import com.liferay.commerce.service.CommerceOrderItemService;

@@ -34,7 +34,7 @@ import com.liferay.commerce.price.CommerceProductPriceRequest;
 import com.liferay.commerce.product.constants.CPConstants;
 import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.option.CommerceOptionValue;
-import com.liferay.commerce.product.option.CommerceOptionValueHelper;
+import com.liferay.commerce.product.option.helper.CommerceOptionValueHelper;
 import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.commerce.product.util.CPInstanceHelper;
 import com.liferay.commerce.term.model.CommerceTermEntry;
