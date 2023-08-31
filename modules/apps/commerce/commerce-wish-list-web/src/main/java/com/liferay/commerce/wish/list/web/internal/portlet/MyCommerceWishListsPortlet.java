@@ -6,7 +6,7 @@
 package com.liferay.commerce.wish.list.web.internal.portlet;
 
 import com.liferay.commerce.price.CommerceProductPriceCalculation;
-import com.liferay.commerce.product.util.CPDefinitionHelper;
+import com.liferay.commerce.product.helper.CPDefinitionHelper;
 import com.liferay.commerce.product.util.CPInstanceHelper;
 import com.liferay.commerce.wish.list.constants.CommerceWishListConstants;
 import com.liferay.commerce.wish.list.constants.CommerceWishListPortletKeys;
