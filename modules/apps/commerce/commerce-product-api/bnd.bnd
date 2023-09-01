@@ -17,6 +17,7 @@ Export-Package:\
 	com.liferay.commerce.product.links,\
 	com.liferay.commerce.product.model,\
 	com.liferay.commerce.product.option,\
+	com.liferay.commerce.product.option.helper,\
 	com.liferay.commerce.product.permission,\
 	com.liferay.commerce.product.portlet.action,\
 	com.liferay.commerce.product.service,\
