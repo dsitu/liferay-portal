@@ -2,6 +2,7 @@
 	<#assign
 		accountEntryModels = dataFactory.newAccountEntryModels()
 		commerceCurrencyModel = dataFactory.newCommerceCurrencyModel()
+		commerceDiscountModels = dataFactory.newCommerceDiscountModels()
 		commerceGroupModels = dataFactory.newCommerceGroupModels()
 		commerceInventoryWarehouseModels = dataFactory.newCommerceInventoryWarehouseModels()
 		countryModel = dataFactory.newCountryModel()
@@ -26,6 +27,10 @@
 	</#list>
 
 	${dataFactory.toInsertSQL(commerceCurrencyModel)}
+
+	<#list commerceDiscountModels as commerceDiscountModel>
+		${dataFactory.toInsertSQL(commerceDiscountModel)}
+	</#list>
 
 	<#list commerceGroupModels as commerceGroupModel>
 		${dataFactory.toInsertSQL(commerceGroupModel)}
@@ -212,10 +217,12 @@
 
 		<#if dataFactory.maxAccountEntryCommerceOrderCount != 0>
 			<#assign
-			accountEntryCommerceOrderItemModel = dataFactory.newCommerceOrderItemModel(accountEntryCommerceOrderModels[0], commercePriceListModels[0].commercePriceListId, cProductModels[dataFactory.getRandomCProductModelIndex()])
+				accountEntryCommerceOrderItemModel = dataFactory.newCommerceOrderItemModel(accountEntryCommerceOrderModels[0], commercePriceListModels[0].commercePriceListId, cProductModels[dataFactory.getRandomCProductModelIndex()])
+
+				randomCommerceDiscountModel = commerceDiscountModels[dataFactory.getRandomCommerceDiscountModelIndex()]
 			/>
 
-			${csvFileWriter.write("commerceDeliveryAPI", virtualHostModel.hostname + "," + accountEntryModel.accountEntryId + "," + commerceChannelModels[0].commerceChannelId + "," + addressModel.addressId + "," + addressModel.countryId + "," + commerceCurrencyModel.code + "," + commerceShippingMethodModels[0].engineKey + "," + accountEntryCommerceOrderItemModel.CProductId + "," + accountEntryCommerceOrderItemModel.CPInstanceId + "," + accountEntryCommerceOrderModels[0].commerceOrderId + "\n")}
+			${csvFileWriter.write("commerceDeliveryAPI", virtualHostModel.hostname + "," + accountEntryModel.accountEntryId + "," + commerceChannelModels[0].commerceChannelId + "," + addressModel.addressId + "," + addressModel.countryId + "," + commerceCurrencyModel.code + "," + commerceShippingMethodModels[0].engineKey + "," + accountEntryCommerceOrderItemModel.CProductId + "," + accountEntryCommerceOrderItemModel.CPInstanceId + "," + accountEntryCommerceOrderModels[0].commerceOrderId + "," + randomCommerceDiscountModel.couponCode + "\n")}
 		</#if>
 	</#list>
 

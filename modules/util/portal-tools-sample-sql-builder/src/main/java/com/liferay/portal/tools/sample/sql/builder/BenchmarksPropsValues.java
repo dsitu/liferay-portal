@@ -75,6 +75,9 @@ public class BenchmarksPropsValues {
 	public static final int MAX_COMMERCE_CATALOG_COUNT = GetterUtil.getInteger(
 		PropertiesHolder._get(BenchmarksPropsKeys.MAX_COMMERCE_CATALOG_COUNT));
 
+	public static final int MAX_COMMERCE_DISCOUNT_COUNT = GetterUtil.getInteger(
+		PropertiesHolder._get(BenchmarksPropsKeys.MAX_COMMERCE_DISCOUNT_COUNT));
+
 	public static final int MAX_COMMERCE_GROUP_COUNT = GetterUtil.getInteger(
 		PropertiesHolder._get(BenchmarksPropsKeys.MAX_COMMERCE_GROUP_COUNT));
 
