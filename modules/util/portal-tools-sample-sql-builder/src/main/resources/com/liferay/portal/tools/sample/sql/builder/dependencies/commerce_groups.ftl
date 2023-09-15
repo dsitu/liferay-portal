@@ -212,18 +212,16 @@
 		<#list accountEntryCommerceOrderModels as accountEntryCommerceOrderModel>
 			${dataFactory.toInsertSQL(accountEntryCommerceOrderModel)}
 
-			${dataFactory.toInsertSQL(dataFactory.newCommerceOrderItemModel(accountEntryCommerceOrderModel, commercePriceListModels[0].commercePriceListId, cProductModels[dataFactory.getRandomCProductModelIndex()]))}
-		</#list>
-
-		<#if dataFactory.maxAccountEntryCommerceOrderCount != 0>
 			<#assign
-				accountEntryCommerceOrderItemModel = dataFactory.newCommerceOrderItemModel(accountEntryCommerceOrderModels[0], commercePriceListModels[0].commercePriceListId, cProductModels[dataFactory.getRandomCProductModelIndex()])
+				accountEntryCommerceOrderItemModel = dataFactory.newCommerceOrderItemModel(accountEntryCommerceOrderModel, commercePriceListModels[0].commercePriceListId, cProductModels[dataFactory.getRandomCProductModelIndex()])
 
 				randomCommerceDiscountModel = commerceDiscountModels[dataFactory.getRandomCommerceDiscountModelIndex()]
 			/>
 
-			${csvFileWriter.write("commerceDeliveryAPI", virtualHostModel.hostname + "," + accountEntryModel.accountEntryId + "," + commerceChannelModels[0].commerceChannelId + "," + addressModel.addressId + "," + addressModel.countryId + "," + commerceCurrencyModel.code + "," + commerceShippingMethodModels[0].engineKey + "," + accountEntryCommerceOrderItemModel.CProductId + "," + accountEntryCommerceOrderItemModel.CPInstanceId + "," + accountEntryCommerceOrderModels[0].commerceOrderId + "," + randomCommerceDiscountModel.couponCode + "\n")}
-		</#if>
+			${dataFactory.toInsertSQL(accountEntryCommerceOrderItemModel)}
+
+			${csvFileWriter.write("commerceDeliveryAPI", virtualHostModel.hostname + "," + accountEntryModel.accountEntryId + "," + commerceChannelModels[0].commerceChannelId + "," + addressModel.addressId + "," + addressModel.countryId + "," + commerceCurrencyModel.code + "," + commerceShippingMethodModels[0].engineKey + "," + accountEntryCommerceOrderItemModel.CProductId + "," + accountEntryCommerceOrderItemModel.CPInstanceId + "," + accountEntryCommerceOrderModel.commerceOrderId + "," + randomCommerceDiscountModel.couponCode + "\n")}
+		</#list>
 	</#list>
 
 	<#list commerceChannelGroupModels as commerceChannelGroupModel>
