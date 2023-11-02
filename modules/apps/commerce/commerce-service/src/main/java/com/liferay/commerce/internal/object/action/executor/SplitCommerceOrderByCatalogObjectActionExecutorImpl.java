@@ -201,7 +201,7 @@ public class SplitCommerceOrderByCatalogObjectActionExecutorImpl
 								).build());
 
 				_commerceOrderItemLocalService.updateCommerceOrderItem(
-					commerceOrderItem.getCommerceOrderItemId(),
+					commerceOrderItem,
 					commerceInventoryBookedQuantity.
 						getCommerceInventoryBookedQuantityId());
 			}

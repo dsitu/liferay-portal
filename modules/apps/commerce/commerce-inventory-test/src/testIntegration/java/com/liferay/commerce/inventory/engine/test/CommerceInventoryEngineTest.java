@@ -394,7 +394,7 @@ public class CommerceInventoryEngineTest {
 
 		commerceOrderItem =
 			_commerceOrderItemLocalService.updateCommerceOrderItem(
-				commerceOrderItem.getCommerceOrderItemId(),
+				commerceOrderItem,
 				commerceInventoryBookedQuantity.
 					getCommerceInventoryBookedQuantityId());
 

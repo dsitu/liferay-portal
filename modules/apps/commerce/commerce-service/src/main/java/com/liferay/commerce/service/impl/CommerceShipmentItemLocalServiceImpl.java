@@ -221,8 +221,9 @@ public class CommerceShipmentItemLocalServiceImpl
 
 		if (!restoreStockQuantity) {
 			if (commerceOrderItem != null) {
-				_commerceOrderItemLocalService.updateCommerceOrderItem(
-					commerceShipmentItem.getCommerceOrderItemId(), 0);
+				commerceOrderItem =
+					_commerceOrderItemLocalService.updateCommerceOrderItem(
+						commerceOrderItem, 0);
 			}
 
 			return commerceShipmentItem;

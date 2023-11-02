@@ -187,7 +187,7 @@ public class CommerceInventoryBookedQuantityIndexerTest {
 
 		commerceOrderItem =
 			_commerceOrderItemLocalService.updateCommerceOrderItem(
-				commerceOrderItem.getCommerceOrderItemId(),
+				commerceOrderItem,
 				commerceInventoryBookedQuantity.
 					getCommerceInventoryBookedQuantityId());
 
@@ -247,7 +247,7 @@ public class CommerceInventoryBookedQuantityIndexerTest {
 
 		commerceOrderItem =
 			_commerceOrderItemLocalService.updateCommerceOrderItem(
-				commerceOrderItem.getCommerceOrderItemId(),
+				commerceOrderItem,
 				commerceInventoryBookedQuantity.
 					getCommerceInventoryBookedQuantityId());
 
