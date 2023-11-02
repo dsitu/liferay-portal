@@ -742,11 +742,9 @@ public class CommerceOrderItemLocalServiceImpl
 
 	@Override
 	public CommerceOrderItem updateCommerceOrderItem(
-			long commerceOrderItemId, long commerceInventoryBookedQuantityId)
-		throws NoSuchOrderItemException {
-
-		CommerceOrderItem commerceOrderItem =
-			commerceOrderItemPersistence.findByPrimaryKey(commerceOrderItemId);
+			CommerceOrderItem commerceOrderItem,
+			long commerceInventoryBookedQuantityId)
+		throws PortalException {
 
 		commerceOrderItem.setCommerceInventoryBookedQuantityId(
 			commerceInventoryBookedQuantityId);

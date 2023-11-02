@@ -269,10 +269,7 @@ public class CommerceOrderEngineImpl implements CommerceOrderEngine {
 		}
 	}
 
-	private void _bookQuantities(long commerceOrderId) throws Exception {
-		CommerceOrder commerceOrder =
-			_commerceOrderLocalService.getCommerceOrder(commerceOrderId);
-
+	private void _bookQuantities(CommerceOrder commerceOrder) throws Exception {
 		List<CommerceOrderItem> commerceOrderItems =
 			commerceOrder.getCommerceOrderItems();
 
@@ -300,7 +297,7 @@ public class CommerceOrderEngineImpl implements CommerceOrderEngine {
 						).build());
 
 			_commerceOrderItemLocalService.updateCommerceOrderItem(
-				commerceOrderItem.getCommerceOrderItemId(),
+				commerceOrderItem,
 				commerceInventoryBookedQuantity.
 					getCommerceInventoryBookedQuantityId());
 		}
@@ -402,9 +399,11 @@ public class CommerceOrderEngineImpl implements CommerceOrderEngine {
 			commerceOrder.getCompanyId(), commerceOrder.getGroupId(), userId,
 			commerceOrderId, commerceOrder.getCommerceAccountId());
 
+		CommerceOrder finalCommerceOrder = commerceOrder;
+
 		TransactionCommitCallbackUtil.registerCallback(
 			() -> {
-				_bookQuantities(commerceOrderId);
+				_bookQuantities(finalCommerceOrder);
 
 				return null;
 			});
