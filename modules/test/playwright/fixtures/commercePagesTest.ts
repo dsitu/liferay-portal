@@ -9,6 +9,8 @@ import {test} from '@playwright/test';
 
 import {SpecificationFacetsPage} from '../pages/commerce/commerce-product-content-search-web/specificationFacetsPage';
 import {AttachmentsPage} from '../pages/commerce/commerce-product-definitions-web/attachmentsPage';
+import {CommerceProductDetailsPage} from '../pages/commerce/commerce-product-definitions-web/commerceProductDetailsPage';
+import {CommerceProductsAdminPage} from '../pages/commerce/commerce-product-definitions-web/commerceProductsAdminPage';
 import {CommerceAdminOrderDetailsPage} from '../pages/commerce/commerceAdminOrderDetailsPage';
 import {CommerceAdminOrdersPage} from '../pages/commerce/commerceAdminOrdersPage';
 import {CommerceLayoutsPage} from '../pages/commerce/commerceLayoutsPage';
@@ -18,6 +20,8 @@ const commercePagesTest = test.extend<{
 	commerceAdminOrderDetailsPage: CommerceAdminOrderDetailsPage;
 	commerceAdminOrdersPage: CommerceAdminOrdersPage;
 	commerceLayoutsPage: CommerceLayoutsPage;
+	commerceProductDetailsPage: CommerceProductDetailsPage;
+	commerceProductsAdminPage: CommerceProductsAdminPage;
 	specificationFacetsPage: SpecificationFacetsPage;
 }>({
 	attachmentsPage: async ({page}, use) => {
@@ -31,6 +35,12 @@ const commercePagesTest = test.extend<{
 	},
 	commerceLayoutsPage: async ({page}, use) => {
 		await use(new CommerceLayoutsPage(page));
+	},
+	commerceProductDetailsPage: async ({page}, use) => {
+		await use(new CommerceProductDetailsPage(page));
+	},
+	commerceProductsAdminPage: async ({page}, use) => {
+		await use(new CommerceProductsAdminPage(page));
 	},
 	specificationFacetsPage: async ({page}, use) => {
 		await use(new SpecificationFacetsPage(page));

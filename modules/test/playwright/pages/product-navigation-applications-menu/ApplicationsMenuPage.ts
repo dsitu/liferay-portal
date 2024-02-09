@@ -19,6 +19,7 @@ export class ApplicationsMenuPage {
 	private readonly homePage: HomePage;
 	private readonly instanceSettingsLink: Locator;
 	private readonly objectsMenuItem: Locator;
+	private readonly productsMenuItem: Locator;
 	readonly page: Page;
 	private readonly usersAndOrganizationsItem: Locator;
 
@@ -58,6 +59,10 @@ export class ApplicationsMenuPage {
 		this.objectsMenuItem = page.getByRole('menuitem', {
 			exact: true,
 			name: 'Objects',
+		});
+		this.productsMenuItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Products',
 		});
 		this.page = page;
 		this.usersAndOrganizationsItem = page.getByRole('menuitem', {
@@ -121,6 +126,16 @@ export class ApplicationsMenuPage {
 	async goToControlPanel() {
 		await this.goto();
 		await this.controlPanelButton.click();
+	}
+
+	async goToCommerce() {
+		await this.goto();
+		await this.commercePanelButton.click();
+	}
+
+	async goToProducts() {
+		await this.goToCommerce();
+		await this.productsMenuItem.click();
 	}
 
 	async goToUsersAndOrganizations() {

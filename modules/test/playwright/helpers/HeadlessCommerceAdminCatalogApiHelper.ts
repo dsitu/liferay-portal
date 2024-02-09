@@ -56,6 +56,12 @@ export class HeadlessCommerceAdminCatalogApiHelper {
 		);
 	}
 
+	async deleteOption(optionId: string) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/options/${optionId}`
+		);
+	}
+
 	async deleteOptionCategory(optionCategoryId: string) {
 		return this.apiHelpers.delete(
 			`${this.apiHelpers.baseUrl}${this.basePath}/optionCategories/${optionCategoryId}`
@@ -65,6 +71,18 @@ export class HeadlessCommerceAdminCatalogApiHelper {
 	async deleteProduct(productId: number) {
 		return this.apiHelpers.delete(
 			`${this.apiHelpers.baseUrl}${this.basePath}/products/${productId}`
+		);
+	}
+
+	async deleteProductOption(productOptionId: string) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/productOptions/${productOptionId}`
+		);
+	}
+
+	async deleteProductOptionValue(productOptionValueId: string) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/productOptionValues/${productOptionValueId}`
 		);
 	}
 
@@ -127,6 +145,25 @@ export class HeadlessCommerceAdminCatalogApiHelper {
 		);
 	}
 
+	async postOption(
+		fieldType: string = 'select',
+		key: string = 'OptionKey' + getRandomInt(),
+		name: string = 'OptionName' + getRandomInt()
+	) {
+		const postOptionCategory = await this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/options`,
+			{
+				fieldType,
+				key,
+				name: {
+					en_US: name,
+				},
+			}
+		);
+
+		return postOptionCategory;
+	}
+
 	async postOptionCategory(
 		optionCategoryName: string = 'OptionCategory' + getRandomInt(),
 		priority: number = getRandomInt()
@@ -168,6 +205,66 @@ export class HeadlessCommerceAdminCatalogApiHelper {
 				...product,
 			}
 		);
+	}
+
+	async postProductOption(
+		productId: number,
+		dateTime: boolean,
+		fieldType: string,
+		key: string,
+		name: string,
+		optionId: number,
+		priority: number,
+		required: boolean,
+		skuContributor: boolean
+	) {
+		const postProductOption = await this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/products/${productId}/productOptions`,
+			[
+				{
+					dateTime,
+					fieldType,
+					key,
+					name: {
+						en_US: name,
+					},
+					optionId,
+					priority,
+					required,
+					skuContributor,
+				},
+			]
+		);
+
+		return postProductOption;
+	}
+
+	async postProductOptionValues(
+		productOptionId: number,
+		duration: number,
+		durationType: string,
+		key: string,
+		name: string,
+		optionValueDate: string,
+		preselected: boolean,
+		priority: number
+	) {
+		const postProductOption = await this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/productOptions/${productOptionId}/productOptionValues`,
+			{
+				duration,
+				durationType,
+				key,
+				name: {
+					en_US: name,
+				},
+				optionValueDate,
+				preselected,
+				priority,
+			}
+		);
+
+		return postProductOption;
 	}
 
 	async postSpecification(
