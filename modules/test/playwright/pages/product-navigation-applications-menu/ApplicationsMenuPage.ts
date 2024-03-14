@@ -8,6 +8,7 @@ import {Locator, Page, expect} from '@playwright/test';
 import {HomePage} from '../portal-web/HomePage';
 
 export class ApplicationsMenuPage {
+	private readonly accountsItem: Locator;
 	private readonly aiCreatorLink: Locator;
 	private readonly announcementsItem: Locator;
 	private readonly apiBuilderMenuItem: Locator;
@@ -32,6 +33,10 @@ export class ApplicationsMenuPage {
 	private readonly usersAndOrganizationsItem: Locator;
 
 	constructor(page: Page) {
+		this.accountsItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Accounts',
+		});
 		this.announcementsItem = page.getByRole('menuitem', {
 			exact: true,
 			name: 'Announcements and Alerts',
@@ -117,6 +122,12 @@ export class ApplicationsMenuPage {
 		await this.homePage.openApplicationMenu();
 
 		await expect(this.applicationsMenuTabButton).toBeVisible();
+	}
+
+	async goToAccounts() {
+		await this.goto();
+		await this.controlPanelButton.click();
+		await this.accountsItem.click();
 	}
 
 	async goToAnnouncements() {
