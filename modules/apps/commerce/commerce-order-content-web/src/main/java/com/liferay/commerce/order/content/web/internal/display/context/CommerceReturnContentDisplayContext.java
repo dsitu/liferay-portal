@@ -7,6 +7,7 @@ package com.liferay.commerce.order.content.web.internal.display.context;
 
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
+import com.liferay.commerce.constants.CommerceReturnConstants;
 import com.liferay.commerce.constants.CommerceWebKeys;
 import com.liferay.commerce.context.CommerceContext;
 import com.liferay.commerce.currency.model.CommerceCurrency;
@@ -62,6 +63,7 @@ import java.text.DateFormat;
 import java.text.Format;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -130,8 +132,10 @@ public class CommerceReturnContentDisplayContext {
 
 		String encodedFilter = URLCodec.encodeURL(
 			StringBundler.concat(
-				"'channelId' eq '", commerceChannelId, "' and '",
-				"r_accountToCommerceReturns_accountEntryId' eq '",
+				StringPool.APOSTROPHE,
+				CommerceReturnConstants.RETURN_FIELD_CHANNEL_ID, "' eq '",
+				commerceChannelId, "' and '",
+				CommerceReturnConstants.RETURN_FIELD_ACCOUNT_ENTRY_ID, "' eq '",
 				accountEntryId, StringPool.APOSTROPHE),
 			true);
 
@@ -277,6 +281,12 @@ public class CommerceReturnContentDisplayContext {
 	public List<FDSActionDropdownItem>
 			getCommerceReturnItemFDSActionDropdownItems()
 		throws PortalException {
+
+		CommerceReturn commerceReturn = getCommerceReturn();
+
+		if (!StringUtil.equals(commerceReturn.getReturnStatus(), "draft")) {
+			return Collections.emptyList();
+		}
 
 		HttpServletRequest httpServletRequest = _cpRequestHelper.getRequest();
 
@@ -436,8 +446,9 @@ public class CommerceReturnContentDisplayContext {
 
 		String encodedFilter = URLCodec.encodeURL(
 			StringBundler.concat(
-				"'r_commerceReturnToCommerceReturnItems_c_commerceReturnId' ",
-				"eq '", commerceReturnId, StringPool.APOSTROPHE),
+				StringPool.APOSTROPHE,
+				CommerceReturnConstants.RETURN_ITEM_FIELD_COMMERCE_RETURN_ID,
+				"' eq '", commerceReturnId, StringPool.APOSTROPHE),
 			true);
 
 		return "/o/commerce-return-items" +
@@ -573,7 +584,8 @@ public class CommerceReturnContentDisplayContext {
 					objectEntry.getGroupId(),
 					commerceReturnToCommerceReturnItems.
 						getObjectRelationshipId(),
-					commerceReturn.getId(), true, null, -1, -1),
+					commerceReturn.getId(), true, null, QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS),
 				curObjectEntry -> {
 					Map<String, Serializable> values =
 						curObjectEntry.getValues();

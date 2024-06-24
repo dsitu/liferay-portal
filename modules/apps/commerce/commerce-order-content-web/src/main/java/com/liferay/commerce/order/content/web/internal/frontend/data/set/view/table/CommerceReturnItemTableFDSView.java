@@ -5,6 +5,7 @@
 
 package com.liferay.commerce.order.content.web.internal.frontend.data.set.view.table;
 
+import com.liferay.commerce.constants.CommerceReturnConstants;
 import com.liferay.commerce.order.content.web.internal.constants.CommerceOrderFDSNames;
 import com.liferay.frontend.data.set.view.FDSView;
 import com.liferay.frontend.data.set.view.table.BaseTableFDSView;
@@ -36,13 +37,13 @@ public class CommerceReturnItemTableFDSView extends BaseTableFDSView {
 			fdsTableSchemaField -> fdsTableSchemaField.setContentRenderer(
 				"actionLink")
 		).add(
-			"commerceOrderItemToCommerceReturnItems.name", "product-name"
+			"commerceOrderItemToCommerceReturnItems.name.LANG", "product-name"
 		).add(
 			"commerceOrderItemToCommerceReturnItems.unitOfMeasureKey", "uom"
 		).add(
-			"amount", "purchase-price"
+			CommerceReturnConstants.RETURN_ITEM_FIELD_AMOUNT, "purchase-price"
 		).add(
-			"quantity", "quantity"
+			CommerceReturnConstants.RETURN_ITEM_FIELD_QUANTITY, "quantity"
 		).add(
 			"returnReason.name", "return-reason"
 		).build();
