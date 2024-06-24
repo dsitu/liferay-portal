@@ -11,6 +11,8 @@ import com.liferay.commerce.payment.exception.NoSuchPaymentEntryException;
 import com.liferay.commerce.payment.gateway.CommercePaymentGateway;
 import com.liferay.commerce.payment.model.CommercePaymentEntry;
 import com.liferay.commerce.payment.service.CommercePaymentEntryService;
+import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.service.ObjectEntryService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
@@ -19,15 +21,24 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.transaction.TransactionConfig;
+import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import java.io.Serializable;
+
 import java.math.BigDecimal;
+
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -57,8 +68,12 @@ public class EditCommercePaymentEntryMVCActionCommand
 			String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
 			if (cmd.equals(Constants.ADD) || cmd.equals(Constants.UPDATE)) {
+				Callable<CommercePaymentEntry> commercePaymentEntryCallable =
+					new CommercePaymentEntryCallable(actionRequest);
+
 				CommercePaymentEntry commercePaymentEntry =
-					_addOrUpdateCommercePaymentEntry(actionRequest);
+					TransactionInvokerUtil.invoke(
+						_transactionConfig, commercePaymentEntryCallable);
 
 				String redirect = getSaveAndContinueRedirect(
 					actionRequest,
@@ -90,11 +105,11 @@ public class EditCommercePaymentEntryMVCActionCommand
 					commercePaymentEntryId, note);
 			}
 		}
-		catch (Exception exception) {
-			if (exception instanceof NoSuchPaymentEntryException ||
-				exception instanceof PrincipalException) {
+		catch (Throwable throwable) {
+			if (throwable instanceof NoSuchPaymentEntryException ||
+				throwable instanceof PrincipalException) {
 
-				SessionErrors.add(actionRequest, exception.getClass());
+				SessionErrors.add(actionRequest, throwable.getClass());
 
 				actionResponse.setRenderParameter("mvcPath", "/error.jsp");
 			}
@@ -102,7 +117,7 @@ public class EditCommercePaymentEntryMVCActionCommand
 				hideDefaultErrorMessage(actionRequest);
 				hideDefaultSuccessMessage(actionRequest);
 
-				SessionErrors.add(actionRequest, exception.getClass());
+				SessionErrors.add(actionRequest, throwable.getClass());
 
 				String redirect = ParamUtil.getString(
 					actionRequest, "redirect");
@@ -167,22 +182,40 @@ public class EditCommercePaymentEntryMVCActionCommand
 				curCommercePaymentEntry.getType());
 		}
 
-		return _commercePaymentEntryService.addCommercePaymentEntry(
-			_classNameLocalService.getClassNameId(
-				ParamUtil.getString(actionRequest, "className")),
-			ParamUtil.getLong(actionRequest, "classPK"),
-			ParamUtil.getLong(actionRequest, "commerceChannelId"), amount,
-			StringPool.BLANK, StringPool.BLANK,
-			ParamUtil.getString(actionRequest, "currencyCode"),
-			ParamUtil.getString(actionRequest, "languageId"), StringPool.BLANK,
-			ParamUtil.getString(actionRequest, "payload"),
-			ParamUtil.getString(actionRequest, "paymentIntegrationKey"),
-			ParamUtil.getInteger(actionRequest, "paymentIntegrationType"),
-			reasonKey, ParamUtil.getString(actionRequest, "transactionCode"),
-			ParamUtil.getInteger(actionRequest, "type"),
-			ServiceContextFactory.getInstance(
-				CommercePaymentEntry.class.getName(), actionRequest));
+		CommercePaymentEntry commercePaymentEntry =
+			_commercePaymentEntryService.addCommercePaymentEntry(
+				_classNameLocalService.getClassNameId(
+					ParamUtil.getString(actionRequest, "className")),
+				ParamUtil.getLong(actionRequest, "classPK"),
+				ParamUtil.getLong(actionRequest, "commerceChannelId"), amount,
+				StringPool.BLANK, StringPool.BLANK,
+				ParamUtil.getString(actionRequest, "currencyCode"),
+				ParamUtil.getString(actionRequest, "languageId"),
+				StringPool.BLANK, ParamUtil.getString(actionRequest, "payload"),
+				ParamUtil.getString(actionRequest, "paymentIntegrationKey"),
+				ParamUtil.getInteger(actionRequest, "paymentIntegrationType"),
+				reasonKey,
+				ParamUtil.getString(actionRequest, "transactionCode"),
+				ParamUtil.getInteger(actionRequest, "type"),
+				ServiceContextFactory.getInstance(
+					CommercePaymentEntry.class.getName(), actionRequest));
+
+		ObjectEntry objectEntry = _objectEntryService.getObjectEntry(
+			ParamUtil.getLong(actionRequest, "commerceReturnId"));
+
+		Map<String, Serializable> values = objectEntry.getValues();
+
+		values.put("mark-as-processed", true);
+
+		_objectEntryService.updateObjectEntry(
+			objectEntry.getObjectEntryId(), values, new ServiceContext());
+
+		return commercePaymentEntry;
 	}
+
+	private static final TransactionConfig _transactionConfig =
+		TransactionConfig.Factory.create(
+			Propagation.REQUIRED, new Class<?>[] {Exception.class});
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
@@ -197,6 +230,25 @@ public class EditCommercePaymentEntryMVCActionCommand
 	private CommercePriceFormatter _commercePriceFormatter;
 
 	@Reference
+	private ObjectEntryService _objectEntryService;
+
+	@Reference
 	private Portal _portal;
+
+	private class CommercePaymentEntryCallable
+		implements Callable<CommercePaymentEntry> {
+
+		@Override
+		public CommercePaymentEntry call() throws Exception {
+			return _addOrUpdateCommercePaymentEntry(_actionRequest);
+		}
+
+		private CommercePaymentEntryCallable(ActionRequest actionRequest) {
+			_actionRequest = actionRequest;
+		}
+
+		private final ActionRequest _actionRequest;
+
+	}
 
 }
