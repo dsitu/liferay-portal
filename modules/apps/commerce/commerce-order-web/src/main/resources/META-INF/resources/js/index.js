@@ -11,6 +11,7 @@ export {default as deleteCommerceReturnsPropsTransformer} from './deleteCommerce
 export {default as editCommerceOrderType} from './editCommerceOrderType';
 export {default as qualifiers} from './qualifiers';
 export {default as editCommerceReturn} from './editCommerceReturn';
+export {default as editCommerceReturnItem} from './editCommerceReturnItem';
 export {default as summary} from './summary';
 export {default as termsDescriptionHandler} from './termsDescriptionHandler';
 export {default as commerceReturnItemsPropsTransformer} from './commerceReturnItemsPropsTransformer';
