@@ -247,7 +247,10 @@ public class CommerceReturnContentDisplayContext {
 			return creationMenu;
 		}
 
-		if (Objects.equals(commerceReturn.getReturnStatus(), "draft")) {
+		if (Objects.equals(
+				commerceReturn.getReturnStatus(),
+				CommerceReturnConstants.RETURN_STATUS_DRAFT)) {
+
 			creationMenu.addDropdownItem(
 				dropdownItem -> {
 					dropdownItem.setHref(
@@ -284,7 +287,10 @@ public class CommerceReturnContentDisplayContext {
 
 		CommerceReturn commerceReturn = getCommerceReturn();
 
-		if (!StringUtil.equals(commerceReturn.getReturnStatus(), "draft")) {
+		if (!StringUtil.equals(
+				commerceReturn.getReturnStatus(),
+				CommerceReturnConstants.RETURN_STATUS_DRAFT)) {
+
 			return Collections.emptyList();
 		}
 
@@ -367,7 +373,9 @@ public class CommerceReturnContentDisplayContext {
 		CommerceReturn commerceReturn = getCommerceReturn();
 
 		if ((commerceReturn != null) &&
-			!Objects.equals(commerceReturn.getReturnStatus(), "draft")) {
+			!Objects.equals(
+				commerceReturn.getReturnStatus(),
+				CommerceReturnConstants.RETURN_STATUS_DRAFT)) {
 
 			return headerActionModels;
 		}
@@ -493,7 +501,7 @@ public class CommerceReturnContentDisplayContext {
 		CommerceReturn commerceReturn = getCommerceReturn();
 
 		if (commerceReturn == null) {
-			return "draft";
+			return CommerceReturnConstants.RETURN_STATUS_DRAFT;
 		}
 
 		return commerceReturn.getReturnStatus();
@@ -502,10 +510,12 @@ public class CommerceReturnContentDisplayContext {
 	public String getReturnStatusDisplayType() {
 		String returnStatus = getReturnStatus();
 
-		if (returnStatus.equals("draft")) {
+		if (returnStatus.equals(CommerceReturnConstants.RETURN_STATUS_DRAFT)) {
 			return "info";
 		}
-		else if (returnStatus.equals("completed")) {
+		else if (returnStatus.equals(
+					CommerceReturnConstants.RETURN_STATUS_COMPLETED)) {
+
 			return "success";
 		}
 
@@ -591,8 +601,8 @@ public class CommerceReturnContentDisplayContext {
 						curObjectEntry.getValues();
 
 					return (long)values.get(
-						"r_commerceOrderItemToCommerceReturnItems_" +
-							"commerceOrderItemId");
+						CommerceReturnConstants.
+							RETURN_ITEM_FIELD_COMMERCE_ORDER_ITEM_ID);
 				}));
 	}
 
