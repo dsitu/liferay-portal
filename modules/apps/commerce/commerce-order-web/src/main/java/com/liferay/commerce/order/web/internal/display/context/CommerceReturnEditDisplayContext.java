@@ -246,8 +246,8 @@ public class CommerceReturnEditDisplayContext {
 			_commerceOrderItemLocalService.getCommerceOrderItem(
 				GetterUtil.getLong(
 					values.get(
-						"r_commerceOrderItemToCommerceReturnItems_" +
-							"commerceOrderItemId")));
+						CommerceReturnConstants.
+							RETURN_ITEM_FIELD_COMMERCE_ORDER_ITEM_ID)));
 
 		return _commerceOrderItem;
 	}
@@ -269,7 +269,7 @@ public class CommerceReturnEditDisplayContext {
 			_commerceReturnRequestHelper.getRequest();
 
 		Map<String, Integer> returnItemStatusMap = _toReturnItemStatusMap(
-			_getCommerceReturnItems());
+			_getCommerceReturnItemObjectEntries());
 
 		if (Arrays.asList(
 				CommerceReturnConstants.RETURN_STATUSES_LATEST
@@ -380,12 +380,12 @@ public class CommerceReturnEditDisplayContext {
 				CommerceReturnConstants.RETURN_STATUS_PROCESSING)) {
 
 			Map<String, Integer> returnItemStatusMap = _toReturnItemStatusMap(
-				_getCommerceReturnItems());
+				_getCommerceReturnItemObjectEntries());
 
-			if ((GetterUtil.getInteger(
-					returnItemStatusMap.get("toBeProcessedCount")) > 0) &&
-				_createRefund()) {
+			int toBeProcessedCount = GetterUtil.getInteger(
+				returnItemStatusMap.get("toBeProcessedCount"));
 
+			if ((toBeProcessedCount > 0) && _hasCompletedPaymentStatus()) {
 				headerActionModels.add(
 					new HeaderActionModel(
 						"btn-secondary", null,
@@ -406,11 +406,10 @@ public class CommerceReturnEditDisplayContext {
 						null, "create-refund"));
 			}
 
-			if ((GetterUtil.getInteger(
-					returnItemStatusMap.get("toBeProcessedCount")) > 0) ||
-				(GetterUtil.getInteger(
-					returnItemStatusMap.get("processedCount")) > 0)) {
+			int processedCount = GetterUtil.getInteger(
+				returnItemStatusMap.get("processedCount"));
 
+			if ((toBeProcessedCount > 0) || (processedCount > 0)) {
 				headerActionModels.add(
 					new HeaderActionModel(
 						"btn-primary",
@@ -517,7 +516,25 @@ public class CommerceReturnEditDisplayContext {
 		return StringPool.BLANK;
 	}
 
-	private boolean _createRefund() throws Exception {
+	private List<ObjectEntry> _getCommerceReturnItemObjectEntries()
+		throws Exception {
+
+		ObjectEntry commerceReturnObjectEntry =
+			_objectEntryLocalService.getObjectEntry(getCommerceReturnId());
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.getObjectRelationship(
+				commerceReturnObjectEntry.getObjectDefinitionId(),
+				"commerceReturnToCommerceReturnItems");
+
+		return _objectEntryLocalService.getOneToManyObjectEntries(
+			commerceReturnObjectEntry.getGroupId(),
+			objectRelationship.getObjectRelationshipId(),
+			commerceReturnObjectEntry.getObjectEntryId(), true, null,
+			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+	}
+
+	private boolean _hasCompletedPaymentStatus() throws Exception {
 		CommerceOrder commerceOrder = getCommerceReturnCommerceOrder();
 
 		List<CommercePaymentEntry> commercePaymentEntries =
@@ -551,30 +568,14 @@ public class CommerceReturnEditDisplayContext {
 		return false;
 	}
 
-	private List<ObjectEntry> _getCommerceReturnItems() throws Exception {
-		ObjectEntry commerceReturnObjectEntry =
-			_objectEntryLocalService.getObjectEntry(getCommerceReturnId());
-
-		ObjectRelationship commerceReturnToCommerceReturnItems =
-			_objectRelationshipLocalService.getObjectRelationship(
-				commerceReturnObjectEntry.getObjectDefinitionId(),
-				"commerceReturnToCommerceReturnItems");
-
-		return _objectEntryLocalService.getOneToManyObjectEntries(
-			commerceReturnObjectEntry.getGroupId(),
-			commerceReturnToCommerceReturnItems.getObjectRelationshipId(),
-			commerceReturnObjectEntry.getObjectEntryId(), true, null,
-			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-	}
-
 	private Map<String, Integer> _toReturnItemStatusMap(
-		List<ObjectEntry> commerceReturnItems) {
+		List<ObjectEntry> objectEntries) {
 
 		Map<String, Integer> commerceReturnItemMap = new HashMap<>();
 
-		for (ObjectEntry commerceReturnItem : commerceReturnItems) {
+		for (ObjectEntry objectEntry : objectEntries) {
 			Map<String, Serializable> commerceReturnItemValues =
-				commerceReturnItem.getValues();
+				objectEntry.getValues();
 
 			String returnItemStatus = GetterUtil.getString(
 				commerceReturnItemValues.get(

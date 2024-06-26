@@ -25,10 +25,6 @@ public class CommerceReturnItem {
 
 		_objectEntry = objectEntry;
 
-		_received = new BigDecimal(
-			String.valueOf(
-				objectEntryValues.get(
-					CommerceReturnConstants.RETURN_ITEM_FIELD_RECEIVED)));
 		_amount = new BigDecimal(
 			String.valueOf(
 				objectEntryValues.get(
@@ -51,13 +47,16 @@ public class CommerceReturnItem {
 			String.valueOf(
 				objectEntryValues.get(
 					CommerceReturnConstants.RETURN_ITEM_FIELD_QUANTITY)));
-		_returnResolutionMethod = (String)objectEntryValues.get(
-			CommerceReturnConstants.RETURN_ITEM_FIELD_RETURN_RESOLUTION_METHOD);
-		_returnReason = (String)objectEntryValues.get(
-			CommerceReturnConstants.RETURN_ITEM_FIELD_RETURN_REASON);
+		_received = new BigDecimal(
+			String.valueOf(
+				objectEntryValues.get(
+					CommerceReturnConstants.RETURN_ITEM_FIELD_RECEIVED)));
 		_returnItemStatus = (String)objectEntryValues.get(
 			CommerceReturnConstants.RETURN_ITEM_FIELD_RETURN_ITEM_STATUS);
-
+		_returnReason = (String)objectEntryValues.get(
+			CommerceReturnConstants.RETURN_ITEM_FIELD_RETURN_REASON);
+		_returnResolutionMethod = (String)objectEntryValues.get(
+			CommerceReturnConstants.RETURN_ITEM_FIELD_RETURN_RESOLUTION_METHOD);
 		_status = objectEntry.getStatus();
 	}
 

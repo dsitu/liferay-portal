@@ -29,13 +29,13 @@ public class CommerceReturn {
 
 		_accountId = (long)objectEntryValues.get(
 			CommerceReturnConstants.RETURN_FIELD_ACCOUNT_ENTRY_ID);
-		_createDate = objectEntry.getCreateDate();
 		_channelGroupId = (long)objectEntryValues.get(
 			CommerceReturnConstants.RETURN_FIELD_CHANNEL_GROUP_ID);
 		_channelId = (long)objectEntryValues.get(
 			CommerceReturnConstants.RETURN_FIELD_CHANNEL_ID);
 		_channelName = (String)objectEntryValues.get(
 			CommerceReturnConstants.RETURN_FIELD_CHANNEL_NAME);
+		_createDate = objectEntry.getCreateDate();
 		_externalReferenceCode = objectEntry.getExternalReferenceCode();
 		_id = objectEntry.getPrimaryKey();
 		_note = (String)objectEntryValues.get(
