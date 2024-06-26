@@ -10,11 +10,9 @@
 <%
 CommerceReturnEditDisplayContext commerceReturnEditDisplayContext = (CommerceReturnEditDisplayContext)request.getAttribute(WebKeys.PORTLET_DISPLAY_CONTEXT);
 
-CommerceReturn commerceReturn = commerceReturnEditDisplayContext.getCommerceReturn();
-
-CommerceReturnItem commerceReturnItem = commerceReturnEditDisplayContext.getCommerceReturnItem();
-
 CommerceOrderItem commerceOrderItem = commerceReturnEditDisplayContext.getCommerceReturnItemCommerceOrderItem();
+CommerceReturn commerceReturn = commerceReturnEditDisplayContext.getCommerceReturn();
+CommerceReturnItem commerceReturnItem = commerceReturnEditDisplayContext.getCommerceReturnItem();
 %>
 
 <liferay-frontend:side-panel-content

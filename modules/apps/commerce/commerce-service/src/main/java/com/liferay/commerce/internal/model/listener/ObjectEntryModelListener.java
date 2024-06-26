@@ -103,19 +103,17 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 
 			Map<String, Serializable> values = originalObjectEntry.getValues();
 
-			ObjectEntry commerceReturn =
-				_objectEntryLocalService.fetchObjectEntry(
-					GetterUtil.getLong(
-						values.get(
-							CommerceReturnConstants.
-								RETURN_ITEM_FIELD_COMMERCE_RETURN_ID)));
+			ObjectEntry objectEntry = _objectEntryLocalService.fetchObjectEntry(
+				GetterUtil.getLong(
+					values.get(
+						CommerceReturnConstants.
+							RETURN_ITEM_FIELD_COMMERCE_RETURN_ID)));
 
-			if (commerceReturn != null) {
+			if (objectEntry != null) {
 				try {
 					_objectEntryLocalService.updateObjectEntry(
-						commerceReturn.getUserId(),
-						commerceReturn.getObjectEntryId(),
-						commerceReturn.getValues(), new ServiceContext());
+						objectEntry.getUserId(), objectEntry.getObjectEntryId(),
+						objectEntry.getValues(), new ServiceContext());
 				}
 				catch (PortalException portalException) {
 					if (_log.isWarnEnabled()) {

@@ -14,9 +14,8 @@ CommerceReturn commerceReturn = commerceReturnEditDisplayContext.getCommerceRetu
 
 String returnStatus = commerceReturn.getReturnStatus();
 
-CommerceReturnItem commerceReturnItem = commerceReturnEditDisplayContext.getCommerceReturnItem();
-
 CommerceOrderItem commerceOrderItem = commerceReturnEditDisplayContext.getCommerceReturnItemCommerceOrderItem();
+CommerceReturnItem commerceReturnItem = commerceReturnEditDisplayContext.getCommerceReturnItem();
 %>
 
 <aui:form name="commerceReturnItemsFm" onSubmit="event.preventDefault();">
