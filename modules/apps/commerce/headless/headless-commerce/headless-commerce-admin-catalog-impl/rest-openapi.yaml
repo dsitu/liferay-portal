@@ -2268,7 +2268,7 @@ info:
         name: Commerce Team
     description:
         "Liferay Commerce Admin Catalog API. A Java client JAR is available for use with the group ID 'com.liferay',
-        artifact ID 'com.liferay.headless.commerce.admin.catalog.client', and version '4.0.61'."
+        artifact ID 'com.liferay.headless.commerce.admin.catalog.client', and version '4.0.62'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -6368,6 +6368,7 @@ paths:
                 - ProductOptionValue
     "/product-virtual-settings-file-entries/{id}":
         delete:
+            operationId: deleteProductVirtualSettingsFileEntry
             parameters:
                 - in: path
                   explode: false
@@ -6404,6 +6405,7 @@ paths:
             summary: Deletes a product virtual setting file entry by ID.
             tags: ["ProductVirtualSettingsFileEntry"]
         get:
+            operationId: getProductVirtualSettingsFileEntry
             parameters:
                 - in: path
                   explode: false
@@ -6469,6 +6471,7 @@ paths:
             summary: Gets a product virtual setting file entry by ID.
             tags: ["ProductVirtualSettingsFileEntry"]
         patch:
+            operationId: patchProductVirtualSettingsFileEntry
             parameters:
                 - in: path
                   explode: false
@@ -6546,6 +6549,7 @@ paths:
             tags: ["ProductVirtualSettingsFileEntry"]
     "/product-virtual-settings/{id}/product-virtual-settings-file-entries":
         get:
+            operationId: getProductVirtualSettingIdProductVirtualSettingsFileEntriesPage
             parameters:
                 - in: path
                   explode: false
@@ -6620,6 +6624,7 @@ paths:
             summary: Gets a list of virtual settings file entries.
             tags: ["ProductVirtualSettingsFileEntry"]
         post:
+            operationId: postProductVirtualSettingIdProductVirtualSettingsFileEntry
             parameters:
                 - in: path
                   name: id
@@ -14410,6 +14415,7 @@ paths:
             tags: ["SkuUnitOfMeasure"]
     "/sku-virtual-settings-file-entries/{id}":
         delete:
+            operationId: deleteSkuVirtualSettingsFileEntry
             parameters:
                 - in: path
                   explode: false
@@ -14446,6 +14452,7 @@ paths:
             summary: Deletes a sku virtual setting file entry by ID.
             tags: ["SkuVirtualSettingsFileEntry"]
         get:
+            operationId: getSkuVirtualSettingsFileEntry
             parameters:
                 - in: path
                   explode: false
@@ -14511,6 +14518,7 @@ paths:
             summary: Gets a sku virtual setting file entry by ID.
             tags: ["SkuVirtualSettingsFileEntry"]
         patch:
+            operationId: patchSkuVirtualSettingsFileEntry
             parameters:
                 - in: path
                   explode: false
@@ -14588,6 +14596,7 @@ paths:
             tags: ["SkuVirtualSettingsFileEntry"]
     "/sku-virtual-settings/{id}/sku-virtual-settings-file-entries":
         get:
+            operationId: getSkuVirtualSettingIdSkuVirtualSettingsFileEntriesPage
             parameters:
                 - in: path
                   explode: false
@@ -14662,6 +14671,7 @@ paths:
             summary: Gets a list of sku virtual settings file entries.
             tags: ["SkuVirtualSettingsFileEntry"]
         post:
+            operationId: postSkuVirtualSettingIdSkuVirtualSettingsFileEntry
             parameters:
                 - in: path
                   name: id
