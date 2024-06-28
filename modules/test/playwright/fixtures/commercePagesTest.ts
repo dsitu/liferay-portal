@@ -10,6 +10,8 @@ import {CommerceCartSummaryPage} from '../pages/commerce/commerce-cart-content-w
 import {CheckoutPage} from '../pages/commerce/commerce-checkout-web/checkoutPage';
 import {PendingOrdersPage} from '../pages/commerce/commerce-order-content-web/pendingOrdersPage';
 import {PlacedOrdersPage} from '../pages/commerce/commerce-order-content-web/placedOrdersPage';
+import {ReturnDetailsPage} from '../pages/commerce/commerce-order-content-web/returnDetailsPage';
+import {ReturnsPage} from '../pages/commerce/commerce-order-content-web/returnsPage';
 import {SpecificationFacetsPage} from '../pages/commerce/commerce-product-content-search-web/specificationFacetsPage';
 import {ProductDetailsPage} from '../pages/commerce/commerce-product-content-web/productDetailsPage';
 import {AttachmentsPage} from '../pages/commerce/commerce-product-definitions-web/attachmentsPage';
@@ -62,6 +64,8 @@ const commercePagesTest = test.extend<{
 	pendingOrdersPage: PendingOrdersPage;
 	placedOrdersPage: PlacedOrdersPage;
 	productDetailsPage: ProductDetailsPage;
+	returnDetailsPage: ReturnDetailsPage;
+	returnsPage: ReturnsPage;
 	specificationFacetsPage: SpecificationFacetsPage;
 }>({
 	attachmentsPage: async ({page}, use) => {
@@ -144,6 +148,12 @@ const commercePagesTest = test.extend<{
 	},
 	productDetailsPage: async ({page}, use) => {
 		await use(new ProductDetailsPage(page));
+	},
+	returnDetailsPage: async ({page}, use) => {
+		await use(new ReturnDetailsPage(page));
+	},
+	returnsPage: async ({page}, use) => {
+		await use(new ReturnsPage(page));
 	},
 	specificationFacetsPage: async ({page}, use) => {
 		await use(new SpecificationFacetsPage(page));
