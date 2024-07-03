@@ -83,14 +83,6 @@ public class CommerceReturnItemObjectEntryValuesContributor
 									RETURN_ITEM_FIELD_QUANTITY))),
 					commerceMoney.getPrice()));
 
-			if (Boolean.parseBoolean(
-					String.valueOf(
-						commerceReturnItemValues.get(
-							"skipCommerceReturnItemContributor")))) {
-
-				return;
-			}
-
 			ObjectEntry commerceReturnObjectEntry =
 				_objectEntryLocalService.getObjectEntry(
 					GetterUtil.getLong(
@@ -164,6 +156,28 @@ public class CommerceReturnItemObjectEntryValuesContributor
 					returnStatus,
 					CommerceReturnConstants.RETURN_STATUS_PENDING)) {
 
+				String returnItemStatus = GetterUtil.getString(
+					commerceReturnItemValues.get(
+						CommerceReturnConstants.
+							RETURN_ITEM_FIELD_RETURN_ITEM_STATUS));
+
+				if (returnItemStatus.equals(
+						CommerceReturnConstants.
+							RETURN_ITEM_STATUS_AWAITING_RECEIPT)) {
+
+					if (authorized == received) {
+						return CommerceReturnConstants.
+							RETURN_ITEM_STATUS_RECEIVED;
+					}
+					else if ((received > 0) && (received < authorized)) {
+						return CommerceReturnConstants.
+							RETURN_ITEM_STATUS_PARTIALLY_RECEIVED;
+					}
+
+					return CommerceReturnConstants.
+						RETURN_ITEM_STATUS_AWAITING_RECEIPT;
+				}
+
 				long quantity = GetterUtil.getLong(
 					commerceReturnItemValues.get(
 						CommerceReturnConstants.RETURN_ITEM_FIELD_QUANTITY));
@@ -196,11 +210,6 @@ public class CommerceReturnItemObjectEntryValuesContributor
 							RETURN_ITEM_FIELD_RETURN_RESOLUTION_METHOD)))) {
 
 			return CommerceReturnConstants.RETURN_ITEM_STATUS_TO_BE_PROCESSED;
-		}
-
-		if (received < authorized) {
-			return CommerceReturnConstants.
-				RETURN_ITEM_STATUS_PARTIALLY_RECEIVED;
 		}
 
 		return CommerceReturnConstants.RETURN_ITEM_STATUS_RECEIVED;

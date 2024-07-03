@@ -159,8 +159,6 @@ public class CommerceReturnObjectEntryValuesContributor
 						CommerceReturnConstants.
 							RETURN_ITEM_FIELD_RETURN_ITEM_STATUS,
 						CommerceReturnConstants.RETURN_ITEM_STATUS_COMPLETED);
-					objectEntryValues.put(
-						"skipCommerceReturnItemContributor", true);
 
 					_objectEntryLocalService.updateObjectEntry(
 						objectEntry.getUserId(), objectEntry.getObjectEntryId(),
@@ -189,8 +187,6 @@ public class CommerceReturnObjectEntryValuesContributor
 						CommerceReturnConstants.
 							RETURN_ITEM_FIELD_RETURN_ITEM_STATUS,
 						CommerceReturnConstants.RETURN_ITEM_STATUS_PROCESSED);
-					objectEntryValues.put(
-						"skipCommerceReturnItemContributor", true);
 
 					_objectEntryLocalService.updateObjectEntry(
 						objectEntry.getUserId(), objectEntry.getObjectEntryId(),
@@ -224,8 +220,6 @@ public class CommerceReturnObjectEntryValuesContributor
 							RETURN_ITEM_FIELD_RETURN_ITEM_STATUS,
 						CommerceReturnConstants.
 							RETURN_ITEM_STATUS_AWAITING_RECEIPT);
-					authorizedReturnItemValues.put(
-						"skipCommerceReturnItemContributor", true);
 
 					_objectEntryLocalService.updateObjectEntry(
 						objectEntry.getUserId(), objectEntry.getObjectEntryId(),
