@@ -175,7 +175,7 @@ public class AccountGroupRelLocalServiceImpl
 
 	@Override
 	public List<AccountGroupRel> getAccountGroupRels(
-		String className, long classPK, String keywords, int start, int end) {
+		long accountEntryId, String className, long classPK, String keywords, int start, int end) {
 
 		return dslQuery(
 			DSLQueryFactoryUtil.select(
@@ -194,6 +194,14 @@ public class AccountGroupRelLocalServiceImpl
 						).and(
 							AccountGroupRelTable.INSTANCE.classPK.eq(classPK)
 						);
+
+					if (accountEntryId > 0) {
+						predicate = predicate.and(AccountGroupTable.INSTANCE.accountGroupId.in(
+							DSLQueryFactoryUtil.selectDistinct(AccountGroupTable.INSTANCE.accountGroupId)
+								.from(AccountGroupRelTable.INSTANCE)
+								.where()
+						));
+					}
 
 					if (Validator.isNotNull(keywords)) {
 						return Predicate.withParentheses(

@@ -286,6 +286,14 @@ public class AccountGroupRelLocalServiceUtil {
 	}
 
 	public static List<AccountGroupRel> getAccountGroupRels(
+		long accountEntryId, String className, long classPK, String keywords,
+		int start, int end) {
+
+		return getService().getAccountGroupRels(
+			accountEntryId, className, classPK, keywords, start, end);
+	}
+
+	public static List<AccountGroupRel> getAccountGroupRels(
 		String className, long classPK) {
 
 		return getService().getAccountGroupRels(className, classPK);
@@ -297,13 +305,6 @@ public class AccountGroupRelLocalServiceUtil {
 
 		return getService().getAccountGroupRels(
 			className, classPK, start, end, orderByComparator);
-	}
-
-	public static List<AccountGroupRel> getAccountGroupRels(
-		String className, long classPK, String keywords, int start, int end) {
-
-		return getService().getAccountGroupRels(
-			className, classPK, keywords, start, end);
 	}
 
 	public static List<AccountGroupRel> getAccountGroupRelsByAccountGroupId(

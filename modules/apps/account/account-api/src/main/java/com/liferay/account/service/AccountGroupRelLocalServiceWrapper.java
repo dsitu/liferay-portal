@@ -323,6 +323,16 @@ public class AccountGroupRelLocalServiceWrapper
 
 	@Override
 	public java.util.List<com.liferay.account.model.AccountGroupRel>
+		getAccountGroupRels(
+			long accountEntryId, String className, long classPK,
+			String keywords, int start, int end) {
+
+		return _accountGroupRelLocalService.getAccountGroupRels(
+			accountEntryId, className, classPK, keywords, start, end);
+	}
+
+	@Override
+	public java.util.List<com.liferay.account.model.AccountGroupRel>
 		getAccountGroupRels(String className, long classPK) {
 
 		return _accountGroupRelLocalService.getAccountGroupRels(
@@ -338,16 +348,6 @@ public class AccountGroupRelLocalServiceWrapper
 
 		return _accountGroupRelLocalService.getAccountGroupRels(
 			className, classPK, start, end, orderByComparator);
-	}
-
-	@Override
-	public java.util.List<com.liferay.account.model.AccountGroupRel>
-		getAccountGroupRels(
-			String className, long classPK, String keywords, int start,
-			int end) {
-
-		return _accountGroupRelLocalService.getAccountGroupRels(
-			className, classPK, keywords, start, end);
 	}
 
 	@Override
