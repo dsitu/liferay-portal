@@ -52,7 +52,11 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.version.Version;
 import com.liferay.portal.odata.entity.EntityField;
+import com.liferay.portal.search.engine.ConnectionInformation;
+import com.liferay.portal.search.engine.NodeInformation;
+import com.liferay.portal.search.engine.SearchEngineInformation;
 import com.liferay.portal.search.rest.client.pagination.Page;
 import com.liferay.portal.search.rest.dto.v1_0.FacetConfiguration;
 import com.liferay.portal.search.rest.dto.v1_0.SearchRequestBody;
@@ -94,7 +98,7 @@ import org.junit.runner.RunWith;
  * @author Petteri Karttunen
  * @author Almir Ferreira
  */
-@FeatureFlags("LPS-179669")
+@FeatureFlags({"LPD-11232", "LPS-179669"})
 @RunWith(Arquillian.class)
 public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 
@@ -328,6 +332,7 @@ public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 		}
 	}
 
+	@Override
 	@Test
 	public void testGetSearchPageWithSortInteger() throws Exception {
 	}
@@ -729,6 +734,21 @@ public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 		return endpoint;
 	}
 
+	private Version _getSearchEngineVersion() {
+		List<ConnectionInformation> connectionInformationList =
+			_searchEngineInformation.getConnectionInformationList();
+
+		ConnectionInformation connectionInformation =
+			connectionInformationList.get(0);
+
+		List<NodeInformation> nodeInformationList =
+			connectionInformation.getNodeInformationList();
+
+		NodeInformation nodeInformation = nodeInformationList.get(0);
+
+		return Version.parseVersion(nodeInformation.getVersion());
+	}
+
 	private Map<String, JSONArray> _getSearchFacets(JSONObject jsonObject) {
 		JSONObject searchFacetsJSONObject = jsonObject.getJSONObject(
 			"searchFacets");
@@ -751,11 +771,27 @@ public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 	}
 
 	private String _getUserHighlightedFullName() {
+		Version version = _getSearchEngineVersion();
+
+		if (_isSearchEngineElasticsearch() &&
+			(version.compareTo(Version.parseVersion("8.10.2")) >= 0)) {
+
+			return StringBundler.concat(
+				HighlightUtil.HIGHLIGHT_TAG_OPEN, _user.getFirstName(),
+				StringPool.SPACE, _user.getLastName(),
+				HighlightUtil.HIGHLIGHT_TAG_CLOSE);
+		}
+
 		return StringBundler.concat(
 			HighlightUtil.HIGHLIGHT_TAG_OPEN, _user.getFirstName(),
 			HighlightUtil.HIGHLIGHT_TAG_CLOSE, StringPool.SPACE,
 			HighlightUtil.HIGHLIGHT_TAG_OPEN, _user.getLastName(),
 			HighlightUtil.HIGHLIGHT_TAG_CLOSE);
+	}
+
+	private boolean _isSearchEngineElasticsearch() {
+		return Objects.equals(
+			_searchEngineInformation.getVendorString(), "Elasticsearch");
 	}
 
 	private SearchPage<SearchResult> _postSearchPage(String keywords)
@@ -1068,12 +1104,13 @@ public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 			searchPage.getItems());
 
 		Assert.assertFalse(searchResults.isEmpty());
-		Assert.assertTrue(
-			ListUtil.count(
-				searchResults,
-				searchResult -> Objects.equals(
-					searchResult.getTitle(), _getUserHighlightedFullName())) >=
-						1);
+
+		int count = ListUtil.count(
+			searchResults,
+			searchResult -> Objects.equals(
+				searchResult.getTitle(), _getUserHighlightedFullName()));
+
+		Assert.assertTrue(count >= 1);
 	}
 
 	private void _testPostSearchPageWithKeywords() throws Exception {
@@ -1147,11 +1184,14 @@ public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 			searchPage.getItems());
 
 		Assert.assertFalse(searchResults.isEmpty());
-		Assert.assertTrue(
-			ListUtil.count(
-				searchResults,
-				searchResult -> Objects.equals(
-					searchResult.getTitle(), _user.getFullName())) >= 1);
+
+		int count = ListUtil.count(
+			searchResults,
+			searchResult -> Objects.equals(
+				searchResult.getTitle(), _user.getFullName()));
+
+		Assert.assertTrue(count >= 1);
+
 		Assert.assertEquals(
 			0,
 			ListUtil.count(
@@ -1248,6 +1288,9 @@ public class SearchResultResourceTest extends BaseSearchResultResourceTestCase {
 
 	@Inject
 	private SearchEngineHelper _searchEngineHelper;
+
+	@Inject
+	private SearchEngineInformation _searchEngineInformation;
 
 	private ServiceContext _serviceContext;
 

@@ -62,6 +62,7 @@ export default function ItemSelector({
 			eventName: eventName || `${config.portletNamespace}selectInfoItem`,
 			itemSelectorURL: itemSelectorURL || config.infoItemSelectorURL,
 			modalProps,
+			selectedItem,
 			transformValueCallback,
 		});
 	}, [
@@ -70,6 +71,7 @@ export default function ItemSelector({
 		modalProps,
 		onItemSelect,
 		onBeforeItemSelect,
+		selectedItem,
 		transformValueCallback,
 	]);
 
@@ -93,7 +95,12 @@ export default function ItemSelector({
 				quickMappedInfoItems.map(transformMappedItem);
 		}
 		else if (pageContents.length) {
-			transformedMappedItems = pageContents.map(transformMappedItem);
+			transformedMappedItems = pageContents
+				.filter(
+					(pageContent) =>
+						pageContent.type !== Liferay.Language.get('collection')
+				)
+				.map(transformMappedItem);
 		}
 
 		if (transformedMappedItems.length) {

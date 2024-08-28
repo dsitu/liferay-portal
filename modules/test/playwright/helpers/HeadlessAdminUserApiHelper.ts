@@ -9,7 +9,7 @@ import {ApiHelpers, DataApiHelpers} from './ApiHelpers';
 type TAccount = {
 	externalReferenceCode?: string;
 	id?: number;
-	name: string;
+	name?: string;
 	type?: string;
 };
 
@@ -27,8 +27,10 @@ type THoursAvailable = {
 };
 
 type TOrganization = {
+	externalReferenceCode?: string;
 	id?: string;
-	name: string;
+	name?: string;
+	parentOrganization?: TOrganization;
 	services?: TServices[];
 };
 
@@ -50,13 +52,23 @@ type TServices = {
 	serviceType: string;
 };
 
-type TUserAccount = {
-	alternateName?: string;
-	emailAddress?: string;
-	familyName?: string;
-	givenName?: string;
-	id?: string;
-	name?: string;
+type TExportBatch = {
+	className?: string;
+	contentType?: string;
+	errorMessage?: string;
+	executeStatus?: string;
+	externalReferenceCode?: string;
+	id?: number;
+	processedItemsCount?: number;
+	startTime?: string;
+	totalItemsCount?: number;
+};
+
+type TUserGroup = {
+	description?: string;
+	externalReferenceCode?: string;
+	id?: number;
+	name: string;
 };
 
 export class HeadlessAdminUserApiHelper {
@@ -74,6 +86,15 @@ export class HeadlessAdminUserApiHelper {
 	) {
 		return this.apiHelpers.post(
 			`${this.apiHelpers.baseUrl}${this.basePath}/account-groups/by-external-reference-code/${accountExternalReferenceCode}/accounts/by-external-reference-code/${accountGroupExternalReferenceCode}`
+		);
+	}
+
+	async assignAccountToOrganization(
+		accountId: number,
+		organizationId: string
+	) {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/accounts/${accountId}/organizations/${organizationId}`
 		);
 	}
 
@@ -124,9 +145,42 @@ export class HeadlessAdminUserApiHelper {
 		);
 	}
 
+	async deleteOrganizationUserAccountAssociation(
+		organizationId: string,
+		emailAddress: string
+	) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/organizations/${organizationId}/user-accounts/by-email-address/${emailAddress}`
+		);
+	}
+
 	async deleteUserAccount(userAccountId: number) {
 		return this.apiHelpers.delete(
 			`${this.apiHelpers.baseUrl}${this.basePath}/user-accounts/${userAccountId}`
+		);
+	}
+
+	async deleteUserFromAccountByEmailAddress(
+		accountId: number,
+		emailAddress: string
+	) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/accounts/${accountId}/user-accounts/by-email-address/${emailAddress}`
+		);
+	}
+
+	async deleteUserGroup(userGroupId: number) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/user-groups/${userGroupId}`
+		);
+	}
+
+	async deleteUserFromOrganizationByEmailAddress(
+		organizationId: string,
+		emailAddress: string
+	) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/organizations/${organizationId}/user-accounts/by-email-address/${emailAddress}`
 		);
 	}
 
@@ -137,6 +191,28 @@ export class HeadlessAdminUserApiHelper {
 		return this.apiHelpers.delete(
 			`${this.apiHelpers.baseUrl}${this.basePath}/roles/${roleId}/association/user-account/${userAccountId}`
 		);
+	}
+
+	async getAccountByExternalReferenceCode(externalReferenceCode: string) {
+		return this.apiHelpers.get(
+			`${this.apiHelpers.baseUrl}${this.basePath}/accounts/by-external-reference-code/${externalReferenceCode}`
+		);
+	}
+
+	async getAccountByName(accountName: string): Promise<TAccount> {
+		const accountResponse = await this.apiHelpers.get(
+			`${this.apiHelpers.baseUrl}${this.basePath}/accounts?filter=name eq '${accountName}'`
+		);
+
+		return accountResponse?.items?.at(0);
+	}
+
+	async getOrganizationByName(organizationName: string): Promise<TAccount> {
+		const organizationResponse = await this.apiHelpers.get(
+			`${this.apiHelpers.baseUrl}${this.basePath}/organizations?filter=name eq '${organizationName}'&flatten=true`
+		);
+
+		return organizationResponse?.items?.at(0);
 	}
 
 	async getSiteByFriendlyUrlPath(friendlyUrlPath: string) {
@@ -157,6 +233,20 @@ export class HeadlessAdminUserApiHelper {
 		);
 	}
 
+	async getRoleByName(name: string) {
+		const response = await this.getRoles(name);
+
+		const roles = response.items || [];
+
+		for (const role of roles as TRole[]) {
+			if (role.name.toLowerCase() === name.toLowerCase()) {
+				return role;
+			}
+		}
+
+		return null;
+	}
+
 	async getUserAccountByEmailAddress(emailAddress: string) {
 		return this.apiHelpers.get(
 			`${this.apiHelpers.baseUrl}${this.basePath}/user-accounts/by-email-address/${emailAddress}`
@@ -168,6 +258,19 @@ export class HeadlessAdminUserApiHelper {
 			`${this.apiHelpers.baseUrl}${this.basePath}/accounts`,
 			{
 				data: {name: 'Account' + getRandomInt(), ...(account || {})},
+				failOnStatusCode: true,
+			}
+		);
+	}
+
+	async postAccountAccountRoles(
+		accountId: number,
+		accountRole?: TRole
+	): Promise<TRole> {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/accounts/${accountId}/account-roles`,
+			{
+				data: {name: 'Role' + getRandomInt(), ...(accountRole || {})},
 				failOnStatusCode: true,
 			}
 		);
@@ -187,6 +290,36 @@ export class HeadlessAdminUserApiHelper {
 		);
 	}
 
+	async postAccountOrganization(accountId: number, organizationId: string) {
+		return this.apiHelpers.postResponse(
+			`${this.apiHelpers.baseUrl}${this.basePath}/accounts/${accountId}/organizations/${organizationId}`
+		);
+	}
+
+	async postAccountUserAccountByEmailAddress(
+		accountId: number,
+		accountRoleIds: number[],
+		emailAddresses: string[]
+	) {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/accounts/${accountId}
+			/user-accounts/by-email-address${
+				accountRoleIds ? `?accountRoleIds=${accountRoleIds}` : ''
+			}`,
+			{data: {emailAddresses}}
+		);
+	}
+
+	async postRoleByExternalReferenceCodeUserAccountAssociation(
+		roleExternalReferenceCode: string,
+		userAccountId: string
+	) {
+		return this.apiHelpers.postResponse(
+			`${this.apiHelpers.baseUrl}${this.basePath}roles/by-external-reference-code/${roleExternalReferenceCode}/association/user-account/${userAccountId}`,
+			{data: {}, failOnStatusCode: true}
+		);
+	}
+
 	async postRoleUserAccountAssociation(
 		roleId: number,
 		userAccountId: number
@@ -194,6 +327,12 @@ export class HeadlessAdminUserApiHelper {
 		return this.apiHelpers.postResponse(
 			`${this.apiHelpers.baseUrl}${this.basePath}/roles/${roleId}/association/user-account/${userAccountId}`,
 			{data: {}, failOnStatusCode: true}
+		);
+	}
+
+	async postRolesPageExportBatch(): Promise<TExportBatch> {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/roles/export-batch`
 		);
 	}
 
@@ -221,6 +360,16 @@ export class HeadlessAdminUserApiHelper {
 		return organization;
 	}
 
+	async postOrganizationAccounts(
+		organizationId: number,
+		accountIds: number[]
+	) {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/organizations/${organizationId}/accounts`,
+			{data: accountIds}
+		);
+	}
+
 	async postRole(role: TRole) {
 		role = {
 			roleType: 'regular',
@@ -236,9 +385,10 @@ export class HeadlessAdminUserApiHelper {
 		);
 	}
 
-	async postUserAccount(userAccount?: TUserAccount): Promise<TUserAccount> {
-		const randomNumber = getRandomInt();
-
+	async postUserAccount(
+		userAccount?: TUserAccount,
+		randomNumber = getRandomInt()
+	): Promise<TUserAccount> {
 		userAccount = await this.apiHelpers.post(
 			`${this.apiHelpers.baseUrl}${this.basePath}/user-accounts`,
 			{
@@ -247,6 +397,7 @@ export class HeadlessAdminUserApiHelper {
 					emailAddress: 'User' + randomNumber + '@liferay.com',
 					familyName: 'User' + randomNumber,
 					givenName: 'User' + randomNumber,
+					password: 'test',
 					...(userAccount || {}),
 				},
 				failOnStatusCode: true,
@@ -263,13 +414,34 @@ export class HeadlessAdminUserApiHelper {
 		return userAccount;
 	}
 
+	async postUserGroup(userGroup?: TUserGroup): Promise<TUserGroup> {
+		userGroup = await this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/user-groups`,
+			{
+				data: {
+					name: 'UserGroup' + getRandomInt(),
+					...(userGroup || {}),
+				},
+			}
+		);
+
+		if (this.apiHelpers instanceof DataApiHelpers) {
+			this.apiHelpers.data.push({
+				id: userGroup.id,
+				type: 'userGroup',
+			});
+		}
+
+		return userGroup;
+	}
+
 	async getAccountRoles(accountId: number) {
 		return this.apiHelpers.get(
 			`${this.apiHelpers.baseUrl}${this.basePath}/accounts/${accountId}/account-roles`
 		);
 	}
 
-	async assingUserToRole(
+	async assignUserToRole(
 		roleExternalReferenceCode: string,
 		userId: number | string
 	) {
@@ -279,7 +451,7 @@ export class HeadlessAdminUserApiHelper {
 		);
 	}
 
-	async assingUserToAccountRole(
+	async assignUserToAccountRole(
 		accountId: number | string,
 		accountRoleId: number | string,
 		userId: number | string
@@ -297,6 +469,17 @@ export class HeadlessAdminUserApiHelper {
 	) {
 		return this.apiHelpers.post(
 			`${this.apiHelpers.baseUrl}${this.basePath}/accounts/by-external-reference-code/${accountERC}/account-roles/${roleId}/user-accounts/by-email-address/${userEmail}`,
+			{data: {}, failOnStatusCode: true}
+		);
+	}
+
+	async assignUserToSite(
+		roleId: number | string,
+		siteId: number | string,
+		userId: number | string
+	) {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}roles/${roleId}/association/user-account/${userId}/site/${siteId}`,
 			{data: {}, failOnStatusCode: true}
 		);
 	}

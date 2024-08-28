@@ -6,8 +6,13 @@
 import ClayLink from '@clayui/link';
 import React from 'react';
 
-const {default: Preview} = require('./Preview');
-const {default: Share} = require('./Share');
+// @ts-ignore
+
+import Preview from './Preview';
+
+// @ts-ignore
+
+import Share from './Share';
 
 const PreviewActionsDescriptionSection = ({
 	description,
@@ -52,9 +57,9 @@ const PreviewActionsDescriptionSection = ({
 
 			{description && (
 				<div className="sidebar-section">
-					<h5 className="c-mb-1 font-weight-semi-bold">
+					<div className="c-mb-1 font-weight-semi-bold h5">
 						{Liferay.Language.get('description')}
-					</h5>
+					</div>
 
 					<div
 						className="text-secondary"

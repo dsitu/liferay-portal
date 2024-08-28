@@ -11,6 +11,7 @@ import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
 import com.liferay.jenkins.results.parser.Job;
 import com.liferay.jenkins.results.parser.PortalTestClassJob;
 import com.liferay.jenkins.results.parser.job.property.JobProperty;
+import com.liferay.jenkins.results.parser.test.batch.JUnitTestBatch;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +40,13 @@ public class ModulesJUnitBatchTestClassGroup extends JUnitBatchTestClassGroup {
 		String batchName, PortalTestClassJob portalTestClassJob) {
 
 		super(batchName, portalTestClassJob);
+	}
+
+	protected ModulesJUnitBatchTestClassGroup(
+		String batchName, PortalTestClassJob portalTestClassJob,
+		JUnitTestBatch jUnitTestBatch) {
+
+		super(batchName, portalTestClassJob, jUnitTestBatch);
 	}
 
 	@Override
@@ -289,9 +297,9 @@ public class ModulesJUnitBatchTestClassGroup extends JUnitBatchTestClassGroup {
 	}
 
 	private Set<File> _getReleaseModuleAppDirs() {
-		Set<String> bundledAppNames = _getBundledAppNames();
-
 		Set<File> releaseModuleAppDirs = new HashSet<>();
+
+		Set<String> bundledAppNames = _getBundledAppNames();
 
 		for (File moduleAppDir : portalGitWorkingDirectory.getModuleAppDirs()) {
 			File appBndFile = new File(moduleAppDir, "app.bnd");
@@ -339,9 +347,9 @@ public class ModulesJUnitBatchTestClassGroup extends JUnitBatchTestClassGroup {
 	}
 
 	private Set<File> _getReleaseModuleDirs() {
-		Set<String> bundledModuleNames = _getBundledModuleNames();
-
 		Set<File> releaseModuleDirs = new HashSet<>();
+
+		Set<String> bundledModuleNames = _getBundledModuleNames();
 
 		for (File moduleDir : portalGitWorkingDirectory.getModuleDirs()) {
 			File bndBndFile = new File(moduleDir, "bnd.bnd");

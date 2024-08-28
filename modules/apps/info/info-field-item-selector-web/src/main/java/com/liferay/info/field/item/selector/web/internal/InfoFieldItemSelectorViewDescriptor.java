@@ -28,6 +28,7 @@ import com.liferay.layout.util.structure.FormStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.FragmentStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
+import com.liferay.layout.util.structure.LayoutStructureItemUtil;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.ResultRow;
@@ -53,6 +54,7 @@ import com.liferay.segments.service.SegmentsExperienceLocalServiceUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -113,7 +115,8 @@ public class InfoFieldItemSelectorViewDescriptor
 	@Override
 	public ResultRowSplitter getResultRowSplitter() {
 		return resultRows -> {
-			Map<InfoFieldSet, List<ResultRow>> resultRowsMap = new HashMap<>();
+			Map<InfoFieldSet, List<ResultRow>> resultRowsMap =
+				new LinkedHashMap<>();
 
 			Map<InfoField<?>, InfoFieldSet> infoFieldMap = _getInfoFieldMap();
 
@@ -252,12 +255,22 @@ public class InfoFieldItemSelectorViewDescriptor
 			(FormStyledLayoutStructureItem)layoutStructureItem;
 
 		for (String itemId :
-				formStyledLayoutStructureItem.getChildrenItemIds()) {
+				LayoutStructureItemUtil.getChildrenItemIds(
+					formStyledLayoutStructureItem.getItemId(),
+					layoutStructure)) {
+
+			LayoutStructureItem curLayoutStructureItem =
+				layoutStructure.getLayoutStructureItem(itemId);
+
+			if (!(curLayoutStructureItem instanceof
+					FragmentStyledLayoutStructureItem)) {
+
+				continue;
+			}
 
 			FragmentStyledLayoutStructureItem
 				fragmentStyledLayoutStructureItem =
-					(FragmentStyledLayoutStructureItem)
-						layoutStructure.getLayoutStructureItem(itemId);
+					(FragmentStyledLayoutStructureItem)curLayoutStructureItem;
 
 			FragmentEntryLink fragmentEntryLink =
 				FragmentEntryLinkLocalServiceUtil.fetchFragmentEntryLink(

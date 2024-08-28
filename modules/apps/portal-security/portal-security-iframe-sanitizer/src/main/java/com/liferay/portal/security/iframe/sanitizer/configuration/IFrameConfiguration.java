@@ -12,7 +12,10 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 /**
  * @author Roberto Díaz
  */
-@ExtendedObjectClassDefinition(category = "security-tools")
+@ExtendedObjectClassDefinition(
+	category = "security-tools",
+	scope = ExtendedObjectClassDefinition.Scope.COMPANY
+)
 @Meta.OCD(
 	id = "com.liferay.portal.security.iframe.sanitizer.configuration.IFrameConfiguration",
 	localization = "content/Language", name = "iframe-configuration-name"
@@ -27,5 +30,14 @@ public interface IFrameConfiguration {
 
 	@Meta.AD(deflt = "", name = "sandbox-attribute-values", required = false)
 	public String[] sandboxAttributeValues();
+
+	@Meta.AD(name = "blacklist", required = false)
+	public String[] blacklist();
+
+	@Meta.AD(
+		deflt = "com.liferay.fragment.model.FragmentEntry|com.liferay.journal.model.JournalArticle",
+		name = "whitelist", required = false
+	)
+	public String[] whitelist();
 
 }

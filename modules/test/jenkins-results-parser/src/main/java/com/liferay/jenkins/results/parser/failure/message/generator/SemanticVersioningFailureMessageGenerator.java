@@ -19,9 +19,7 @@ public class SemanticVersioningFailureMessageGenerator
 	extends BaseFailureMessageGenerator {
 
 	@Override
-	public Element getMessageElement(Build build) {
-		String consoleText = build.getConsoleText();
-
+	public String getMessage(String consoleText) {
 		if (!consoleText.contains(_TOKEN_SEMVER_INCORRECT) ||
 			!consoleText.contains(_TOKEN_SEMVER_PACKAGE)) {
 
@@ -36,6 +34,17 @@ public class SemanticVersioningFailureMessageGenerator
 
 		start = consoleText.lastIndexOf("\n", start);
 
+		return getConsoleTextSnippet(consoleText, true, start, end);
+	}
+
+	@Override
+	public Element getMessageElement(Build build) {
+		Element messageElement = super.getMessageElement(build);
+
+		if (messageElement == null) {
+			return null;
+		}
+
 		return Dom4JUtil.getNewElement(
 			"div", null,
 			Dom4JUtil.getNewElement(
@@ -45,7 +54,7 @@ public class SemanticVersioningFailureMessageGenerator
 				Dom4JUtil.getNewElement(
 					"strong", null,
 					getBaseBranchAnchorElement(build.getTopLevelBuild())),
-				getConsoleTextSnippetElement(consoleText, true, start, end)));
+				messageElement));
 	}
 
 	private static final String _TOKEN_SEMVER_INCORRECT =

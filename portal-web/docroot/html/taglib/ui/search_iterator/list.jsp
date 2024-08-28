@@ -276,7 +276,7 @@ if (fixedHeader) {
 					}
 				%>
 
-					<tr class="<%= GetterUtil.getString(row.getClassName()) %> <%= row.getCssClass() %> <%= row.getState() %> <%= rowIsChecked ? "active" : StringPool.BLANK %>" data-qa-id="row" id="<%= rowElementId %>" <%= AUIUtil.buildData(data) %>>
+					<tr aria-label="<%= searchContainerRowAriaLabel %>" class="<%= GetterUtil.getString(row.getClassName()) %> <%= row.getCssClass() %> <%= row.getState() %> <%= rowIsChecked ? "active" : StringPool.BLANK %>" data-qa-id="row" id="<%= rowElementId %>" <%= AUIUtil.buildData(data) %> tabindex="<%= searchContainerRowTabIndex %>">
 
 						<%
 						for (int j = 0; j < entries.size(); j++) {
@@ -320,24 +320,11 @@ if (fixedHeader) {
 						%>
 
 							<td class="<%= columnClassName %>" colspan="<%= entry.getColspan() %>">
-								<c:choose>
-									<c:when test="<%= truncate %>">
-										<span class="text-truncate">
 
-											<%
-											entry.print(pageContext.getOut(), request, response);
-											%>
+								<%
+								entry.print(pageContext.getOut(), request, response);
+								%>
 
-										</span>
-									</c:when>
-									<c:otherwise>
-
-										<%
-										entry.print(pageContext.getOut(), request, response);
-										%>
-
-									</c:otherwise>
-								</c:choose>
 							</td>
 
 						<%

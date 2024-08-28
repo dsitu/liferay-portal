@@ -48,6 +48,7 @@ import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil;
 import com.liferay.portal.kernel.settings.SystemSettingsLocator;
@@ -118,19 +119,6 @@ public class CPDefinitionsDisplayContext
 				requestBackedPortletURLFactory, "accountGroupSelectItem",
 				commerceAccountGroupItemSelectorCriterion)
 		).setParameter(
-			"accountEntryId",
-			() -> {
-				long accountEntryId = 0;
-
-				CommerceCatalog commerceCatalog = getCommerceCatalog();
-
-				if (commerceCatalog != null) {
-					accountEntryId = commerceCatalog.getAccountEntryId();
-				}
-
-				return accountEntryId;
-			}
-		).setParameter(
 			"checkedCommerceAccountGroupIds",
 			StringUtil.merge(
 				TransformUtil.transformToLongArray(
@@ -138,6 +126,14 @@ public class CPDefinitionsDisplayContext
 						CPDefinition.class.getName(), getCPDefinitionId(),
 						QueryUtil.ALL_POS, QueryUtil.ALL_POS, null),
 					AccountGroupRel::getAccountGroupId))
+		).setParameter(
+			"permissionUserId",
+			() -> {
+				PermissionChecker permissionChecker =
+					cpRequestHelper.getPermissionChecker();
+
+				return permissionChecker.getUserId();
+			}
 		).buildString();
 	}
 
@@ -235,6 +231,54 @@ public class CPDefinitionsDisplayContext
 		return _commerceCatalogService.search(
 			cpRequestHelper.getCompanyId(), null, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
+	}
+
+	public CreationMenu getCPDefinitionSpecificationOptionValueCreationMenu()
+		throws Exception {
+
+		return CreationMenuBuilder.addDropdownItem(
+			dropdownItem -> {
+				dropdownItem.setHref(
+					PortletURLBuilder.createRenderURL(
+						liferayPortletResponse
+					).setMVCRenderCommandName(
+						"/cp_definitions" +
+							"/add_cp_definition_specification_option_value"
+					).setBackURL(
+						cpRequestHelper.getCurrentURL()
+					).setParameter(
+						"cpDefinitionId", getCPDefinitionId()
+					).setWindowState(
+						LiferayWindowState.POP_UP
+					).buildPortletURL());
+				dropdownItem.setLabel(
+					LanguageUtil.get(
+						httpServletRequest, "add-an-existing-specification"));
+				dropdownItem.setTarget("modal");
+			}
+		).addDropdownItem(
+			dropdownItem -> {
+				dropdownItem.setHref(
+					PortletURLBuilder.createRenderURL(
+						liferayPortletResponse
+					).setMVCRenderCommandName(
+						"/cp_definitions" +
+							"/add_cp_definition_specification_option_value"
+					).setBackURL(
+						cpRequestHelper.getCurrentURL()
+					).setParameter(
+						"cpDefinitionId", getCPDefinitionId()
+					).setParameter(
+						"createNewSpecification", true
+					).setWindowState(
+						LiferayWindowState.POP_UP
+					).buildPortletURL());
+				dropdownItem.setLabel(
+					LanguageUtil.get(
+						httpServletRequest, "create-new-specification"));
+				dropdownItem.setTarget("modal");
+			}
+		).build();
 	}
 
 	public String getCPDefinitionThumbnailURL() throws Exception {

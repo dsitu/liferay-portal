@@ -23,6 +23,7 @@ class TestrayCaseResultRest extends Rest<CaseResultForm, TestrayCaseResult> {
 				caseId: r_caseToCaseResult_c_caseId,
 				comment,
 				dueStatus,
+				errors,
 				issues,
 				mbMessageId,
 				mbThreadId,
@@ -32,6 +33,7 @@ class TestrayCaseResultRest extends Rest<CaseResultForm, TestrayCaseResult> {
 			}) => ({
 				comment,
 				dueStatus,
+				errors,
 				issues,
 				mbMessageId,
 				mbThreadId,
@@ -42,7 +44,7 @@ class TestrayCaseResultRest extends Rest<CaseResultForm, TestrayCaseResult> {
 				startDate,
 			}),
 			nestedFields:
-				'case.caseType,component.team.name,team,build.productVersion,build.routine,run,user',
+				'case.caseType,component.team.name,team,build.productVersion,build.project,build.routine,run,user',
 			nestedFieldsDepth: 2,
 			transformData: (caseResult) => ({
 				...caseResult,
@@ -53,6 +55,9 @@ class TestrayCaseResultRest extends Rest<CaseResultForm, TestrayCaseResult> {
 							productVersion:
 								caseResult.r_buildToCaseResult_c_build
 									?.r_productVersionToBuilds_c_productVersion,
+							project:
+								caseResult.r_buildToCaseResult_c_build
+									?.r_projectToBuilds_c_project,
 							routine:
 								caseResult.r_buildToCaseResult_c_build
 									?.r_routineToBuilds_c_routine,
@@ -115,38 +120,60 @@ class TestrayCaseResultRest extends Rest<CaseResultForm, TestrayCaseResult> {
 	}
 
 	public assignTo(caseResult: TestrayCaseResult, userId: number) {
-		return this.update(caseResult.id, {
-			dueStatus: caseResult.dueStatus.key,
-			startDate: caseResult.startDate,
-			userId,
-		});
+		return this.update(
+			caseResult.id || Number(caseResult.testrayCaseResultId),
+			{
+				userId,
+			}
+		);
 	}
 
 	public assignToMe(caseResult: TestrayCaseResult) {
-		return this.update(caseResult.id, {
-			startDate: caseResult.startDate,
-			userId: Number(Liferay.ThemeDisplay.getUserId()),
-		});
+		return this.update(
+			caseResult.id || Number(caseResult.testrayCaseResultId),
+			{
+				userId: Number(Liferay.ThemeDisplay.getUserId()),
+			}
+		);
+	}
+
+	public async exportCaseResults(buildId: number) {
+		const response = await Liferay.Util.fetch(
+			`/o/testray-rest/v1.0/testray-export-case-result/${buildId}`
+		);
+
+		const responseHeaders = response.headers.get('Content-Disposition');
+
+		if (response.ok && responseHeaders?.includes('attachment')) {
+			const downloadElement = document.createElement('a');
+
+			downloadElement.download =
+				responseHeaders.match(/filename="([^"]+)"/)![1];
+			downloadElement.href = URL.createObjectURL(await response.blob());
+
+			document.body.appendChild(downloadElement);
+			downloadElement.click();
+		}
 	}
 
 	public removeAssign(caseResult: TestrayCaseResult) {
-		return this.update(caseResult.id, {
-			startDate: null,
-			userId: this.UNASSIGNED_USER_ID,
-		});
+		return this.update(
+			caseResult.id || Number(caseResult.testrayCaseResultId),
+			{
+				userId: this.UNASSIGNED_USER_ID,
+			}
+		);
 	}
 
 	public reopenTest(caseResult: TestrayCaseResult) {
 		return this.update(caseResult.id, {
 			dueStatus: CaseResultStatuses.UNTESTED,
-			startDate: null,
 		});
 	}
 
 	public resetTest(caseResult: TestrayCaseResult) {
 		return this.update(caseResult.id, {
 			dueStatus: CaseResultStatuses.UNTESTED,
-			startDate: null,
 			userId: this.UNASSIGNED_USER_ID,
 		});
 	}

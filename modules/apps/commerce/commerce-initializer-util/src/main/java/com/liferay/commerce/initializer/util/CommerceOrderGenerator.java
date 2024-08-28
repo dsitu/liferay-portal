@@ -213,11 +213,10 @@ public class CommerceOrderGenerator {
 			commerceAddress.getCommerceAddressId(), commerceShippingMethodId,
 			commerceAddress.getCommerceAddressId(),
 			commerceOrder.getAdvanceStatus(),
-			commerceOrder.getCommercePaymentMethodKey(),
+			commerceOrder.getCommercePaymentMethodKey(), null,
 			commerceOrder.getPurchaseOrderNumber(),
 			commerceOrder.getShippingAmount(), commerceShippingOptionKey,
-			commerceOrder.getSubtotal(), commerceOrder.getTotal(),
-			commerceContext);
+			commerceOrder.getSubtotal(), commerceOrder.getTotal());
 
 		// Checkout commerce order
 
@@ -429,7 +428,7 @@ public class CommerceOrderGenerator {
 				_commerceChannelLocalService.
 					getCommerceChannelGroupIdBySiteGroupId(groupId),
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new CommerceShippingMethodPriorityComparator());
+				CommerceShippingMethodPriorityComparator.getInstance(false));
 
 		if (commerceShippingMethods.isEmpty()) {
 			return 0;

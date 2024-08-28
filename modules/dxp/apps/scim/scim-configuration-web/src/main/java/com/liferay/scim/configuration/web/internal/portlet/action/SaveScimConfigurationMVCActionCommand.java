@@ -6,6 +6,11 @@
 package com.liferay.scim.configuration.web.internal.portlet.action;
 
 import com.liferay.configuration.admin.constants.ConfigurationAdminPortletKeys;
+import com.liferay.expando.kernel.model.ExpandoColumn;
+import com.liferay.expando.kernel.model.ExpandoValue;
+import com.liferay.expando.kernel.service.ExpandoColumnLocalService;
+import com.liferay.expando.kernel.service.ExpandoRowLocalService;
+import com.liferay.expando.kernel.service.ExpandoValueLocalService;
 import com.liferay.oauth.client.LocalOAuthClient;
 import com.liferay.oauth2.provider.model.OAuth2Application;
 import com.liferay.oauth2.provider.model.OAuth2Authorization;
@@ -14,24 +19,35 @@ import com.liferay.oauth2.provider.service.OAuth2AuthorizationLocalService;
 import com.liferay.oauth2.provider.service.OAuth2AuthorizationService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Property;
+import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.service.UserGroupLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.scim.configuration.web.internal.constants.ScimWebKeys;
 import com.liferay.scim.rest.util.ScimClientUtil;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.List;
@@ -137,6 +153,79 @@ public class SaveScimConfigurationMVCActionCommand
 			actionRequest.setAttribute(
 				ScimWebKeys.SCIM_OAUTH2_ACCESS_TOKEN, accessToken);
 		}
+		else if (Objects.equals(cmd, "reset")) {
+			OAuth2Application oAuth2Application =
+				_oAuth2ApplicationLocalService.getOAuth2Application(
+					themeDisplay.getCompanyId(), scimClientId);
+
+			_oAuth2AuthorizationService.revokeAllOAuth2Authorizations(
+				oAuth2Application.getOAuth2ApplicationId());
+
+			_oAuth2ApplicationLocalService.deleteOAuth2Application(
+				oAuth2Application);
+
+			Indexer<UserGroup> userGroupIndexer =
+				IndexerRegistryUtil.nullSafeGetIndexer(UserGroup.class);
+			Indexer<User> userIndexer = IndexerRegistryUtil.nullSafeGetIndexer(
+				User.class);
+
+			ActionableDynamicQuery actionableDynamicQuery =
+				_expandoValueLocalService.getActionableDynamicQuery();
+
+			actionableDynamicQuery.setAddCriteriaMethod(
+				dynamicQuery -> {
+					List<Long> columnIds = new ArrayList<>();
+
+					ExpandoColumn expandoColumn =
+						_expandoColumnLocalService.getColumn(
+							themeDisplay.getCompanyId(), User.class.getName(),
+							"CUSTOM_FIELDS", "scimClientId");
+
+					if (expandoColumn != null) {
+						columnIds.add(expandoColumn.getColumnId());
+					}
+
+					expandoColumn = _expandoColumnLocalService.getColumn(
+						themeDisplay.getCompanyId(), UserGroup.class.getName(),
+						"CUSTOM_FIELDS", "scimClientId");
+
+					if (expandoColumn != null) {
+						columnIds.add(expandoColumn.getColumnId());
+					}
+
+					if (!columnIds.isEmpty()) {
+						Property columnProperty = PropertyFactoryUtil.forName(
+							"columnId");
+
+						dynamicQuery.add(columnProperty.in(columnIds));
+					}
+
+					Property dataProperty = PropertyFactoryUtil.forName("data");
+
+					dynamicQuery.add(dataProperty.eq(scimClientId));
+				});
+			actionableDynamicQuery.setPerformActionMethod(
+				(ExpandoValue expandoValue) -> {
+					_expandoRowLocalService.deleteRow(
+						expandoValue.getTableId(), expandoValue.getClassPK());
+
+					String className = _portal.getClassName(
+						expandoValue.getClassNameId());
+
+					if (className.equals(User.class.getName())) {
+						userIndexer.reindex(
+							_userLocalService.getUser(
+								expandoValue.getClassPK()));
+					}
+					else {
+						userGroupIndexer.reindex(
+							_userGroupLocalService.getUserGroup(
+								expandoValue.getClassPK()));
+					}
+				});
+
+			actionableDynamicQuery.performActions();
+		}
 		else if (Objects.equals(cmd, "revoke")) {
 			OAuth2Application oAuth2Application =
 				_oAuth2ApplicationLocalService.getOAuth2Application(
@@ -196,6 +285,15 @@ public class SaveScimConfigurationMVCActionCommand
 	private ConfigurationAdmin _configurationAdmin;
 
 	@Reference
+	private ExpandoColumnLocalService _expandoColumnLocalService;
+
+	@Reference
+	private ExpandoRowLocalService _expandoRowLocalService;
+
+	@Reference
+	private ExpandoValueLocalService _expandoValueLocalService;
+
+	@Reference
 	private JSONFactory _jsonFactory;
 
 	@Reference
@@ -209,5 +307,14 @@ public class SaveScimConfigurationMVCActionCommand
 
 	@Reference
 	private OAuth2AuthorizationService _oAuth2AuthorizationService;
+
+	@Reference
+	private Portal _portal;
+
+	@Reference
+	private UserGroupLocalService _userGroupLocalService;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

@@ -52,6 +52,7 @@ import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.notification.rest.resource.v1_0.NotificationTemplateResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectFieldResource;
+import com.liferay.object.admin.rest.resource.v1_0.ObjectFolderResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectRelationshipResource;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.service.ObjectActionLocalService;
@@ -61,6 +62,7 @@ import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
@@ -132,10 +134,11 @@ public class SiteInitializerFactoryImpl implements SiteInitializerFactory {
 			_assetEntryLocalService, _assetLinkLocalService,
 			_assetListEntryLocalService, _blogPostingResourceFactory, bundle,
 			_cetManager, _clientExtensionEntryLocalService,
-			_configurationProvider, _dataDefinitionResourceFactory,
-			_ddmStructureLocalService, _ddmTemplateLocalService,
-			_defaultDDMStructureHelper, _depotEntryGroupRelLocalService,
-			_depotEntryLocalService, _dlFileEntryTypeLocalService, _dlURLHelper,
+			_companyLocalService, _configurationProvider,
+			_dataDefinitionResourceFactory, _ddmStructureLocalService,
+			_ddmTemplateLocalService, _defaultDDMStructureHelper,
+			_depotEntryGroupRelLocalService, _depotEntryLocalService,
+			_dlFileEntryTypeLocalService, _dlURLHelper,
 			_documentFolderResourceFactory, _documentResourceFactory,
 			_expandoValueLocalService, _fragmentsImporter, _groupLocalService,
 			_journalArticleLocalService, _jsonFactory, _keywordResourceFactory,
@@ -151,13 +154,14 @@ public class SiteInitializerFactoryImpl implements SiteInitializerFactory {
 			_objectDefinitionLocalService, _objectDefinitionResourceFactory,
 			_objectEntryLocalService, _objectEntryManager,
 			_objectFieldLocalService, _objectFieldResourceFactory,
-			_objectRelationshipLocalService, _objectRelationshipResourceFactory,
-			_organizationLocalService, _organizationResourceFactory,
-			_ploEntryLocalService, _portal, _portletPreferencesLocalService,
-			_resourceActionLocalService, _resourcePermissionLocalService,
-			_roleLocalService, _sapEntryLocalService,
-			_segmentsEntryLocalService, _segmentsExperienceLocalService,
-			_archivedSettingsFactory, _siteNavigationMenuItemLocalService,
+			_objectfolderResourceFactory, _objectRelationshipLocalService,
+			_objectRelationshipResourceFactory, _organizationLocalService,
+			_organizationResourceFactory, _ploEntryLocalService, _portal,
+			_portletPreferencesLocalService, _resourceActionLocalService,
+			_resourcePermissionLocalService, _roleLocalService,
+			_sapEntryLocalService, _segmentsEntryLocalService,
+			_segmentsExperienceLocalService, _archivedSettingsFactory,
+			_siteNavigationMenuItemLocalService,
 			_siteNavigationMenuItemTypeRegistry,
 			_siteNavigationMenuLocalService,
 			_structuredContentFolderResourceFactory,
@@ -230,6 +234,9 @@ public class SiteInitializerFactoryImpl implements SiteInitializerFactory {
 
 	@Reference
 	private ClientExtensionEntryLocalService _clientExtensionEntryLocalService;
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private ConfigurationProvider _configurationProvider;
@@ -355,6 +362,9 @@ public class SiteInitializerFactoryImpl implements SiteInitializerFactory {
 
 	@Reference
 	private ObjectFieldResource.Factory _objectFieldResourceFactory;
+
+	@Reference
+	private ObjectFolderResource.Factory _objectfolderResourceFactory;
 
 	@Reference
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;

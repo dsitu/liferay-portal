@@ -71,6 +71,10 @@ import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectFieldSettingLocalServiceUtil;
 import com.liferay.object.service.ObjectLayoutLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
+import com.liferay.object.tree.Edge;
+import com.liferay.object.tree.Node;
+import com.liferay.object.tree.Tree;
+import com.liferay.object.tree.TreeFactory;
 import com.liferay.object.web.internal.display.context.helper.ObjectRequestHelper;
 import com.liferay.object.web.internal.security.permission.resource.util.ObjectDefinitionResourcePermissionUtil;
 import com.liferay.object.web.internal.util.ObjectEntryUtil;
@@ -145,7 +149,8 @@ public class ObjectEntryDisplayContextImpl
 		ObjectFieldLocalService objectFieldLocalService,
 		ObjectLayoutLocalService objectLayoutLocalService,
 		ObjectRelationshipLocalService objectRelationshipLocalService,
-		ObjectScopeProviderRegistry objectScopeProviderRegistry) {
+		ObjectScopeProviderRegistry objectScopeProviderRegistry,
+		TreeFactory treeFactory) {
 
 		_ddmExpressionFactory = ddmExpressionFactory;
 		_ddmFormRenderer = ddmFormRenderer;
@@ -159,12 +164,98 @@ public class ObjectEntryDisplayContextImpl
 		_objectLayoutLocalService = objectLayoutLocalService;
 		_objectRelationshipLocalService = objectRelationshipLocalService;
 		_objectScopeProviderRegistry = objectScopeProviderRegistry;
+		_treeFactory = treeFactory;
 
 		_objectRequestHelper = new ObjectRequestHelper(httpServletRequest);
 		_readOnly = (Boolean)httpServletRequest.getAttribute(
 			ObjectWebKeys.OBJECT_ENTRY_READ_ONLY);
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+	}
+
+	@Override
+	public String getBackURL() throws PortalException {
+		String redirect = ParamUtil.getString(
+			_objectRequestHelper.getRequest(), "redirect");
+
+		String backURL = ParamUtil.getString(
+			_objectRequestHelper.getRequest(), "backURL", redirect);
+
+		if (Validator.isNull(backURL)) {
+			LiferayPortletResponse liferayPortletResponse =
+				_objectRequestHelper.getLiferayPortletResponse();
+
+			backURL = String.valueOf(liferayPortletResponse.createRenderURL());
+		}
+
+		ObjectDefinition objectDefinition = getObjectDefinition1();
+
+		if (!objectDefinition.isDefaultStorageType() ||
+			!objectDefinition.isRootDescendantNode()) {
+
+			return backURL;
+		}
+
+		ObjectEntry objectEntry = _getObjectEntry();
+
+		if (objectEntry == null) {
+			return backURL;
+		}
+
+		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
+			_objectEntryLocalService.getObjectEntry(objectEntry.getId());
+
+		Tree tree = _treeFactory.createObjectEntryTree(
+			serviceBuilderObjectEntry.getRootObjectEntryId());
+
+		Node node = tree.getNode(serviceBuilderObjectEntry.getObjectEntryId());
+
+		Node parentNode = node.getParentNode();
+
+		com.liferay.object.model.ObjectEntry parentObjectEntry =
+			_objectEntryLocalService.getObjectEntry(parentNode.getPrimaryKey());
+
+		ObjectDefinition parentObjectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				parentObjectEntry.getObjectDefinitionId());
+
+		return PortletURLBuilder.create(
+			PortalUtil.getControlPanelPortletURL(
+				_objectRequestHelper.getRequest(),
+				parentObjectDefinition.getPortletId(),
+				PortletRequest.ACTION_PHASE)
+		).setMVCRenderCommandName(
+			"/object_entries/edit_object_entry"
+		).setParameter(
+			"externalReferenceCode",
+			parentObjectEntry.getExternalReferenceCode()
+		).setParameter(
+			"screenNavigationCategoryKey",
+			() -> {
+				ObjectLayout objectLayout =
+					_objectLayoutLocalService.fetchDefaultObjectLayout(
+						parentObjectDefinition.getObjectDefinitionId());
+
+				Edge edge = node.getEdge();
+
+				if (objectLayout == null) {
+					return edge.getObjectRelationshipId();
+				}
+
+				List<ObjectLayoutTab> objectLayoutTabs =
+					objectLayout.getObjectLayoutTabs();
+
+				for (ObjectLayoutTab objectLayoutTab : objectLayoutTabs) {
+					if (objectLayoutTab.getObjectRelationshipId() ==
+							edge.getObjectRelationshipId()) {
+
+						return objectLayoutTab.getObjectLayoutTabId();
+					}
+				}
+
+				return edge.getObjectRelationshipId();
+			}
+		).buildString();
 	}
 
 	@Override
@@ -326,7 +417,10 @@ public class ObjectEntryDisplayContextImpl
 				_objectDefinitionLocalService.getObjectDefinition(
 					objectDefinition2.getRootObjectDefinitionId());
 
-			if (ObjectEntryServiceUtil.hasPortletResourcePermission(
+			if (ObjectEntryServiceUtil.hasModelResourcePermission(
+					rootObjectDefinition.getObjectDefinitionId(),
+					_objectEntry.getId(), ActionKeys.UPDATE) ||
+				ObjectEntryServiceUtil.hasPortletResourcePermission(
 					objectScopeProvider.getGroupId(
 						_objectRequestHelper.getRequest()),
 					rootObjectDefinition.getObjectDefinitionId(),
@@ -747,8 +841,8 @@ public class ObjectEntryDisplayContextImpl
 
 		DDMForm ddmForm = new DDMForm();
 
-		ddmForm.addAvailableLocale(_objectRequestHelper.getLocale());
-		ddmForm.setDefaultLocale(_objectRequestHelper.getLocale());
+		ddmForm.addAvailableLocale(_objectRequestHelper.getDefaultLocale());
+		ddmForm.setDefaultLocale(_objectRequestHelper.getDefaultLocale());
 
 		ObjectDefinition objectDefinition = getObjectDefinition1();
 
@@ -1048,7 +1142,8 @@ public class ObjectEntryDisplayContextImpl
 	private DTOConverterContext _getDTOConverterContext() {
 		return new DefaultDTOConverterContext(
 			false, null, null, _objectRequestHelper.getRequest(), null,
-			_themeDisplay.getLocale(), null, _themeDisplay.getUser());
+			_themeDisplay.getSiteDefaultLocale(), null,
+			_themeDisplay.getUser());
 	}
 
 	private long _getGroupId() {
@@ -1306,7 +1401,7 @@ public class ObjectEntryDisplayContextImpl
 				ddmFormFieldValue.setValue(
 					new UnlocalizedValue(
 						ddmFormFieldPredefinedValue.getString(
-							_objectRequestHelper.getLocale())));
+							_objectRequestHelper.getDefaultLocale())));
 			}
 		}
 		else if (value instanceof ArrayList) {
@@ -1341,7 +1436,7 @@ public class ObjectEntryDisplayContextImpl
 			if (value instanceof Double) {
 				DecimalFormat decimalFormat =
 					NumericDDMFormFieldUtil.getDecimalFormat(
-						_objectRequestHelper.getLocale());
+						_objectRequestHelper.getDefaultLocale());
 
 				value = decimalFormat.format(value);
 			}
@@ -1385,5 +1480,6 @@ public class ObjectEntryDisplayContextImpl
 	private final ObjectScopeProviderRegistry _objectScopeProviderRegistry;
 	private final boolean _readOnly;
 	private final ThemeDisplay _themeDisplay;
+	private final TreeFactory _treeFactory;
 
 }

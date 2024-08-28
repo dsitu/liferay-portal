@@ -122,9 +122,10 @@ public class CopyLayoutMVCActionCommandTest {
 				expectedLayout.getPlid()));
 
 		Role role = _roleLocalService.addRole(
-			_serviceContext.getUserId(), null, 0, StringUtil.randomString(),
-			Collections.emptyMap(), Collections.emptyMap(),
-			RoleConstants.TYPE_REGULAR, StringPool.BLANK, _serviceContext);
+			RandomTestUtil.randomString(), _serviceContext.getUserId(), null, 0,
+			StringUtil.randomString(), Collections.emptyMap(),
+			Collections.emptyMap(), RoleConstants.TYPE_REGULAR,
+			StringPool.BLANK, _serviceContext);
 
 		_addModelResources(role, expectedLayout);
 
@@ -193,9 +194,10 @@ public class CopyLayoutMVCActionCommandTest {
 				expectedLayout.getPlid()));
 
 		Role role = _roleLocalService.addRole(
-			_serviceContext.getUserId(), null, 0, StringUtil.randomString(),
-			Collections.emptyMap(), Collections.emptyMap(),
-			RoleConstants.TYPE_REGULAR, StringPool.BLANK, _serviceContext);
+			RandomTestUtil.randomString(), _serviceContext.getUserId(), null, 0,
+			StringUtil.randomString(), Collections.emptyMap(),
+			Collections.emptyMap(), RoleConstants.TYPE_REGULAR,
+			StringPool.BLANK, _serviceContext);
 
 		_addModelResources(role, expectedLayout);
 
@@ -265,9 +267,10 @@ public class CopyLayoutMVCActionCommandTest {
 				expectedLayout.getPlid()));
 
 		Role role = _roleLocalService.addRole(
-			_serviceContext.getUserId(), null, 0, StringUtil.randomString(),
-			Collections.emptyMap(), Collections.emptyMap(),
-			RoleConstants.TYPE_REGULAR, StringPool.BLANK, _serviceContext);
+			RandomTestUtil.randomString(), _serviceContext.getUserId(), null, 0,
+			StringUtil.randomString(), Collections.emptyMap(),
+			Collections.emptyMap(), RoleConstants.TYPE_REGULAR,
+			StringPool.BLANK, _serviceContext);
 
 		_addModelResources(role, expectedLayout);
 
@@ -344,7 +347,7 @@ public class CopyLayoutMVCActionCommandTest {
 				_serviceContext);
 
 		_fragmentEntry = _fragmentEntryLocalService.addFragmentEntry(
-			TestPropsValues.getUserId(), _group.getGroupId(),
+			null, TestPropsValues.getUserId(), _group.getGroupId(),
 			fragmentCollection.getFragmentCollectionId(), "fragment-entry-key",
 			RandomTestUtil.randomString(), StringPool.BLANK,
 			"<div data-lfr-styles><span>Test</span>Fragment</div>",

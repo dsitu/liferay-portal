@@ -10,9 +10,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.dao.jdbc.util.ConnectionWrapper;
 import com.liferay.portal.dao.jdbc.util.DataSourceWrapper;
-import com.liferay.portal.dao.jdbc.util.StatementWrapper;
 import com.liferay.portal.db.partition.db.DBPartitionDB;
 import com.liferay.portal.db.partition.db.DBPartitionMySQLDB;
 import com.liferay.portal.db.partition.db.DBPartitionPostgreSQLDB;
@@ -21,13 +19,21 @@ import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnectionUtil;
+import com.liferay.portal.kernel.dao.jdbc.util.ConnectionWrapper;
+import com.liferay.portal.kernel.dao.jdbc.util.StatementWrapper;
 import com.liferay.portal.kernel.db.partition.DBPartition;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.instance.PortalInstancePool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.model.CompanyConstants;
+import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.module.framework.ThrowableCollector;
+import com.liferay.portal.kernel.scheduler.SchedulerEngine;
+import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
+import com.liferay.portal.kernel.scheduler.SchedulerException;
+import com.liferay.portal.kernel.scheduler.messaging.SchedulerResponse;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
@@ -45,7 +51,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -152,18 +160,60 @@ public class DBPartitionUtil {
 		}
 	}
 
-	public static long getCurrentCompanyId() {
-		long companyId = CompanyThreadLocal.getCompanyId();
+	public static List<String> getConfigurationPids(long companyId)
+		throws SQLException {
 
-		if (!DBPartition.isPartitionEnabled()) {
-			return companyId;
+		List<String> pids = new ArrayList<>();
+
+		Connection connection = CurrentConnectionUtil.getConnection(
+			InfrastructureUtil.getDataSource());
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				StringBundler.concat(
+					"select configurationId from ", getPartitionName(companyId),
+					".Configuration_ where dictionary like ",
+					"'%org.apache.felix.configadmin.revision%'"));
+			ResultSet resultSet = preparedStatement.executeQuery()) {
+
+			while (resultSet.next()) {
+				pids.add(resultSet.getString(1));
+			}
 		}
 
-		if (companyId == CompanyConstants.SYSTEM) {
-			companyId = _defaultCompanyId;
+		return pids;
+	}
+
+	public static Map<String, String> getConfigurations(long companyId)
+		throws SQLException {
+
+		Connection connection = CurrentConnectionUtil.getConnection(
+			InfrastructureUtil.getDataSource());
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				StringBundler.concat(
+					"select configurationId, dictionary from ",
+					getPartitionName(companyId), ".Configuration_"));
+			ResultSet resultSet = preparedStatement.executeQuery()) {
+
+			Map<String, String> configurations = new HashMap<>();
+
+			while (resultSet.next()) {
+				configurations.put(
+					resultSet.getString(1), resultSet.getString(2));
+			}
+
+			return configurations;
+		}
+	}
+
+	public static String getPartitionName(long companyId) {
+		if ((companyId == CompanyConstants.SYSTEM) ||
+			(companyId == _defaultCompanyId)) {
+
+			return _defaultPartitionName;
 		}
 
-		return companyId;
+		return _DATABASE_PARTITION_SCHEMA_NAME_PREFIX + companyId;
 	}
 
 	public static boolean insertDBPartition(long companyId)
@@ -196,13 +246,13 @@ public class DBPartitionUtil {
 			Connection connection, boolean copyData, String viewName)
 		throws Exception {
 
-		long companyId = getCurrentCompanyId();
+		long companyId = CompanyThreadLocal.getNonsystemCompanyId();
 
 		if (companyId == _defaultCompanyId) {
 			return;
 		}
 
-		String partitionName = _getPartitionName(companyId);
+		String partitionName = getPartitionName(companyId);
 
 		try (Statement statement = connection.createStatement()) {
 			statement.execute(
@@ -294,7 +344,7 @@ public class DBPartitionUtil {
 		Connection connection = CurrentConnectionUtil.getConnection(
 			InfrastructureUtil.getDataSource());
 
-		String partitionName = _getPartitionName(companyId);
+		String partitionName = getPartitionName(companyId);
 
 		try (AutoCloseable autoCloseable = _disableAutoCommit(connection);
 			PreparedStatement preparedStatement = connection.prepareStatement(
@@ -345,6 +395,14 @@ public class DBPartitionUtil {
 				}
 			}
 
+			try (Statement statement = connection.createStatement()) {
+				for (String createRuleSQL :
+						_dbPartitionDB.getCreateRulesSQL(partitionName)) {
+
+					statement.executeUpdate(createRuleSQL);
+				}
+			}
+
 			connection.commit();
 		}
 		catch (Exception exception) {
@@ -371,9 +429,9 @@ public class DBPartitionUtil {
 
 		DBInspector dbInspector = new DBInspector(connection);
 
-		String fromPartitionName = _getPartitionName(fromCompanyId);
+		String fromPartitionName = getPartitionName(fromCompanyId);
 		List<String> quartzTableNames = new ArrayList<>();
-		String toPartitionName = _getPartitionName(toCompanyId);
+		String toPartitionName = getPartitionName(toCompanyId);
 
 		try (AutoCloseable autoCloseable = _disableAutoCommit(connection);
 			PreparedStatement preparedStatement = connection.prepareStatement(
@@ -405,8 +463,8 @@ public class DBPartitionUtil {
 
 						if (_isCopyableQuartzTable(fromTableName)) {
 							_copyQuartzTableRow(
-								_defaultPartitionName, fromCompanyId,
-								fromTableName, toCompanyId, statement);
+								fromCompanyId, fromTableName, toCompanyId,
+								statement);
 
 							quartzTableNames.add(fromTableName);
 						}
@@ -422,6 +480,12 @@ public class DBPartitionUtil {
 						_dbPartitionDB.getCreateTableSQL(
 							fromPartitionName, toPartitionName, fromTableName,
 							toTableName));
+
+					if (StringUtil.equalsIgnoreCase(
+							fromTableName, "Configuration_")) {
+
+						continue;
+					}
 
 					statement.executeUpdate(
 						_getCopyDataSQL(
@@ -441,20 +505,44 @@ public class DBPartitionUtil {
 								"companyId = ", fromCompanyId));
 					}
 
-					if (fromTableName.equals("Group_")) {
+					if (StringUtil.equalsIgnoreCase(fromTableName, "Group_")) {
 						statement.executeUpdate(
 							StringBundler.concat(
 								"update ", partitionTableName, " set classPK ",
 								"= ", toCompanyId, " where classPK = ",
 								fromCompanyId));
 					}
+
+					if (StringUtil.equalsIgnoreCase(
+							fromTableName, "ResourcePermission")) {
+
+						statement.executeUpdate(
+							StringBundler.concat(
+								"update ", partitionTableName, " set primKey ",
+								"= '", toCompanyId, "', primKeyId = ",
+								toCompanyId, " where primKey = '",
+								fromCompanyId, "' and scope = ",
+								ResourceConstants.SCOPE_COMPANY));
+					}
+				}
+			}
+
+			try (Statement statement = connection.createStatement()) {
+				for (String createRuleSQL :
+						_dbPartitionDB.getCreateRulesSQL(toPartitionName)) {
+
+					statement.executeUpdate(createRuleSQL);
 				}
 			}
 
 			connection.commit();
+
+			_reloadQuartzJobs(fromCompanyId, toCompanyId);
 		}
 		catch (Exception exception1) {
-			if (!_dbPartitionDB.isDDLTransactional()) {
+			if (!_dbPartitionDB.isDDLTransactional() ||
+				(exception1 instanceof SchedulerException)) {
+
 				try (Statement statement = connection.createStatement()) {
 					statement.executeUpdate(
 						_dbPartitionDB.getDropPartitionSQL(toPartitionName));
@@ -476,36 +564,27 @@ public class DBPartitionUtil {
 	}
 
 	private static void _copyQuartzTableRow(
-			String partitionName, long fromCompanyId, String tableName,
-			long toCompanyId, Statement statement)
+			long fromCompanyId, String tableName, long toCompanyId,
+			Statement statement)
 		throws Exception {
 
-		List<String> columnNames = _getColumnNames(
-			statement.getConnection(), tableName);
-
-		String columnName = "";
-
 		if (StringUtil.endsWith(tableName, "JOB_DETAILS")) {
-			columnNames.removeIf(value -> value.equalsIgnoreCase("job_name"));
+			_replaceCompanyIdQuartzColumns(
+				fromCompanyId, toCompanyId, tableName, statement, "job_name");
+		}
+		else if (StringUtil.equalsIgnoreCase(tableName, "QUARTZ_TRIGGERS") ||
+				 StringUtil.equalsIgnoreCase(
+					 tableName, "QUARTZ_FIRED_TRIGGERS")) {
 
-			columnName = "job_name";
+			_replaceCompanyIdQuartzColumns(
+				fromCompanyId, toCompanyId, tableName, statement, "job_name",
+				"trigger_name");
 		}
 		else {
-			columnNames.removeIf(
-				value -> value.equalsIgnoreCase("trigger_name"));
-
-			columnName = "trigger_name";
+			_replaceCompanyIdQuartzColumns(
+				fromCompanyId, toCompanyId, tableName, statement,
+				"trigger_name");
 		}
-
-		statement.executeUpdate(
-			StringBundler.concat(
-				"insert into ", partitionName, StringPool.PERIOD, tableName,
-				"(", columnName, ", ", StringUtil.merge(columnNames),
-				") select replace (", columnName, ", '@", fromCompanyId,
-				"', '@", toCompanyId, "') as ", columnName, ", ",
-				StringUtil.merge(columnNames), " from ", partitionName,
-				StringPool.PERIOD, tableName,
-				_getQuartzWhereClauseSQL(fromCompanyId, tableName)));
 	}
 
 	private static void _deleteCompanyData(
@@ -578,7 +657,7 @@ public class DBPartitionUtil {
 
 				statement.executeUpdate(
 					_dbPartitionDB.getDropPartitionSQL(
-						_getPartitionName(companyId)));
+						getPartitionName(companyId)));
 			}
 		}
 		catch (Exception exception) {
@@ -639,7 +718,7 @@ public class DBPartitionUtil {
 					StringBundler.concat(
 						"Unable to roll back the extraction of database ",
 						"partition. Recover a backup of the database ",
-						"partition ", _getPartitionName(companyId), "."),
+						"partition ", getPartitionName(companyId), "."),
 					exception2);
 			}
 
@@ -654,7 +733,7 @@ public class DBPartitionUtil {
 			DBInspector dbInspector)
 		throws Exception {
 
-		String partitionName = _getPartitionName(companyId);
+		String partitionName = getPartitionName(companyId);
 
 		statement.executeUpdate(
 			_dbPartitionDB.getDropViewSQL(partitionName, tableName));
@@ -809,14 +888,14 @@ public class DBPartitionUtil {
 			public String getCatalog() throws SQLException {
 				return _dbPartitionDB.getCatalog(
 					connection,
-					_getPartitionName(CompanyThreadLocal.getCompanyId()));
+					getPartitionName(CompanyThreadLocal.getCompanyId()));
 			}
 
 			@Override
 			public String getSchema() {
 				return _dbPartitionDB.getSchema(
 					connection,
-					_getPartitionName(CompanyThreadLocal.getCompanyId()));
+					getPartitionName(CompanyThreadLocal.getCompanyId()));
 			}
 
 			@Override
@@ -885,7 +964,7 @@ public class DBPartitionUtil {
 			private void _setPartition() throws SQLException {
 				long companyId = CompanyThreadLocal.getCompanyId();
 
-				String partitionName = _getPartitionName(companyId);
+				String partitionName = getPartitionName(companyId);
 
 				_dbPartitionDB.setPartition(connection, partitionName);
 
@@ -920,16 +999,6 @@ public class DBPartitionUtil {
 			fromPartitionName, StringPool.PERIOD, fromTableName, whereClause);
 	}
 
-	private static String _getPartitionName(long companyId) {
-		if ((companyId == CompanyConstants.SYSTEM) ||
-			(companyId == _defaultCompanyId)) {
-
-			return _defaultPartitionName;
-		}
-
-		return _DATABASE_PARTITION_SCHEMA_NAME_PREFIX + companyId;
-	}
-
 	private static String _getQuartzWhereClauseSQL(
 		long companyId, String tableName) {
 
@@ -945,7 +1014,7 @@ public class DBPartitionUtil {
 
 		AutoCloseable autoCloseable = null;
 		List<String> copiedTableNames = new ArrayList<>();
-		String partitionName = _getPartitionName(companyId);
+		String partitionName = getPartitionName(companyId);
 
 		Connection connection = CurrentConnectionUtil.getConnection(
 			InfrastructureUtil.getDataSource());
@@ -1063,7 +1132,8 @@ public class DBPartitionUtil {
 			DBInspector dbInspector = new DBInspector(connection);
 
 			if ((dbInspector.isControlTable(tableName) &&
-				 (getCurrentCompanyId() != _defaultCompanyId)) ||
+				 (CompanyThreadLocal.getNonsystemCompanyId() !=
+					 _defaultCompanyId)) ||
 				dbInspector.hasView(tableName)) {
 
 				return true;
@@ -1103,12 +1173,74 @@ public class DBPartitionUtil {
 		_deleteData(tableName, fromPartitionName, statement, whereClause);
 	}
 
+	private static void _reloadQuartzJobs(long fromCompanyId, long toCompanyId)
+		throws SchedulerException {
+
+		for (SchedulerResponse schedulerResponse :
+				SchedulerEngineHelperUtil.getScheduledJobs()) {
+
+			Message message = schedulerResponse.getMessage();
+
+			String jobName = schedulerResponse.getJobName();
+
+			if ((message.getLong("companyId") != fromCompanyId) ||
+				!jobName.contains(String.valueOf(toCompanyId))) {
+
+				continue;
+			}
+
+			SchedulerEngineHelperUtil.delete(
+				jobName, schedulerResponse.getGroupName(),
+				schedulerResponse.getStorageType());
+
+			message.remove(SchedulerEngine.JOB_STATE);
+
+			message.put("companyId", toCompanyId);
+
+			SchedulerEngineHelperUtil.schedule(
+				schedulerResponse.getTrigger(),
+				schedulerResponse.getStorageType(),
+				schedulerResponse.getDescription(),
+				schedulerResponse.getDestinationName(), message);
+		}
+	}
+
+	private static void _replaceCompanyIdQuartzColumns(
+			long fromCompanyId, long toCompanyId, String tableName,
+			Statement statement, String... replaceColumnNames)
+		throws Exception {
+
+		List<String> columnNames = _getColumnNames(
+			statement.getConnection(), tableName);
+
+		List<String> replaceSQLs = new ArrayList<>();
+
+		for (String replaceColumnName : replaceColumnNames) {
+			replaceSQLs.add(
+				StringBundler.concat(
+					"replace (", replaceColumnName, ", '@", fromCompanyId,
+					"', '@", toCompanyId, "') as ", replaceColumnName));
+
+			columnNames.removeIf(
+				value -> value.equalsIgnoreCase(replaceColumnName));
+		}
+
+		statement.executeUpdate(
+			StringBundler.concat(
+				"insert into ", tableName, "(",
+				StringUtil.merge(replaceColumnNames), ", ",
+				StringUtil.merge(columnNames), ") select ",
+				StringUtil.merge(replaceSQLs), ", ",
+				StringUtil.merge(columnNames), " from ", tableName,
+				_getQuartzWhereClauseSQL(fromCompanyId, tableName)));
+	}
+
 	private static void _restoreView(
 			long companyId, String tableName, Statement statement,
 			DBInspector dbInspector)
 		throws Exception {
 
-		String partitionName = _getPartitionName(companyId);
+		String partitionName = getPartitionName(companyId);
 
 		if (dbInspector.hasColumn(tableName, "companyId")) {
 			_moveCompanyData(
@@ -1188,7 +1320,7 @@ public class DBPartitionUtil {
 						super.execute(
 							_dbPartitionDB.getCreateViewSQL(
 								_defaultPartitionName,
-								_getPartitionName(companyId), tableName));
+								getPartitionName(companyId), tableName));
 					}
 
 					return returnValue;

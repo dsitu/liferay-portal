@@ -123,22 +123,22 @@ public class ObjectDefinitionImpl extends ObjectDefinitionBaseImpl {
 		}
 
 		if (!isRootDescendantNode()) {
-			if (isModifiable() && isSystem()) {
+			if (isModifiableAndSystem()) {
 				return ObjectDefinitionUtil.
 					getModifiableSystemObjectDefinitionRESTContextPath(
 						getName());
 			}
 
-			return "/c/" +
-				TextFormatter.formatPlural(
-					StringUtil.toLowerCase(getShortName()));
+			String lowerCaseShortName = StringUtil.toLowerCase(getShortName());
+
+			return "/c/" + TextFormatter.formatPlural(lowerCaseShortName);
 		}
 
 		ObjectDefinition rootObjectDefinition =
 			ObjectDefinitionLocalServiceUtil.fetchObjectDefinition(
 				getRootObjectDefinitionId());
 
-		if (isModifiable() && isSystem()) {
+		if (isModifiableAndSystem()) {
 			String rootRESTContextPath =
 				ObjectDefinitionUtil.
 					getModifiableSystemObjectDefinitionRESTContextPath(
@@ -149,9 +149,10 @@ public class ObjectDefinitionImpl extends ObjectDefinitionBaseImpl {
 					getModifiableSystemObjectDefinitionRESTContextPath(
 						getName());
 
-			return rootRESTContextPath +
-				restContextPath.substring(
-					restContextPath.lastIndexOf(StringPool.SLASH));
+			restContextPath = restContextPath.substring(
+				restContextPath.lastIndexOf(StringPool.SLASH));
+
+			return rootRESTContextPath + restContextPath;
 		}
 
 		return StringBundler.concat(
@@ -208,6 +209,15 @@ public class ObjectDefinitionImpl extends ObjectDefinitionBaseImpl {
 		}
 
 		return true;
+	}
+
+	@Override
+	public boolean isModifiableAndSystem() {
+		if (isModifiable() && isSystem()) {
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override

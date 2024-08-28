@@ -6,6 +6,10 @@
 import {getRandomInt} from '../utils/getRandomInt';
 import {ApiHelpers} from './ApiHelpers';
 
+type EmailNotificationRecipients = {
+	[key in 'roleName']?: string;
+};
+
 type TNotificationTemplate = {
 	editorType: string;
 	id?: number;
@@ -23,9 +27,8 @@ type TRecipient = {
 	fromName: {
 		[key: string]: string;
 	};
-	to: {
-		[key: string]: string;
-	};
+	to: LocalizedValue<string> | EmailNotificationRecipients[];
+	toType: string;
 };
 
 export class NotificationApiHelper {
@@ -65,7 +68,9 @@ export class NotificationApiHelper {
 	}
 
 	async postRandomNotificationTemplate(
-		name?: string
+		name: string = 'test ' + getRandomInt(),
+		fromEmail: string = 'do-not-replay@liferay.com',
+		toEmail: string = 'to' + getRandomInt() + '@liferay.com'
 	): Promise<TNotificationTemplate> {
 		const requestBody = {
 			editorType: 'richText',
@@ -73,13 +78,14 @@ export class NotificationApiHelper {
 			recipientType: 'email',
 			recipients: [
 				{
-					from: 'do-not-reply@liferay.com',
+					from: fromEmail,
 					fromName: {
-						en_US: 'do-not-replay@liferay.com',
+						en_US: fromEmail,
 					},
 					to: {
-						en_US: 'to' + getRandomInt() + '@liferay.com',
+						en_US: toEmail,
 					},
+					toType: 'email',
 				},
 			],
 			subject: {

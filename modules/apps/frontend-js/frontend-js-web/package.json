@@ -1,15 +1,15 @@
 {
 	"dependencies": {
 		"@clayui/alert": "3.111.0",
-		"@clayui/button": "3.115.0",
-		"@clayui/form": "3.115.0",
+		"@clayui/button": "3.116.0",
+		"@clayui/form": "3.116.0",
 		"@clayui/icon": "3.111.0",
 		"@clayui/loading-indicator": "3.111.0",
-		"@clayui/modal": "3.115.0",
+		"@clayui/modal": "3.117.0",
 		"@liferay/accessibility-settings-state-web": "*",
 		"@liferay/frontend-js-react-web": "*",
 		"@liferay/frontend-js-state-web": "*",
-		"@liferay/js-api": "0.6.0-pre.0",
+		"@liferay/js-api": "0.6.0",
 		"classnames": "2.3.1",
 		"lodash.groupby": "4.6.0",
 		"lodash.isequal": "4.5.0",
@@ -29,11 +29,10 @@
 	"main": "index.es.js",
 	"name": "frontend-js-web",
 	"scripts": {
-		"build": "node-scripts build",
+		"build": "node-scripts build && node-scripts build:custom",
 		"checkFormat": "node-scripts format --check",
 		"format": "node-scripts format",
-		"test": "liferay-npm-scripts test",
-		"watch": "liferay-npm-scripts webpack --watch"
+		"test": "node-scripts test"
 	},
-	"version": "5.0.109"
+	"version": "5.0.114"
 }

@@ -923,7 +923,14 @@ public class PortalImpl implements Portal {
 				else if (allowedDomain.equals(domain)) {
 					return url;
 				}
-				else if (allowedDomain.equals("PORTAL_DOMAIN")) {
+				else if (allowedDomain.equals("PORTAL_DOMAINS")) {
+					if (Validator.isNotNull(
+							VirtualHostLocalServiceUtil.fetchVirtualHost(
+								domain))) {
+
+						return url;
+					}
+
 					ServiceContext serviceContext =
 						ServiceContextThreadLocal.getServiceContext();
 
@@ -2390,7 +2397,11 @@ public class PortalImpl implements Portal {
 	public String getHost(HttpServletRequest httpServletRequest) {
 		httpServletRequest = getOriginalServletRequest(httpServletRequest);
 
-		String host = httpServletRequest.getServerName();
+		String host = httpServletRequest.getHeader("Host");
+
+		if (Validator.isNull(host)) {
+			host = httpServletRequest.getServerName();
+		}
 
 		if (host != null) {
 			host = StringUtil.toLowerCase(host.trim());

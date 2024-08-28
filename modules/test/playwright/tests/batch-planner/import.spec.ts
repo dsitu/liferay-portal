@@ -528,7 +528,7 @@ test('can import CSV file with an unexisting field', async ({
 			testAggregationField: '0',
 			testAutoIncrementField: 'prefix-1-suffix',
 			testBooleanField: false,
-			testDateField: '2024-01-05T00:00:00Z',
+			testDateField: '2024-01-05T00:00:00.000Z',
 			testDateTimeField: '2024-01-05T15:00:00.000Z',
 			testDecimalField: 10.2,
 			testFormulaField: 1,
@@ -537,8 +537,8 @@ test('can import CSV file with an unexisting field', async ({
 			testLongTextField: 'This is a long text to test testLongTextField',
 			testPrecisionDecimalField: 321.123,
 			testRelationshipERC: '',
-			testRichTextField: 'null',
-			testRichTextFieldRawText: 'null',
+			testRichTextField: '',
+			testRichTextFieldRawText: '',
 			testTextField: 'Test',
 		},
 	]);
@@ -594,7 +594,7 @@ test('can import CSV file with custom columns order', async ({
 			testAggregationField: '0',
 			testAutoIncrementField: 'prefix-1-suffix',
 			testBooleanField: true,
-			testDateField: '2024-01-05T00:00:00Z',
+			testDateField: '2024-01-05T00:00:00.000Z',
 			testDateTimeField: '2024-01-05T15:00:00.000Z',
 			testDecimalField: 10.2,
 			testFormulaField: 1,
@@ -604,7 +604,7 @@ test('can import CSV file with custom columns order', async ({
 			testPrecisionDecimalField: 321.123,
 			testRelationshipERC: '',
 			testRichTextField:
-				'<p>This is a long text <strong>with some fomatting</strong> to text\n  testRichTextField  </p>',
+				'<p>This is a long text <strong>with some fomatting</strong> to text testRichTextField </p>',
 			testRichTextFieldRawText:
 				'This is a long text with some fomatting to text testRichTextField',
 			testTextField: 'Test',
@@ -660,7 +660,7 @@ test('can import CSV file with multiple site scoped object entries', async ({
 			testAggregationField: '0',
 			testAutoIncrementField: 'prefix-1-suffix',
 			testBooleanField: true,
-			testDateField: '2024-01-05T00:00:00Z',
+			testDateField: '2024-01-05T00:00:00.000Z',
 			testDateTimeField: '2024-01-05T15:00:00.000Z',
 			testDecimalField: 10.2,
 			testFormulaField: 1,
@@ -671,7 +671,7 @@ test('can import CSV file with multiple site scoped object entries', async ({
 			testPrecisionDecimalField: 321.123,
 			testRelationshipERC: '',
 			testRichTextField:
-				'<p>This is a long text <strong>with some fomatting</strong> to text\n  testRichTextField. The first entry.  </p>',
+				'<p>This is a long text <strong>with some fomatting</strong> to text testRichTextField. The first entry. </p>',
 			testRichTextFieldRawText:
 				'This is a long text with some fomatting to text testRichTextField. The first entry.',
 			testTextField: 'Test_FirstEntry',
@@ -692,7 +692,7 @@ test('can import CSV file with multiple site scoped object entries', async ({
 			testAggregationField: '0',
 			testAutoIncrementField: 'prefix-2-suffix',
 			testBooleanField: false,
-			testDateField: '2024-01-06T00:00:00Z',
+			testDateField: '2024-01-06T00:00:00.000Z',
 			testDateTimeField: '2024-01-06T15:00:00.000Z',
 			testDecimalField: 11.2,
 			testFormulaField: 1,
@@ -703,7 +703,7 @@ test('can import CSV file with multiple site scoped object entries', async ({
 			testPrecisionDecimalField: 123.321,
 			testRelationshipERC: '',
 			testRichTextField:
-				'<p>This is a long text <strong>with some fomatting</strong> to text\n  testRichTextField. The second entry.  </p>',
+				'<p>This is a long text <strong>with some fomatting</strong> to text testRichTextField. The second entry. </p>',
 			testRichTextFieldRawText:
 				'This is a long text with some fomatting to text testRichTextField. The second entry.',
 			testTextField: 'Test_SecondEntry',
@@ -771,7 +771,7 @@ test('can import CSV file with new and existing site scoped object entries', asy
 			testAggregationField: '0',
 			testAutoIncrementField: 'prefix-1-suffix',
 			testBooleanField: false,
-			testDateField: '2024-01-05T00:00:00Z',
+			testDateField: '2024-01-05T00:00:00.000Z',
 			testDateTimeField: '2024-01-05T15:00:00.000Z',
 			testDecimalField: 10.2,
 			testFormulaField: 1,
@@ -782,7 +782,7 @@ test('can import CSV file with new and existing site scoped object entries', asy
 			testPrecisionDecimalField: 321.123,
 			testRelationshipERC: '',
 			testRichTextField:
-				'<p>This is a long text <strong>with some fomatting</strong> to text\n  testRichTextField.  </p>',
+				'<p>This is a long text <strong>with some fomatting</strong> to text testRichTextField. </p>',
 			testRichTextFieldRawText:
 				'This is a long text with some fomatting to text testRichTextField.',
 			testTextField: 'Test',
@@ -803,7 +803,7 @@ test('can import CSV file with new and existing site scoped object entries', asy
 			testAggregationField: '0',
 			testAutoIncrementField: 'prefix-2-suffix',
 			testBooleanField: true,
-			testDateField: '2024-01-06T00:00:00Z',
+			testDateField: '2024-01-06T00:00:00.000Z',
 			testDateTimeField: '2024-01-06T15:00:00.000Z',
 			testDecimalField: 11.2,
 			testFormulaField: 1,
@@ -814,7 +814,7 @@ test('can import CSV file with new and existing site scoped object entries', asy
 			testPrecisionDecimalField: 123.321,
 			testRelationshipERC: '',
 			testRichTextField:
-				'<p>This is a long text <strong>with some fomatting</strong> to text\n  testRichTextField. New entry.  </p>',
+				'<p>This is a long text <strong>with some fomatting</strong> to text testRichTextField. New entry. </p>',
 			testRichTextFieldRawText:
 				'This is a long text with some fomatting to text testRichTextField. New entry.',
 			testTextField: 'Test_SecondEntry',
@@ -881,7 +881,7 @@ test('can import CSV file with new and modified existing company scoped object e
 			testAggregationField: '0',
 			testAutoIncrementField: 'prefix-1-suffix',
 			testBooleanField: true,
-			testDateField: '2024-01-05T00:00:00Z',
+			testDateField: '2024-01-05T00:00:00.000Z',
 			testDateTimeField: '2024-01-05T15:00:00.000Z',
 			testDecimalField: 10.2,
 			testFormulaField: 1,
@@ -892,7 +892,7 @@ test('can import CSV file with new and modified existing company scoped object e
 			testPrecisionDecimalField: 321.123,
 			testRelationshipERC: '',
 			testRichTextField:
-				'<p>This is a long text <strong>with some fomatting</strong> to text\n  testRichTextField. The modified entry.  </p>',
+				'<p>This is a long text <strong>with some fomatting</strong> to text testRichTextField. The modified entry. </p>',
 			testRichTextFieldRawText:
 				'This is a long text with some fomatting to text testRichTextField. The modified entry.',
 			testTextField: 'Test_Modified',
@@ -912,7 +912,7 @@ test('can import CSV file with new and modified existing company scoped object e
 			testAggregationField: '0',
 			testAutoIncrementField: 'prefix-2-suffix',
 			testBooleanField: false,
-			testDateField: '2024-01-06T00:00:00Z',
+			testDateField: '2024-01-06T00:00:00.000Z',
 			testDateTimeField: '2024-01-06T15:00:00.000Z',
 			testDecimalField: 11.2,
 			testFormulaField: 1,
@@ -923,7 +923,7 @@ test('can import CSV file with new and modified existing company scoped object e
 			testPrecisionDecimalField: 123.321,
 			testRelationshipERC: '',
 			testRichTextField:
-				'<p>This is a long text <strong>with some fomatting</strong> to text\n  testRichTextField. The new entry.  </p>',
+				'<p>This is a long text <strong>with some fomatting</strong> to text testRichTextField. The new entry. </p>',
 			testRichTextFieldRawText:
 				'This is a long text with some fomatting to text testRichTextField. The new entry.',
 			testTextField: 'Test_NewEntry',

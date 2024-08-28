@@ -356,6 +356,7 @@ public class PageElement implements Serializable {
 
 		COLLECTION("Collection"), COLLECTION_ITEM("CollectionItem"),
 		COLUMN("Column"), DROP_ZONE("DropZone"), FORM("Form"),
+		FORM_STEP("FormStep"), FORM_STEP_CONTAINER("FormStepContainer"),
 		FRAGMENT("Fragment"), FRAGMENT_DROP_ZONE("FragmentDropZone"),
 		ROOT("Root"), ROW("Row"), SECTION("Section"), WIDGET("Widget");
 
@@ -432,7 +433,10 @@ public class PageElement implements Serializable {
 				Object[] valueArray = (Object[])value;
 
 				for (int i = 0; i < valueArray.length; i++) {
-					if (valueArray[i] instanceof String) {
+					if (valueArray[i] instanceof Map) {
+						sb.append(_toJSON((Map<String, ?>)valueArray[i]));
+					}
+					else if (valueArray[i] instanceof String) {
 						sb.append("\"");
 						sb.append(valueArray[i]);
 						sb.append("\"");

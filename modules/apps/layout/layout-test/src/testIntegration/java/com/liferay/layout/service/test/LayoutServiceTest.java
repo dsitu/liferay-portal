@@ -192,12 +192,11 @@ public class LayoutServiceTest {
 	public void testFetchFirstLayoutPublishedNoLayoutPublished()
 		throws Exception {
 
-		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
-
 		LayoutTestUtil.addTypeContentLayout(_group);
 		LayoutTestUtil.addTypeContentLayout(_group);
+		LayoutTestUtil.addTypeContentLayout(_group);
 
-		_assertFetchFirstLayoutAsGuestUser(layout);
+		_assertFetchFirstLayoutAsGuestUser(null);
 	}
 
 	@Test
@@ -347,7 +346,7 @@ public class LayoutServiceTest {
 		).build();
 
 		return _layoutService.addLayout(
-			_group.getGroupId(), privateLayout,
+			null, _group.getGroupId(), privateLayout,
 			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, 0, 0, map, map,
 			Collections.emptyMap(), Collections.emptyMap(),
 			Collections.emptyMap(), LayoutConstants.TYPE_PORTLET, typeSettings,

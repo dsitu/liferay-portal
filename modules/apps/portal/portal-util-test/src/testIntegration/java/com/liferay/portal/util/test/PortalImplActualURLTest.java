@@ -85,13 +85,13 @@ public class PortalImplActualURLTest {
 		Group group = _userGroup.getGroup();
 
 		Layout homeLayout = _layoutLocalService.addLayout(
-			_serviceContext.getUserId(), group.getGroupId(), true,
+			null, _serviceContext.getUserId(), group.getGroupId(), true,
 			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, "Home", StringPool.BLANK,
 			StringPool.BLANK, LayoutConstants.TYPE_PORTLET, false,
 			StringPool.BLANK, _serviceContext);
 
 		_layoutLocalService.addLayout(
-			_serviceContext.getUserId(), group.getGroupId(), true,
+			null, _serviceContext.getUserId(), group.getGroupId(), true,
 			homeLayout.getLayoutId(), "Child Layout", StringPool.BLANK,
 			StringPool.BLANK, LayoutConstants.TYPE_PORTLET, false,
 			StringPool.BLANK, _serviceContext);
@@ -123,19 +123,19 @@ public class PortalImplActualURLTest {
 		Group group = _userGroup.getGroup();
 
 		Layout homeLayout = _layoutLocalService.addLayout(
-			_serviceContext.getUserId(), group.getGroupId(), true,
+			null, _serviceContext.getUserId(), group.getGroupId(), true,
 			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, "Home", StringPool.BLANK,
 			StringPool.BLANK, LayoutConstants.TYPE_PORTLET, false,
 			StringPool.BLANK, _serviceContext);
 
 		Layout nodeLayout = _layoutLocalService.addLayout(
-			_serviceContext.getUserId(), group.getGroupId(), true,
+			null, _serviceContext.getUserId(), group.getGroupId(), true,
 			homeLayout.getLayoutId(), "Node", StringPool.BLANK,
 			StringPool.BLANK, LayoutConstants.TYPE_NODE, false,
 			StringPool.BLANK, _serviceContext);
 
 		Layout childLayout = _layoutLocalService.addLayout(
-			_serviceContext.getUserId(), group.getGroupId(), true,
+			null, _serviceContext.getUserId(), group.getGroupId(), true,
 			nodeLayout.getLayoutId(), "Child Layout", StringPool.BLANK,
 			StringPool.BLANK, LayoutConstants.TYPE_PORTLET, false,
 			StringPool.BLANK, _serviceContext);
@@ -198,12 +198,22 @@ public class PortalImplActualURLTest {
 
 	@Test
 	public void testNullFriendlyURLNoLayoutPublished() throws Exception {
-		Layout layout = LayoutTestUtil.addTypeContentLayout(_group);
-
 		LayoutTestUtil.addTypeContentLayout(_group);
 		LayoutTestUtil.addTypeContentLayout(_group);
+		LayoutTestUtil.addTypeContentLayout(_group);
 
-		_assertGetActualURLAsGuestUser(layout);
+		try {
+			_getActualURLAsGuestUserParameterMap();
+
+			Assert.fail();
+		}
+		catch (NoSuchLayoutException noSuchLayoutException) {
+			Assert.assertEquals(
+				noSuchLayoutException.getMessage(),
+				StringBundler.concat(
+					"{groupId=", _group.getGroupId(), ", privateLayout=false}"),
+				noSuchLayoutException.getMessage());
+		}
 	}
 
 	@Test

@@ -184,6 +184,16 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
 	}
 
 	@Override
+	public <T> void saveCompanyConfiguration(
+			long companyId, String pid, Dictionary<String, Object> properties)
+		throws ConfigurationException {
+
+		_saveFactoryConfiguration(
+			pid, ExtendedObjectClassDefinition.Scope.COMPANY, companyId,
+			properties);
+	}
+
+	@Override
 	public <T> void saveGroupConfiguration(
 			Class<T> clazz, long groupId, Dictionary<String, Object> properties)
 		throws ConfigurationException {
@@ -303,10 +313,10 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
 	}
 
 	private <T> String _getSettingsId(Class<T> clazz) {
+		String settingsId = null;
+
 		ExtendedObjectClassDefinition eocd = clazz.getAnnotation(
 			ExtendedObjectClassDefinition.class);
-
-		String settingsId = null;
 
 		if (eocd != null) {
 			settingsId = eocd.settingsId();

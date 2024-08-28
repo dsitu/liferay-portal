@@ -20,6 +20,7 @@ import {
 	fetch,
 	navigate as navigateUtil,
 	openConfirmModal,
+	openSimpleInputModal,
 	openToast,
 } from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
@@ -174,8 +175,6 @@ export default function ChangeTrackingRenderView({
 		view: VIEW_UNIFIED,
 	});
 
-	const currentContentType = state.contentType;
-
 	useEffect(() => {
 		setLoading(true);
 
@@ -234,7 +233,7 @@ export default function ChangeTrackingRenderView({
 
 				if (
 					newState.view === VIEW_UNIFIED &&
-					currentContentType !== CONTENT_TYPE_WORKFLOW &&
+					newState.contentType !== CONTENT_TYPE_WORKFLOW &&
 					((newState.contentType === CONTENT_TYPE_RENDER &&
 						!Object.prototype.hasOwnProperty.call(
 							json,
@@ -274,7 +273,6 @@ export default function ChangeTrackingRenderView({
 			});
 	}, [
 		childEntries,
-		currentContentType,
 		dataURL,
 		parentEntries,
 		refresh,
@@ -837,17 +835,66 @@ export default function ChangeTrackingRenderView({
 
 		const workflowActionsDropdownItems = [];
 
-		state.renderData.workflowActions?.forEach((workflowAction) => {
-			workflowActionsDropdownItems.push({
-				label: workflowAction.label,
-				onClick: () =>
-					openWorkflowAssignModal(
-						workflowAction.href,
-						workflowAction.label,
-						workflowAction.modalHeight
-					),
-				symbolLeft: 'workflow',
-			});
+		state.renderData.workflowActions?.forEach((workflowAction, i) => {
+			if (workflowAction.modalHeight) {
+				workflowActionsDropdownItems.push({
+					label: workflowAction.label,
+					onClick: () =>
+						Liferay.Util.openModal({
+							center: true,
+							customEvents: [
+								{
+									name: `${namespace}workflowTaskUpdated`,
+									onEvent() {
+										const iframe = document.querySelector(
+											'.liferay-modal iframe'
+										);
+
+										iframe.contentWindow.location.reload();
+
+										setShowWorkflowSuccessMessage(true);
+									},
+								},
+							],
+							height: workflowAction.modalHeight,
+							onOpen: () => setShowWorkflowSuccessMessage(false),
+							size: 'lg',
+							title: workflowAction.label,
+							url: workflowAction.href,
+						}),
+					symbolLeft: 'workflow',
+				});
+			}
+			else {
+				workflowActionsDropdownItems.push({
+					id: `${namespace}${i}taskChangeStatusLink`,
+					label: workflowAction.label,
+					onClick: () => {
+						setShowWorkflowSuccessMessage(false);
+
+						openSimpleInputModal({
+							buttonSubmitLabel: Liferay.Language.get('done'),
+							center: true,
+							dialogTitle: workflowAction.label,
+							formSubmitURL: workflowAction.href,
+							mainFieldComponent: 'textarea',
+							mainFieldLabel: Liferay.Language.get('comment'),
+							mainFieldName: 'comment',
+							mainFieldPlaceholder:
+								Liferay.Language.get('comment'),
+							namespace,
+							onFormSuccess: () =>
+								setTimeout(
+									() => setShowWorkflowSuccessMessage(true),
+									250
+								),
+							required: false,
+							size: 'lg',
+						});
+					},
+					symbolLeft: 'workflow',
+				});
+			}
 		});
 
 		if (workflowActionsDropdownItems.length) {
@@ -1118,7 +1165,7 @@ export default function ChangeTrackingRenderView({
 				currentTypeName = node.typeName;
 
 				rows.push(
-					<ClayTable.Row divider>
+					<ClayTable.Row divider key={node.typeName}>
 						<ClayTable.Cell>{node.typeName}</ClayTable.Cell>
 					</ClayTable.Row>
 				);
@@ -1127,6 +1174,7 @@ export default function ChangeTrackingRenderView({
 			rows.push(
 				<ClayTable.Row
 					className="cursor-pointer"
+					key={node.nodeId}
 					onClick={() => handleNavigation(node.nodeId)}
 				>
 					<ClayTable.Cell>
@@ -1432,7 +1480,6 @@ export default function ChangeTrackingRenderView({
 							setState((prevState) => ({
 								...prevState,
 								contentType: CONTENT_TYPE_WORKFLOW,
-								view: VIEW_UNIFIED,
 							}))
 						}
 					>
@@ -1533,7 +1580,12 @@ export default function ChangeTrackingRenderView({
 							{Liferay.FeatureFlags['LPD-10703'] ? (
 								<>
 									<WorkflowStatusLabel
-										workflowStatus={workflowStatus}
+										workflowStatus={
+											state.renderData.workflowData
+												? state.renderData.workflowData
+														.status
+												: workflowStatus
+										}
 									/>
 								</>
 							) : null}

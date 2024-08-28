@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -607,6 +608,15 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 			basePropertyName, testSuiteName, testBatchName, null, type, true);
 	}
 
+	protected JobProperty getJobProperty(
+		String basePropertyName, String testSuiteName, String testBatchName,
+		String ruleName, File testBaseDir, JobProperty.Type type) {
+
+		return _getJobProperty(
+			basePropertyName, testSuiteName, testBatchName, ruleName,
+			testBaseDir, type, true);
+	}
+
 	protected List<PathMatcher> getPathMatchers(
 		List<JobProperty> jobProperties) {
 
@@ -873,6 +883,10 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 					"Row length does not match headers length");
 			}
 
+			if (_csvReportRows.contains(csvReportRow)) {
+				return;
+			}
+
 			_csvReportRows.add(csvReportRow);
 		}
 
@@ -903,6 +917,28 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 				for (String string : strings) {
 					add(string);
 				}
+			}
+
+			@Override
+			public boolean equals(Object object) {
+				if (this == object) {
+					return true;
+				}
+
+				if (!(object instanceof Row) ||
+					!Objects.equals(toString(), object.toString())) {
+
+					return false;
+				}
+
+				return true;
+			}
+
+			@Override
+			public int hashCode() {
+				String string = toString();
+
+				return string.hashCode();
 			}
 
 			@Override
@@ -1007,6 +1043,20 @@ public abstract class BatchTestClassGroup extends BaseTestClassGroup {
 
 		return JobPropertyFactory.newJobProperty(
 			basePropertyName, testSuiteName, testBatchName, getJob(),
+			testBaseDir, type, useBasePropertyName);
+	}
+
+	private JobProperty _getJobProperty(
+		String basePropertyName, String testSuiteName, String testBatchName,
+		String ruleName, File testBaseDir, JobProperty.Type type,
+		boolean useBasePropertyName) {
+
+		if (testBatchName == null) {
+			testBatchName = getBatchName();
+		}
+
+		return JobPropertyFactory.newJobProperty(
+			basePropertyName, testSuiteName, testBatchName, ruleName, getJob(),
 			testBaseDir, type, useBasePropertyName);
 	}
 

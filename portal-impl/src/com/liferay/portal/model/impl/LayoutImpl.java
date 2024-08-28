@@ -386,16 +386,13 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public ColorScheme getColorScheme() throws PortalException {
-		if (isInheritLookAndFeel()) {
-			LayoutSet layoutSet = getLayoutSet();
-
-			return layoutSet.getColorScheme();
+		if (_colorScheme != null) {
+			return _colorScheme;
 		}
 
-		Theme theme = getTheme();
+		_colorScheme = _getColorScheme();
 
-		return ThemeLocalServiceUtil.getColorScheme(
-			getCompanyId(), theme.getThemeId(), getColorSchemeId());
+		return _colorScheme;
 	}
 
 	/**
@@ -412,16 +409,16 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public String getCssText() throws PortalException {
-		Layout masterLayout = _getMasterLayout();
-
-		if (masterLayout != null) {
-			return masterLayout.getCssText();
-		}
-
 		if (isInheritLookAndFeel()) {
 			LayoutSet layoutSet = getLayoutSet();
 
 			return layoutSet.getCss();
+		}
+
+		Layout masterLayout = _getMasterLayout();
+
+		if (masterLayout != null) {
+			return masterLayout.getCssText();
 		}
 
 		return getCss();
@@ -610,8 +607,16 @@ public class LayoutImpl extends LayoutBaseImpl {
 			LayoutFriendlyURLLocalServiceUtil.getLayoutFriendlyURLs(getPlid());
 
 		for (LayoutFriendlyURL layoutFriendlyURL : layoutFriendlyURLs) {
+			if (!LanguageUtil.isAvailableLocale(
+					layoutFriendlyURL.getGroupId(),
+					layoutFriendlyURL.getLanguageId())) {
+
+				continue;
+			}
+
 			friendlyURLMap.put(
-				LocaleUtil.fromLanguageId(layoutFriendlyURL.getLanguageId()),
+				LocaleUtil.fromLanguageId(
+					layoutFriendlyURL.getLanguageId(), false),
 				layoutFriendlyURL.getFriendlyURL());
 		}
 
@@ -876,18 +881,18 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public Theme getTheme() throws PortalException {
-		if (isInheritLookAndFeel()) {
-			LayoutSet layoutSet = getLayoutSet();
-
-			return layoutSet.getTheme();
+		if (_theme != null) {
+			return _theme;
 		}
 
-		return ThemeLocalServiceUtil.getTheme(getCompanyId(), getThemeId());
+		_theme = _getTheme();
+
+		return _theme;
 	}
 
 	@Override
 	public String getThemeSetting(String key, String device) {
-		return getThemeSetting(key, device, isInheritLookAndFeel());
+		return getThemeSetting(key, device, false);
 	}
 
 	@Override
@@ -1170,6 +1175,12 @@ public class LayoutImpl extends LayoutBaseImpl {
 	 */
 	@Override
 	public boolean isInheritLookAndFeel() {
+		Layout masterLayout = _getMasterLayout();
+
+		if (masterLayout != null) {
+			return masterLayout.isInheritLookAndFeel();
+		}
+
 		if (Validator.isNull(getThemeId()) ||
 			Validator.isNull(getColorSchemeId())) {
 
@@ -1629,6 +1640,25 @@ public class LayoutImpl extends LayoutBaseImpl {
 		}
 	}
 
+	private ColorScheme _getColorScheme() throws PortalException {
+		if (isInheritLookAndFeel()) {
+			LayoutSet layoutSet = getLayoutSet();
+
+			return layoutSet.getColorScheme();
+		}
+
+		Layout masterLayout = _getMasterLayout();
+
+		if (masterLayout != null) {
+			return ThemeLocalServiceUtil.getColorScheme(
+				getCompanyId(), masterLayout.getThemeId(),
+				masterLayout.getColorSchemeId());
+		}
+
+		return ThemeLocalServiceUtil.getColorScheme(
+			getCompanyId(), getThemeId(), getColorSchemeId());
+	}
+
 	private String _getFaviconURL(long faviconFileEntryId) {
 		if (faviconFileEntryId <= 0) {
 			return null;
@@ -1766,6 +1796,23 @@ public class LayoutImpl extends LayoutBaseImpl {
 		return portletPreferences;
 	}
 
+	private Theme _getTheme() throws PortalException {
+		if (isInheritLookAndFeel()) {
+			LayoutSet layoutSet = getLayoutSet();
+
+			return layoutSet.getTheme();
+		}
+
+		Layout masterLayout = _getMasterLayout();
+
+		if (masterLayout != null) {
+			return ThemeLocalServiceUtil.getTheme(
+				masterLayout.getCompanyId(), masterLayout.getThemeId());
+		}
+
+		return ThemeLocalServiceUtil.getTheme(getCompanyId(), getThemeId());
+	}
+
 	private String _getURL(
 			HttpServletRequest httpServletRequest, boolean resetMaxState,
 			boolean resetRenderParameters)
@@ -1863,10 +1910,12 @@ public class LayoutImpl extends LayoutBaseImpl {
 		_initFriendlyURLKeywords();
 	}
 
+	private ColorScheme _colorScheme;
 	private String _faviconURL;
 	private LayoutSet _layoutSet;
 	private transient LayoutType _layoutType;
 	private Layout _masterLayout;
+	private Theme _theme;
 	private UnicodeProperties _typeSettingsUnicodeProperties;
 
 }

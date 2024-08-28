@@ -278,7 +278,7 @@ definition {
 			AssertTextEquals(
 				key_cellName1 = "Commerce Account",
 				key_cellName2 = "Buyer User",
-				key_columnNumber = 8,
+				key_columnNumber = 9,
 				locator1 = "CommerceEntry#TABLE_CELL_BY_COLUMN_ORDER_NO_TITLE",
 				value1 = "$ 24.00");
 
@@ -289,7 +289,7 @@ definition {
 			AssertTextEquals(
 				key_cellName1 = "Commerce Account",
 				key_cellName2 = "Buyer User",
-				key_columnNumber = 8,
+				key_columnNumber = 9,
 				locator1 = "CommerceEntry#TABLE_CELL_BY_COLUMN_ORDER_NO_TITLE",
 				value1 = "$ 12.00");
 		}
@@ -432,144 +432,6 @@ definition {
 				shippingMethod = "Standard",
 				taxValue = 24,
 				totalValue = 264);
-		}
-	}
-
-	@description = "COMMERCE-9787 | Apply a discount with eligibility only to account groups that are eligible"
-	@priority = 5
-	test CanApplySpecificAccountGroupCouponCodeDiscount {
-		property custom.properties = "company.security.strangers.verify=false${line.separator}jsonws.web.service.paths.excludes=";
-		property portal.acceptance = "true";
-
-		task ("Given a Minium site") {
-			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
-		}
-
-		task ("And 2 accounts associated with a buyer user") {
-			CommerceEntry.addAccountEntryUser(
-				accountName = "Commerce Account",
-				accountType = "Business",
-				agreeToTermsAndAnswerReminderQuery = "true",
-				createNewAccount = "true",
-				requireReset = "false",
-				userEmailAddress = "buyer@liferay.com",
-				userFirstName = "Buyer",
-				userLastName = "User",
-				userRole = "Buyer",
-				userScreenName = "buyeruser",
-				userSiteMembership = "Minium");
-
-			CommerceEntry.addAccountEntryUser(
-				accountName = "Commerce Account 2",
-				accountType = "Business",
-				createNewAccount = "true",
-				existingUser = "true",
-				userEmailAddress = "buyer@liferay.com",
-				userFirstName = "Buyer",
-				userLastName = "User",
-				userRole = "Buyer",
-				userScreenName = "buyeruser",
-				userSiteMembership = "Minium");
-		}
-
-		task ("And one of the accounts is part of an account group") {
-			JSONAccountGroup.addAccountGroup(accountGroupName = "AG1");
-
-			AccountGroups.openAccountGroupsAdmin();
-
-			LexiconEntry.gotoEntry(rowEntry = "AG1");
-
-			AccountGroups.viewDefault(tabName = "Accounts");
-
-			AccountGroups.addAssignee(
-				accountGroupName = "AG1",
-				assigneeNames = "Commerce Account");
-		}
-
-		task ("And a discount with coupon code is created") {
-			CommerceJSONDiscountsAPI._addDiscount(
-				active = "true",
-				couponCode = "FREESHIPPING",
-				level = "L1",
-				maximumDiscountAmount = 100,
-				percentageLevel1 = 100,
-				target = "shipping",
-				title = "Free Shipping Discount",
-				useCouponCode = "true",
-				usePercentage = "true");
-		}
-
-		task ("And AG1 is eligible for the discount") {
-			CommerceJSONDiscountsAPI._addDiscountAccountGroup(
-				accountGroupName = "AG1",
-				discountTitle = "Free Shipping Discount");
-		}
-
-		task ("And Coupon Code Entry widget is deployed on the Checkout page") {
-			Navigator.openWithAppendToBaseURL(urlAppend = "web/minium/checkout");
-
-			CommerceAcceleratorsInitializer.addPortlet(portletName = "Coupon Code Entry");
-		}
-
-		task ("When the buyer logs in") {
-			User.logoutPG();
-
-			CommerceLogin.miniumLogin(
-				password = PropsUtil.get("default.admin.password"),
-				urlAppend = "web/minium",
-				userEmailAddress = "buyer@liferay.com");
-		}
-
-		task ("And a new order is created") {
-			FrontStore.addInitializerProductToCart(
-				productName = "U-Joint",
-				productQuantity = 1);
-		}
-
-		task ("Then the coupon code is successfully applied") {
-			CommerceNavigator.gotoMiniCart();
-
-			Button.click(button = "View Details");
-
-			Button.click(button = "Checkout");
-
-			FrontStore.applyCouponCode(discountCouponCode = "FREESHIPPING");
-		}
-
-		task ("And on the Order Summary, the discount is shown applied to the shipping") {
-			CommerceCheckout.initializersCheckout(
-				deliveryDiscountPercentage = 100,
-				deliveryDiscountValue = "15.00",
-				deliveryValue = "$ 15.00",
-				newAddressAddress = "Test Address",
-				newAddressCity = "Test City",
-				newAddressCountry = "United States",
-				newAddressName = "Address Name",
-				newAddressZipCode = "Test Zip Code",
-				productName = "U-Joint",
-				productQuantity = 1,
-				productUnitPrice = 24,
-				shippingMethod = "Standard");
-		}
-
-		task ("When Commerce Account 2 is set as active") {
-			CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
-
-			CommerceAcceleratorsInitializer.selectAccountFromAccountSelector(accountName = "Commerce Account 2");
-		}
-
-		task ("And a new order is created") {
-			FrontStore.addInitializerProductToCart(
-				productName = "U-Joint",
-				productQuantity = 1);
-		}
-
-		task ("Then an error is thrown when the coupon code is applied") {
-			CommerceCheckout.gotoCheckout();
-
-			FrontStore.applyCouponCode(
-				discountCouponCode = "FREESHIPPING",
-				errorMessage = "Error: The account is not qualified to use the discount.");
 		}
 	}
 
@@ -1145,82 +1007,6 @@ definition {
 					key_title = "Add Account Groups",
 					locator1 = "CommerceEntry#ADD_RELATION_FIELD_SELECT");
 			}
-		}
-	}
-
-	@description = "This is a test for COMMERCE-12062 and COMMERCE-12091, Verify that is not possible to use the comma and that the Minimum Amount must be filled with a number"
-	@priority = 5
-	test CanUserReciveAnErrorForEmptyOrDecimalCommaNumberForMinimumAmountField {
-		property portal.acceptance = "true";
-
-		task ("Given a Discount is created") {
-			CommerceJSONDiscountsAPI._addDiscount(
-				active = "true",
-				level = "L1",
-				percentageLevel1 = 10,
-				target = "products",
-				title = "Discount 1 10% off",
-				usePercentage = "true");
-
-			CommerceNavigator.goToDiscountAdmin();
-
-			CommerceNavigator.gotoEntry(entryName = "Discount 1 10% off");
-		}
-
-		task ("And a new rule is added") {
-			CommerceDiscounts.addNewDiscountsRule(
-				name = "Rule",
-				type = "Cart Total");
-
-			AssertElementPresent(
-				locator1 = "ClientExtensionEntry#REMOTE_APPS_ERROR_WITH_MESSAGE",
-				text = "Cart total minimum amount cannot be empty and must be a decimal number.");
-		}
-
-		task ("And the user leaves the Minimum Amount empty") {
-			LexiconEntry.gotoEntryMenuItem(
-				menuItem = "Edit",
-				rowEntry = "Rule");
-
-			SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
-
-			AssertTextEquals(
-				key_fieldLabel = "Cart Total Minimum Amount",
-				locator1 = "TextInput#GENERIC_TEXT_INPUT",
-				value1 = "");
-		}
-
-		task ("Then the user will receive an error") {
-			Button.clickSave();
-
-			AssertElementPresent(
-				key_field = "The Cart Total Minimum Amount field is required.",
-				locator1 = "RaylifeAP#FIELD_REQUIRED_MESSAGE");
-		}
-
-		task ("And if the user add a number with the comma into the field") {
-			Click(locator1 = "Icon#CLOSE");
-
-			SelectFrameTop();
-
-			LexiconEntry.gotoEntryMenuItem(
-				menuItem = "Edit",
-				rowEntry = "Rule");
-
-			SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
-
-			Type.sendKeys(
-				key_fieldLabel = "Cart Total Minimum Amount",
-				locator1 = "TextInput#GENERIC_TEXT_INPUT",
-				value1 = "1000,00");
-
-			Button.clickSave();
-		}
-
-		task ("Then the user will receive an error") {
-			AssertElementPresent(
-				locator1 = "ClientExtensionEntry#REMOTE_APPS_ERROR_WITH_MESSAGE",
-				text = "Cart total minimum amount cannot be empty and must be a decimal number.");
 		}
 	}
 

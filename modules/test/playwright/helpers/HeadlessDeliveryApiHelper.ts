@@ -11,6 +11,7 @@ import {ApiHelpers} from './ApiHelpers';
 interface createSitePageProps {
 	pageDefinition?: PageDefinition;
 	pagePermissions?: PagePermission[];
+	parentSitePage?: {friendlyUrlPath: string};
 	siteId: string;
 	title: string;
 }
@@ -65,12 +66,19 @@ export class HeadlessDeliveryApiHelper {
 	async createSitePage({
 		pageDefinition,
 		pagePermissions,
+		parentSitePage,
 		siteId,
 		title,
 	}: createSitePageProps): Promise<Layout> {
 		return this.apiHelpers.post(
 			`${this.apiHelpers.baseUrl}${this.basePath}/sites/${siteId}/site-pages`,
-			{data: {pageDefinition, pagePermissions, title}}
+			{data: {pageDefinition, pagePermissions, parentSitePage, title}}
+		);
+	}
+
+	async deleteBlog(blogId: number) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/blog-postings/${blogId}`
 		);
 	}
 
@@ -91,6 +99,12 @@ export class HeadlessDeliveryApiHelper {
 	async getSiteDocumentsPage(siteId: string, sort: string = 'id') {
 		return this.apiHelpers.get(
 			`${this.apiHelpers.baseUrl}${this.basePath}/sites/${siteId}/documents?sort=${sort}`
+		);
+	}
+
+	async getSitePages(siteId: string) {
+		return this.apiHelpers.get(
+			`${this.apiHelpers.baseUrl}${this.basePath}/sites/${siteId}/site-pages`
 		);
 	}
 
@@ -131,6 +145,27 @@ export class HeadlessDeliveryApiHelper {
 				data: {
 					articleBody,
 					title,
+				},
+				failOnStatusCode: true,
+			}
+		);
+	}
+
+	async postMessageBoardThread({
+		articleBody,
+		headline,
+		siteId,
+	}: {
+		articleBody: string;
+		headline: string;
+		siteId: string;
+	}): Promise<MessageBoardThread> {
+		return this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/sites/${siteId}/message-board-threads`,
+			{
+				data: {
+					articleBody,
+					headline,
 				},
 				failOnStatusCode: true,
 			}
@@ -246,6 +281,28 @@ export class HeadlessDeliveryApiHelper {
 					document: JSON.stringify(document),
 					file,
 				},
+			}
+		);
+	}
+
+	async putBlog(
+		blogPostingId: number | string,
+		blog?: {
+			articleBody?: string;
+			headline?: string;
+		}
+	): Promise<any> {
+		blog = {
+			articleBody: getRandomString(),
+			headline: getRandomString(),
+			...(blog || {}),
+		};
+
+		return this.apiHelpers.put(
+			`${this.apiHelpers.baseUrl}${this.basePath}/blog-postings/${blogPostingId}`,
+			{
+				data: blog,
+				failOnStatusCode: true,
 			}
 		);
 	}

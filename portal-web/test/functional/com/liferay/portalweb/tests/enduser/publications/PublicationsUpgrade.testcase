@@ -1,7 +1,7 @@
 @component-name = "portal-upgrades"
 definition {
 
-	property database.types = "db2,mariadb,mysql,oracle,postgresql,sqlserver,sybase";
+	property database.types = "db2,mariadb,mysql,oracle,postgresql,sqlserver";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property test.liferay.virtual.instance = "false";
@@ -74,7 +74,7 @@ definition {
 	@priority = 5
 	test ViewAdminRoleNameArchive7310 {
 		property data.archive.type = "data-archive-publications";
-		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver,sybase";
+		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver";
 		property portal.version = "7.3.10";
 		property test.run.environment = "EE";
 
@@ -131,9 +131,25 @@ definition {
 	}
 
 	@priority = 5
+	test ViewNotOutOfDatePublicationsArchiveAutoUpgrade7413 {
+		property data.archive.type = "data-archive-publications";
+		property database.auto.upgrade.enabled = "true";
+		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver";
+		property portal.version = "7.4.13";
+		property test.run.environment = "EE";
+
+		PublicationsNavigator.openPublicationsAdmin();
+
+		AssertTextEquals(
+			key_publicationName = "Publication 2 Name",
+			locator1 = "Publications#IN_PROGRESS_STATUS",
+			value1 = "In Progress");
+	}
+
+	@priority = 5
 	test ViewNoUnrelatedPreviewsArchive7310 {
 		property data.archive.type = "data-archive-publications-with-unrelated-previews-generated";
-		property database.types = "db2,mariadb,mysql,sybase";
+		property database.types = "db2,mariadb,mysql";
 		property portal.version = "7.3.10";
 		property test.run.environment = "EE";
 
@@ -152,7 +168,7 @@ definition {
 	@priority = 5
 	test ViewOutOfDatePublicationsArchive7310 {
 		property data.archive.type = "data-archive-publications";
-		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver,sybase";
+		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver";
 		property portal.version = "7.3.10";
 		property test.run.environment = "EE";
 
@@ -190,7 +206,7 @@ definition {
 	@priority = 5
 	test ViewPublicationsUserRolePermissionsArchive7310 {
 		property data.archive.type = "data-archive-publications";
-		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver,sybase";
+		property database.types = "mariadb,mysql,oracle,postgresql,sqlserver";
 		property portal.version = "7.3.10";
 		property test.run.environment = "EE";
 

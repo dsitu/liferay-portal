@@ -229,11 +229,12 @@
 		</or>
 	</condition>
 
-	<fail message="Please use Java 1.8 or 21.">
+	<fail message="Please use Java 1.8, 17, or 21.">
 		<condition>
 			<not>
 				<or>
 					<equals arg1="${java.specification.version}" arg2="1.8" />
+					<equals arg1="${java.specification.version}" arg2="17" />
 					<equals arg1="${java.specification.version}" arg2="21" />
 					<isset property="env.JENKINS_HOME" />
 				</or>
@@ -299,10 +300,27 @@ Error-Prone was automatically installed. Please rerun your task.
 		</then>
 	</if>
 
-	<fail message=".${line.separator}Please set the environment variable ANT_OPTS to the recommended value of${line.separator}&quot;-Xmx2560m&quot;.">
+	<property name="ant.options.add.opens" value="--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/sun.net.www.protocol.http=ALL-UNNAMED --add-opens=java.base/sun.net.www.protocol.https=ALL-UNNAMED --add-opens=java.base/sun.util.calendar=ALL-UNNAMED --add-opens=jdk.zipfs/jdk.nio.zipfs=ALL-UNNAMED" />
+
+	<fail message=".${line.separator}Please update the environment variable ANT_OPTS to open packages for deep reflection${line.separator}&quot;${ant.options.add.opens}&quot;.">
+		<condition>
+			<and>
+				<not>
+					<equals arg1="${java.specification.version}" arg2="1.8" />
+				</not>
+				<not>
+					<contains string="${env.ANT_OPTS}" substring="${ant.options.add.opens}" />
+				</not>
+			</and>
+		</condition>
+	</fail>
+
+	<property name="ant.options.jvm.memory" value="-Xmx2560m" />
+
+	<fail message=".${line.separator}Please update the environment variable ANT_OPTS to allocate extra memory for the JVM${line.separator}&quot;${ant.options.jvm.memory}&quot;.">
 		<condition>
 			<not>
-				<isset property="env.ANT_OPTS" />
+				<contains string="${env.ANT_OPTS}" substring="-Xmx" />
 			</not>
 		</condition>
 	</fail>
@@ -691,6 +709,20 @@ information.
 		</sequential>
 	</macrodef>
 
+	<macrodef name="generate-backend-batch-junit-report-modules">
+		<attribute name="test.class.name" />
+
+		<sequential>
+			<generate-backend-batch-junit-report
+				junit.failure.count="1"
+				junit.failure.message.element="&lt;failure message=&quot;Failed to run test on CI&quot; /&gt;"
+				test.class.name="@{test.class.name}"
+				test.command.name="testRun"
+				test.results.dir="modules/test-results"
+			/>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="generate-pom-info">
 		<sequential>
 			<property name="artifact.name" value="${ant.project.name}" />
@@ -727,6 +759,12 @@ information.
 						<entry key="groupId" value="${project.groupId}" />
 						<entry key="version" value="${artifact.version}" />
 					</propertyfile>
+
+					<replaceregexp
+						file="classes/META-INF/maven/${project.groupId}/${project.artifactId}/pom.properties"
+						match="#.*[0-9].*\n"
+						replace=""
+					/>
 				</then>
 			</if>
 		</sequential>
@@ -1227,7 +1265,7 @@ information.
 				<jvmarg value="-Xss2m" />
 				<jvmarg value="-Dexternal-properties=${test.properties}" />
 				<jvmarg value="-Dfixed.issues=${fixed.issues}" />
-				<jvmarg value="-Djava.locale.providers=JRE,COMPAT,CLDR" />
+				<jvmarg value="-Djava.locale.providers=CLDR" />
 				<jvmarg value="-Dliferay.log.dir=${liferay.home}/logs" />
 				<jvmarg value="-Dosgi.state.dir=${liferay.home}/osgi/state" />
 				<jvmarg value="-Drelease.versions.test.other.dir=${release.versions.test.other.dir}" />
@@ -1683,6 +1721,69 @@ artifact.url=${remote.repository.cdn.url}/com/liferay/portal/com.liferay.${proce
 			<gradle-execute task="setUpLibs">
 				<arg value="--build-file=${project.dir}/modules/util.gradle" />
 			</gradle-execute>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="setup-nodejs-sass">
+		<sequential>
+			<mkdir dir="${nodejs.sass.dir}" />
+			<if>
+				<os family="mac" />
+				<then>
+					<if>
+						<os arch="arm64" />
+						<then>
+							<mirrors-get
+								dest="${nodejs.sass.dir}"
+								src="${nodejs.sass.mac.arm.url}"
+							/>
+							<untar
+								compression="gzip"
+								dest="${nodejs.sass.dir}"
+								src="${nodejs.sass.dir}/${nodejs.sass.mac.arm.name}"
+							/>
+						</then>
+						<else>
+							<mirrors-get
+								dest="${nodejs.sass.dir}"
+								src="${nodejs.sass.mac.url}"
+							/>
+							<untar
+								compression="gzip"
+								dest="${nodejs.sass.dir}"
+								src="${nodejs.sass.dir}/${nodejs.sass.mac.name}"
+							/>
+						</else>
+					</if>
+				</then>
+				<elseif>
+					<os family="unix" />
+					<then>
+						<mirrors-get
+							dest="${nodejs.sass.dir}"
+							src="${nodejs.sass.linux.url}"
+						/>
+						<untar
+							compression="gzip"
+							dest="${nodejs.sass.dir}"
+							src="${nodejs.sass.dir}/${nodejs.sass.linux.name}"
+						/>
+					</then>
+				</elseif>
+				<elseif>
+					<os family="windows" />
+					<then>
+						<mirrors-get
+							dest="${nodejs.sass.dir}"
+							src="${nodejs.sass.windows.url}"
+						/>
+						<unzip
+							dest="${nodejs.sass.dir}"
+							src="${nodejs.sass.dir}/${nodejs.sass.windows.name}"
+						/>
+					</then>
+				</elseif>
+			</if>
 		</sequential>
 	</macrodef>
 
@@ -2153,16 +2254,6 @@ rerun your task.
 		</java>
 	</target>
 
-	<target name="generate-backend-batch-junit-report-modules">
-		<generate-backend-batch-junit-report
-			junit.failure.count="1"
-			junit.failure.message.element="&lt;failure message=&quot;Failed to run test on CI&quot; /&gt;"
-			test.class.name="${test.class.name}"
-			test.command.name="testRun"
-			test.results.dir="modules/test-results"
-		/>
-	</target>
-
 	<target name="generate-code-coverage-report">
 		<delete dir="${jacoco.report.folder}" />
 		<mkdir dir="${jacoco.report.folder}" />
@@ -2256,7 +2347,25 @@ rerun your task.
 	</target>
 
 	<target name="gradle-execute-modules">
-		<gradle-execute dir="${dir}" gradlejvmargs="${gradle.jvm.args}" task="${test.task}" test.name="${test.name}" />
+		<local name="test.task.name" />
+
+		<antelope:stringutil property="test.task.name" string="${test.task}">
+			<antelope:replace regex="\:" replacement="." />
+		</antelope:stringutil>
+
+		<trycatch property="exception.message">
+			<try>
+				<lstopwatch action="start" name="test.execution.duration${test.task.name}" />
+
+				<gradle-execute dir="${dir}" gradlejvmargs="${gradle.jvm.args}" task="${test.task}" test.name="${test.name}" />
+			</try>
+			<catch>
+				<fail>${exception.message}</fail>
+			</catch>
+			<finally>
+				<lstopwatch action="total" name="test.execution.duration${test.task.name}" />
+			</finally>
+		</trycatch>
 	</target>
 
 	<target name="print-properties">

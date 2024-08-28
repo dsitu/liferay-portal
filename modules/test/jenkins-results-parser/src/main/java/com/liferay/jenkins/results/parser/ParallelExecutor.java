@@ -84,6 +84,16 @@ public class ParallelExecutor<T> {
 		return String.valueOf(_id);
 	}
 
+	public boolean hasFailedTask() {
+		if ((_taskRunnable == null) ||
+			(_taskRunnable.getFailedTaskCount() <= 0)) {
+
+			return false;
+		}
+
+		return true;
+	}
+
 	public void shutdownNow() {
 		_executorService.shutdownNow();
 	}

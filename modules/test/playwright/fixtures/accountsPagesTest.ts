@@ -7,7 +7,13 @@ import {test} from '@playwright/test';
 
 import {AccountAccountGroupsPage} from '../pages/account-admin-web/AccountAccountGroupsPage';
 import {AccountContactAddressPage} from '../pages/account-admin-web/AccountContactAddressPage';
+import {AccountEntriesManagementPortletPage} from '../pages/account-admin-web/AccountEntriesManagementPortletPage';
+import {AccountManagementWidgetPage} from '../pages/account-admin-web/AccountManagementWidgetPage';
+import {AccountOrganizationsPage} from '../pages/account-admin-web/AccountOrganizationsPage';
+import {AccountRolesPage} from '../pages/account-admin-web/AccountRolesPage';
+import {AccountUsersPage} from '../pages/account-admin-web/AccountUsersPage';
 import {AccountsPage} from '../pages/account-admin-web/AccountsPage';
+import {EditAccountChannelDefaultsPage} from '../pages/account-admin-web/EditAccountChannelDefaultsPage';
 import {EditAccountContactAddressPage} from '../pages/account-admin-web/EditAccountContactAddressPage';
 import {EditAccountContactInformationPage} from '../pages/account-admin-web/EditAccountContactInformationPage';
 import {EditAccountContactPage} from '../pages/account-admin-web/EditAccountContactPage';
@@ -19,7 +25,13 @@ import {EditAccountWebsitePage} from '../pages/account-admin-web/EditAccountWebs
 const accountsPagesTest = test.extend<{
 	accountAccountGroupsPage: AccountAccountGroupsPage;
 	accountContactAddressPage: AccountContactAddressPage;
+	accountEntriesManagementPortletPage: AccountEntriesManagementPortletPage;
+	accountManagementWidgetPage: AccountManagementWidgetPage;
+	accountOrganizationsPage: AccountOrganizationsPage;
+	accountRolesPage: AccountRolesPage;
+	accountUsersPage: AccountUsersPage;
 	accountsPage: AccountsPage;
+	editAccountChannelDefaultsPage: EditAccountChannelDefaultsPage;
 	editAccountContactAddressPage: EditAccountContactAddressPage;
 	editAccountContactInformationPage: EditAccountContactInformationPage;
 	editAccountContactPage: EditAccountContactPage;
@@ -34,8 +46,26 @@ const accountsPagesTest = test.extend<{
 	accountContactAddressPage: async ({page}, use) => {
 		await use(new AccountContactAddressPage(page));
 	},
+	accountEntriesManagementPortletPage: async ({page}, use) => {
+		await use(new AccountEntriesManagementPortletPage(page));
+	},
+	accountManagementWidgetPage: async ({page}, use) => {
+		await use(new AccountManagementWidgetPage(page));
+	},
+	accountOrganizationsPage: async ({page}, use) => {
+		await use(new AccountOrganizationsPage(page));
+	},
+	accountRolesPage: async ({page}, use) => {
+		await use(new AccountRolesPage(page));
+	},
+	accountUsersPage: async ({page}, use) => {
+		await use(new AccountUsersPage(page));
+	},
 	accountsPage: async ({page}, use) => {
 		await use(new AccountsPage(page));
+	},
+	editAccountChannelDefaultsPage: async ({page}, use) => {
+		await use(new EditAccountChannelDefaultsPage(page));
 	},
 	editAccountContactAddressPage: async ({page}, use) => {
 		await use(new EditAccountContactAddressPage(page));

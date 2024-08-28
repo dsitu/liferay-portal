@@ -216,10 +216,6 @@ public class ObjectDefinitionResourceImpl
 		com.liferay.object.model.ObjectDefinition
 			serviceBuilderObjectDefinition;
 
-		if (!FeatureFlagManagerUtil.isEnabled("LPD-23379")) {
-			objectDefinition.setEnableIndexSearch(() -> true);
-		}
-
 		Locale defaultLocale = LocaleUtil.fromLanguageId(
 			objectDefinition.getDefaultLanguageId());
 
@@ -234,6 +230,8 @@ public class ObjectDefinitionResourceImpl
 					GetterUtil.getBoolean(objectDefinition.getEnableComments()),
 					GetterUtil.getBoolean(
 						objectDefinition.getEnableIndexSearch()),
+					GetterUtil.getBoolean(
+						objectDefinition.getEnableLocalization()),
 					LocalizedMapUtil.getLocalizedMap(
 						objectDefinition.getLabel()),
 					objectDefinition.getName(),
@@ -510,10 +508,6 @@ public class ObjectDefinitionResourceImpl
 					0);
 		}
 		else {
-			if (!FeatureFlagManagerUtil.isEnabled("LPD-23379")) {
-				objectDefinition.setEnableIndexSearch(() -> true);
-			}
-
 			serviceBuilderObjectDefinition =
 				_objectDefinitionService.updateCustomObjectDefinition(
 					objectDefinition.getExternalReferenceCode(),
@@ -574,8 +568,7 @@ public class ObjectDefinitionResourceImpl
 				_objectValidationRuleLocalService.getObjectValidationRules(
 					objectDefinitionId));
 
-		if (serviceBuilderObjectDefinition.isModifiable() &&
-			serviceBuilderObjectDefinition.isSystem() &&
+		if (serviceBuilderObjectDefinition.isModifiableAndSystem() &&
 			ObjectDefinitionUtil.isInvokerBundleAllowed()) {
 
 			objectActions.removeIf(

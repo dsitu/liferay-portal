@@ -1320,11 +1320,21 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
+                dateExpired:
+                    description:
+                        The expiration date of the document.
+                    format: date-time
+                    type: string
                 dateModified:
                     description:
                         The last time a field of the document changed.
                     format: date-time
                     readOnly: true
+                    type: string
+                datePublished:
+                    description:
+                        The document's most recent publication date.
+                    format: date-time
                     type: string
                 description:
                     description:
@@ -3306,6 +3316,13 @@ components:
                     description:
                         The navigation menu item's creator.
                     readOnly: true
+                customFields:
+                    # @review
+                    description:
+                        A list of the custom fields associated with the navigation menu item.
+                    items:
+                        $ref: "#/components/schemas/CustomField"
+                    type: array
                 dateCreated:
                     # @review
                     description:
@@ -3740,7 +3757,7 @@ components:
                     description:
                         The page element's type (collection, collection item, column, drop zone, form, fragment,
                         fragment drop zone, root, row, section or widget).
-                    enum: [Collection, CollectionItem, Column, DropZone, Form, Fragment, FragmentDropZone, Root, Row, Section,
+                    enum: [Collection, CollectionItem, Column, DropZone, Form, FormStep, FormStepContainer, Fragment, FragmentDropZone, Root, Row, Section,
                         Widget]
                     type: string
         PageFormDefinition:
@@ -3788,6 +3805,17 @@ components:
                                 - $ref: "#/components/schemas/SitePageFormSubmissionResult"
                                 - $ref: "#/components/schemas/URLFormSubmissionResult"
                             type: object
+                        formType:
+                            # @review
+                            description:
+                                A flag that indicates whether the page form instance is multi step or not.
+                            enum: [simple, multistep]
+                            type: string
+                        numberOfSteps:
+                            # @review
+                            description:
+                                The definition for the number of steps of the form.
+                            type: integer
                     type: object
                 fragmentStyle:
                     $ref: "#/components/schemas/FragmentStyle"
@@ -3835,6 +3863,53 @@ components:
                     description:
                         The custom name of of a Page form.
                     type: string
+            type: object
+        PageFormStepContainerDefinition:
+            # @review
+            description:
+                Represents a definition of a Page form step container.
+            properties:
+                cssClasses:
+                    # @review
+                    description:
+                        A list of CSS Classes that are applied to the element.
+                    items:
+                        type: string
+                    type: array
+                customCSS:
+                    # @review
+                    description:
+                        Custom CSS that is applied on the fragment.
+                    type: string
+                customCSSViewports:
+                    # @review
+                    description:
+                        The custom CSS viewports of the page collection.
+                    items:
+                        $ref: "#/components/schemas/CustomCSSViewport"
+                    type: array
+                fragmentStyle:
+                    $ref: "#/components/schemas/FragmentStyle"
+                    # @review
+                    description:
+                        The fragment style of a Page row.
+                fragmentViewports:
+                    # @review
+                    description:
+                        A list of fragment viewports of a Page row.
+                    items:
+                        $ref: "#/components/schemas/FragmentViewport"
+                    type: array
+                indexed:
+                    # @review
+                    description:
+                        A flag that indicates whether the page row is indexed or not.
+                    type: boolean
+            type: object
+        PageFormStepDefinition:
+            # @review
+            description:
+                Represents a definition of a Form Step.
             type: object
         PageFragmentDropZoneDefinition:
             # @review
@@ -5851,7 +5926,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.delivery.client', and version '4.0.80'."
+        'com.liferay.headless.delivery.client', and version '4.0.84'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -8560,6 +8635,23 @@ paths:
                                 $ref: "#/components/schemas/DocumentFolder"
             tags: ["DocumentFolder"]
     "/document-shortcuts/{documentShortcutId}":
+        delete:
+            description:
+                Deletes the document shortcut and returns a 204 if the operation succeeds.
+            operationId: deleteDocumentShortcut
+            parameters:
+                - in: path
+                  name: documentShortcutId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["DocumentShortcut"]
         get:
             description:
                 Retrieves the document shortcut.
@@ -8583,6 +8675,65 @@ paths:
                   name: restrictFields
                   schema:
                       type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DocumentShortcut"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/DocumentShortcut"
+            tags: ["DocumentShortcut"]
+        patch:
+            description:
+                Updates only the fields received in the request body, leaving any other fields untouched.
+            operationId: patchDocumentShortcut
+            parameters:
+                - in: path
+                  name: documentShortcutId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DocumentShortcut"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/DocumentShortcut"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DocumentShortcut"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/DocumentShortcut"
+            tags: ["DocumentShortcut"]
+        put:
+            description:
+                Replaces the document shortcut with the information sent in the request body. Any missing fields are
+                deleted, unless they are required.
+            operationId: putDocumentShortcut
+            parameters:
+                - in: path
+                  name: documentShortcutId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DocumentShortcut"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/DocumentShortcut"
             responses:
                 200:
                     content:

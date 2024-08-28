@@ -135,6 +135,17 @@ public class NotificationUpgradeStepRegistrator
 			"3.10.0", "3.10.1",
 			new com.liferay.notification.internal.upgrade.v3_10_1.
 				NotificationRecipientSettingUpgradeProcess());
+
+		registry.register(
+			"3.10.1", "3.10.2",
+			new com.liferay.notification.internal.upgrade.v3_10_2.
+				NotificationRecipientSettingUpgradeProcess());
+
+		registry.register(
+			"3.10.2", "3.10.3",
+			UpgradeProcessFactory.runSQL(
+				"delete from NotificationRecipientSetting where name = " +
+					"'usePreferredLocaleForGuestUsers'"));
 	}
 
 	@Reference

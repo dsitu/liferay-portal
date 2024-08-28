@@ -38,7 +38,8 @@ public class CPSpecificationOptionServiceImpl
 
 	@Override
 	public CPSpecificationOption addCPSpecificationOption(
-			long cpOptionCategoryId, Map<Locale, String> titleMap,
+			String externalReferenceCode, long cpOptionCategoryId,
+			long listTypeDefinitionId, Map<Locale, String> titleMap,
 			Map<Locale, String> descriptionMap, boolean facetable, String key,
 			double priority, ServiceContext serviceContext)
 		throws PortalException {
@@ -52,8 +53,9 @@ public class CPSpecificationOptionServiceImpl
 			CPActionKeys.ADD_COMMERCE_PRODUCT_SPECIFICATION_OPTION);
 
 		return cpSpecificationOptionLocalService.addCPSpecificationOption(
-			getUserId(), cpOptionCategoryId, titleMap, descriptionMap,
-			facetable, key, priority, serviceContext);
+			externalReferenceCode, getUserId(), cpOptionCategoryId,
+			listTypeDefinitionId, titleMap, descriptionMap, facetable, key,
+			priority, serviceContext);
 	}
 
 	@Override
@@ -79,6 +81,27 @@ public class CPSpecificationOptionServiceImpl
 		if (cpSpecificationOption != null) {
 			_cpSpecificationOptionModelResourcePermission.check(
 				getPermissionChecker(), cpSpecificationOption, ActionKeys.VIEW);
+		}
+
+		return cpSpecificationOption;
+	}
+
+	@Override
+	public CPSpecificationOption
+			fetchCPSpecificationOptionByExternalReferenceCode(
+				String externalReferenceCode, long companyId)
+		throws PortalException {
+
+		CPSpecificationOption cpSpecificationOption =
+			cpSpecificationOptionLocalService.
+				fetchCPSpecificationOptionByExternalReferenceCode(
+					externalReferenceCode, companyId);
+
+		if (cpSpecificationOption != null) {
+			_cpSpecificationOptionModelResourcePermission.check(
+				getPermissionChecker(),
+				cpSpecificationOption.getCPSpecificationOptionId(),
+				ActionKeys.VIEW);
 		}
 
 		return cpSpecificationOption;
@@ -124,7 +147,8 @@ public class CPSpecificationOptionServiceImpl
 
 	@Override
 	public CPSpecificationOption updateCPSpecificationOption(
-			long cpSpecificationOptionId, long cpOptionCategoryId,
+			String externalReferenceCode, long cpSpecificationOptionId,
+			long cpOptionCategoryId, long listTypeDefinitionId,
 			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
 			boolean facetable, String key, double priority,
 			ServiceContext serviceContext)
@@ -134,8 +158,9 @@ public class CPSpecificationOptionServiceImpl
 			getPermissionChecker(), cpSpecificationOptionId, ActionKeys.UPDATE);
 
 		return cpSpecificationOptionLocalService.updateCPSpecificationOption(
-			cpSpecificationOptionId, cpOptionCategoryId, titleMap,
-			descriptionMap, facetable, key, priority, serviceContext);
+			externalReferenceCode, cpSpecificationOptionId, cpOptionCategoryId,
+			listTypeDefinitionId, titleMap, descriptionMap, facetable, key,
+			priority, serviceContext);
 	}
 
 	@Reference(

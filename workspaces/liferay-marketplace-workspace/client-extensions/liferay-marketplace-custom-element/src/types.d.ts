@@ -107,6 +107,7 @@ type Categories = {
 	externalReferenceCode: string;
 	id: string;
 	name: string;
+	value?: string;
 	vocabulary: string;
 };
 
@@ -407,6 +408,7 @@ interface PlacedOrderItems {
 }
 
 interface VirtualItem {
+	productVersion?: String;
 	url: string;
 	usages: number;
 	version: string;
@@ -644,6 +646,9 @@ type UserAccount = {
 	password: string;
 	roleBriefs: {id: number; name: string}[];
 	type: string;
+	userAccountContactInformation?: {
+		telephones?: UserAccoutTelephone[];
+	};
 };
 
 type RequestBody = {
@@ -690,6 +695,14 @@ type Industries = {
 	name_i18n: {
 		'en-US': string;
 	};
+};
+
+type UserAccoutTelephone = {
+	extension?: string;
+	id?: number;
+	phoneNumber?: string;
+	phoneType?: string;
+	primary?: boolean;
 };
 
 type UserForm = {

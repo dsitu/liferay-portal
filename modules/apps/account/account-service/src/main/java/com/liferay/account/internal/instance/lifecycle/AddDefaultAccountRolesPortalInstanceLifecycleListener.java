@@ -36,7 +36,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Drew Brokke
  */
 @Component(
-	property = "service.ranking:Integer=100",
+	property = "service.ranking:Integer=300",
 	service = PortalInstanceLifecycleListener.class
 )
 public class AddDefaultAccountRolesPortalInstanceLifecycleListener
@@ -99,8 +99,8 @@ public class AddDefaultAccountRolesPortalInstanceLifecycleListener
 		User guestUser = company.getGuestUser();
 
 		_accountRoleLocalService.addAccountRole(
-			guestUser.getUserId(), AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT,
-			roleName, null,
+			null, guestUser.getUserId(),
+			AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT, roleName, null,
 			AccountRoleConstants.roleDescriptionsMap.get(roleName));
 
 		return true;
@@ -149,7 +149,7 @@ public class AddDefaultAccountRolesPortalInstanceLifecycleListener
 			User guestUser = company.getGuestUser();
 
 			_roleLocalService.addRole(
-				guestUser.getUserId(), null, 0,
+				null, guestUser.getUserId(), null, 0,
 				AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_MANAGER, null,
 				AccountRoleConstants.roleDescriptionsMap.get(
 					AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_MANAGER),

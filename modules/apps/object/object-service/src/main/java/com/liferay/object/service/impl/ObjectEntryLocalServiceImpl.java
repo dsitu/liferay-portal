@@ -56,7 +56,6 @@ import com.liferay.object.internal.filter.parser.DateRangeObjectFilterParser;
 import com.liferay.object.internal.filter.parser.EqualityOperatorsObjectFilterParser;
 import com.liferay.object.internal.filter.parser.InclusionOperatorsObjectFilterParser;
 import com.liferay.object.internal.filter.parser.ObjectFilterParser;
-import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionLocalizationTableFactory;
 import com.liferay.object.internal.sort.SortDSLQueryVisitor;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
@@ -68,6 +67,7 @@ import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.model.ObjectState;
 import com.liferay.object.model.ObjectStateFlow;
 import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionLocalizationTable;
+import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionLocalizationTableFactory;
 import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionTable;
 import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionTableUtil;
 import com.liferay.object.petra.sql.dsl.DynamicObjectRelationshipMappingTable;
@@ -148,6 +148,7 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.auth.GuestOrUserUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
@@ -346,7 +347,7 @@ public class ObjectEntryLocalServiceImpl
 			_executeObjectActions(
 				objectEntry.getCompanyId(),
 				ObjectActionTriggerConstants.KEY_ON_AFTER_ADD, objectDefinition,
-				objectEntry, null, user);
+				objectEntry, null, serviceContext.getLanguageId(), user);
 		}
 		finally {
 			ObjectActionThreadLocal.setClearObjectEntryIdsMap(
@@ -1166,6 +1167,10 @@ public class ObjectEntryLocalServiceImpl
 			),
 			objectEntry.getObjectDefinitionId(), selectExpressions);
 
+		if (ListUtil.isEmpty(rows)) {
+			return Collections.emptyMap();
+		}
+
 		Map<String, Serializable> values = _getValues(
 			objectEntry.getObjectDefinitionId(), rows.get(0),
 			selectExpressions);
@@ -1586,7 +1591,8 @@ public class ObjectEntryLocalServiceImpl
 		_executeObjectActions(
 			objectEntry.getCompanyId(),
 			ObjectActionTriggerConstants.KEY_ON_AFTER_UPDATE, objectDefinition,
-			objectEntry, originalObjectEntry, user);
+			objectEntry, originalObjectEntry, serviceContext.getLanguageId(),
+			user);
 
 		return objectEntry;
 	}
@@ -2019,7 +2025,8 @@ public class ObjectEntryLocalServiceImpl
 	private void _executeObjectActions(
 			long companyId, String objectActionTrigger,
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
-			ObjectEntry originalObjectEntry, User user)
+			ObjectEntry originalObjectEntry, String preferredLanguageId,
+			User user)
 		throws NoSuchObjectDefinitionException {
 
 		ObjectActionEngine objectActionEngine =
@@ -2029,7 +2036,8 @@ public class ObjectEntryLocalServiceImpl
 			objectDefinition.getClassName(), companyId, objectActionTrigger,
 			() -> ObjectEntryUtil.getPayloadJSONObject(
 				_dtoConverterRegistry, _jsonFactory, objectActionTrigger,
-				objectDefinition, objectEntry, originalObjectEntry, user),
+				objectDefinition, objectEntry, originalObjectEntry,
+				preferredLanguageId, user),
 			user.getUserId());
 
 		if (!FeatureFlagManagerUtil.isEnabled("LPS-187142") ||
@@ -2057,7 +2065,7 @@ public class ObjectEntryLocalServiceImpl
 				ObjectActionTriggerConstants.KEY_ON_AFTER_ROOT_UPDATE,
 				_objectDefinitionPersistence.findByPrimaryKey(
 					rootObjectEntry.getObjectDefinitionId()),
-				rootObjectEntry, null, user),
+				rootObjectEntry, null, preferredLanguageId, user),
 			user.getUserId());
 	}
 
@@ -2676,7 +2684,8 @@ public class ObjectEntryLocalServiceImpl
 		}
 
 		if (locale == null) {
-			User user = GuestOrUserUtil.getGuestOrUser();
+			User user = GuestOrUserUtil.getGuestOrUser(
+				CompanyThreadLocal.getCompanyId());
 
 			locale = user.getLocale();
 		}
@@ -2799,11 +2808,16 @@ public class ObjectEntryLocalServiceImpl
 			dynamicObjectRelationshipMappingTable,
 			primaryKeyColumn2.eq(dynamicObjectDefinitionTablePrimaryKeyColumn)
 		).where(
-			ObjectEntryTable.INSTANCE.groupId.eq(
-				groupId
+			ObjectEntryTable.INSTANCE.companyId.eq(
+				objectRelationship.getCompanyId()
 			).and(
-				ObjectEntryTable.INSTANCE.companyId.eq(
-					objectRelationship.getCompanyId())
+				() -> {
+					if (groupId == 0) {
+						return null;
+					}
+
+					return ObjectEntryTable.INSTANCE.groupId.eq(groupId);
+				}
 			).and(
 				ObjectEntryTable.INSTANCE.objectDefinitionId.eq(
 					objectDefinitionId2)
@@ -3292,10 +3306,20 @@ public class ObjectEntryLocalServiceImpl
 
 				ddmExpression.setVariables(columns);
 
+				Class<?> clazz = Double.class;
+
+				String output = GetterUtil.getString(
+					objectFieldSettingsValues.get("output"));
+
+				if (Objects.equals(output, "Integer")) {
+					clazz = Integer.class;
+				}
+
 				try {
 					Expression<?> expression = ddmExpression.getDSLExpression();
 
-					selectExpressions.add(expression.as(objectField.getName()));
+					selectExpressions.add(
+						expression.as(objectField.getName(), clazz));
 				}
 				catch (Exception exception) {
 					_log.error(exception);
@@ -4847,7 +4871,7 @@ public class ObjectEntryLocalServiceImpl
 			}
 		}
 
-		if (!objectField.hasUniqueValues()) {
+		if (!objectField.hasUniqueValues() || objectField.isLocalized()) {
 			return;
 		}
 
@@ -4920,7 +4944,7 @@ public class ObjectEntryLocalServiceImpl
 			  (status != WorkflowConstants.STATUS_DRAFT))) &&
 			(workflowAction == WorkflowConstants.ACTION_SAVE_DRAFT)) {
 
-			throw new ObjectEntryStatusException();
+			throw new ObjectEntryStatusException("Draft status is not allowed");
 		}
 	}
 

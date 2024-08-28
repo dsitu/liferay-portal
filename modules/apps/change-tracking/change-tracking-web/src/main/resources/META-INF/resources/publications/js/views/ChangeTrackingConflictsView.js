@@ -24,6 +24,7 @@ class ChangeTrackingConflictsView extends ChangeTrackingBaseScheduleView {
 
 		const {
 			hasUnapprovedChanges,
+			isEmpty,
 			learnLink,
 			publishURL,
 			redirect,
@@ -39,6 +40,7 @@ class ChangeTrackingConflictsView extends ChangeTrackingBaseScheduleView {
 		} = props;
 
 		this.hasUnapprovedChanges = hasUnapprovedChanges;
+		this.isEmpty = isEmpty;
 		this.learnLink = learnLink;
 		this.publishURL = publishURL;
 		this.redirect = redirect;
@@ -56,8 +58,9 @@ class ChangeTrackingConflictsView extends ChangeTrackingBaseScheduleView {
 			date: null,
 			dateError: '',
 			formError: null,
-			scheduleButtonDisabled:
+			publishButtonDisabled:
 				!!this.unresolvedConflicts.length ||
+				isEmpty ||
 				(this.hasUnapprovedChanges && !this.unapprovedChangesAllowed)
 					? true
 					: false,
@@ -70,6 +73,8 @@ class ChangeTrackingConflictsView extends ChangeTrackingBaseScheduleView {
 	handleSubmit() {
 		if (!this.schedule) {
 			submitForm(document.hrefFm, this.publishURL);
+
+			this.setState({publishButtonDisabled: true});
 
 			return;
 		}
@@ -276,7 +281,7 @@ class ChangeTrackingConflictsView extends ChangeTrackingBaseScheduleView {
 							) : (
 								<button
 									className="btn btn-primary"
-									disabled={this.state.scheduleButtonDisabled}
+									disabled={this.state.publishButtonDisabled}
 									onClick={() => this.handleSubmit()}
 									type="button"
 								>

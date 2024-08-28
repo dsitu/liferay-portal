@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.model.Subscription;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
 import com.liferay.portal.kernel.notifications.UserNotificationManagerUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
@@ -147,7 +148,8 @@ public class SubscriptionSender implements Serializable {
 
 				List<Subscription> subscriptions =
 					SubscriptionLocalServiceUtil.getSubscriptions(
-						companyId, className, classPK);
+						CompanyThreadLocal.getNonsystemCompanyId(), className,
+						classPK);
 
 				for (Subscription subscription : subscriptions) {
 					try {
@@ -243,8 +245,12 @@ public class SubscriptionSender implements Serializable {
 			});
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
+	 */
+	@Deprecated
 	public long getCompanyId() {
-		return companyId;
+		return CompanyThreadLocal.getNonsystemCompanyId();
 	}
 
 	public Object getContextAttribute(String key) {
@@ -260,6 +266,8 @@ public class SubscriptionSender implements Serializable {
 	}
 
 	public ServiceContext getServiceContext() {
+		serviceContext.setCompanyId(CompanyThreadLocal.getNonsystemCompanyId());
+
 		return serviceContext;
 	}
 
@@ -274,7 +282,8 @@ public class SubscriptionSender implements Serializable {
 
 			List<Subscription> subscriptions =
 				SubscriptionLocalServiceUtil.getSubscriptions(
-					companyId, className, classPK);
+					CompanyThreadLocal.getNonsystemCompanyId(), className,
+					classPK);
 
 			if (!subscriptions.isEmpty()) {
 				return true;
@@ -295,7 +304,8 @@ public class SubscriptionSender implements Serializable {
 			setScopeGroupId(serviceContext.getScopeGroupId());
 		}
 
-		Company company = CompanyLocalServiceUtil.getCompany(companyId);
+		Company company = CompanyLocalServiceUtil.getCompany(
+			CompanyThreadLocal.getNonsystemCompanyId());
 
 		setContextAttribute("[$COMPANY_ID$]", company.getCompanyId());
 		setContextAttribute("[$COMPANY_MX$]", company.getMx());
@@ -336,9 +346,10 @@ public class SubscriptionSender implements Serializable {
 		}
 
 		if (groupId > 0) {
-			Group group = GroupLocalServiceUtil.getGroup(groupId);
-
-			setContextAttribute("[$SITE_NAME$]", group.getDescriptiveName());
+			setLocalizedContextAttribute(
+				"[$SITE_NAME$]",
+				new EscapableLocalizableFunction(
+					locale -> _getGroupDescriptiveName(groupId, locale)));
 		}
 
 		if ((creatorUserId > 0) &&
@@ -385,8 +396,11 @@ public class SubscriptionSender implements Serializable {
 		_classPK = classPK;
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
+	 */
+	@Deprecated
 	public void setCompanyId(long companyId) {
-		this.companyId = companyId;
 	}
 
 	public void setContextAttribute(String key, EscapableObject<String> value) {
@@ -752,6 +766,7 @@ public class SubscriptionSender implements Serializable {
 	protected void notifyRuntimeSubscriber(InternetAddress to, Locale locale)
 		throws Exception {
 
+		long companyId = CompanyThreadLocal.getNonsystemCompanyId();
 		String emailAddress = to.getAddress();
 
 		User user = UserLocalServiceUtil.fetchUserByEmailAddress(
@@ -1008,7 +1023,13 @@ public class SubscriptionSender implements Serializable {
 
 	protected String body;
 	protected boolean bulk;
+
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
+	 */
+	@Deprecated
 	protected long companyId;
+
 	protected long creatorUserId;
 	protected long currentUserId;
 	protected List<FileAttachment> fileAttachments = new ArrayList<>();
@@ -1089,6 +1110,21 @@ public class SubscriptionSender implements Serializable {
 
 		return StringBundler.concat(
 			key.substring(0, i), StringPool.PIPE, escapeMode, "$]");
+	}
+
+	private String _getGroupDescriptiveName(long groupId, Locale locale) {
+		try {
+			Group group = GroupLocalServiceUtil.getGroup(groupId);
+
+			return group.getDescriptiveName(locale);
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+		}
+
+		return StringPool.BLANK;
 	}
 
 	private <T> List<Hook<T>> _getHooks(Hook.Event<T> event) {

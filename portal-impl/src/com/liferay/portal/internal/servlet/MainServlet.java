@@ -101,7 +101,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -216,7 +215,7 @@ public class MainServlet extends HttpServlet {
 		servletContext.setAttribute(MainServlet.class.getName(), Boolean.TRUE);
 
 		_portalRequestProcessor = new PortalRequestProcessor(
-			servletContext, _init());
+			_init(), servletContext, getServletName());
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("Verify JVM configuration");
@@ -384,7 +383,7 @@ public class MainServlet extends HttpServlet {
 		}
 
 		if (DBUpgrader.isUpgradeDatabaseAutoRunEnabled()) {
-			DBUpgrader.upgradeModules(true);
+			DBUpgrader.upgradeModules();
 
 			StartupHelperUtil.setUpgrading(false);
 		}
@@ -601,43 +600,36 @@ public class MainServlet extends HttpServlet {
 	private void _checkBuildDate() {
 		ReleaseManager releaseManager = _serviceTracker.getService();
 
-		if (releaseManager == null) {
+		if ((releaseManager == null) || !StartupHelperUtil.isNewRelease()) {
+			return;
+		}
+
+		if (_log.isWarnEnabled()) {
+			String message = releaseManager.getShortStatusMessage(true);
+
+			if (Validator.isNotNull(message)) {
+				_log.warn(message);
+
+				return;
+			}
+		}
+
+		String message = releaseManager.getShortStatusMessage(false);
+
+		if (Validator.isNotNull(message)) {
+			if (_log.isInfoEnabled()) {
+				_log.info(message);
+			}
+
 			return;
 		}
 
 		try (Connection connection = DataAccess.getConnection()) {
-			Date currentBuildDate = PortalUpgradeProcess.getCurrentBuildDate(
-				connection);
-
-			if (!currentBuildDate.before(ReleaseInfo.getBuildDate())) {
-				return;
-			}
-
-			if (_log.isWarnEnabled()) {
-				String message = releaseManager.getShortStatusMessage(true);
-
-				if (Validator.isNotNull(message)) {
-					_log.warn(message);
-
-					return;
-				}
-			}
-
-			String message = releaseManager.getShortStatusMessage(false);
-
-			if (Validator.isNotNull(message)) {
-				if (_log.isInfoEnabled()) {
-					_log.info(message);
-				}
-
-				return;
-			}
-
 			PortalUpgradeProcess.updateBuildInfo(connection);
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn("Unable to check build date", exception);
+				_log.warn("Unable to update build information", exception);
 			}
 		}
 	}
@@ -777,7 +769,8 @@ public class MainServlet extends HttpServlet {
 				GetterUtil.getString(
 					PropsValues.COMPANY_DEFAULT_VIRTUAL_HOST_MAIL_DOMAIN,
 					PropsValues.COMPANY_DEFAULT_WEB_ID),
-				0, true, null, null, null, null, null, null);
+				0, true, PropsValues.COMPANY_DEFAULT_ADD_DEFAULT_ADMIN_USER,
+				null, null, null, null, null, null);
 		}
 
 		if (Validator.isNull(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
@@ -1017,7 +1010,7 @@ public class MainServlet extends HttpServlet {
 				(user.getLastLoginDate() == null)) {
 
 				user = UserLocalServiceUtil.updateLastLogin(
-					userId, httpServletRequest.getRemoteAddr());
+					user, httpServletRequest.getRemoteAddr());
 			}
 		}
 
@@ -1138,29 +1131,10 @@ public class MainServlet extends HttpServlet {
 
 			_log.error(exception);
 
-			httpServletRequest.setAttribute(StrutsUtil.EXCEPTION, exception);
-
 			StrutsUtil.forward(
-				PropsValues.SERVLET_SERVICE_EVENTS_PRE_ERROR_PAGE,
-				getServletContext(), httpServletRequest, httpServletResponse);
-
-			if (exception == httpServletRequest.getAttribute(
-					StrutsUtil.EXCEPTION)) {
-
-				httpServletRequest.removeAttribute(StrutsUtil.EXCEPTION);
-				httpServletRequest.removeAttribute(
-					RequestDispatcher.ERROR_EXCEPTION);
-				httpServletRequest.removeAttribute(
-					RequestDispatcher.ERROR_EXCEPTION_TYPE);
-				httpServletRequest.removeAttribute(
-					RequestDispatcher.ERROR_MESSAGE);
-				httpServletRequest.removeAttribute(
-					RequestDispatcher.ERROR_REQUEST_URI);
-				httpServletRequest.removeAttribute(
-					RequestDispatcher.ERROR_SERVLET_NAME);
-				httpServletRequest.removeAttribute(
-					RequestDispatcher.ERROR_STATUS_CODE);
-			}
+				httpServletRequest, httpServletResponse, getServletContext(),
+				getServletName(), exception,
+				PropsValues.SERVLET_SERVICE_EVENTS_PRE_ERROR_PAGE);
 
 			return true;
 		}

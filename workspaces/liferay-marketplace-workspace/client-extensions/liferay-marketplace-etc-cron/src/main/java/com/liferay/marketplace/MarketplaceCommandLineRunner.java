@@ -15,6 +15,7 @@ import java.net.URL;
 
 import java.time.ZonedDateTime;
 
+import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.logging.Log;
@@ -38,6 +39,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class MarketplaceCommandLineRunner implements CommandLineRunner {
 
 	public void run(String... args) throws Exception {
+		if (_log.isInfoEnabled()) {
+			_log.info("Running...");
+		}
+
 		_processInProgressTrials();
 
 		_processOnHoldTrials();
@@ -137,11 +142,12 @@ public class MarketplaceCommandLineRunner implements CommandLineRunner {
 		for (Order order : page.getItems()) {
 			try {
 				ZonedDateTime nowZonedDateTime = ZonedDateTime.now();
+
+				Map<String, String> customFields =
+					(Map<String, String>)order.getCustomFields();
+
 				ZonedDateTime trialEndDateZonedDateTime = ZonedDateTime.parse(
-					order.getCustomFields(
-					).get(
-						"trial-end-date"
-					).toString());
+					customFields.get("trial-end-date"));
 
 				if (nowZonedDateTime.isAfter(trialEndDateZonedDateTime)) {
 					_postTrialExpire(order.getId());
@@ -153,7 +159,10 @@ public class MarketplaceCommandLineRunner implements CommandLineRunner {
 					continue;
 				}
 
-				if (Objects.equals(
+				if (customFields.get(
+						"trial-notify-end-date"
+					).isEmpty() &&
+					Objects.equals(
 						nowZonedDateTime.getDayOfMonth(),
 						trialEndDateZonedDateTime.minusDays(
 							1
@@ -178,12 +187,20 @@ public class MarketplaceCommandLineRunner implements CommandLineRunner {
 		Page<Order> page = _getOrdersPage(_ORDER_STATUS_ON_HOLD);
 
 		if (page.getTotalCount() == 0) {
+			if (_log.isInfoEnabled()) {
+				_log.info("There are no on hold orders");
+			}
+
 			return;
 		}
 
 		JSONObject availabilityJSONObject = _getAvailabilityJSONObject();
 
 		if (!availabilityJSONObject.getBoolean("active")) {
+			if (_log.isInfoEnabled()) {
+				_log.info("There are no available seats");
+			}
+
 			return;
 		}
 
@@ -191,17 +208,25 @@ public class MarketplaceCommandLineRunner implements CommandLineRunner {
 
 		for (Order order : page.getItems()) {
 			if (available == 0) {
+				if (_log.isInfoEnabled()) {
+					_log.info("There are no available seats");
+				}
+
 				break;
 			}
 
 			try {
-				_postTrialProvisioning(order);
+				if (_log.isInfoEnabled()) {
+					_log.info("Processing on hold order " + order.getId());
+				}
 
-				available--;
+				_postTrialProvisioning(order);
 
 				if (_log.isInfoEnabled()) {
 					_log.info("Processed on hold order " + order.getId());
 				}
+
+				available--;
 			}
 			catch (Exception exception) {
 				_log.error(exception);

@@ -8,6 +8,7 @@ package com.liferay.jenkins.results.parser;
 import com.liferay.jenkins.results.parser.job.property.GlobJobProperty;
 import com.liferay.jenkins.results.parser.job.property.JobProperty;
 import com.liferay.jenkins.results.parser.job.property.JobPropertyFactory;
+import com.liferay.jenkins.results.parser.test.batch.TestBatch;
 import com.liferay.jenkins.results.parser.test.clazz.group.AxisTestClassGroup;
 import com.liferay.jenkins.results.parser.test.clazz.group.BatchTestClassGroup;
 import com.liferay.jenkins.results.parser.test.clazz.group.FunctionalBatchTestClassGroup;
@@ -107,12 +108,12 @@ public abstract class BaseJob implements Job {
 
 	@Override
 	public List<BatchTestClassGroup> getBatchTestClassGroups() {
-		synchronized (_jobProperties) {
-			if (_batchTestClassGroups != null) {
-				return _batchTestClassGroups;
+		synchronized (jobProperties) {
+			if (batchTestClassGroups != null) {
+				return batchTestClassGroups;
 			}
 
-			_batchTestClassGroups = Collections.synchronizedList(
+			batchTestClassGroups = Collections.synchronizedList(
 				new ArrayList<BatchTestClassGroup>());
 
 			if ((jsonObject != null) && jsonObject.has("batches")) {
@@ -126,18 +127,18 @@ public abstract class BaseJob implements Job {
 						continue;
 					}
 
-					_batchTestClassGroups.add(
+					batchTestClassGroups.add(
 						TestClassGroupFactory.newBatchTestClassGroup(
 							this, batchJSONObject));
 				}
 
-				return _batchTestClassGroups;
+				return batchTestClassGroups;
 			}
 
-			_batchTestClassGroups.addAll(
+			batchTestClassGroups.addAll(
 				getBatchTestClassGroups(getRawBatchNames()));
 
-			return _batchTestClassGroups;
+			return batchTestClassGroups;
 		}
 	}
 
@@ -220,7 +221,7 @@ public abstract class BaseJob implements Job {
 
 	@Override
 	public List<BatchTestClassGroup> getDependentBatchTestClassGroups() {
-		synchronized (_jobProperties) {
+		synchronized (jobProperties) {
 			if (_dependentBatchTestClassGroups != null) {
 				return _dependentBatchTestClassGroups;
 			}
@@ -425,7 +426,7 @@ public abstract class BaseJob implements Job {
 
 	@Override
 	public JSONObject getJSONObject() {
-		synchronized (_jobProperties) {
+		synchronized (jobProperties) {
 			if (jsonObject != null) {
 				return jsonObject;
 			}
@@ -479,11 +480,10 @@ public abstract class BaseJob implements Job {
 				jsonObject.put("smoke_batches", smokeBatchesJSONArray);
 			}
 
-			if (this instanceof TestSuiteJob) {
-				TestSuiteJob testSuiteJob = (TestSuiteJob)this;
+			String testSuiteName = getTestSuiteName();
 
-				jsonObject.put(
-					"test_suite_name", testSuiteJob.getTestSuiteName());
+			if (testSuiteName != null) {
+				jsonObject.put("test_suite_name", testSuiteName);
 			}
 
 			return jsonObject;
@@ -660,6 +660,16 @@ public abstract class BaseJob implements Job {
 		}
 
 		return sb.toString();
+	}
+
+	public String getTestSuiteName() {
+		if (this instanceof TestSuiteJob) {
+			TestSuiteJob testSuiteJob = (TestSuiteJob)this;
+
+			return testSuiteJob.getTestSuiteName();
+		}
+
+		return null;
 	}
 
 	@Override
@@ -848,6 +858,178 @@ public abstract class BaseJob implements Job {
 	}
 
 	protected List<BatchTestClassGroup> getBatchTestClassGroups(
+		List<TestBatch> testBatches) {
+
+		if ((testBatches == null) || testBatches.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		long start = JenkinsResultsParserUtil.getCurrentTimeMillis();
+
+		System.out.println(
+			JenkinsResultsParserUtil.combine(
+				"Started creating ", String.valueOf(testBatches.size()),
+				" batch test class groups at ",
+				JenkinsResultsParserUtil.toDateString(new Date(start))));
+
+		List<Callable<BatchTestClassGroup>> callables = new ArrayList<>();
+
+		String testSuiteName = getTestSuiteName();
+
+		final Job job = this;
+
+		Map<File, List<Callable<BatchTestClassGroup>>> testBaseDirCallablesMap =
+			new HashMap<>();
+
+		for (TestBatch testBatch : testBatches) {
+			File testBaseDir = null;
+
+			String batchName = testBatch.getName();
+
+			JobProperty jobProperty = getJobProperty(
+				"test.base.dir", testSuiteName, batchName);
+
+			if ((jobProperty != null) &&
+				!JenkinsResultsParserUtil.isNullOrEmpty(
+					jobProperty.getValue())) {
+
+				testBaseDir = new File(jobProperty.getValue());
+			}
+
+			Callable<BatchTestClassGroup> callable =
+				new Callable<BatchTestClassGroup>() {
+
+					@Override
+					public BatchTestClassGroup call() throws Exception {
+						for (int i = 0; i < _pauseRetryCount; i++) {
+							try {
+								return _call();
+							}
+							catch (Exception exception) {
+								String message = exception.getMessage();
+
+								if ((message != null) &&
+									message.contains(
+										"Errors found in Playwright tests")) {
+
+									throw exception;
+								}
+
+								System.out.println(
+									JenkinsResultsParserUtil.combine(
+										"[", batchName, "] Retry creating a ",
+										"test class group in ",
+										String.valueOf(
+											_pauseRetryDuration / 1000),
+										" seconds"));
+
+								JenkinsResultsParserUtil.sleep(
+									_pauseRetryDuration);
+							}
+						}
+
+						return _call();
+					}
+
+					private BatchTestClassGroup _call() throws Exception {
+						long start =
+							JenkinsResultsParserUtil.getCurrentTimeMillis();
+
+						System.out.println(
+							JenkinsResultsParserUtil.combine(
+								"[", batchName, "] Started batch test class ",
+								"group at ",
+								JenkinsResultsParserUtil.toDateString(
+									new Date(start))));
+
+						BatchTestClassGroup batchTestClassGroup =
+							TestClassGroupFactory.newBatchTestClassGroup(
+								job, testBatch);
+
+						long duration =
+							JenkinsResultsParserUtil.getCurrentTimeMillis() -
+								start;
+
+						System.out.println(
+							JenkinsResultsParserUtil.combine(
+								"[", batchName, "] Completed batch test class ",
+								"group in ",
+								JenkinsResultsParserUtil.toDurationString(
+									duration),
+								" at ",
+								JenkinsResultsParserUtil.toDateString(
+									new Date())));
+
+						if (batchTestClassGroup.getAxisCount() <= 0) {
+							return null;
+						}
+
+						return batchTestClassGroup;
+					}
+
+					private final Integer _pauseRetryCount = 2;
+					private final Integer _pauseRetryDuration = 5000;
+
+				};
+
+			if (testBaseDir == null) {
+				callables.add(callable);
+
+				continue;
+			}
+
+			List<Callable<BatchTestClassGroup>> testBaseDirCallables =
+				testBaseDirCallablesMap.get(testBaseDir);
+
+			if (testBaseDirCallables == null) {
+				testBaseDirCallables = new ArrayList<>();
+
+				testBaseDirCallablesMap.put(testBaseDir, testBaseDirCallables);
+			}
+
+			testBaseDirCallables.add(callable);
+
+			testBaseDirCallablesMap.put(testBaseDir, testBaseDirCallables);
+		}
+
+		ParallelExecutor<BatchTestClassGroup> parallelExecutor =
+			new ParallelExecutor<>(
+				callables, _executorService, "getBatchTestClassGroups");
+
+		List<BatchTestClassGroup> batchTestClassGroups = null;
+
+		try {
+			batchTestClassGroups = parallelExecutor.execute();
+
+			for (List<Callable<BatchTestClassGroup>> testBaseDirCallables :
+					testBaseDirCallablesMap.values()) {
+
+				parallelExecutor = new ParallelExecutor<>(
+					testBaseDirCallables, _executorService,
+					"getBatchTestClassGroups2");
+
+				batchTestClassGroups.addAll(parallelExecutor.execute());
+			}
+		}
+		catch (TimeoutException timeoutException) {
+			throw new RuntimeException(timeoutException);
+		}
+
+		batchTestClassGroups.removeAll(Collections.singleton(null));
+
+		System.out.println(
+			JenkinsResultsParserUtil.combine(
+				"Completed creating ",
+				String.valueOf(batchTestClassGroups.size()),
+				" batch test class groups in ",
+				JenkinsResultsParserUtil.toDurationString(
+					JenkinsResultsParserUtil.getCurrentTimeMillis() - start),
+				" at ", JenkinsResultsParserUtil.toDateString(new Date())));
+
+		return batchTestClassGroups;
+	}
+
+	protected List<BatchTestClassGroup> getBatchTestClassGroups(
 		Set<String> rawBatchNames) {
 
 		if ((rawBatchNames == null) || rawBatchNames.isEmpty()) {
@@ -864,13 +1046,7 @@ public abstract class BaseJob implements Job {
 
 		List<Callable<BatchTestClassGroup>> callables = new ArrayList<>();
 
-		String testSuiteName = null;
-
-		if (this instanceof TestSuiteJob) {
-			TestSuiteJob testSuiteJob = (TestSuiteJob)this;
-
-			testSuiteName = testSuiteJob.getTestSuiteName();
-		}
+		String testSuiteName = getTestSuiteName();
 
 		final Job job = this;
 
@@ -995,6 +1171,11 @@ public abstract class BaseJob implements Job {
 		try {
 			batchTestClassGroups = parallelExecutor.execute();
 
+			if (parallelExecutor.hasFailedTask()) {
+				throw new RuntimeException(
+					"Unable to create batch test class groups");
+			}
+
 			for (List<Callable<BatchTestClassGroup>> testBaseDirCallables :
 					testBaseDirCallablesMap.values()) {
 
@@ -1003,6 +1184,11 @@ public abstract class BaseJob implements Job {
 					"getBatchTestClassGroups2");
 
 				batchTestClassGroups.addAll(parallelExecutor.execute());
+
+				if (parallelExecutor.hasFailedTask()) {
+					throw new RuntimeException(
+						"Unable to create batch test class groups");
+				}
 			}
 		}
 		catch (TimeoutException timeoutException) {
@@ -1122,14 +1308,26 @@ public abstract class BaseJob implements Job {
 		return set;
 	}
 
+	protected List<TestBatch> getTestBatches() {
+		return new ArrayList<>();
+	}
+
+	protected void recordJobProperties(Set<JobProperty> jobProperties) {
+		for (JobProperty jobProperty : jobProperties) {
+			recordJobProperty(jobProperty);
+		}
+	}
+
 	protected void recordJobProperty(JobProperty jobProperty) {
-		if ((jobProperty == null) || _jobProperties.contains(jobProperty)) {
+		if ((jobProperty == null) || jobProperties.contains(jobProperty)) {
 			return;
 		}
 
-		_jobProperties.add(jobProperty);
+		jobProperties.add(jobProperty);
 	}
 
+	protected List<BatchTestClassGroup> batchTestClassGroups;
+	protected final List<JobProperty> jobProperties = new ArrayList<>();
 	protected final List<File> jobPropertiesFiles = new ArrayList<>();
 	protected JSONObject jsonObject;
 
@@ -1166,7 +1364,7 @@ public abstract class BaseJob implements Job {
 	}
 
 	private Map<String, Properties> _getJobPropertiesMap() {
-		synchronized (_jobProperties) {
+		synchronized (jobProperties) {
 			if (!_initializeJobProperties) {
 				getBatchTestClassGroups();
 
@@ -1178,7 +1376,7 @@ public abstract class BaseJob implements Job {
 
 		Map<String, Properties> jobPropertiesMap = new TreeMap<>();
 
-		for (JobProperty jobProperty : _jobProperties) {
+		for (JobProperty jobProperty : jobProperties) {
 			if (jobProperty == null) {
 				continue;
 			}
@@ -1208,12 +1406,10 @@ public abstract class BaseJob implements Job {
 	private List<PathMatcher> _getJUnitIncludePathMatchers() {
 		List<PathMatcher> jUnitIncludePathMatchers = new ArrayList<>();
 
-		String testSuiteName = "default";
+		String testSuiteName = getTestSuiteName();
 
-		if (this instanceof TestSuiteJob) {
-			TestSuiteJob testSuiteJob = (TestSuiteJob)this;
-
-			testSuiteName = testSuiteJob.getTestSuiteName();
+		if (testSuiteName == null) {
+			testSuiteName = "default";
 		}
 
 		for (String jUnitBatchName : _JUNIT_BATCH_NAMES) {
@@ -1281,7 +1477,6 @@ public abstract class BaseJob implements Job {
 	private static final ExecutorService _executorService =
 		JenkinsResultsParserUtil.getNewThreadPoolExecutor(_THREAD_COUNT, true);
 
-	private List<BatchTestClassGroup> _batchTestClassGroups;
 	private final BuildProfile _buildProfile;
 	private String _companyDefaultLocale;
 	private Document _configDocument;
@@ -1290,7 +1485,6 @@ public abstract class BaseJob implements Job {
 	private boolean _initializeJobProperties;
 	private JobHistory _jobHistory;
 	private final String _jobName;
-	private final List<JobProperty> _jobProperties = new ArrayList<>();
 	private Boolean _jUnitTestFileModifiedOnly;
 	private Boolean _testAnalyticsCloud;
 

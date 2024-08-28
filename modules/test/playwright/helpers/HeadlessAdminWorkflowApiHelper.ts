@@ -21,14 +21,35 @@ export class HeadlessAdminWorkflowApiHelper {
 	}
 
 	async getWorkflowDefinitionByName(name: string) {
-		return this.apiHelpers.get(
+		return (await this.apiHelpers.get(
 			`${this.apiHelpers.baseUrl}${this.basePath}/workflow-definitions/by-name/${name}`
+		)) as WorkflowDefinition;
+	}
+
+	async getWorkflowTasksBySubmittingUser(
+		creatorId: number,
+		pageSize?: number
+	) {
+		return await this.apiHelpers.get(
+			`${this.apiHelpers.baseUrl}${this.basePath}/workflow-tasks/submitting-user?creatorId=${creatorId}` +
+				(pageSize ? `&pageSize=${pageSize}` : '')
+		);
+	}
+
+	async postAssignTaskToUser(workflowTaskId: number, assigneeId: number) {
+		return await this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/workflow-tasks/${workflowTaskId}/assign-to-user`,
+			{
+				data: {
+					assigneeId,
+				},
+			}
 		);
 	}
 
 	async postWorkflowDefinitionSave(
 		name: string,
-		workflowDefinition: WorkflowDefinition
+		workflowDefinition: Partial<WorkflowDefinition>
 	): Promise<WorkflowDefinition> {
 		return this.apiHelpers.post(
 			`${this.apiHelpers.baseUrl}${this.basePath}/workflow-definitions/save`,

@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import ClayIcon from '@clayui/icon';
 import {useOutletContext, useParams} from 'react-router-dom';
 
 import JiraLink from '../../../components/JiraLink';
 import Container from '../../../components/Layout/Container';
 import PreviewInformation from '../../../components/Markdown/PreviewChangeType';
 import QATable from '../../../components/Table/QATable';
-import SearchBuilder from '../../../core/SearchBuilder';
 import useIssuesFound from '../../../hooks/data/useIssuesFound';
 import i18n from '../../../i18n';
 import {TestrayCase} from '../../../services/rest';
@@ -32,6 +32,18 @@ const Case = () => {
 			<Container collapsable title={i18n.translate('details')}>
 				<QATable
 					items={[
+						{
+							title: (
+								<ClayIcon
+									className="tr-qa-table__flaky-icon"
+									symbol="flag-full"
+								/>
+							),
+							value: i18n.translate(
+								'this-is-a-possible-flaky-test'
+							),
+							visible: !!testrayCase.flaky,
+						},
 						{
 							title: i18n.translate('type'),
 							value: testrayCase.caseType?.name,
@@ -90,15 +102,15 @@ const Case = () => {
 
 			<Container className="mt-3">
 				<CaseResultHistory
-					listViewProps={{
-						variables: {
-							filter: SearchBuilder.eq('caseId', testrayCase.id),
-						},
-					}}
+					caseId={String(testrayCase.id)}
 					tableProps={{
 						actions,
-						navigateTo: ({build, id}) =>
-							`/project/${projectId}/routines/${build?.routine?.id}/build/${build?.id}/case-result/${id}`,
+						navigateTo: ({
+							testrayBuildId,
+							testrayCaseResultId,
+							testrayRoutineId,
+						}) =>
+							`/project/${projectId}/routines/${testrayRoutineId}/build/${testrayBuildId}/case-result/${testrayCaseResultId}`,
 					}}
 				/>
 			</Container>

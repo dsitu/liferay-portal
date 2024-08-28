@@ -209,9 +209,8 @@ const FrontendDataSet = ({
 			[]
 		);
 
-		const activeSorts = Liferay.FeatureFlags['LPD-19465']
-			? sorts.filter((sort) => sort.active)
-			: sorts;
+		const activeSorts =
+			sorts.length > 1 ? sorts.filter((sort) => sort.active) : sorts;
 
 		return loadData(
 			apiURL,
@@ -237,6 +236,10 @@ const FrontendDataSet = ({
 	function updateDataSetItems(dataSetData) {
 		setItems(dataSetData.items);
 		setTotal(dataSetData.totalCount);
+
+		if (!dataSetData.items.length && dataSetData.totalCount > 0) {
+			setPageNumber(() => dataSetData.lastPage);
+		}
 	}
 
 	useEffect(() => {

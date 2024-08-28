@@ -5,8 +5,11 @@
 
 package com.liferay.portal.search.elasticsearch7.internal.query;
 
-import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.search.filter.TermsFilter;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.search.elasticsearch7.internal.filter.ElasticsearchFilterTranslator;
+import com.liferay.portal.search.elasticsearch7.internal.filter.ElasticsearchFilterTranslatorFixture;
+import com.liferay.portal.search.elasticsearch7.internal.util.QueryUtil;
 import com.liferay.portal.search.internal.query.BooleanQueryImpl;
 import com.liferay.portal.search.internal.query.CommonTermsQueryImpl;
 import com.liferay.portal.search.internal.query.FuzzyQueryImpl;
@@ -44,6 +47,17 @@ public class ElasticsearchQueryTranslatorTest {
 
 	@Before
 	public void setUp() throws Exception {
+		ElasticsearchFilterTranslatorFixture
+			elasticsearchFilterTranslatorFixture =
+				new ElasticsearchFilterTranslatorFixture(
+					new com.liferay.portal.search.elasticsearch7.internal.
+						legacy.query.ElasticsearchQueryTranslatorFixture(
+					).getElasticsearchQueryTranslator());
+
+		_elasticsearchFilterTranslator =
+			elasticsearchFilterTranslatorFixture.
+				getElasticsearchFilterTranslator();
+
 		ElasticsearchQueryTranslatorFixture
 			elasticsearchQueryTranslatorFixture =
 				new ElasticsearchQueryTranslatorFixture();
@@ -109,29 +123,49 @@ public class ElasticsearchQueryTranslatorTest {
 	}
 
 	@Test
+	public void testTranslateTermsFilterExceedingMaxAllowedTerms() {
+		TermsFilter termsFilter = new TermsFilter("groupId");
+
+		termsFilter.addValues("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+
+		Integer maxTermsCount = QueryUtil.maxTermsCount;
+
+		QueryUtil.maxTermsCount = 10;
+
+		_assertTermsCount(1, termsFilter);
+
+		QueryUtil.maxTermsCount = 5;
+
+		_assertTermsCount(2, termsFilter);
+
+		QueryUtil.maxTermsCount = 3;
+
+		_assertTermsCount(4, termsFilter);
+
+		QueryUtil.maxTermsCount = maxTermsCount;
+	}
+
+	@Test
 	public void testTranslateTermsQueryExceedingMaxAllowedTerms() {
 		TermsQuery termsQuery = new TermsQueryImpl("groupId");
 
-		TermsQueryTranslator termsQueryTranslator =
-			new TermsQueryTranslatorImpl();
-
-		ReflectionTestUtil.setFieldValue(
-			_elasticsearchQueryTranslator, "_termsQueryTranslator",
-			termsQueryTranslator);
-
 		termsQuery.addValues("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
 
-		_setMaxTermsCount(10, termsQueryTranslator);
+		Integer maxTermsCount = QueryUtil.maxTermsCount;
+
+		QueryUtil.maxTermsCount = 10;
 
 		_assertTermsCount(1, termsQuery);
 
-		_setMaxTermsCount(5, termsQueryTranslator);
+		QueryUtil.maxTermsCount = 5;
 
 		_assertTermsCount(2, termsQuery);
 
-		_setMaxTermsCount(3, termsQueryTranslator);
+		QueryUtil.maxTermsCount = 3;
 
 		_assertTermsCount(4, termsQuery);
+
+		QueryUtil.maxTermsCount = maxTermsCount;
 	}
 
 	private void _assertBoost(Query query) {
@@ -145,8 +179,17 @@ public class ElasticsearchQueryTranslatorTest {
 			String.valueOf(queryBuilder.boost()));
 	}
 
+	private void _assertTermsCount(int expected, TermsFilter termsFilter) {
+		String queryString = _elasticsearchFilterTranslator.visit(
+			termsFilter
+		).toString();
+
+		Assert.assertEquals(
+			queryString, expected, StringUtil.count(queryString, "terms"));
+	}
+
 	private void _assertTermsCount(int expected, TermsQuery termsQuery) {
-		String queryString = _elasticsearchQueryTranslator.translate(
+		String queryString = _elasticsearchQueryTranslator.visit(
 			termsQuery
 		).toString();
 
@@ -154,15 +197,9 @@ public class ElasticsearchQueryTranslatorTest {
 			queryString, expected, StringUtil.count(queryString, "terms"));
 	}
 
-	private void _setMaxTermsCount(
-		int maxTermsCount, TermsQueryTranslator termsQueryTranslator) {
-
-		ReflectionTestUtil.setFieldValue(
-			termsQueryTranslator, "_MAX_TERMS_COUNT", maxTermsCount);
-	}
-
 	private static final Float _BOOST = 1.5F;
 
+	private ElasticsearchFilterTranslator _elasticsearchFilterTranslator;
 	private ElasticsearchQueryTranslator _elasticsearchQueryTranslator;
 
 }

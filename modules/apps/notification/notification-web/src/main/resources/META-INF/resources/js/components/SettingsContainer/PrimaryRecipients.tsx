@@ -21,7 +21,11 @@ import {
 import React, {useEffect, useState} from 'react';
 
 import {NotificationTemplateError} from '../EditNotificationTemplate';
-import {getCheckedChildren} from './rolesUtils';
+import {
+	getCheckedChildren,
+	handleMultiSelectRoleItemsChange,
+	uncheckMultiSelectItemChildrens,
+} from './rolesUtil';
 
 interface PrimaryRecipientProps {
 	emailNotificationRoles: MultiSelectItem[];
@@ -44,30 +48,6 @@ export function PrimaryRecipient({
 }: PrimaryRecipientProps) {
 	const [recipient] = values.recipients as EmailRecipients[];
 	const [toRolesList, setToRolesList] = useState<MultiSelectItem[]>([]);
-
-	const handleMultiSelectItemsChange = (itemsGroup: MultiSelectItem[]) => {
-		const newRecipients: EmailNotificationRecipients[] = [];
-
-		if (itemsGroup.length) {
-			itemsGroup.forEach((itemGroup) => {
-				itemGroup.children.forEach((child) => {
-					if (child.checked) {
-						newRecipients.push({['roleName']: child.value});
-					}
-				});
-			});
-		}
-
-		setValues({
-			...values,
-			recipients: [
-				{
-					...recipient,
-					to: newRecipients,
-				},
-			],
-		});
-	};
 
 	useEffect(() => {
 		if (emailNotificationRoles.length && !toRolesList.length) {
@@ -110,6 +90,11 @@ export function PrimaryRecipient({
 				items={recipientOptions}
 				label={Liferay.Language.get('type')}
 				onSelectionChange={(value) => {
+					if (value === 'email') {
+						const newToRoleList =
+							uncheckMultiSelectItemChildrens(toRolesList);
+						setToRolesList(newToRoleList);
+					}
 					setValues({
 						...values,
 						recipients: [
@@ -171,7 +156,19 @@ export function PrimaryRecipient({
 						)}
 						selectAllOption
 						setOptions={(items) => {
-							handleMultiSelectItemsChange(items);
+							const newRecipients =
+								handleMultiSelectRoleItemsChange(items);
+
+							setValues({
+								...values,
+								recipients: [
+									{
+										...recipient,
+										to: newRecipients,
+									},
+								],
+							});
+
 							setToRolesList(items);
 						}}
 					/>

@@ -31,11 +31,19 @@ export class JSONWebServicesLayoutApiHelper {
 	 * @param options.type
 	 * The layout type (eg: 'portlet' or 'content')
 	 */
-	async addLayout(
-		groupId: string,
-		title: string,
-		options: {publish?: boolean; type: string} = {type: 'portlet'}
-	): Promise<Layout> {
+	async addLayout({
+		externalReferenceCode = '',
+		groupId,
+		options = {type: 'portlet'},
+		parentLayoutId = '0',
+		title,
+	}: {
+		externalReferenceCode?: string;
+		groupId: string;
+		options?: {publish?: boolean; type: string};
+		parentLayoutId?: string;
+		title: string;
+	}): Promise<Layout> {
 		if (options.publish && options.type !== 'content') {
 			throw new TypeError(
 				`Publish parameter can only be 'undefined' for non content layouts`
@@ -46,9 +54,10 @@ export class JSONWebServicesLayoutApiHelper {
 
 		const urlSearchParams = new URLSearchParams();
 
+		urlSearchParams.append('externalReferenceCode', externalReferenceCode);
 		urlSearchParams.append('groupId', groupId);
 		urlSearchParams.append('privateLayout', 'false');
-		urlSearchParams.append('parentLayoutId', '0');
+		urlSearchParams.append('parentLayoutId', parentLayoutId);
 		urlSearchParams.append('name', name);
 		urlSearchParams.append('title', title);
 		urlSearchParams.append('description', '');

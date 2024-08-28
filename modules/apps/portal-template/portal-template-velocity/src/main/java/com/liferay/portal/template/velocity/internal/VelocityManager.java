@@ -65,12 +65,9 @@ public class VelocityManager extends BaseTemplateManager {
 	public class VelocityTemplateResourceCache
 		extends BaseTemplateResourceCache {
 
-		public VelocityTemplateResourceCache(
-			VelocityEngineConfiguration velocityEngineConfiguration) {
-
+		public VelocityTemplateResourceCache() {
 			init(
-				velocityEngineConfiguration.resourceModificationCheckInterval(),
-				_portalCacheName,
+				Long.MIN_VALUE, _portalCacheName,
 				StringBundler.concat(
 					TemplateResource.class.getName(), StringPool.POUND,
 					TemplateConstants.LANG_TYPE_VM));
@@ -78,14 +75,6 @@ public class VelocityManager extends BaseTemplateManager {
 
 		public void destroy() {
 			super.destroy();
-		}
-
-		public void setModificationCheckInterval(
-			VelocityEngineConfiguration velocityEngineConfiguration) {
-
-			setModificationCheckInterval(
-				velocityEngineConfiguration.
-					resourceModificationCheckInterval());
 		}
 
 		private final String _portalCacheName =
@@ -119,8 +108,7 @@ public class VelocityManager extends BaseTemplateManager {
 		_velocityEngineConfiguration = ConfigurableUtil.createConfigurable(
 			VelocityEngineConfiguration.class, properties);
 
-		_velocityTemplateResourceCache = new VelocityTemplateResourceCache(
-			_velocityEngineConfiguration);
+		_velocityTemplateResourceCache = new VelocityTemplateResourceCache();
 
 		_velocityTemplateResourceLoader = new VelocityTemplateResourceLoader(
 			bundleContext, _velocityTemplateResourceCache);
@@ -165,9 +153,6 @@ public class VelocityManager extends BaseTemplateManager {
 
 		_velocityEngineConfiguration = ConfigurableUtil.createConfigurable(
 			VelocityEngineConfiguration.class, properties);
-
-		_velocityTemplateResourceCache.setModificationCheckInterval(
-			_velocityEngineConfiguration);
 
 		_destroy();
 
@@ -236,22 +221,10 @@ public class VelocityManager extends BaseTemplateManager {
 				new FastExtendedProperties();
 
 			extendedProperties.setProperty(
-				VelocityEngine.DIRECTIVE_IF_TOSTRING_NULLCHECK,
-				String.valueOf(
-					_velocityEngineConfiguration.
-						directiveIfToStringNullCheck()));
-			extendedProperties.setProperty(
-				VelocityEngine.EVENTHANDLER_METHODEXCEPTION,
-				LiferayMethodExceptionEventHandler.class.getName());
-			extendedProperties.setProperty(
 				RuntimeConstants.INTROSPECTOR_RESTRICT_CLASSES,
 				StringUtil.merge(
 					_filterRestrictedClasses(
 						_velocityEngineConfiguration.restrictedClasses())));
-			extendedProperties.setProperty(
-				"liferay." + RuntimeConstants.INTROSPECTOR_RESTRICT_CLASSES +
-					".methods",
-				_velocityEngineConfiguration.restrictedMethods());
 			extendedProperties.setProperty(
 				RuntimeConstants.INTROSPECTOR_RESTRICT_PACKAGES,
 				StringUtil.merge(
@@ -260,63 +233,58 @@ public class VelocityManager extends BaseTemplateManager {
 				RuntimeConstants.PARSER_POOL_CLASS,
 				VelocityParserPool.class.getName());
 			extendedProperties.setProperty(
+				RuntimeConstants.UBERSPECT_CLASSNAME,
+				LiferaySecureUberspector.class.getName());
+			extendedProperties.setProperty(
+				VelocityEngine.DIRECTIVE_IF_TOSTRING_NULLCHECK,
+				String.valueOf(
+					_velocityEngineConfiguration.
+						directiveIfToStringNullCheck()));
+			extendedProperties.setProperty(
+				VelocityEngine.EVENTHANDLER_METHODEXCEPTION,
+				LiferayMethodExceptionEventHandler.class.getName());
+			extendedProperties.setProperty(
 				VelocityEngine.RESOURCE_LOADER, "liferay");
+			extendedProperties.setProperty(
+				VelocityEngine.RESOURCE_MANAGER_CLASS,
+				LiferayResourceManager.class.getName());
+			extendedProperties.setProperty(
+				VelocityEngine.RUNTIME_LOG_LOGSYSTEM + ".log4j.category",
+				_velocityEngineConfiguration.loggerCategory());
+			extendedProperties.setProperty(
+				VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS,
+				_velocityEngineConfiguration.logger());
+			extendedProperties.setProperty(
+				VelocityEngine.VM_LIBRARY,
+				_getVelocimacroLibrary(VelocityManager.class));
+			extendedProperties.setProperty(
+				VelocityEngine.VM_LIBRARY_AUTORELOAD,
+				String.valueOf(!_velocityTemplateResourceCache.isEnabled()));
+			extendedProperties.setProperty(
+				VelocityEngine.VM_PERM_ALLOW_INLINE_REPLACE_GLOBAL,
+				String.valueOf(!_velocityTemplateResourceCache.isEnabled()));
+			extendedProperties.setProperty(
+				VelocityManager.VelocityTemplateResourceLoader.class.getName(),
+				_velocityTemplateResourceLoader);
+			extendedProperties.setProperty(
+				"liferay." + RuntimeConstants.INTROSPECTOR_RESTRICT_CLASSES +
+					".methods",
+				_velocityEngineConfiguration.restrictedMethods());
 			extendedProperties.setProperty(
 				StringBundler.concat(
 					"liferay.", VelocityEngine.RESOURCE_LOADER, ".",
 					VelocityManager.VelocityTemplateResourceLoader.class.
 						getName()),
 				_velocityTemplateResourceLoader);
-
-			boolean cacheEnabled = false;
-
-			if (_velocityTemplateResourceCache.isEnabled()) {
-				cacheEnabled = true;
-			}
-
 			extendedProperties.setProperty(
 				"liferay." + VelocityEngine.RESOURCE_LOADER + ".cache",
-				String.valueOf(cacheEnabled));
+				String.valueOf(_velocityTemplateResourceCache.isEnabled()));
 			extendedProperties.setProperty(
 				"liferay." + VelocityEngine.RESOURCE_LOADER + ".class",
 				LiferayResourceLoader.class.getName());
 			extendedProperties.setProperty(
 				"liferay." + VelocityEngine.RESOURCE_LOADER + "portal.cache",
 				_velocityTemplateResourceCache.getSecondLevelPortalCache());
-			extendedProperties.setProperty(
-				VelocityEngine.RESOURCE_MANAGER_CLASS,
-				LiferayResourceManager.class.getName());
-
-			int resourceModificationCheckInterval =
-				_velocityEngineConfiguration.
-					resourceModificationCheckInterval();
-
-			extendedProperties.setProperty(
-				"liferay." + VelocityEngine.RESOURCE_MANAGER_CLASS +
-					".resourceModificationCheckInterval",
-				resourceModificationCheckInterval + "");
-
-			extendedProperties.setProperty(
-				VelocityManager.VelocityTemplateResourceLoader.class.getName(),
-				_velocityTemplateResourceLoader);
-			extendedProperties.setProperty(
-				VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS,
-				_velocityEngineConfiguration.logger());
-			extendedProperties.setProperty(
-				VelocityEngine.RUNTIME_LOG_LOGSYSTEM + ".log4j.category",
-				_velocityEngineConfiguration.loggerCategory());
-			extendedProperties.setProperty(
-				RuntimeConstants.UBERSPECT_CLASSNAME,
-				LiferaySecureUberspector.class.getName());
-			extendedProperties.setProperty(
-				VelocityEngine.VM_LIBRARY,
-				_getVelocimacroLibrary(VelocityManager.class));
-			extendedProperties.setProperty(
-				VelocityEngine.VM_LIBRARY_AUTORELOAD,
-				String.valueOf(!cacheEnabled));
-			extendedProperties.setProperty(
-				VelocityEngine.VM_PERM_ALLOW_INLINE_REPLACE_GLOBAL,
-				String.valueOf(!cacheEnabled));
 
 			_velocityEngine.setExtendedProperties(extendedProperties);
 

@@ -5,11 +5,15 @@
 
 import {Locator, Page} from '@playwright/test';
 
+import {clickAndExpectToBeHidden} from '../../../utils/clickAndExpectToBeHidden';
+import {expandSection} from '../../../utils/expandSection';
 import {waitForSuccessAlert} from '../../../utils/waitForSuccessAlert';
 import {BlogsPage} from './BlogsPage';
 
+import type {postTaxonomyVocabularyTaxonomyCategoryProps} from '../../../helpers/HeadlessAdminTaxonomyApiHelper';
+
 type editBlogEntryAddfriendlyUrlType = {
-	categories: string[];
+	categories: Pick<postTaxonomyVocabularyTaxonomyCategoryProps, 'name'>[];
 	vocabularyName: string;
 };
 
@@ -19,6 +23,7 @@ export class BlogsEditBlogEntryPage {
 	readonly blogsPage: BlogsPage;
 	readonly publishButton: Locator;
 	readonly contentEditor: Locator;
+	readonly submitToWorkflowButton: Locator;
 
 	constructor(page: Page) {
 		this.page = page;
@@ -28,6 +33,9 @@ export class BlogsEditBlogEntryPage {
 			'#_com_liferay_blogs_web_portlet_BlogsAdminPortlet_contentEditor.cke_editable'
 		);
 		this.publishButton = page.getByRole('button', {name: 'Publish'});
+		this.submitToWorkflowButton = page.getByRole('button', {
+			name: 'Submit for Workflow',
+		});
 	}
 
 	async goto(siteUrl?: Site['friendlyUrlPath']) {
@@ -56,8 +64,8 @@ export class BlogsEditBlogEntryPage {
 
 		await categoriesSelectorIframe.getByText(vocabularyName).click();
 
-		for (const categoryName of categories) {
-			await categoriesSelectorIframe.getByText(categoryName).click();
+		for (const {name} of categories) {
+			await categoriesSelectorIframe.getByText(name).click();
 		}
 
 		await this.page
@@ -70,11 +78,13 @@ export class BlogsEditBlogEntryPage {
 		content,
 		friendlyUrl,
 		publish = true,
+		submitToWorkflow,
 		title,
 	}: {
 		content: string;
 		friendlyUrl?: editBlogEntryAddfriendlyUrlType;
 		publish?: boolean;
+		submitToWorkflow?: boolean;
 		title: string;
 	}) {
 		await this.page.getByPlaceholder('Title *').fill(title);
@@ -90,13 +100,52 @@ export class BlogsEditBlogEntryPage {
 			});
 		}
 
-		if (publish) {
+		if (submitToWorkflow) {
+			await this.submitBlogEntryToWorkflow();
+		}
+		else if (publish) {
 			await this.publishBlogEntry();
 		}
 	}
 
 	async publishBlogEntry() {
 		await this.publishButton.click();
+		await waitForSuccessAlert(this.page);
+	}
+
+	async selectSpecificDisplayPage(displayPageName: string) {
+		const displayPageFieldSet = this.page.locator('fieldset', {
+			hasText: 'Display Page',
+		});
+
+		await expandSection(displayPageFieldSet);
+		await displayPageFieldSet
+			.getByLabel('Display Page Template')
+			.selectOption('Specific');
+		await displayPageFieldSet.getByRole('button', {name: 'Select'}).click();
+		const selectDisplayPageModal = await this.page.frameLocator(
+			'iframe[title*="Select Page"]'
+		);
+		await this.page
+			.locator('.modal-title', {
+				hasText: 'Select Page',
+			})
+			.waitFor({
+				state: 'visible',
+			});
+
+		await clickAndExpectToBeHidden({
+			target: this.page.locator('.modal-title', {
+				hasText: 'Select Page',
+			}),
+			trigger: selectDisplayPageModal.getByLabel(
+				'Select ' + displayPageName
+			),
+		});
+	}
+
+	async submitBlogEntryToWorkflow() {
+		await this.submitToWorkflowButton.click();
 		await waitForSuccessAlert(this.page);
 	}
 }

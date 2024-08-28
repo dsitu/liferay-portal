@@ -207,7 +207,9 @@ public class ObjectRelationshipLocalServiceImpl
 		else {
 			_objectEntryLocalService.updateObjectEntry(
 				userId, primaryKey2,
-				HashMapBuilder.<String, Serializable>put(
+				HashMapBuilder.<String, Serializable>putAll(
+					_objectEntryLocalService.getValues(primaryKey2)
+				).put(
 					objectField2.getName(), primaryKey1
 				).build(),
 				serviceContext);
@@ -285,13 +287,13 @@ public class ObjectRelationshipLocalServiceImpl
 		String pkObjectFieldDBColumnName2 = pkObjectFieldDBColumnNames.get(
 			"pkObjectFieldDBColumnName2");
 
-		runSQL(
-			StringBundler.concat(
-				"create table ", objectRelationship.getDBTableName(), " (",
-				pkObjectFieldDBColumnName1, " LONG not null,",
-				pkObjectFieldDBColumnName2, " LONG not null, primary key (",
-				pkObjectFieldDBColumnName1, ", ", pkObjectFieldDBColumnName2,
-				"))"));
+		DynamicObjectRelationshipMappingTable
+			dynamicObjectRelationshipMappingTable =
+				new DynamicObjectRelationshipMappingTable(
+					pkObjectFieldDBColumnName1, pkObjectFieldDBColumnName2,
+					objectRelationship.getDBTableName());
+
+		runSQL(dynamicObjectRelationshipMappingTable.getCreateTableSQL());
 
 		Connection connection = _currentConnection.getConnection(
 			objectRelationshipPersistence.getDataSource());
@@ -1019,6 +1021,12 @@ public class ObjectRelationshipLocalServiceImpl
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
+	}
+
+	@Override
+	protected void runSQL(String sql) {
+		ObjectDBManagerUtil.runSQL(
+			objectRelationshipPersistence.getDataSource(), _log, sql);
 	}
 
 	private ObjectField _addObjectField(

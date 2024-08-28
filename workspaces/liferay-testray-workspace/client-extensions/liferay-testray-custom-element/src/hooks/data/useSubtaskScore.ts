@@ -3,14 +3,12 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {
-	APIResponse,
-	TestraySubtask,
-	TestrayTask,
-	testraySubtaskImpl,
-} from '../../services/rest';
-import {TaskStatuses} from '../../util/statuses';
+import {useAtomValue} from 'jotai';
+
+import {APIResponse, TestraySubtask, TestrayTask} from '../../services/rest';
+import {SubtaskStatuses} from '../../util/statuses';
 import {useFetch} from '../useFetch';
+import {taskSidebarRefresh} from '../useSidebarTask';
 
 const useSubtaskScore = ({
 	testrayTask,
@@ -19,6 +17,8 @@ const useSubtaskScore = ({
 	testrayTask: TestrayTask;
 	userId: number;
 }) => {
+	const refresh = useAtomValue(taskSidebarRefresh);
+
 	const progressScore = {
 		completed: testrayTask?.subtaskScoreCompleted,
 		incomplete: testrayTask?.subtaskScoreSelfIncomplete,
@@ -27,24 +27,21 @@ const useSubtaskScore = ({
 	};
 
 	const {data: testraySubtasks} = useFetch<APIResponse<TestraySubtask>>(
-		testraySubtaskImpl.resource,
+		`/testray-testflow/testray-subtask?testrayTaskId=${testrayTask?.id}&t=${refresh}`,
 		{
 			params: {
-				fields: 'r_userToSubtasks_userId,dueStatus,score',
-				pageSize: 999,
+				pageSize: -1,
 			},
 		}
 	);
 
 	for (const subtask of testraySubtasks?.items ?? []) {
-		if (subtask?.dueStatus?.key !== TaskStatuses.COMPLETE) {
+		if (subtask?.status !== SubtaskStatuses.COMPLETE) {
 			continue;
 		}
 
 		const property =
-			subtask.r_userToSubtasks_userId === userId
-				? 'selfCompleted'
-				: 'othersCompleted';
+			subtask.userId === userId ? 'selfCompleted' : 'othersCompleted';
 
 		progressScore[property] += subtask.score;
 	}

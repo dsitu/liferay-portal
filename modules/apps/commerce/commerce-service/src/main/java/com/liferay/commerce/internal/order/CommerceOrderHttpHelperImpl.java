@@ -216,15 +216,6 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 		}
 
 		plid = _portal.getPlidFromPortletId(
-			groupId, CommercePortletKeys.COMMERCE_CART_CONTENT);
-
-		if (plid > 0) {
-			return _getPortletURL(
-				groupId, httpServletRequest,
-				CommercePortletKeys.COMMERCE_CART_CONTENT);
-		}
-
-		plid = _portal.getPlidFromPortletId(
 			groupId, CommercePortletKeys.COMMERCE_OPEN_ORDER_CONTENT);
 
 		if ((plid > 0) && (commerceOrder != null) && commerceOrder.isOpen()) {
@@ -242,6 +233,15 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 			}
 
 			return portletURL;
+		}
+
+		plid = _portal.getPlidFromPortletId(
+			groupId, CommercePortletKeys.COMMERCE_CART_CONTENT);
+
+		if (plid > 0) {
+			return _getPortletURL(
+				groupId, httpServletRequest,
+				CommercePortletKeys.COMMERCE_CART_CONTENT);
 		}
 
 		return null;
@@ -363,7 +363,6 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 				}
 
 				cookie.setMaxAge(CookiesConstants.MAX_AGE);
-				cookie.setPath(StringPool.SLASH);
 
 				CookiesManagerUtil.addCookie(
 					CookiesConstants.CONSENT_TYPE_NECESSARY, cookie,
@@ -796,7 +795,6 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 		}
 
 		cookie.setMaxAge(CookiesConstants.MAX_AGE);
-		cookie.setPath(StringPool.SLASH);
 
 		CookiesManagerUtil.addCookie(
 			CookiesConstants.CONSENT_TYPE_NECESSARY, cookie,

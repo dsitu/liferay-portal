@@ -11,7 +11,11 @@ type TDiscount = {
 	couponCode?: string;
 	discountCategories?: string;
 	discountProductGroups?: string;
-	discountProducts?: string;
+	discountProducts?: [
+		{
+			productId: number | string;
+		},
+	];
 	id?: number;
 	level?: string;
 	limitationType?: string;
@@ -27,10 +31,17 @@ type TDiscount = {
 	usePercentage?: boolean;
 };
 
-class TPriceEntry {
+type TDiscountRule = {
 	id?: number;
+	name?: string;
+	type?: string;
+	typeSettings?: string;
+};
+
+class TPriceEntry {
 	skuId: number;
 	price: number;
+	priceEntryId?: number;
 	priceListId: number;
 }
 
@@ -83,7 +94,10 @@ export class HeadlessCommerceAdminPricingApiHelper {
 		);
 
 		if (this.apiHelpers instanceof DataApiHelpers) {
-			this.apiHelpers.data.push({id: priceEntry.id, type: 'price-entry'});
+			this.apiHelpers.data.push({
+				id: priceEntry.priceEntryId,
+				type: 'price-entry',
+			});
 		}
 
 		return priceEntry;
@@ -120,5 +134,30 @@ export class HeadlessCommerceAdminPricingApiHelper {
 		}
 
 		return discount;
+	}
+
+	async postDiscountRule(discountId: number, discountRule?: TDiscountRule) {
+		discountRule = {
+			name: getRandomString(),
+			type: 'cart-total',
+			...(discountRule || {}),
+		};
+
+		discountRule = await this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/discounts/${discountId}/discount-rules`,
+			{
+				data: discountRule,
+				failOnStatusCode: true,
+			}
+		);
+
+		if (this.apiHelpers instanceof DataApiHelpers) {
+			this.apiHelpers.data.push({
+				id: discountRule.id,
+				type: 'discountRule',
+			});
+		}
+
+		return discountRule;
 	}
 }

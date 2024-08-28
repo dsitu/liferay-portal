@@ -13,15 +13,20 @@ import com.liferay.dynamic.data.mapping.util.FieldsToDDMFormValuesConverter;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.util.JournalConverter;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.xml.SecureXMLFactoryProviderUtil;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.UpgradeProcessFactory;
 import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -57,41 +62,41 @@ public class JournalArticleDDMFieldsUpgradeProcess extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
+		long originalCompanyId = CompanyThreadLocal.getCompanyId();
+
 		long classNameId = _classNameLocalService.getClassNameId(
 			JournalArticle.class);
 
-		processConcurrently(
-			"select id_, groupId, content, DDMStructureKey from " +
-				"JournalArticle where ctCollectionId = 0",
-			resultSet -> new Object[] {
-				resultSet.getLong("id_"), resultSet.getLong("groupId"),
-				resultSet.getString("content"),
-				resultSet.getString("DDMStructureKey")
-			},
-			values -> {
-				long id = (Long)values[0];
-				long groupId = (Long)values[1];
+		try (PreparedStatement preparedStatement1 = connection.prepareStatement(
+				"select id_, groupId, companyId, content, DDMStructureKey " +
+					"from JournalArticle where ctCollectionId = 0");
+			ResultSet resultSet = preparedStatement1.executeQuery()) {
 
-				String content = (String)values[2];
-
-				String ddmStructureKey = (String)values[3];
+			while (resultSet.next()) {
+				CompanyThreadLocal.setCompanyId(resultSet.getLong("companyId"));
 
 				DDMStructure ddmStructure =
 					_ddmStructureLocalService.getStructure(
-						_portal.getSiteGroupId(groupId), classNameId,
-						ddmStructureKey, true);
-
-				content = _convertFieldNames(content);
+						_portal.getSiteGroupId(resultSet.getLong("groupId")),
+						classNameId, resultSet.getString("DDMStructureKey"),
+						true);
 
 				DDMFormValues ddmFormValues =
 					_fieldsToDDMFormValuesConverter.convert(
 						ddmStructure,
-						_journalConverter.getDDMFields(ddmStructure, content));
+						_journalConverter.getDDMFields(
+							ddmStructure,
+							_convertFieldNames(
+								resultSet.getString("content"))));
 
 				_ddmFieldLocalService.updateDDMFormValues(
-					ddmStructure.getStructureId(), id, ddmFormValues);
-			},
-			null);
+					ddmStructure.getStructureId(), resultSet.getLong("id_"),
+					ddmFormValues);
+			}
+		}
+		finally {
+			CompanyThreadLocal.setCompanyId(originalCompanyId);
+		}
 	}
 
 	@Override
@@ -120,6 +125,12 @@ public class JournalArticleDDMFieldsUpgradeProcess extends UpgradeProcess {
 			Node node = nodeList.item(i);
 
 			NamedNodeMap namedNodeMap = node.getAttributes();
+
+			Node instanceIdNode = namedNodeMap.getNamedItem("instance-id");
+
+			if (instanceIdNode != null) {
+				instanceIdNode.setTextContent(StringUtil.randomString());
+			}
 
 			Node nameNode = namedNodeMap.getNamedItem("name");
 

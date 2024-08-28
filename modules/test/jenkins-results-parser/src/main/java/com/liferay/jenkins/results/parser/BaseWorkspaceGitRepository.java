@@ -545,24 +545,28 @@ public abstract class BaseWorkspaceGitRepository
 
 			gitHubDevGitRemotes.remove(randomGitRemote);
 
-			RemoteGitBranch remoteGitBranch =
-				gitWorkingDirectory.getRemoteGitBranch(
-					getGitHubDevBranchName(), randomGitRemote);
-
-			if (remoteGitBranch == null) {
-				continue;
-			}
-
-			String remoteGitBranchSHA = remoteGitBranch.getSHA();
+			String remoteGitBranchSHA = null;
 
 			try {
+				RemoteGitBranch remoteGitBranch =
+					gitWorkingDirectory.getRemoteGitBranch(
+						getGitHubDevBranchName(), randomGitRemote);
+
+				if (remoteGitBranch == null) {
+					continue;
+				}
+
+				remoteGitBranchSHA = remoteGitBranch.getSHA();
+
 				gitWorkingDirectory.fetch(remoteGitBranch);
 			}
 			catch (Exception exception) {
 				continue;
 			}
 
-			if (!gitWorkingDirectory.localSHAExists(remoteGitBranchSHA)) {
+			if (JenkinsResultsParserUtil.isNullOrEmpty(remoteGitBranchSHA) ||
+				!gitWorkingDirectory.localSHAExists(remoteGitBranchSHA)) {
+
 				continue;
 			}
 
@@ -673,10 +677,15 @@ public abstract class BaseWorkspaceGitRepository
 			return _upstreamRemoteGitRef;
 		}
 
+		String name = getName();
+		String upstreamBranchName = getUpstreamBranchName();
+
 		_upstreamRemoteGitRef = GitUtil.getRemoteGitRef(
 			JenkinsResultsParserUtil.combine(
-				"https://github.com/liferay/", getName(), "/tree/",
-				getUpstreamBranchName()));
+				"https://github.com/",
+				JenkinsResultsParserUtil.getUpstreamUserName(
+					name, upstreamBranchName),
+				"/", name, "/tree/", upstreamBranchName));
 
 		return _upstreamRemoteGitRef;
 	}

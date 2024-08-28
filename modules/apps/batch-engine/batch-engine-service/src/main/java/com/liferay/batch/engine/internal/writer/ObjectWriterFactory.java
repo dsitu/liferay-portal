@@ -5,14 +5,11 @@
 
 package com.liferay.batch.engine.internal.writer;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
+import com.liferay.portal.vulcan.jackson.databind.ObjectMapperProviderUtil;
 import com.liferay.portal.vulcan.jackson.databind.ser.VulcanPropertyFilter;
 
 import java.util.HashSet;
@@ -24,6 +21,9 @@ import java.util.List;
 public class ObjectWriterFactory {
 
 	public static ObjectWriter getObjectWriter(List<String> includeFieldNames) {
+		ObjectMapper objectMapper =
+			ObjectMapperProviderUtil.getBatchEngineObjectMapper();
+
 		SimpleFilterProvider simpleFilterProvider = new SimpleFilterProvider();
 
 		if (includeFieldNames.isEmpty()) {
@@ -36,16 +36,7 @@ public class ObjectWriterFactory {
 					new HashSet<>(includeFieldNames), null));
 		}
 
-		return _objectMapper.writer(simpleFilterProvider);
+		return objectMapper.writer(simpleFilterProvider);
 	}
-
-	private static final ObjectMapper _objectMapper = new ObjectMapper() {
-		{
-			disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-			enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
-			setDateFormat(new ISO8601DateFormat());
-			setSerializationInclusion(JsonInclude.Include.NON_NULL);
-		}
-	};
 
 }

@@ -42,7 +42,7 @@ import org.osgi.service.component.annotations.Reference;
 )
 @Generated("")
 @OpenAPIDefinition(
-	info = @Info(description = "Liferay Commerce Admin Catalog API. A Java client JAR is available for use with the group ID 'com.liferay', artifact ID 'com.liferay.headless.commerce.admin.catalog.client', and version '4.0.60'.", license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"), title = "Liferay Commerce Admin Catalog API", version = "v1.0")
+	info = @Info(description = "Liferay Commerce Admin Catalog API. A Java client JAR is available for use with the group ID 'com.liferay', artifact ID 'com.liferay.headless.commerce.admin.catalog.client', and version '4.0.64'.", license = @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0.html"), title = "Liferay Commerce Admin Catalog API", version = "v1.0")
 )
 @Path("/v1.0")
 public class OpenAPIResourceImpl {
@@ -99,6 +99,8 @@ public class OpenAPIResourceImpl {
 
 			add(LinkedProductResourceImpl.class);
 
+			add(ListTypeDefinitionResourceImpl.class);
+
 			add(LowStockActionResourceImpl.class);
 
 			add(MappedProductResourceImpl.class);
@@ -137,6 +139,8 @@ public class OpenAPIResourceImpl {
 
 			add(ProductVirtualSettingsResourceImpl.class);
 
+			add(ProductVirtualSettingsFileEntryResourceImpl.class);
+
 			add(RelatedProductResourceImpl.class);
 
 			add(SkuResourceImpl.class);
@@ -146,6 +150,8 @@ public class OpenAPIResourceImpl {
 			add(SkuUnitOfMeasureResourceImpl.class);
 
 			add(SkuVirtualSettingsResourceImpl.class);
+
+			add(SkuVirtualSettingsFileEntryResourceImpl.class);
 
 			add(SpecificationResourceImpl.class);
 

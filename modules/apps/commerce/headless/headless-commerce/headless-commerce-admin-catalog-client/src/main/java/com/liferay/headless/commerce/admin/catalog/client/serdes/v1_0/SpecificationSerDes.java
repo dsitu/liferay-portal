@@ -56,6 +56,20 @@ public class SpecificationSerDes {
 			sb.append(_toJSON(specification.getDescription()));
 		}
 
+		if (specification.getExternalReferenceCode() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"externalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(specification.getExternalReferenceCode()));
+
+			sb.append("\"");
+		}
+
 		if (specification.getFacetable() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -88,6 +102,16 @@ public class SpecificationSerDes {
 			sb.append(_escape(specification.getKey()));
 
 			sb.append("\"");
+		}
+
+		if (specification.getListTypeDefinitionId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"listTypeDefinitionId\": ");
+
+			sb.append(specification.getListTypeDefinitionId());
 		}
 
 		if (specification.getOptionCategory() != null) {
@@ -147,6 +171,15 @@ public class SpecificationSerDes {
 				"description", String.valueOf(specification.getDescription()));
 		}
 
+		if (specification.getExternalReferenceCode() == null) {
+			map.put("externalReferenceCode", null);
+		}
+		else {
+			map.put(
+				"externalReferenceCode",
+				String.valueOf(specification.getExternalReferenceCode()));
+		}
+
 		if (specification.getFacetable() == null) {
 			map.put("facetable", null);
 		}
@@ -166,6 +199,15 @@ public class SpecificationSerDes {
 		}
 		else {
 			map.put("key", String.valueOf(specification.getKey()));
+		}
+
+		if (specification.getListTypeDefinitionId() == null) {
+			map.put("listTypeDefinitionId", null);
+		}
+		else {
+			map.put(
+				"listTypeDefinitionId",
+				String.valueOf(specification.getListTypeDefinitionId()));
 		}
 
 		if (specification.getOptionCategory() == null) {
@@ -212,6 +254,11 @@ public class SpecificationSerDes {
 			if (Objects.equals(jsonParserFieldName, "description")) {
 				return true;
 			}
+			else if (Objects.equals(
+						jsonParserFieldName, "externalReferenceCode")) {
+
+				return false;
+			}
 			else if (Objects.equals(jsonParserFieldName, "facetable")) {
 				return false;
 			}
@@ -219,6 +266,11 @@ public class SpecificationSerDes {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "key")) {
+				return false;
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "listTypeDefinitionId")) {
+
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "optionCategory")) {
@@ -245,6 +297,14 @@ public class SpecificationSerDes {
 						(Map<String, String>)jsonParserFieldValue);
 				}
 			}
+			else if (Objects.equals(
+						jsonParserFieldName, "externalReferenceCode")) {
+
+				if (jsonParserFieldValue != null) {
+					specification.setExternalReferenceCode(
+						(String)jsonParserFieldValue);
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "facetable")) {
 				if (jsonParserFieldValue != null) {
 					specification.setFacetable((Boolean)jsonParserFieldValue);
@@ -259,6 +319,14 @@ public class SpecificationSerDes {
 			else if (Objects.equals(jsonParserFieldName, "key")) {
 				if (jsonParserFieldValue != null) {
 					specification.setKey((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "listTypeDefinitionId")) {
+
+				if (jsonParserFieldValue != null) {
+					specification.setListTypeDefinitionId(
+						Long.valueOf((String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "optionCategory")) {

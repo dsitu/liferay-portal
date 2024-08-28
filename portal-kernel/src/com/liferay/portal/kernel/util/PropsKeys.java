@@ -121,6 +121,9 @@ public interface PropsKeys {
 	public static final String ADMIN_SYNC_DEFAULT_ASSOCIATIONS =
 		"admin.sync.default.associations";
 
+	public static final String ANALYTICS_CLOUD_CLIENT_JS_VERSION =
+		"analytics.cloud.client.js.version";
+
 	public static final String ANNOUNCEMENTS_EMAIL_BODY =
 		"announcements.email.body";
 
@@ -438,6 +441,9 @@ public interface PropsKeys {
 
 	public static final String COMMUNITIES_CONTROL_PANEL_MEMBERS_VISIBLE =
 		"communities.control.panel.members.visible";
+
+	public static final String COMPANY_DEFAULT_ADD_DEFAULT_ADMIN_USER =
+		"company.default.add.default.admin.user";
 
 	public static final String COMPANY_DEFAULT_HOME_URL =
 		"company.default.home.url";
@@ -1261,6 +1267,9 @@ public interface PropsKeys {
 
 	public static final String JSON_SERVICE_SERIALIZE_THROWABLE =
 		"json.service.serialize.throwable";
+
+	public static final String JSON_STRING_MAX_LENGTH =
+		"json.string.max.length";
 
 	public static final String JSON_WEB_SERVICE_ENABLED =
 		"json.web.service.enabled";
@@ -2613,6 +2622,9 @@ public interface PropsKeys {
 
 	public static final String TABLE_MAPPER_CACHELESS_MAPPING_TABLE_NAMES =
 		"table.mapper.cacheless.mapping.table.names";
+
+	public static final String TEMPLATE_ENGINE_CACHE_ENABLED =
+		"template.engine.cache.enabled";
 
 	public static final String
 		TEMPLATE_ENGINE_FREEMARKER_TRANSACTION_READ_ONLY =

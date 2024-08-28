@@ -78,6 +78,11 @@ public interface DB {
 
 	public List<Index> getIndexes(Connection connection) throws SQLException;
 
+	public List<IndexMetadata> getIndexes(
+			Connection connection, String tableName, String columnName,
+			boolean onlyUnique)
+		throws SQLException;
+
 	public ResultSet getIndexResultSet(
 			Connection connection, String tableName, boolean onlyUnique)
 		throws SQLException;
@@ -170,12 +175,36 @@ public interface DB {
 
 	public void runSQL(String[] sqls) throws IOException, SQLException;
 
-	public void runSQLTemplateString(
+	public void runSQLTemplate(
 			Connection connection, String template, boolean failOnError)
 		throws IOException, NamingException, SQLException;
 
-	public void runSQLTemplateString(String template, boolean failOnError)
+	public void runSQLTemplate(String template, boolean failOnError)
 		throws IOException, NamingException, SQLException;
+
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 *             #runSQLTemplate(Connection, String, boolean)}
+	 */
+	@Deprecated
+	public default void runSQLTemplateString(
+			Connection connection, String template, boolean failOnError)
+		throws IOException, NamingException, SQLException {
+
+		runSQLTemplate(connection, template, failOnError);
+	}
+
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 *             #runSQLTemplate(String, boolean)}
+	 */
+	@Deprecated
+	public default void runSQLTemplateString(
+			String template, boolean failOnError)
+		throws IOException, NamingException, SQLException {
+
+		runSQLTemplate(template, failOnError);
+	}
 
 	public void setSupportsStringCaseSensitiveQuery(
 		boolean supportsStringCaseSensitiveQuery);

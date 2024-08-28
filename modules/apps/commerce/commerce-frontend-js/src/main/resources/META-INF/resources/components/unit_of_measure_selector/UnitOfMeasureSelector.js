@@ -19,6 +19,8 @@ import {
 import {getMinQuantity} from '../../utilities/quantities';
 import Asterisk from '../product_options/Asterisk';
 
+import './unit_of_measure_selector.scss';
+
 function UnitOfMeasureSelector({
 	accountId,
 	channelId,
@@ -50,12 +52,12 @@ function UnitOfMeasureSelector({
 		ServiceProvider.DeliveryCatalogAPI('v1');
 
 	const postChannelProductSkuBySkuOption = useCallback(
-		(skuUnitOfMeasureKey) => {
+		(quantity = 1, skuUnitOfMeasureKey) => {
 			DeliveryCatalogAPIServiceProvider.postChannelProductSkuBySkuOption(
 				channelId,
 				productId,
 				accountId,
-				inputProperties.quantity,
+				quantity,
 				skuUnitOfMeasureKey,
 				options || skuOptionsAtomState.skuOptions
 			).then((cpInstance) => {
@@ -102,21 +104,26 @@ function UnitOfMeasureSelector({
 					}
 				}
 
+				const quantity = getMinQuantity(
+					productConfiguration?.minOrderQuantity,
+					skuUnitOfMeasure?.incrementalOrderQuantity || 1,
+					skuUnitOfMeasure?.precision || 0
+				);
+
 				setInputProperties((inputProperties) => ({
 					...inputProperties,
 					fireEvent: true,
-					quantity: getMinQuantity(
-						productConfiguration?.minOrderQuantity,
-						skuUnitOfMeasure?.incrementalOrderQuantity || 1,
-						skuUnitOfMeasure?.precision || 0
-					),
+					quantity,
 					resetQuantity,
 					unitOfMeasures: skuUnitOfMeasures,
 					value: skuUnitOfMeasure?.key || '',
 				}));
 
 				if (skuUnitOfMeasure?.key) {
-					postChannelProductSkuBySkuOption(skuUnitOfMeasure?.key);
+					postChannelProductSkuBySkuOption(
+						quantity,
+						skuUnitOfMeasure?.key
+					);
 				}
 			});
 		}
@@ -237,7 +244,22 @@ function UnitOfMeasureSelector({
 							value: target.value,
 						}));
 
-						postChannelProductSkuBySkuOption(target.value);
+						const selectedUnitOfMeasure =
+							inputProperties.unitOfMeasures.find(
+								(unitOfMeasure) => {
+									return unitOfMeasure.key === target.value;
+								}
+							);
+
+						postChannelProductSkuBySkuOption(
+							getMinQuantity(
+								productConfiguration?.minOrderQuantity,
+								selectedUnitOfMeasure?.incrementalOrderQuantity ||
+									1,
+								selectedUnitOfMeasure?.precision || 0
+							),
+							target.value
+						);
 					}}
 					options={inputProperties.unitOfMeasures.map(
 						(unitOfMeasure) => ({

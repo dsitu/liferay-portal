@@ -185,43 +185,6 @@ module.framework.properties.osgi.console=11312</echo>
 		</sequential>
 	</macrodef>
 
-	<macrodef name="create-custom-element-client-extension">
-		<sequential>
-			<echo file="${liferay.home}/osgi/configs/com.liferay.client.extension.type.configuration.CETConfiguration~customElement.config">
-baseURL=&quot;&quot;
-description=&quot;Custom Element Description&quot;
-name=&quot;Vanilla Counter&quot;
-properties=&#91;&quot;test-data-user=QAuser&quot;&#93;
-type=&quot;customElement&quot;
-typeSettings=&#91;&quot;friendlyURLMapping=vanilla&quot;,&quot;instanceable=true&quot;,&quot;portletCategoryName=category.client-extensions&quot;,&quot;urls=https:&#47;&#47;liferay.github.io&#47;liferay-frontend-projects&#47;vanilla-counter&#47;index.js&quot;,&quot;htmlElementName=vanilla-counter&quot;,&quot;cssURLs=https:&#47;&#47;liferay.github.io&#47;liferay-frontend-projects&#47;index.css&quot;,&quot;useESM=true&quot;&#93;</echo>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="create-fds-cell-renderer-client-extension">
-		<sequential>
-			<echo file="${liferay.home}/osgi/configs/com.liferay.client.extension.type.configuration.CETConfiguration~fdsCellRenderer.config">
-baseURL=&quot;&quot;
-description=&quot;Liferay Sample Frontend Data Set Cell Renderer Description&quot;
-name=&quot;Liferay Sample Frontend Data Set Cell Renderer&quot;
-sourceCodeURL=&quot;&quot;
-type=&quot;fdsCellRenderer&quot;
-typeSettings=&#91;&quot;url=https:&#47;&#47;liferay.github.io&#47;liferay-frontend-projects&#47;index.html&quot;&#93;</echo>
-		</sequential>
-	</macrodef>
-
-	<macrodef name="create-iframe-client-extension">
-		<sequential>
-			<echo file="${liferay.home}/osgi/configs/com.liferay.client.extension.type.configuration.CETConfiguration~iframe.config">
-baseURL=&quot;&quot;
-description=&quot;IFrame Description&quot;
-name=&quot;My Pretty IFrame&quot;
-properties=&#91;&quot;a=1&quot;,&quot;b=2&quot;&#93;
-sourceCodeURL=&quot;&quot;
-type=&quot;iframe&quot;
-typeSettings=&#91;&quot;friendlyURLMapping=perico&quot;,&quot;instanceable=false&quot;,&quot;portletCategoryName=category.client-extensions&quot;,&quot;url=https:&#47;&#47;liferay.github.io&#47;liferay-frontend-projects&#47;index.html&quot;&#93;</echo>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="decompress">
 		<attribute name="dest" />
 		<attribute name="src" />
@@ -515,6 +478,64 @@ typeSettings=&#91;&quot;friendlyURLMapping=perico&quot;,&quot;instanceable=false
 			</execute>
 
 			<delete file="${script.sh.file}" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="download-gradle-wrapper-binary">
+		<attribute name="workspace.dir" />
+		<sequential>
+			<if>
+				<available file="@{workspace.dir}/gradle/wrapper/gradle-wrapper.properties" />
+				<then>
+					<local name="gradle.wrapper.bin.file.name" />
+					<local name="gradle.wrapper.bin.file.url" />
+
+					<beanshell>
+						<![CDATA[
+							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+
+							File gradleWrapperPropertiesFile = new File("@{workspace.dir}" + "/gradle/wrapper/gradle-wrapper.properties");
+
+							Properties gradleWrapperProperties = JenkinsResultsParserUtil.getProperties(new File[] {gradleWrapperPropertiesFile});
+
+							String distributionURL = gradleWrapperProperties.getProperty("distributionUrl");
+
+							project.setProperty("gradle.wrapper.bin.file.name", distributionURL.replaceAll(".*/([^/]+)", "$1"));
+
+							project.setProperty("gradle.wrapper.bin.file.url", distributionURL);
+						]]>
+					</beanshell>
+
+					<if>
+						<matches pattern="https?://" string="${gradle.wrapper.bin.file.url}" />
+						<then>
+							<mirrors-get
+								dest="@{workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}"
+								src="${gradle.wrapper.bin.file.url}"
+							/>
+						</then>
+						<else>
+							<execute>
+								cp @{workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.url} @{workspace.dir}/gradle/wrapper/${gradle.wrapper.bin.file.name}
+							</execute>
+						</else>
+					</if>
+
+					<beanshell>
+						<![CDATA[
+							import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+
+							File gradleWrapperPropertiesFile = new File("@{workspace.dir}" + "/gradle/wrapper/gradle-wrapper.properties");
+
+							Properties gradleWrapperProperties = JenkinsResultsParserUtil.getProperties(new File[] {gradleWrapperPropertiesFile});
+
+							gradleWrapperProperties.setProperty("distributionUrl", "./" + project.getProperty("gradle.wrapper.bin.file.name"));
+
+							JenkinsResultsParserUtil.writePropertiesFile(gradleWrapperPropertiesFile, gradleWrapperProperties, true);
+						]]>
+					</beanshell>
+				</then>
+			</if>
 		</sequential>
 	</macrodef>
 
@@ -4170,6 +4191,64 @@ tell application "Safari" to quit
 		</sequential>
 	</macrodef>
 
+	<macrodef name="prepare-selenium-object-storage-sugarcrm-properties">
+		<sequential>
+			<if>
+				<isset property="object.storage.sugarcrm.access.token.url" />
+				<then>
+					<echo append="true" file="${test.ext.properties.file}">
+						object.storage.sugarcrm.access.token.url=${object.storage.sugarcrm.access.token.url}
+					</echo>
+				</then>
+			</if>
+
+			<if>
+				<isset property="object.storage.sugarcrm.base.url" />
+				<then>
+					<echo append="true" file="${test.ext.properties.file}">
+						object.storage.sugarcrm.base.url=${object.storage.sugarcrm.base.url}
+					</echo>
+				</then>
+			</if>
+
+			<if>
+				<isset property="object.storage.sugarcrm.client.id" />
+				<then>
+					<echo append="true" file="${test.ext.properties.file}">
+						object.storage.sugarcrm.client.id=${object.storage.sugarcrm.client.id}
+					</echo>
+				</then>
+			</if>
+
+			<if>
+				<isset property="object.storage.sugarcrm.grant.type" />
+				<then>
+					<echo append="true" file="${test.ext.properties.file}">
+						object.storage.sugarcrm.grant.type=${object.storage.sugarcrm.grant.type}
+					</echo>
+				</then>
+			</if>
+
+			<if>
+				<isset property="object.storage.sugarcrm.password" />
+				<then>
+					<echo append="true" file="${test.ext.properties.file}">
+						object.storage.sugarcrm.password=${object.storage.sugarcrm.password}
+					</echo>
+				</then>
+			</if>
+
+			<if>
+				<isset property="object.storage.sugarcrm.username" />
+				<then>
+					<echo append="true" file="${test.ext.properties.file}">
+						object.storage.sugarcrm.username=${object.storage.sugarcrm.username}
+					</echo>
+				</then>
+			</if>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="prepare-selenium-onedrive-properties">
 		<sequential>
 			<if>
@@ -5191,16 +5270,6 @@ passwords.encryption.algorithm.legacy=SHA
 company.default.web.id=www.able.com</echo>
 						</then>
 					</if>
-				</then>
-			</if>
-
-			<get-testcase-property property.name="upgrade.reports.enabled" />
-
-			<if>
-				<equals arg1="${upgrade.reports.enabled}" arg2="true" />
-				<then>
-					<echo append="true" file="${liferay.home}/tools/portal-tools-db-upgrade-client/portal-upgrade-ext.properties">
-upgrade.report.enabled=true</echo>
 				</then>
 			</if>
 
@@ -6897,7 +6966,7 @@ go</echo>
 					</then>
 				</elseif>
 				<else>
-					<var name="app.server.tomcat.version" value="9.0.87" />
+					<var name="app.server.tomcat.version" value="9.0.90" />
 				</else>
 			</if>
 
@@ -7845,8 +7914,14 @@ ${docker.start.error}</fail>
 
 			<local name="env.portal.url.arg" />
 
-			<condition else="" property="env.portal.url.arg" value="--env=PORTAL_URL=http://${env.HOSTNAME}:8080">
-				<isset property="env.HOSTNAME" />
+			<condition else="" property="env.portal.url.arg" value="--env=PORTAL_URL=http://${env.NODE_NAME}:8080">
+				<isset property="env.NODE_NAME" />
+			</condition>
+
+			<local name="env.testray.cloud.storage.base.url" />
+
+			<condition else="" property="env.testray.cloud.storage.base.url" value="--env=TESTRAY_CLOUD_STORAGE_BASE_URL='${testray.run.shared.url}/playwright-report/data/'">
+				<isset property="testray.run.shared.url" />
 			</condition>
 
 			<get-playwright-docker-image />
@@ -7862,6 +7937,7 @@ ${docker.start.error}</fail>
 				--add-host www.fox.com:${ip.address} \
 				${env.ci.arg} \
 				${env.portal.url.arg} \
+				${env.testray.cloud.storage.base.url} \
 				--mount type=bind,source=${host.git.dir}/${portal.dir.name},target=${portal.dir} \
 			</start-docker-container>
 		</sequential>
@@ -9608,18 +9684,21 @@ go</echo>
 	</target>
 
 	<target name="cluster-session-replication">
-		<replace
-			failOnNoReplacements="true"
-			file="${app.server.tomcat.dir}/conf/context.xml"
-		>
-			<replacetoken><![CDATA[<Context>]]></replacetoken>
-			<replacevalue><![CDATA[<Context>
-
-		<Manager
-			className="org.apache.catalina.ha.session.DeltaManager"
-			expireSessionsOnShutdown="false"
-			notifyListenersOnReplication="true"/>]]></replacevalue>
-		</replace>
+		<if>
+			<not>
+				<resourcecontains
+					resource="${app.server.tomcat.dir}/webapps/ROOT/WEB-INF/classes/logging.properties"
+					substring="org.apache.catalina.ha.session.handlers"
+				/>
+			</not>
+			<then>
+				<echo append="true" file="${app.server.tomcat.dir}/webapps/ROOT/WEB-INF/classes/logging.properties">
+			<![CDATA[
+org.apache.catalina.ha.session.handlers=java.util.logging.ConsoleHandler
+org.apache.catalina.ha.session.level=INFO]]>
+				</echo>
+			</then>
+		</if>
 
 		<replace
 			failOnNoReplacements="true"
@@ -9664,7 +9743,14 @@ org.apache.catalina.tribes.level = FINE]]>
 			<replacetoken><![CDATA[<Engine name="Catalina" defaultHost="localhost">]]></replacetoken>
 			<replacevalue><![CDATA[<Engine defaultHost="localhost" name="Catalina">
 
-    	<Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"/>]]></replacevalue>
+	<Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster">
+		<Manager className="com.liferay.support.tomcat.session.LiferayDeltaManager" />
+		<Channel className="org.apache.catalina.tribes.group.GroupChannel">
+			<Sender className="org.apache.catalina.tribes.transport.ReplicationTransmitter">
+				<Transport className="org.apache.catalina.tribes.transport.nio.PooledParallelSender" timeout="300000" />
+			</Sender>
+		</Channel>
+	</Cluster>]]></replacevalue>
 		</replace>
 	</target>
 
@@ -10411,7 +10497,7 @@ org.apache.catalina.tribes.level = FINE]]>
 								<if>
 									<isset property="env.TEST_PORTAL_RELEASE_VERSION" />
 									<then>
-										<fail message="This release test is attempting to build Marketplace applications from source instead of deploying the latest released version from Marketplace." />
+										<fail message="This release test is attempting to build ${Liferay-Releng-App-Title}.lpkg from source instead of deploying the latest released version from Marketplace." />
 									</then>
 								</if>
 
@@ -10832,14 +10918,14 @@ send_user $expect_out(buffer)]]></echo>
 		<if>
 			<equals arg1="${database.type}" arg2="mysql" />
 			<then>
-				<sql classpath="${test.app.server.lib.portal.dir}/${jdbc.mysql.driver}" driver="${database.mysql.driver}" onerror="continue" output="${sql.output.file}" password="${database.mysql.password}" print="true" showheaders="false" showtrailers="false" src="${sql.input.file}" url="${database.mysql.url}" userid="${database.mysql.username}" />
+				<sql autocommit="${sql.autocommit}" classpath="${test.app.server.lib.portal.dir}/${jdbc.mysql.driver}" driver="${database.mysql.driver}" onerror="continue" output="${sql.output.file}" password="${database.mysql.password}" print="true" showheaders="false" showtrailers="false" src="${sql.input.file}" url="${database.mysql.url}" userid="${database.mysql.username}" />
 			</then>
 		</if>
 
 		<if>
 			<equals arg1="${database.type}" arg2="postgresql" />
 			<then>
-				<sql classpath="${test.app.server.lib.portal.dir}/${jdbc.postgresql.driver}" driver="${database.postgresql.driver}" onerror="continue" output="${sql.output.file}" password="${database.postgresql.password}" print="true" showheaders="false" showtrailers="false" src="${sql.input.file}" url="${database.postgresql.url}" userid="${database.postgresql.username}" />
+				<sql autocommit="${sql.autocommit}" classpath="${test.app.server.lib.portal.dir}/${jdbc.postgresql.driver}" driver="${database.postgresql.driver}" onerror="continue" output="${sql.output.file}" password="${database.postgresql.password}" print="true" showheaders="false" showtrailers="false" src="${sql.input.file}" url="${database.postgresql.url}" userid="${database.postgresql.username}" />
 			</then>
 		</if>
 	</target>
@@ -11787,32 +11873,6 @@ ${update.properties}</echo>
 	</target>
 
 	<target name="prepare-osgi-module-configurations">
-		<get-testcase-property property.name="custom.element.client.extension.created" />
-
-		<if>
-			<equals arg1="${custom.element.client.extension.created}" arg2="true" />
-			<then>
-				<create-custom-element-client-extension />
-			</then>
-		</if>
-
-		<get-testcase-property property.name="fds.cell.renderer.client.extension.created" />
-
-		<if>
-			<equals arg1="${fds.cell.renderer.client.extension.created}" arg2="true" />
-			<then>
-				<create-fds-cell-renderer-client-extension />
-			</then>
-		</if>
-
-		<get-testcase-property property.name="iframe.client.extension.created" />
-
-		<if>
-			<equals arg1="${iframe.client.extension.created}" arg2="true" />
-			<then>
-				<create-iframe-client-extension />
-			</then>
-		</if>
 		<get-testcase-property property.name="osgi.module.configurations" />
 
 		<if>
@@ -12092,16 +12152,6 @@ cluster.link.channel.properties.transport.0=${project.dir}/portal-web/test/funct
 				<echo append="true" file="portal-impl/src/portal-ext.properties">
 
 upgrade.database.auto.run=true</echo>
-			</then>
-		</if>
-
-		<get-testcase-property property.name="upgrade.reports.enabled" />
-
-		<if>
-			<equals arg1="${upgrade.reports.enabled}" arg2="true" />
-			<then>
-				<echo append="true" file="portal-impl/src/portal-ext.properties">
-upgrade.report.enabled=true</echo>
 			</then>
 		</if>
 
@@ -12735,6 +12785,62 @@ captcha.enforce.disabled=true</echo>
 		</if>
 	</target>
 
+	<target name="prepare-portal-test-object-storage-sugarcrm-properties">
+		<if>
+			<isset property="object.storage.sugarcrm.access.token.url" />
+			<then>
+				<echo append="true" file="${project.dir}/portal-test/src/test-portal-impl.properties">
+					object.storage.sugarcrm.access.token.url=${object.storage.sugarcrm.access.token.url}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.base.url" />
+			<then>
+				<echo append="true" file="${project.dir}/portal-test/src/test-portal-impl.properties">
+					object.storage.sugarcrm.base.url=${object.storage.sugarcrm.base.url}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.client.id" />
+			<then>
+				<echo append="true" file="${project.dir}/portal-test/src/test-portal-impl.properties">
+					object.storage.sugarcrm.client.id=${object.storage.sugarcrm.client.id}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.grant.type" />
+			<then>
+				<echo append="true" file="${project.dir}/portal-test/src/test-portal-impl.properties">
+					object.storage.sugarcrm.grant.type=${object.storage.sugarcrm.grant.type}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.password" />
+			<then>
+				<echo append="true" file="${project.dir}/portal-test/src/test-portal-impl.properties">
+					object.storage.sugarcrm.password=${object.storage.sugarcrm.password}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.username" />
+			<then>
+				<echo append="true" file="${project.dir}/portal-test/src/test-portal-impl.properties">
+					object.storage.sugarcrm.username=${object.storage.sugarcrm.username}
+				</echo>
+			</then>
+		</if>
+	</target>
+
 	<target name="prepare-portlet-ext-properties">
 		<for list="${test.case.available.property.names}" param="test.case.available.property.name">
 			<sequential>
@@ -13080,6 +13186,60 @@ captcha.enforce.disabled=true</echo>
 			<then>
 				<echo append="true" file="${test.ext.properties.file}">
 					object.storage.salesforce.username=${object.storage.salesforce.username}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.access.token.url" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					object.storage.sugarcrm.access.token.url=${object.storage.sugarcrm.access.token.url}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.base.url" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					object.storage.sugarcrm.base.url=${object.storage.sugarcrm.base.url}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.client.id" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					object.storage.sugarcrm.client.id=${object.storage.sugarcrm.client.id}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.grant.type" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					object.storage.sugarcrm.grant.type=${object.storage.sugarcrm.grant.type}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.password" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					object.storage.sugarcrm.password=${object.storage.sugarcrm.password}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="object.storage.sugarcrm.username" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					object.storage.sugarcrm.username=${object.storage.sugarcrm.username}
 				</echo>
 			</then>
 		</if>
@@ -13437,6 +13597,7 @@ captcha.enforce.disabled=true</echo>
 		<prepare-selenium-google-cloud-translation-properties />
 		<prepare-selenium-google-properties />
 		<prepare-selenium-object-storage-salesforce-properties />
+		<prepare-selenium-object-storage-sugarcrm-properties />
 		<prepare-selenium-onedrive-properties />
 		<prepare-selenium-openid-properties />
 		<prepare-selenium-recaptcha-properties />
@@ -15727,6 +15888,47 @@ mail.send.blacklist=</echo>
 				</ant>
 
 				<ant antfile="build-test-httpd.xml" target="start-httpd-server" />
+			</then>
+		</if>
+
+		<get-java-jdk-bundle-version test.batch.name="${test.batch.name}" />
+
+		<if>
+			<equals arg1="${java.jdk.bundle.version}" arg2="8" />
+			<then>
+				<if>
+					<equals arg1="${app.server.type}" arg2="tomcat" />
+					<then>
+						<replace
+							file="${app.server.tomcat.dir}/bin/setenv.sh"
+							token="CATALINA_OPTS=&quot;$CATALINA_OPTS"
+							value="CATALINA_OPTS=&quot;$CATALINA_OPTS -Djava.locale.providers=CLDR"
+						/>
+					</then>
+					<elseif>
+						<or>
+							<equals arg1="${app.server.type}" arg2="jboss" />
+							<equals arg1="${app.server.type}" arg2="wildfly" />
+						</or>
+						<then>
+							<replace
+								file="${app.server.bin.dir}/standalone.conf"
+								token="JAVA_OPTS=&quot;$JAVA_OPTS"
+								value="JAVA_OPTS=&quot;$JAVA_OPTS -Djava.locale.providers=CLDR"
+							/>
+						</then>
+					</elseif>
+					<elseif>
+						<equals arg1="${app.server.type}" arg2="weblogic" />
+						<then>
+							<replace
+								file="${app.server.weblogic.instance.dir}/startWebLogic.sh"
+								token="JAVA_OPTIONS=&quot;${JAVA_OPTIONS}"
+								value="JAVA_OPTIONS=&quot;${JAVA_OPTIONS} -Djava.locale.providers=CLDR"
+							/>
+						</then>
+					</elseif>
+				</if>
 			</then>
 		</if>
 

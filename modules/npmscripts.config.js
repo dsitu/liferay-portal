@@ -471,6 +471,7 @@ module.exports = {
 				'url',
 				'util',
 			],
+			'frontend-js-recharts': ['recharts'],
 			'frontend-js-web': [],
 			'frontend-taglib-clay': [
 				'@clayui/alert',
@@ -822,8 +823,10 @@ module.exports = {
 			'resolve',
 			'stylelint',
 			'swagger-ui-react',
+			'tar',
 			'timers-browserify',
 			'typescript',
+			'unzipper',
 			'webpack',
 		],
 	},

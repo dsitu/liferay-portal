@@ -4,8 +4,10 @@
  */
 
 import ClayButton from '@clayui/button';
+import {useAtom} from 'jotai';
 import {useOutletContext} from 'react-router-dom';
 import {KeyedMutator} from 'swr';
+import {taskSidebarRefresh} from '~/hooks/useSidebarTask';
 
 import AssignModal from '../../../components/AssignModal';
 import useFormModal from '../../../hooks/useFormModal';
@@ -35,6 +37,7 @@ type OutletContext = {
 const SubtaskHeaderActions: React.FC<SubtaskHeaderActionsProps> = ({
 	setForceRefetch,
 }) => {
+	const [, setTaskSidebarRefresh] = useAtom(taskSidebarRefresh);
 	const {
 		data: {testraySubtask},
 		mutate: {mutateSubtask},
@@ -45,7 +48,10 @@ const SubtaskHeaderActions: React.FC<SubtaskHeaderActionsProps> = ({
 			testraySubtaskImpl
 				.assignTo(testraySubtask, user.id)
 				.then(mutateSubtask)
-				.then(() => setForceRefetch(new Date().getTime())),
+				.then(() => {
+					setTaskSidebarRefresh(new Date().getTime());
+					setForceRefetch(new Date().getTime());
+				}),
 	});
 
 	const {modal: completeModal} = useFormModal();
@@ -62,7 +68,7 @@ const SubtaskHeaderActions: React.FC<SubtaskHeaderActionsProps> = ({
 			/>
 
 			{[SubtaskStatuses.COMPLETE, SubtaskStatuses.OPEN].includes(
-				testraySubtask.dueStatus.key as SubtaskStatuses
+				testraySubtask.dueStatus?.key as SubtaskStatuses
 			) ? (
 				<ClayButton
 					className="mb-3 ml-3"
@@ -70,7 +76,7 @@ const SubtaskHeaderActions: React.FC<SubtaskHeaderActionsProps> = ({
 					onClick={() => assignUserModal.open()}
 				>
 					{i18n.translate(
-						testraySubtask.dueStatus.key === SubtaskStatuses.OPEN
+						testraySubtask.dueStatus?.key === SubtaskStatuses.OPEN
 							? 'assign-and-begin-analysis'
 							: 'assign-and-reanalyze'
 					)}
@@ -110,9 +116,10 @@ const SubtaskHeaderActions: React.FC<SubtaskHeaderActionsProps> = ({
 							testraySubtaskImpl
 								.returnToOpen(testraySubtask)
 								.then(mutateSubtask)
-								.then(() =>
-									setForceRefetch(new Date().getTime())
-								)
+								.then(() => {
+									setTaskSidebarRefresh(new Date().getTime());
+									setForceRefetch(new Date().getTime());
+								})
 						}
 					>
 						{i18n.translate('return-to-open')}

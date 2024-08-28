@@ -59,7 +59,7 @@ public class RoleUtil {
 			if (roleType == RoleConstants.TYPE_ACCOUNT) {
 				AccountRole accountRole =
 					AccountRoleLocalServiceUtil.addAccountRole(
-						serviceContext.getUserId(),
+						null, serviceContext.getUserId(),
 						AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT, name, null,
 						descriptionMap);
 
@@ -67,7 +67,7 @@ public class RoleUtil {
 			}
 			else {
 				role = RoleLocalServiceUtil.addRole(
-					serviceContext.getUserId(), null, 0, name, null,
+					null, serviceContext.getUserId(), null, 0, name, null,
 					descriptionMap, roleType, null, null);
 			}
 		}

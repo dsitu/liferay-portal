@@ -32,21 +32,40 @@ type TOrder = {
 	paymentStatus?: string;
 	paymentStatusInfo?: number;
 	shippingAddressId?: string;
+	shippingAmount?: number;
 };
 
 type TOrderItem = {
 	decimalQuantity?: number;
+	id?: number;
 	productId?: number;
 	quantity: number;
 	skuId?: string;
 	unitPrice?: number;
 };
 
+type TOrderRule = {
+	active?: boolean;
+	id?: number;
+	name?: string;
+	priority?: number;
+	type: string;
+	typeSettings?: string;
+};
+
+type TOrderType = {
+	active?: boolean;
+	id?: number;
+	name?: {
+		[key: string]: string;
+	};
+};
+
 export class HeadlessCommerceAdminOrderApiHelper {
-	readonly apiHelpers: ApiHelpers;
+	readonly apiHelpers: ApiHelpers | DataApiHelpers;
 	readonly basePath: string;
 
-	constructor(apiHelpers: ApiHelpers) {
+	constructor(apiHelpers: ApiHelpers | DataApiHelpers) {
 		this.apiHelpers = apiHelpers;
 		this.basePath = 'headless-commerce-admin-order/v1.0/';
 	}
@@ -57,9 +76,21 @@ export class HeadlessCommerceAdminOrderApiHelper {
 		);
 	}
 
+	async deleteOrderTypes(orderTypeId: number) {
+		return this.apiHelpers.delete(
+			`${this.apiHelpers.baseUrl}${this.basePath}/order-types/${orderTypeId}`
+		);
+	}
+
 	async deleteTerms(termsId: number) {
 		return this.apiHelpers.delete(
 			`${this.apiHelpers.baseUrl}${this.basePath}/terms/${termsId}`
+		);
+	}
+
+	async getOrder(orderId: number) {
+		return this.apiHelpers.get(
+			`${this.apiHelpers.baseUrl}${this.basePath}/orders/${orderId}`
 		);
 	}
 
@@ -88,19 +119,29 @@ export class HeadlessCommerceAdminOrderApiHelper {
 	}
 
 	async patchOrder(id: number, order: TOrder) {
-		const postOrder = await this.apiHelpers.patch(
+		await this.apiHelpers.patch(
 			`${this.apiHelpers.baseUrl}${this.basePath}orders/${id}?nestedFields=orderItems`,
 			order
 		);
 
+		const patchOrder = await this.apiHelpers.get(
+			`${this.apiHelpers.baseUrl}${this.basePath}orders/${id}`
+		);
+
 		if (this.apiHelpers instanceof DataApiHelpers) {
-			this.apiHelpers.data.push({
-				id: postOrder.id,
-				type: 'order',
-			});
+			if (
+				!this.apiHelpers.data.find(
+					(element) => element.id === patchOrder.id
+				)
+			) {
+				this.apiHelpers.data.push({
+					id: patchOrder.id,
+					type: 'order',
+				});
+			}
 		}
 
-		return postOrder;
+		return patchOrder;
 	}
 
 	async postTerms(terms: TTerms) {
@@ -128,5 +169,53 @@ export class HeadlessCommerceAdminOrderApiHelper {
 		}
 
 		return terms;
+	}
+
+	async postOrderRule(orderRule: TOrderRule) {
+		orderRule = {
+			active: true,
+			name: getRandomString(),
+			priority: getRandomInt(),
+			type: '',
+			typeSettings: '',
+			...(orderRule || {}),
+		};
+
+		orderRule = await this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/order-rules`,
+			{
+				data: orderRule,
+				failOnStatusCode: true,
+			}
+		);
+
+		if (this.apiHelpers instanceof DataApiHelpers) {
+			this.apiHelpers.data.push({id: orderRule.id, type: 'orderRule'});
+		}
+
+		return orderRule;
+	}
+
+	async postOrderType(orderType: TOrderType) {
+		orderType = {
+			active: orderType.active,
+			name: {
+				en_US: getRandomString(),
+			},
+			...orderType,
+		};
+
+		orderType = await this.apiHelpers.post(
+			`${this.apiHelpers.baseUrl}${this.basePath}/order-types`,
+			{
+				data: orderType,
+			}
+		);
+
+		if (this.apiHelpers instanceof DataApiHelpers) {
+			this.apiHelpers.data.push({id: orderType.id, type: 'orderType'});
+		}
+
+		return orderType;
 	}
 }

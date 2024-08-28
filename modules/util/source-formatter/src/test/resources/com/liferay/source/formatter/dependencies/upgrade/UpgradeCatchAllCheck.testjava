@@ -13,6 +13,8 @@ import org.osgi.service.component.annotations.Reference;
 public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 	public void method() {
+		_countryService.fetchCommerceCountry(123, "test123");
+
 		AccountPortletKeys.COMMERCE_ACCOUNT_ADMIN;
 		AccountPortletKeys.COMMERCE_ACCOUNT_GROUP_ADMIN;
 
@@ -20,11 +22,9 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 		CommerceOrderConstants.PAYMENT_STATUS_PAID;
 		CommerceOrderConstants.PAYMENT_STATUS_PENDING;
 
-		for (CommerceOrderItem commerceOrderItem : commerceOrder.getCommerceOrderItems()) {
-			commerceOrderItem.getQuantity();
-		}
-
-		_countryService.fetchCommerceCountry(123, "test123");
+		CookieKeys.COMMERCE_CONTINUE_AS_GUEST;
+		CookieKeys.ID;
+		CookieKeys.SCREEN_NAME;
 
 		DestinationNames.BASE_PRICE_LIST;
 		DestinationNames.ORDER_STATUS;
@@ -39,18 +39,299 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 		fDSTableSchemaBuilder.addFDSTableSchemaField("test123", "test123");
 
+		for (CommerceOrderItem commerceOrderItem : commerceOrder.getCommerceOrderItems()) {
+			commerceOrderItem.getQuantity();
+		}
+
 		HtmlUtil.extractText(null);
+
+		_http.hasProxyConfig();
+		_http.addParameter(null, null, null);
+		_http.decodePath(null);
+		_http.decodeURL(null);
+		_http.encodeParameters(null);
+		_http.encodePath(null);
+		_http.fixPath(null);
+		_http.getCompleteURL(null, null, null);
+		_http.getDomain(null);
+		_http.getIpAddress(null);
+		_http.getParameter(null, null);
+		_http.getParameterMap(null);
+		_http.getPath(null);
+		_http.getProtocol(null);
+		_http.getQueryString(null);
+		_http.getRequestURL(null);
+		_http.getURI(null);
+		_http.hasDomain(null);
+		_http.hasProtocol(null);
+		_http.isForwarded(null);
+		_http.isSecure(null);
+		_http.normalizePath(null);
+		_http.parameterMapFromString(null);
+		_http.protocolize(null, null);
+		_http.removeDomain(null);
+		_http.removeParameter(null);
+		_http.removePathParameters(null);
+		_http.removeProtocol(null);
+		_http.sanitizeHeader(null);
+		_http.setParameter(null, null, null);
+		_http.shortenURL(null);
+
+		HttpUtil.hasProxyConfig();
+		HttpUtil.addParameter(null, null, null);
+		HttpUtil.decodePath(null);
+		HttpUtil.decodeURL(null);
+		HttpUtil.encodeParameters(null);
+		HttpUtil.encodePath(null);
+		HttpUtil.fixPath(null);
+		HttpUtil.getCompleteURL(null, null, null);
+		HttpUtil.getDomain(null);
+		HttpUtil.getIpAddress(null);
+		HttpUtil.getParameter(null, null);
+		HttpUtil.getParameterMap(null);
+		HttpUtil.getPath(null);
+		HttpUtil.getProtocol(null);
+		HttpUtil.getQueryString(null);
+		HttpUtil.getRequestURL(null);
+		HttpUtil.getURI(null);
+		HttpUtil.hasDomain(null);
+		HttpUtil.hasProtocol(null);
+		HttpUtil.isForwarded(null);
+		HttpUtil.isSecure(null);
+		HttpUtil.normalizePath(null);
+		HttpUtil.parameterMapFromString(null);
+		HttpUtil.protocolize(null, null);
+		HttpUtil.removeDomain(null);
+		HttpUtil.removeParameter(null);
+		HttpUtil.removePathParameters(null);
+		HttpUtil.removeProtocol(null);
+		HttpUtil.sanitizeHeader(null);
+		HttpUtil.setParameter(null, null, null);
+		HttpUtil.shortenURL(null);
+
+		JSONUtil.isValid("test123");
 
 		ListUtil.fromArray(LanguageUtil.getAvailableLocales());
 
-		CookieKeys.COMMERCE_CONTINUE_AS_GUEST;
-		CookieKeys.ID;
-		CookieKeys.SCREEN_NAME;
+		new ArticleCreateDateComparator();
+		new ArticleDisplayDateComparator();
+		new ArticleIDComparator();
+		new ArticleModifiedDateComparator();
+		new ArticleResourcePKComparator();
+		new ArticleReviewDateComparator();
+		new ArticleTitleComparator();
+		new ArticleVersionComparator();
+		new AssetCategoryCreateDateComparator();
+		new AssetListEntryCreateDateComparator();
+		new AssetTagAssetCountComparator();
+		new AssetTagCountComparator();
+		new AssetVocabularyCreateDateComparator();
+		new BackgroundTaskCompletionDateComparator();
+		new BackgroundTaskCreateDateComparator();
+		new BackgroundTaskNameComparator();
+		new CPAttachmentFileEntryDisplayDateComparator();
+		new CPAttachmentFileEntryModifiedDateComparator();
+		new CPAttachmentFileEntryPriorityComparator();
+		new CPDefinitionDisplayDateComparator();
+		new CPDefinitionGroupedEntryPriorityComparator();
+		new CPDefinitionGroupedEntryQuantityComparator();
+		new CPDefinitionLinkPriorityComparator();
+		new CPDefinitionModifiedDateComparator();
+		new CPDefinitionNameComparator();
+		new CPDefinitionOptionRelCreateDateComparator();
+		new CPDefinitionOptionRelNameComparator();
+		new CPDefinitionOptionRelPriorityComparator();
+		new CPDefinitionOptionValueRelNameComparator();
+		new CPDefinitionOptionValueRelPriorityComparator();
+		new CPDefinitionSpecificationOptionValuePriorityComparator();
+		new CPDefinitionVersionComparator();
+		new CPInstanceCreateDateComparator();
+		new CPInstanceDisplayDateComparator();
+		new CPInstanceSkuComparator();
+		new CPInstanceUnitOfMeasurePriorityComparator();
+		new CPMeasurementUnitPriorityComparator();
+		new CPOptionCategoryModifiedDateComparator();
+		new CPOptionCategoryPriorityComparator();
+		new CPOptionCategoryTitleComparator();
+		new CPOptionModifiedDateComparator();
+		new CPOptionNameComparator();
+		new CPOptionValueNameComparator();
+		new CPOptionValuePriorityComparator();
+		new CPSpecificationOptionModifiedDateComparator();
+		new CPSpecificationOptionTitleComparator();
+		new CPTaxCategoryCreateDateComparator();
+		new CPTaxCategoryNameComparator();
+		new CategoryModifiedDateComparator();
+		new CategoryTitleComparator();
+		new CommerceAddressCreateDateComparator();
+		new CommerceAddressNameComparator();
+		new CommerceAddressRestrictionCreateDateComparator();
+		new CommerceAvailabilityEstimatePriorityComparator();
+		new CommerceCatalogCreateDateComparator();
+		new CommerceCurrencyPriorityComparator();
+		new CommerceDiscountCommerceAccountGroupRelCreateDateComparator();
+		new CommerceDiscountCreateDateComparator();
+		new CommerceDiscountRelCreateDateComparator();
+		new CommerceDiscountRuleCreateDateComparator();
+		new CommerceInventoryReplenishmentItemAvailabilityDateComparator();
+		new CommerceInventoryWarehouseCityComparator();
+		new CommerceInventoryWarehouseItemQuantityComparator();
+		new CommerceInventoryWarehouseItemWarehouseNameComparator();
+		new CommerceInventoryWarehouseNameComparator();
+		new CommerceNotificationAttachmentCreateDateComparator();
+		new CommerceNotificationQueueEntryPriorityComparator();
+		new CommerceNotificationTemplateCommerceAccountGroupRelCreateDateComparator();
+		new CommerceNotificationTemplateModifiedDateComparator();
+		new CommerceNotificationTemplateNameComparator();
+		new CommerceOrderCreateDateComparator();
+		new CommerceOrderIdComparator();
+		new CommerceOrderItemCreateDateComparator();
+		new CommerceOrderPaymentCreateDateComparator();
+		new CommerceOrderTotalComparator();
+		new CommercePriceEntryUOMCreateDateComparator();
+		new CommercePriceListCreateDateComparator();
+		new CommercePriceListDisplayDateComparator();
+		new CommercePriceListPriorityComparator();
+		new CommercePricingClassCreateDateComparator();
+		new CommerceShipmentCreateDateComparator();
+		new CommerceShipmentExpectedDateComparator();
+		new CommerceShipmentIdComparator();
+		new CommerceShipmentItemCreateDateComparator();
+		new CommerceShipmentShippingDateComparator();
+		new CommerceShippingMethodPriorityComparator();
+		new CommerceSubscriptionEntryCreateDateComparatorOrganizationIdComparator();
+		new CommerceTaxFixedRateAddressRelCreateDateComparator();
+		new CommerceTaxFixedRateCreateDateComparator();
+		new CommerceTierPriceEntryMinQuantityComparator();
+		new CommerceVirtualOrderItemCreateDateComparator();
+		new CommerceWishListCreateDateComparator();
+		new CommerceWishListItemCreateDateComparator();
+		new CommerceWishListNameComparator();
+		new DDLRecordCreateDateComparator();
+		new DDLRecordIdComparator();
+		new DDLRecordSetCreateDateComparator();
+		new DDLRecordSetNameComparator();
+		new DDMFormInstanceNameComparator();
+		new DDMFormInstanceRecordIdComparator();
+		new DEDataListViewCreateDateComparator();
+		new DEDataListViewNameComparator();
+		new DLFileVersionVersionComparator();
+		new DataProviderInstanceModifiedDateComparator();
+		new DataProviderInstanceNameComparator();
+		new ExportImportConfigurationNameComparator();
+		new FeedIDComparator();
+		new FeedNameComparator();
+		new FolderArticleArticleIdComparator();
+		new FolderArticleCreateDateComparator();
+		new FolderArticleDisplayDateComparator();
+		new FolderArticleModifiedDateComparator();
+		new FolderArticleTitleComparator();
+		new FolderIdComparator();
+		new FolderNameComparator();
+		new FragmentCollectionCreateDateComparator();
+		new FragmentCollectionNameComparator();
+		new FragmentCompositionFragmentEntryCreateDateComparator();
+		new FragmentCompositionFragmentEntryModifiedDateComparator();
+		new FragmentCompositionFragmentEntryNameComparator();
+		new FragmentEntryCreateDateComparator();
+		new FragmentEntryLinkLastPropagationDateComparator();
+		new FragmentEntryNameComparator();
+		new GroupFriendlyURLComparator();
+		new GroupIdComparator();
+		new GroupTypeComparator();
+		new KBArticleCreateDateComparator();
+		new KBArticleModifiedDateComparator();
+		new KBArticlePriorityComparator();
+		new KBArticleStatusComparator();
+		new KBArticleTitleComparator();
+		new KBArticleUserNameComparator();
+		new KBArticleVersionComparator();
+		new KBArticleViewCountComparator();
+		new KBCommentCreateDateComparator();
+		new KBCommentModifiedDateComparator();
+		new KBCommentStatusComparator();
+		new KBCommentUserNameComparator();
+		new KBFolderNameComparator();
+		new KBObjectsPriorityComparator();
+		new KBObjectsViewCountComparator();
+		new KBTemplateCreateDateComparator();
+		new KBTemplateModifiedDateComparator();
+		new KBTemplateTitleComparator();
+		new KBTemplateUserNameComparator();
+		new KaleoDefinitionVersionActiveComparator();
+		new KaleoDefinitionVersionComparator();
+		new KaleoDefinitionVersionIdComparator();
+		new KaleoDefinitionVersionModifiedDateComparator();
+		new KaleoDefinitionVersionNameComparator();
+		new KaleoDefinitionVersionVersionComparator();
+		new KaleoProcessCreateDateComparator();
+		new LayoutClassedModelUsageModifiedDateComparator();
+		new LayoutComparator();
+		new LayoutCreateDateComparator();
+		new LayoutModifiedDateComparator();
+		new LayoutPageTemplateCollectionCreateDateComparator();
+		new LayoutPageTemplateCollectionLayoutPageTemplateEntryCreateDateComparator();
+		new LayoutPageTemplateCollectionLayoutPageTemplateEntryModifiedDateComparator();
+		new LayoutPageTemplateCollectionLayoutPageTemplateEntryNameComparator();
+		new LayoutPageTemplateCollectionModifiedDateComparator();
+		new LayoutPageTemplateCollectionNameComparator();
+		new LayoutPageTemplateEntryCreateDateComparator();
+		new LayoutPageTemplateEntryModifiedDateComparator();
+		new LayoutPageTemplateEntryNameComparator();
+		new LayoutPrototypeCreateDateComparator();
+		new LayoutRelevanceComparator();
+		new LayoutRevisionCreateDateComparator();
+		new LayoutRevisionIdComparator();
+		new LayoutRevisionModifiedDateComparator();
+		new LayoutSetBranchCreateDateComparator();
+		new LayoutSetPrototypeCreateDateComparator();
+		new MBObjectsComparator();
+		new MBObjectsModifiedDateComparator();
+		new MBObjectsTitleComparator();
+		new MessageCreateDateComparator();
+		new MessageModifiedDateComparator();
+		new MessageSubjectComparator();
+		new MessageURLSubjectComparator();
+		new OrganizationNameComparator();
+		new OrganizationTypeComparator();
+		new PasswordPolicyDescriptionComparator();
+		new PasswordPolicyNameComparator();
+		new ResourceActionBitwiseValueComparator();
+		new RoleDescriptionComparator();
+		new RoleNameComparator();
+		new RoleRoleIdComparator();
+		new RoleTypeComparator();
+		new SXPBlueprintModifiedDateComparator();
+		new SocialActivitySetModifiedDateComparator();
+		new StructureCreateDateComparator();
+		new StructureIdComparator();
+		new StructureLayoutCreateDateComparator();
+		new StructureLayoutNameComparator();
+		new StructureLinkStructureModifiedDateComparator();
+		new TeamNameComparator();
+		new TemplateIdComparator();
+		new ThreadCreateDateComparator();
+		new ThreadLastPostDateComparator();
+		new ThreadModifiedDateComparator();
+		new ThreadTitleComparator();
+		new UserEmailAddressComparator();
+		new UserFirstNameComparator();
+		new UserGroupDescriptionComparator();
+		new UserGroupIdComparator();
+		new UserIdComparator();
+		new UserJobTitleComparator();
+		new UserLastNameComparator();
+		new UserLoginDateComparator();
+		new UserScreenNameComparator();
+		new WorkflowMetricsSLADefinitionVersionIdComparator();
 
 		PortletDisplayTemplateManager.DISPLAY_STYLE_PREFIX;
 		PortletDisplayTemplateManager.ENTRIES;
 
 		ServiceTrackerList<Class<T>, Class<E>> serviceTrackerList = ServiceTrackerListFactory.open(null, null);
+
+		StructureStructureKeyComparator.INSTANCE_ASCENDING;
+		StructureStructureKeyComparator.INSTANCE_DESCENDING;
 	}
 
 	public void method(
@@ -79,6 +360,218 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 		layoutItemSelectorCriterion.setShowHiddenPages(null);
 		layoutItemSelectorCriterion.setShowHiddenPages(showHiddenPages);
+
+		new ArticleCreateDateComparator(showHiddenPages);
+		new ArticleDisplayDateComparator(showHiddenPages);
+		new ArticleIDComparator(showHiddenPages);
+		new ArticleModifiedDateComparator(showHiddenPages);
+		new ArticleResourcePKComparator(showHiddenPages);
+		new ArticleReviewDateComparator(showHiddenPages);
+		new ArticleTitleComparator(showHiddenPages);
+		new ArticleVersionComparator(showHiddenPages);
+		new AssetCategoryCreateDateComparator(showHiddenPages);
+		new AssetListEntryCreateDateComparator(showHiddenPages);
+		new AssetTagAssetCountComparator(showHiddenPages);
+		new AssetTagCountComparator(showHiddenPages);
+		new AssetVocabularyCreateDateComparator(showHiddenPages);
+		new BackgroundTaskCompletionDateComparator(showHiddenPages);
+		new BackgroundTaskCreateDateComparator(showHiddenPages);
+		new BackgroundTaskNameComparator(showHiddenPages);
+		new CPAttachmentFileEntryDisplayDateComparator(showHiddenPages);
+		new CPAttachmentFileEntryModifiedDateComparator(showHiddenPages);
+		new CPAttachmentFileEntryPriorityComparator(showHiddenPages);
+		new CPDefinitionDisplayDateComparator(showHiddenPages);
+		new CPDefinitionGroupedEntryPriorityComparator(showHiddenPages);
+		new CPDefinitionGroupedEntryQuantityComparator(showHiddenPages);
+		new CPDefinitionLinkPriorityComparator(showHiddenPages);
+		new CPDefinitionModifiedDateComparator(showHiddenPages);
+		new CPDefinitionNameComparator(showHiddenPages);
+		new CPDefinitionOptionRelCreateDateComparator(showHiddenPages);
+		new CPDefinitionOptionRelNameComparator(showHiddenPages);
+		new CPDefinitionOptionRelPriorityComparator(showHiddenPages);
+		new CPDefinitionOptionValueRelNameComparator(showHiddenPages);
+		new CPDefinitionOptionValueRelPriorityComparator(showHiddenPages);
+		new CPDefinitionSpecificationOptionValuePriorityComparator(showHiddenPages);
+		new CPDefinitionVersionComparator(showHiddenPages);
+		new CPInstanceCreateDateComparator(showHiddenPages);
+		new CPInstanceDisplayDateComparator(showHiddenPages);
+		new CPInstanceSkuComparator(showHiddenPages);
+		new CPInstanceUnitOfMeasurePriorityComparator(showHiddenPages);
+		new CPMeasurementUnitPriorityComparator(showHiddenPages);
+		new CPOptionCategoryModifiedDateComparator(showHiddenPages);
+		new CPOptionCategoryPriorityComparator(showHiddenPages);
+		new CPOptionCategoryTitleComparator(showHiddenPages);
+		new CPOptionModifiedDateComparator(showHiddenPages);
+		new CPOptionNameComparator(showHiddenPages);
+		new CPOptionValueNameComparator(showHiddenPages);
+		new CPOptionValuePriorityComparator(showHiddenPages);
+		new CPSpecificationOptionModifiedDateComparator(showHiddenPages);
+		new CPSpecificationOptionTitleComparator(showHiddenPages);
+		new CPTaxCategoryCreateDateComparator(showHiddenPages);
+		new CPTaxCategoryNameComparator(showHiddenPages);
+		new CategoryModifiedDateComparator(showHiddenPages);
+		new CategoryTitleComparator(showHiddenPages);
+		new CommerceAddressCreateDateComparator(showHiddenPages);
+		new CommerceAddressNameComparator(showHiddenPages);
+		new CommerceAddressRestrictionCreateDateComparator(showHiddenPages);
+		new CommerceAvailabilityEstimatePriorityComparator(showHiddenPages);
+		new CommerceCatalogCreateDateComparator(showHiddenPages);
+		new CommerceCurrencyPriorityComparator(showHiddenPages);
+		new CommerceDiscountCommerceAccountGroupRelCreateDateComparator(showHiddenPages);
+		new CommerceDiscountCreateDateComparator(showHiddenPages);
+		new CommerceDiscountRelCreateDateComparator(showHiddenPages);
+		new CommerceDiscountRuleCreateDateComparator(showHiddenPages);
+		new CommerceInventoryReplenishmentItemAvailabilityDateComparator(showHiddenPages);
+		new CommerceInventoryWarehouseCityComparator(showHiddenPages);
+		new CommerceInventoryWarehouseItemQuantityComparator(showHiddenPages);
+		new CommerceInventoryWarehouseItemWarehouseNameComparator(showHiddenPages);
+		new CommerceInventoryWarehouseNameComparator(showHiddenPages);
+		new CommerceNotificationAttachmentCreateDateComparator(showHiddenPages);
+		new CommerceNotificationQueueEntryPriorityComparator(showHiddenPages);
+		new CommerceNotificationTemplateCommerceAccountGroupRelCreateDateComparator(showHiddenPages);
+		new CommerceNotificationTemplateModifiedDateComparator(showHiddenPages);
+		new CommerceNotificationTemplateNameComparator(showHiddenPages);
+		new CommerceOrderCreateDateComparator(showHiddenPages);
+		new CommerceOrderIdComparator(showHiddenPages);
+		new CommerceOrderItemCreateDateComparator(showHiddenPages);
+		new CommerceOrderPaymentCreateDateComparator(showHiddenPages);
+		new CommerceOrderTotalComparator(showHiddenPages);
+		new CommercePriceEntryUOMCreateDateComparator(showHiddenPages);
+		new CommercePriceListCreateDateComparator(showHiddenPages);
+		new CommercePriceListDisplayDateComparator(showHiddenPages);
+		new CommercePriceListPriorityComparator(showHiddenPages);
+		new CommercePricingClassCreateDateComparator(showHiddenPages);
+		new CommerceShipmentCreateDateComparator(showHiddenPages);
+		new CommerceShipmentExpectedDateComparator(showHiddenPages);
+		new CommerceShipmentIdComparator(showHiddenPages);
+		new CommerceShipmentItemCreateDateComparator(showHiddenPages);
+		new CommerceShipmentShippingDateComparator(showHiddenPages);
+		new CommerceShippingMethodPriorityComparator(showHiddenPages);
+		new CommerceSubscriptionEntryCreateDateComparatorOrganizationIdComparator(showHiddenPages);
+		new CommerceTaxFixedRateAddressRelCreateDateComparator(showHiddenPages);
+		new CommerceTaxFixedRateCreateDateComparator(showHiddenPages);
+		new CommerceTierPriceEntryMinQuantityComparator(showHiddenPages);
+		new CommerceVirtualOrderItemCreateDateComparator(showHiddenPages);
+		new CommerceWishListCreateDateComparator(showHiddenPages);
+		new CommerceWishListItemCreateDateComparator(showHiddenPages);
+		new CommerceWishListNameComparator(showHiddenPages);
+		new DDLRecordCreateDateComparator(showHiddenPages);
+		new DDLRecordIdComparator(showHiddenPages);
+		new DDLRecordSetCreateDateComparator(showHiddenPages);
+		new DDLRecordSetNameComparator(showHiddenPages);
+		new DDMFormInstanceNameComparator(showHiddenPages);
+		new DDMFormInstanceRecordIdComparator(showHiddenPages);
+		new DEDataListViewCreateDateComparator(showHiddenPages);
+		new DEDataListViewNameComparator(showHiddenPages);
+		new DLFileVersionVersionComparator(showHiddenPages);
+		new DataProviderInstanceModifiedDateComparator(showHiddenPages);
+		new DataProviderInstanceNameComparator(showHiddenPages);
+		new ExportImportConfigurationNameComparator(showHiddenPages);
+		new FeedIDComparator(showHiddenPages);
+		new FeedNameComparator(showHiddenPages);
+		new FolderArticleArticleIdComparator(showHiddenPages);
+		new FolderArticleCreateDateComparator(showHiddenPages);
+		new FolderArticleDisplayDateComparator(showHiddenPages);
+		new FolderArticleModifiedDateComparator(showHiddenPages);
+		new FolderArticleTitleComparator(showHiddenPages);
+		new FolderIdComparator(showHiddenPages);
+		new FolderNameComparator(showHiddenPages);
+		new FragmentCollectionCreateDateComparator(showHiddenPages);
+		new FragmentCollectionNameComparator(showHiddenPages);
+		new FragmentCompositionFragmentEntryCreateDateComparator(showHiddenPages);
+		new FragmentCompositionFragmentEntryModifiedDateComparator(showHiddenPages);
+		new FragmentCompositionFragmentEntryNameComparator(showHiddenPages);
+		new FragmentEntryCreateDateComparator(showHiddenPages);
+		new FragmentEntryLinkLastPropagationDateComparator(showHiddenPages);
+		new FragmentEntryNameComparator(showHiddenPages);
+		new GroupFriendlyURLComparator(showHiddenPages);
+		new GroupIdComparator(showHiddenPages);
+		new GroupTypeComparator(showHiddenPages);
+		new KBArticleCreateDateComparator(showHiddenPages);
+		new KBArticleModifiedDateComparator(showHiddenPages);
+		new KBArticlePriorityComparator(showHiddenPages);
+		new KBArticleStatusComparator(showHiddenPages);
+		new KBArticleTitleComparator(showHiddenPages);
+		new KBArticleUserNameComparator(showHiddenPages);
+		new KBArticleVersionComparator(showHiddenPages);
+		new KBArticleViewCountComparator(showHiddenPages);
+		new KBCommentCreateDateComparator(showHiddenPages);
+		new KBCommentModifiedDateComparator(showHiddenPages);
+		new KBCommentStatusComparator(showHiddenPages);
+		new KBCommentUserNameComparator(showHiddenPages);
+		new KBFolderNameComparator(showHiddenPages);
+		new KBObjectsPriorityComparator(showHiddenPages);
+		new KBObjectsViewCountComparator(showHiddenPages);
+		new KBTemplateCreateDateComparator(showHiddenPages);
+		new KBTemplateModifiedDateComparator(showHiddenPages);
+		new KBTemplateTitleComparator(showHiddenPages);
+		new KBTemplateUserNameComparator(showHiddenPages);
+		new KaleoDefinitionVersionActiveComparator(showHiddenPages);
+		new KaleoDefinitionVersionComparator(showHiddenPages);
+		new KaleoDefinitionVersionIdComparator(showHiddenPages);
+		new KaleoDefinitionVersionModifiedDateComparator(showHiddenPages);
+		new KaleoDefinitionVersionNameComparator(showHiddenPages);
+		new KaleoDefinitionVersionVersionComparator(showHiddenPages);
+		new KaleoProcessCreateDateComparator(showHiddenPages);
+		new LayoutClassedModelUsageModifiedDateComparator(showHiddenPages);
+		new LayoutComparator(showHiddenPages);
+		new LayoutCreateDateComparator(showHiddenPages);
+		new LayoutModifiedDateComparator(showHiddenPages);
+		new LayoutPageTemplateCollectionCreateDateComparator(showHiddenPages);
+		new LayoutPageTemplateCollectionLayoutPageTemplateEntryCreateDateComparator(showHiddenPages);
+		new LayoutPageTemplateCollectionLayoutPageTemplateEntryModifiedDateComparator(showHiddenPages);
+		new LayoutPageTemplateCollectionLayoutPageTemplateEntryNameComparator(showHiddenPages);
+		new LayoutPageTemplateCollectionModifiedDateComparator(showHiddenPages);
+		new LayoutPageTemplateCollectionNameComparator(showHiddenPages);
+		new LayoutPageTemplateEntryCreateDateComparator(showHiddenPages);
+		new LayoutPageTemplateEntryModifiedDateComparator(showHiddenPages);
+		new LayoutPageTemplateEntryNameComparator(showHiddenPages);
+		new LayoutPrototypeCreateDateComparator(showHiddenPages);
+		new LayoutRelevanceComparator(showHiddenPages);
+		new LayoutRevisionCreateDateComparator(showHiddenPages);
+		new LayoutRevisionIdComparator(showHiddenPages);
+		new LayoutRevisionModifiedDateComparator(showHiddenPages);
+		new LayoutSetBranchCreateDateComparator(showHiddenPages);
+		new LayoutSetPrototypeCreateDateComparator(showHiddenPages);
+		new MBObjectsComparator(showHiddenPages);
+		new MBObjectsModifiedDateComparator(showHiddenPages);
+		new MBObjectsTitleComparator(showHiddenPages);
+		new MessageCreateDateComparator(showHiddenPages);
+		new MessageModifiedDateComparator(showHiddenPages);
+		new MessageSubjectComparator(showHiddenPages);
+		new MessageURLSubjectComparator(showHiddenPages);
+		new OrganizationNameComparator(showHiddenPages);
+		new OrganizationTypeComparator(showHiddenPages);
+		new PasswordPolicyDescriptionComparator(showHiddenPages);
+		new PasswordPolicyNameComparator(showHiddenPages);
+		new ResourceActionBitwiseValueComparator(showHiddenPages);
+		new RoleDescriptionComparator(showHiddenPages);
+		new RoleNameComparator(showHiddenPages);
+		new RoleRoleIdComparator(showHiddenPages);
+		new RoleTypeComparator(showHiddenPages);
+		new SXPBlueprintModifiedDateComparator(showHiddenPages);
+		new SocialActivitySetModifiedDateComparator(showHiddenPages);
+		new StructureCreateDateComparator(showHiddenPages);
+		new StructureIdComparator(showHiddenPages);
+		new StructureLayoutCreateDateComparator(showHiddenPages);
+		new StructureLayoutNameComparator(showHiddenPages);
+		new StructureLinkStructureModifiedDateComparator(showHiddenPages);
+		new TeamNameComparator(showHiddenPages);
+		new TemplateIdComparator(showHiddenPages);
+		new ThreadCreateDateComparator(showHiddenPages);
+		new ThreadLastPostDateComparator(showHiddenPages);
+		new ThreadModifiedDateComparator(showHiddenPages);
+		new ThreadTitleComparator(showHiddenPages);
+		new UserEmailAddressComparator(showHiddenPages);
+		new UserFirstNameComparator(showHiddenPages);
+		new UserGroupDescriptionComparator(showHiddenPages);
+		new UserGroupIdComparator(showHiddenPages);
+		new UserIdComparator(showHiddenPages);
+		new UserJobTitleComparator(showHiddenPages);
+		new UserLastNameComparator(showHiddenPages);
+		new UserLoginDateComparator(showHiddenPages);
+		new UserScreenNameComparator(showHiddenPages);
+		new WorkflowMetricsSLADefinitionVersionIdComparator(showHiddenPages);
 	}
 
 	public void method(CommerceAddress commerceAddress) {
@@ -137,6 +630,10 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 	public void method(Indexer<?> indexer) {
 		indexer.getClassNames();
+	}
+
+	public void method(Layout layout, String friendlyURL) {
+		LayoutFriendlyURLComposite(layout, friendlyURL);
 	}
 
 	public void method(long commerceOrderId) {
@@ -422,6 +919,10 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 		AssetVocabularyLocalServiceUtil.fetchAssetVocabularyByExternalReferenceCode(companyId, externalReferenceCode);
 		_assetVocabularyLocalService.fetchAssetVocabularyByExternalReferenceCode(companyId, externalReferenceCode);
 
+		CommerceCatalogLocalServiceUtil.fetchCommerceCatalogByExternalReferenceCode(companyId, externalReferenceCode);
+		_commerceCatalogLocalService.fetchCommerceCatalogByExternalReferenceCode(123, "test123");
+		_commerceCatalogLocalService.fetchCommerceCatalogByExternalReferenceCode(companyId, externalReferenceCode);
+
 		CommercePriceListLocalServiceUtil.fetchByExternalReferenceCode(companyId, externalReferenceCode);
 		_commercePriceListLocalService.fetchByExternalReferenceCode(123, "test123");
 		_commercePriceListLocalService.fetchByExternalReferenceCode(companyId, externalReferenceCode);
@@ -481,6 +982,17 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 		_addressService.addAddress(userId, className, classPK, street1, street2, street3, city, zip,regionId, countryId, typeId, mailing, primary, serviceContext);
 	}
 
+	public void method(
+		long companyId, String webId, String virtualHostname, String mx,
+		int maxUsers, boolean active, String defaultAdminPassword,
+		String defaultAdminScreenName, String defaultAdminEmailAddress,
+		String defaultAdminFirstName, String defaultAdminMiddleName,
+		String defaultAdminLastName) {
+
+		CompanyLocalServiceUtil.addCompany(companyId, webId, virtualHost, mx, maxUsers, active, defaultAdminPassword, defaultAdminScreenName, defaultAdminEmailAddress, defaultAdminFirstName, defaultAdminMiddleName, defaultAdminLastName);
+		_companyLocalService.addCompany(companyId, webId, virtualHost, mx, maxUsers, active, defaultAdminPassword, defaultAdminScreenName, defaultAdminEmailAddress, defaultAdminFirstName, defaultAdminMiddleName, defaultAdminLastName);
+	}
+
 	public void method(long[] segmentsExperienceIds) {
 		DefaultFragmentRendererContext defaultFragmentRendererContext = new DefaultFragmentRendererContext(null);
 
@@ -505,10 +1017,30 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 		portletDisplay.getPortletInstanceConfiguration(null);
 	}
 
+	public void method(Product product) {
+		product.getConfiguration();
+	}
+
 	public void method(
 		ResourceRequest resourceRequest, ResourceResponse resourceResponse) {
 
 		CaptchaUtil.serveImage(resourceRequest, resourceResponse);
+	}
+
+	public void method(String searchEngineId) {
+		IndexableActionableDynamicQuery indexableActionableDynamicQuery =
+			new IndexableActionableDynamicQuery();
+
+		indexableActionableDynamicQuery.setSearchEngineId("test123");
+		indexableActionableDynamicQuery.setSearchEngineId(searchEngineId);
+	}
+
+	public void method(
+		String searchEngineId, long companyId, Collection<Document> documents,
+		boolean commitImmediately) {
+
+		IndexWriterHelperUtil.updateDocument(searchEngineId, companyId, documents, commitImmediately);
+		IndexWriterHelperUtil.updateDocument("test123", 123, null, null);
 	}
 
 	public void method(
@@ -597,6 +1129,9 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 	private CommerceAddressLocalService _commerceAddressLocalService;
 
 	@Reference
+	private CommerceCatalogLocalService _commerceCatalogLocalService;
+
+	@Reference
 	private CommerceOrderItemLocalService _commerceOrderItemLocalService;
 
 	@Reference
@@ -610,6 +1145,9 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 	@Reference
 	private CommercePriceListLocalService _commercePriceListLocalService;
+
+	@Reference
+	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private CountryService _countryService;
@@ -643,6 +1181,9 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 	@Reference
 	private FDSTableSchemaBuilderFactory _fDSTableSchemaBuilderFactory;
+
+	@Reference
+	private Http _http;
 
 	@Reference
 	private JournalFolderLocalService _journalFolderLocalService;

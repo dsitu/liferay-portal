@@ -66,7 +66,7 @@ function ListTypeEntriesModal() {
 		}
 		setState((previousValues) => ({
 			...previousValues,
-			itemKey: toCamelCase(value),
+			itemKey: toCamelCase(value, false, true),
 		}));
 	};
 
@@ -76,6 +76,7 @@ function ListTypeEntriesModal() {
 		if (modalType !== 'edit' && keyChanged === false) {
 			newItemKey = toCamelCase(
 				newName_i18n[defaultLanguageId] as string,
+				true,
 				true
 			);
 		}
@@ -229,6 +230,7 @@ function ListTypeEntriesModal() {
 				)}
 
 				<InputLocalized
+					aria-label={Liferay.Language.get('item-name')}
 					disabled={readOnly}
 					error={errors.name_i18n}
 					id="locale"
@@ -239,8 +241,10 @@ function ListTypeEntriesModal() {
 				/>
 
 				<Input
+					aria-label={Liferay.Language.get('item-key')}
 					disabled={modalType === 'edit'}
 					error={errors.name}
+					id="listTypeEntriesModalKeyInputField"
 					label={Liferay.Language.get('key')}
 					name="name"
 					onChange={({target}) => handleKeyChange(target.value)}

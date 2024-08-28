@@ -44,7 +44,7 @@ definition {
 
 		Portlet.addPG(portletName = "ClusterSampleSessionReplication");
 
-		AssertElementPresent(locator1 = "ClusterSamplePortlet#NO_SESSION_DATA_MESSAGE");
+		AssertElementPresent(locator1 = "ClusterSamplePortlet#GENERATED_DATA_MESSAGE");
 
 		Clustering.deployClusteringModule(nodePort = 9080);
 
@@ -82,69 +82,6 @@ definition {
 		for (var serverPort : list "8080,9080") {
 			Clustering.viewNoSessionReplicateLogErrorOnSpecificNode(
 				exceptionText = "Unable to deserialize object",
-				nodePort = ${serverPort});
-		}
-	}
-
-	@priority = 4
-	test CanSessionReplicateBetweenNodes {
-		property cluster.session.replicated = "true";
-		property custom.properties = "portlet.session.replicate.enabled=true";
-		property portal.release = "quarantine";
-		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
-
-		Navigator.openNodePort(nodePort = 9080);
-
-		for (var serverPort : list "8080,9080") {
-			Clustering.viewNoSessionReplicateLogErrorOnSpecificNode(
-				exceptionText = "Unable to receive message through TCP channel",
-				nodePort = ${serverPort});
-		}
-
-		Clustering.deployClusteringModule(nodePort = 8080);
-
-		Navigator.openNodePort(nodePort = 8080);
-
-		ProductMenu.gotoPortlet(
-			category = "Site Builder",
-			portlet = "Pages");
-
-		PagesAdmin.addPage(pageName = "Session Replication Test");
-
-		Navigator.gotoPage(pageName = "Session Replication Test");
-
-		Portlet.addPG(portletName = "ClusterSampleSessionReplication");
-
-		AssertElementPresent(locator1 = "ClusterSamplePortlet#NO_SESSION_DATA_MESSAGE");
-
-		Clustering.deployClusteringModule(nodePort = 9080);
-
-		Clustering.viewTextPresentOnSpecificNode(
-			expectedText = "STARTED com.liferay.portal.cluster.multiple.sample.web",
-			nodePort = 9080);
-
-		Navigator.openNodePort(nodePort = 8080);
-
-		Navigator.gotoPage(pageName = "Session Replication Test");
-
-		AssertElementPresent(locator1 = "ClusterSamplePortlet#STORED_DATA");
-
-		var sessionData = selenium.getText("ClusterSamplePortlet#STORED_DATA");
-
-		echo(${sessionData});
-
-		Navigator.gotoSpecificURLPage(
-			pageName = "Session Replication Test",
-			url = "http://localhost:9080");
-
-		AssertTextEquals(
-			locator1 = "ClusterSamplePortlet#STORED_DATA",
-			value1 = ${sessionData});
-
-		for (var serverPort : list "8080,9080") {
-			Clustering.viewNoSessionReplicateLogErrorOnSpecificNode(
-				exceptionText = "Unable to receive message through TCP channel",
 				nodePort = ${serverPort});
 		}
 	}
@@ -328,6 +265,119 @@ definition {
 			expectedOutput = "test.cache is empty",
 			nodePort = 9080,
 			scriptFile = "groovy-script-portal-cache-get.groovy");
+	}
+
+	@priority = 4
+	test SessionReplicatedIdAndAttributesAreTheSameInBothNodes {
+		property cluster.session.replicated = "true";
+		property custom.properties = "jsonws.web.service.paths.excludes=${line.separator}portlet.session.replicate.enabled=true";
+		property test.liferay.virtual.instance = "false";
+		property test.run.type = "single";
+
+		Clustering.deployClusteringModule(nodePort = 8080);
+
+		Clustering.deployClusteringModule(nodePort = 9080);
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+
+		PagesAdmin.addPage(pageName = "Session Replication Test");
+
+		Navigator.gotoPage(pageName = "Session Replication Test");
+
+		Portlet.addPG(portletName = "ClusterSampleSessionReplication");
+
+		Open(value1 = "http://localhost:8080/web/guest/session-replication-test");
+
+		var sampleData = selenium.getText("ClusterSamplePortlet#STORED_DATA_VALUE");
+		var sessionId = selenium.getText("ClusterSamplePortlet#SESSION_ID");
+
+		Open(value1 = "http://localhost:9080/web/guest/session-replication-test");
+
+		AssertTextEquals(
+			locator1 = "ClusterSamplePortlet#STORED_DATA_VALUE",
+			value1 = ${sampleData});
+
+		AssertTextEquals(
+			locator1 = "ClusterSamplePortlet#SESSION_ID",
+			value1 = ${sessionId});
+
+		JSONUser.addUser(
+			userEmailAddress = "test1@liferay.com",
+			userFirstName = "Test1",
+			userLastName = "Test1",
+			userScreenName = "Test1");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "test1@liferay.com");
+
+		User.firstLoginUI(
+			password = PropsUtil.get("default.admin.password"),
+			specificURL = "http://www.able.com:9080",
+			userEmailAddress = "test1@liferay.com");
+
+		Open(value1 = "http://www.able.com:9080/web/guest/session-replication-test");
+
+		AssertTextNotEquals(
+			locator1 = "ClusterSamplePortlet#STORED_DATA_VALUE",
+			value1 = ${sampleData});
+
+		AssertTextNotEquals(
+			locator1 = "ClusterSamplePortlet#SESSION_ID",
+			value1 = ${sessionId});
+
+		var sampleData = selenium.getText("ClusterSamplePortlet#STORED_DATA_VALUE");
+		var sessionId = selenium.getText("ClusterSamplePortlet#SESSION_ID");
+
+		Open(value1 = "http://www.able.com:8080/web/guest/session-replication-test");
+
+		AssertTextEquals(
+			locator1 = "ClusterSamplePortlet#STORED_DATA_VALUE",
+			value1 = ${sampleData});
+
+		AssertTextEquals(
+			locator1 = "ClusterSamplePortlet#SESSION_ID",
+			value1 = ${sessionId});
+
+		AssertElementPresent(
+			locator1 = "ClusterSamplePortlet#LOGGED_IN_SESSION_COUNT",
+			sessionCount = 2);
+	}
+
+	@priority = 4
+	test UserStayLoggedInOnBothNodes {
+		property cluster.session.replicated = "true";
+		property custom.properties = "portlet.session.replicate.enabled=true";
+		property test.liferay.virtual.instance = "false";
+		property test.run.type = "single";
+
+		User.viewLoggedInPG();
+
+		Open(value1 = "http://localhost:9080");
+
+		User.viewLoggedInPG();
+
+		Clustering.shutdownSpecificServer(nodePort = 8080);
+
+		Open(value1 = "http://localhost:9080");
+
+		User.viewLoggedInPG();
+
+		Clustering.startSpecificServer(
+			deleteLiferayHome = "false",
+			keepCachedAppServerData = "true",
+			nodePort = 8080);
+
+		Open(value1 = "http://localhost:8080");
+
+		User.viewLoggedInPG();
+
+		Open(value1 = "http://localhost:9080");
+
+		User.viewLoggedInPG();
 	}
 
 }

@@ -11,6 +11,8 @@ import com.liferay.asset.kernel.exception.DuplicateQueryRuleException;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.asset.list.asset.entry.provider.AssetListAssetEntryProvider;
+import com.liferay.asset.list.model.AssetListEntry;
+import com.liferay.asset.list.service.AssetListEntryLocalService;
 import com.liferay.asset.list.service.AssetListEntrySegmentsEntryRelLocalService;
 import com.liferay.asset.publisher.constants.AssetPublisherPortletKeys;
 import com.liferay.asset.publisher.constants.AssetPublisherWebKeys;
@@ -32,6 +34,7 @@ import com.liferay.item.selector.ItemSelector;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
@@ -234,7 +237,15 @@ public class AssetPublisherConfigurationAction
 				}
 
 				if (selectionStyle.equals(
-						AssetPublisherSelectionStyleConstants.TYPE_DYNAMIC)) {
+						AssetPublisherSelectionStyleConstants.
+							TYPE_ASSET_LIST)) {
+
+					updateAssetListEntryPreferences(
+						actionRequest, portletPreferences);
+				}
+				else if (selectionStyle.equals(
+							AssetPublisherSelectionStyleConstants.
+								TYPE_DYNAMIC)) {
 
 					_updateQueryLogic(actionRequest, portletPreferences);
 				}
@@ -325,11 +336,85 @@ public class AssetPublisherConfigurationAction
 			defaultSelectionStyle();
 	}
 
+	protected void updateAssetListEntryPreferences(
+			ActionRequest actionRequest, PortletPreferences portletPreferences)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-22837")) {
+			return;
+		}
+
+		AssetListEntry assetListEntry =
+			assetListEntryLocalService.fetchAssetListEntry(
+				GetterUtil.getLong(
+					getParameter(actionRequest, "assetListEntryId")));
+
+		if (assetListEntry == null) {
+			portletPreferences.reset("assetListEntryExternalReferenceCode");
+			portletPreferences.reset(
+				"assetListEntryGroupExternalReferenceCode");
+
+			return;
+		}
+
+		setPreference(
+			actionRequest, "assetListEntryExternalReferenceCode",
+			assetListEntry.getExternalReferenceCode());
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		if (assetListEntry.getGroupId() == themeDisplay.getScopeGroupId()) {
+			portletPreferences.reset(
+				"assetListEntryGroupExternalReferenceCode");
+		}
+		else {
+			Group group = groupLocalService.getGroup(
+				assetListEntry.getGroupId());
+
+			setPreference(
+				actionRequest, "assetListEntryGroupExternalReferenceCode",
+				group.getExternalReferenceCode());
+		}
+	}
+
+	protected void updateDisplayStyleGroupPreferences(
+			ActionRequest actionRequest, PortletPreferences portletPreferences)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-22837")) {
+			return;
+		}
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		String displayStyleGroupKey = getParameter(
+			actionRequest, "displayStyleGroupKey");
+
+		Group group = groupLocalService.fetchGroup(
+			themeDisplay.getCompanyId(), displayStyleGroupKey);
+
+		if ((group != null) &&
+			(group.getGroupId() != themeDisplay.getScopeGroupId())) {
+
+			setPreference(
+				actionRequest, "displayStyleGroupExternalReferenceCode",
+				group.getExternalReferenceCode());
+		}
+		else {
+			portletPreferences.reset("displayStyleGroupExternalReferenceCode");
+		}
+	}
+
 	@Reference
 	protected AssetHelper assetHelper;
 
 	@Reference
 	protected AssetListAssetEntryProvider assetListAssetEntryProvider;
+
+	@Reference
+	protected AssetListEntryLocalService assetListEntryLocalService;
 
 	@Reference
 	protected AssetListEntrySegmentsEntryRelLocalService
@@ -697,6 +782,8 @@ public class AssetPublisherConfigurationAction
 
 			portletPreferences.setValue("displayStyle", "full-content");
 		}
+
+		updateDisplayStyleGroupPreferences(actionRequest, portletPreferences);
 	}
 
 	private void _updateDefaultAssetPublisher(ActionRequest actionRequest)

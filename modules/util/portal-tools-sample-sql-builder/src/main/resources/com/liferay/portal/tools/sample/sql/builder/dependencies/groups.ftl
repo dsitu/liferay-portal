@@ -1,5 +1,7 @@
 <#include "sample_user.ftl">
 
+<#include "default_service_account_user.ftl">
+
 <#include "commerce_groups.ftl">
 
 <#include "asset.ftl">
@@ -62,7 +64,7 @@
 ${dataFactory.toInsertSQL(defaultSiteHomePageSegmentsExperienceModel)}
 
 <@insertContentPageLayout
-	_fragmentEntryLinkModels = dataFactory.newFragmentEntryLinkModels(defaultSiteHomePageContentLayoutModels, homePageSegmentsExperienceModel.getSegmentsExperienceId())
+	_fragmentEntryLinkModels = dataFactory.newFragmentEntryLinkModels(defaultSiteHomePageContentLayoutModels, defaultSiteHomePageSegmentsExperienceModel.getSegmentsExperienceId())
 	_layoutModels = defaultSiteHomePageContentLayoutModels
 	_templateFileName = "default-homepage-layout-definition.json"
 />

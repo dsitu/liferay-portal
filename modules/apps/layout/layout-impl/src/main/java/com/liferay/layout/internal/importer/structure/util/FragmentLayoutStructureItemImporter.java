@@ -378,7 +378,7 @@ public class FragmentLayoutStructureItemImporter
 				_fragmentEntryProcessorRegistry.
 					getDefaultEditableValuesJSONObject(
 						_getProcessedHTML(
-							fragmentEntry.getCompanyId(), configuration,
+							layout.getCompanyId(), configuration,
 							fragmentEntryProcessorValuesJSONObject.toString(),
 							fragmentCollection, fragmentEntry.getHtml(),
 							fragmentKey, type),
@@ -429,10 +429,10 @@ public class FragmentLayoutStructureItemImporter
 
 		FragmentEntryLink fragmentEntryLink =
 			_fragmentEntryLinkLocalService.addFragmentEntryLink(
-				layout.getUserId(), layout.getGroupId(), 0, fragmentEntryId,
-				segmentsExperienceId, layout.getPlid(), css, html, js,
-				configuration, jsonObject.toString(), StringUtil.randomId(),
-				position, fragmentKey, type,
+				null, layout.getUserId(), layout.getGroupId(), 0,
+				fragmentEntryId, segmentsExperienceId, layout.getPlid(), css,
+				html, js, configuration, jsonObject.toString(),
+				StringUtil.randomId(), position, fragmentKey, type,
 				ServiceContextThreadLocal.getServiceContext());
 
 		List<Object> widgetInstances = (List<Object>)definitionMap.get(

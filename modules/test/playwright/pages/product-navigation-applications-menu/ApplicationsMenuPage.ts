@@ -13,11 +13,16 @@ export class ApplicationsMenuPage {
 	private readonly announcementsItem: Locator;
 	private readonly apiBuilderMenuItem: Locator;
 	private readonly applicationsMenuTabButton: Locator;
+	private readonly blueprintsItem: Locator;
 	private readonly clientExtensionsLink: Locator;
 	private readonly commerceChannelsMenuItem: Locator;
+	private readonly commerceDiscountsMenuItem: Locator;
 	private readonly commerceOrdersMenuItem: Locator;
 	private readonly commercePanelButton: Locator;
+	private readonly commerceReturnsMenuItem: Locator;
+	private readonly commerceSpecificationsMenuItem: Locator;
 	private readonly controlPanelButton: Locator;
+	private readonly customFieldsMenuItem: Locator;
 	private readonly dataMigrationCenterMenuItem: Locator;
 	private readonly dataSetManagerMenuItem: Locator;
 	private readonly defaultPermissionsLink: Locator;
@@ -27,6 +32,7 @@ export class ApplicationsMenuPage {
 	private readonly jobSchedulerMenuItem: Locator;
 	private readonly oAuth2Administration: Locator;
 	private readonly objectsMenuItem: Locator;
+	private readonly metricsItem: Locator;
 	private readonly page: Page;
 	private readonly paymentsMenuItem: Locator;
 	private readonly picklistsMenuItem: Locator;
@@ -34,6 +40,7 @@ export class ApplicationsMenuPage {
 	private readonly productsMenuItem: Locator;
 	private readonly queueMenuItem: Locator;
 	private readonly rolesItem: Locator;
+	private readonly samlAdminItem: Locator;
 	private readonly searchItem: Locator;
 	private readonly serviceAccountsItem: Locator;
 	private readonly sitesItem: Locator;
@@ -41,6 +48,7 @@ export class ApplicationsMenuPage {
 	private readonly serverAdministrationItem: Locator;
 	private readonly siteTemplatesButton: Locator;
 	private readonly usersAndOrganizationsItem: Locator;
+	private readonly virtualInstancesItem: Locator;
 
 	constructor(page: Page) {
 		this.accountsItem = page.getByRole('menuitem', {
@@ -62,12 +70,20 @@ export class ApplicationsMenuPage {
 		this.applicationsMenuTabButton = page.getByRole('tab', {
 			name: 'Applications',
 		});
+		this.blueprintsItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Blueprints',
+		});
 		this.clientExtensionsLink = page.getByRole('menuitem', {
 			name: 'Client Extensions',
 		});
 		this.commerceChannelsMenuItem = page.getByRole('menuitem', {
 			exact: true,
 			name: 'Channels',
+		});
+		this.commerceDiscountsMenuItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Discounts',
 		});
 		this.commerceOrdersMenuItem = page.getByRole('menuitem', {
 			exact: true,
@@ -76,8 +92,20 @@ export class ApplicationsMenuPage {
 		this.commercePanelButton = page.getByRole('tab', {
 			name: 'Commerce',
 		});
+		this.commerceReturnsMenuItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Returns',
+		});
+		this.commerceSpecificationsMenuItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Specifications',
+		});
 		this.controlPanelButton = page.getByRole('tab', {
 			name: 'Control Panel',
+		});
+		this.customFieldsMenuItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Custom Fields',
 		});
 		this.gogoShellItem = page.getByRole('menuitem', {
 			exact: true,
@@ -103,6 +131,10 @@ export class ApplicationsMenuPage {
 		this.jobSchedulerMenuItem = page.getByRole('menuitem', {
 			exact: true,
 			name: 'Job Scheduler',
+		});
+		this.metricsItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Metrics',
 		});
 		this.oAuth2Administration = page.getByRole('menuitem', {
 			exact: true,
@@ -137,6 +169,10 @@ export class ApplicationsMenuPage {
 			exact: true,
 			name: 'Roles',
 		});
+		this.samlAdminItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'SAML Admin',
+		});
 		this.searchItem = page.getByRole('menuitem', {
 			exact: true,
 			name: 'Search',
@@ -165,13 +201,19 @@ export class ApplicationsMenuPage {
 			exact: true,
 			name: 'Users and Organizations',
 		});
+		this.virtualInstancesItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Virtual Instances',
+		});
 	}
 
-	async goto() {
+	async goto(checkTabVisibility = true) {
 		await this.homePage.goto();
 		await this.homePage.openApplicationMenu();
 
-		await expect(this.applicationsMenuTabButton).toBeVisible();
+		if (checkTabVisibility) {
+			await expect(this.applicationsMenuTabButton).toBeVisible();
+		}
 	}
 
 	async goToAccounts() {
@@ -205,6 +247,12 @@ export class ApplicationsMenuPage {
 		await this.clientExtensionsLink.click();
 	}
 
+	async goToCustomFields() {
+		await this.goto();
+		await this.controlPanelButton.click();
+		await this.customFieldsMenuItem.click();
+	}
+
 	async goToDataMigrationCenter() {
 		await this.goToApplicationsMenu();
 		await this.dataMigrationCenterMenuItem.click();
@@ -223,6 +271,11 @@ export class ApplicationsMenuPage {
 	async goToGogoShell() {
 		await this.goToControlPanel();
 		await this.gogoShellItem.click();
+	}
+
+	async goToMetrics() {
+		await this.goToApplicationsMenu();
+		await this.metricsItem.click();
 	}
 
 	async goToObjects() {
@@ -270,19 +323,34 @@ export class ApplicationsMenuPage {
 		await this.jobSchedulerMenuItem.click();
 	}
 
-	async goToCommerceChannels() {
-		await this.goToCommercePanel();
+	async goToCommerceChannels(checkTabVisibility = true) {
+		await this.goToCommercePanel(checkTabVisibility);
 		await this.commerceChannelsMenuItem.click();
 	}
 
-	async goToCommercePanel() {
-		await this.goto();
+	async goToCommerceDiscounts() {
+		await this.goToCommercePanel();
+		await this.commerceDiscountsMenuItem.click();
+	}
+
+	async goToCommercePanel(checkTabVisibility = true) {
+		await this.goto(checkTabVisibility);
 		await this.commercePanelButton.click();
 	}
 
-	async goToCommerceOrders() {
-		await this.goToCommercePanel();
+	async goToCommerceOrders(checkTabVisibility = true) {
+		await this.goToCommercePanel(checkTabVisibility);
 		await this.commerceOrdersMenuItem.click();
+	}
+
+	async goToCommerceReturns() {
+		await this.goToCommercePanel();
+		await this.commerceReturnsMenuItem.click();
+	}
+
+	async goToCommerceSpecifications() {
+		await this.goToCommercePanel();
+		await this.commerceSpecificationsMenuItem.click();
 	}
 
 	async goToPayments() {
@@ -300,14 +368,19 @@ export class ApplicationsMenuPage {
 		await this.queueMenuItem.click();
 	}
 
-	async goToSite(name: string = 'Liferay DXP') {
-		await this.goto();
+	async goToSite(name: string = 'Liferay DXP', checkTabVisibility = true) {
+		await this.goto(checkTabVisibility);
 		await this.page.getByRole('link', {exact: true, name}).click();
 	}
 
 	async goToControlPanel() {
 		await this.goto();
 		await this.controlPanelButton.click();
+	}
+
+	async goToBlueprints() {
+		await this.goToApplicationsMenu();
+		await this.blueprintsItem.click();
 	}
 
 	async goToOauth2Administration() {
@@ -324,6 +397,12 @@ export class ApplicationsMenuPage {
 		await this.goto();
 		await this.controlPanelButton.click();
 		await this.rolesItem.click();
+	}
+
+	async goToSamlAdmin() {
+		await this.goto();
+		await this.controlPanelButton.click();
+		await this.samlAdminItem.click();
 	}
 
 	async goToServiceAccounts() {
@@ -344,5 +423,11 @@ export class ApplicationsMenuPage {
 
 		await this.controlPanelButton.click();
 		await this.usersAndOrganizationsItem.click();
+	}
+
+	async goToVirtualInstances() {
+		await this.goto();
+		await this.controlPanelButton.click();
+		await this.virtualInstancesItem.click();
 	}
 }

@@ -1,4 +1,4 @@
-@component-name = "portal-wcm"
+@component-name = "portal-page-management"
 definition {
 
 	property ci.retries.disabled = "true";
@@ -807,107 +807,6 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-122396 and LPS-106776. The outline of editable field should be dashed when hover on inline text item in Page Content panel."
-	@priority = 5
-	test ViewDashedOutlineOfEditableFieldWhenHoverOnInlineTextItems {
-		property portal.acceptance = "true";
-
-		task ("Add a Heading fragment to page") {
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Page Name",
-				siteName = ${randomSiteName});
-
-			PageEditor.addFragment(
-				collectionName = "Basic Components",
-				fragmentName = "Heading");
-		}
-
-		task ("Add a Paragraph fragment below the Heading fragment") {
-			PageEditor.addFragment(
-				collectionName = "Basic Components",
-				fragmentName = "Paragraph",
-				targetFragmentName = "Heading");
-		}
-
-		task ("View the dashed outline of editable field when hover on inline text items") {
-			PageEditor.gotoTab(tabName = "Page Content");
-
-			MouseOver(
-				key_itemName = "Heading Example",
-				locator1 = "PageEditor#PAGE_CONTENTS_ITEM");
-
-			AssertCssValue(
-				fragmentName = "heading",
-				id = "element-text",
-				index = 1,
-				locator1 = "Fragment#CONTRIBUTED_FRAGMENT_TEXT",
-				locator2 = "outline-style",
-				value1 = "dashed");
-
-			MouseOver(
-				key_sidebarButton = "Page Content",
-				locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE");
-
-			MouseOver(
-				key_itemName = "A paragraph is a self-contained unit of a discourse in writing dealing with a particular point or idea. Paragraphs are usually an expected part of formal writing, used to organize longer prose.",
-				locator1 = "PageEditor#PAGE_CONTENTS_ITEM");
-
-			AssertCssValue(
-				fragmentName = "paragraph",
-				id = "element-text",
-				index = 1,
-				locator1 = "Fragment#CONTRIBUTED_FRAGMENT_TEXT",
-				locator2 = "outline-style",
-				value1 = "dashed");
-		}
-
-		task ("Edit the inline text of Heading fragment") {
-			PageEditor.editFragmentText(
-				fragmentName = "Heading",
-				id = "element-text",
-				text = "Edit Text");
-		}
-
-		task ("Edit the inline text of Paragraph fragment") {
-			PageEditor.editFragmentText(
-				fragmentName = "Paragraph",
-				id = "element-text",
-				text = "Edited Rich Text");
-		}
-
-		task ("View the dashed outline of editable field when hover on inline text items") {
-			PageEditor.gotoTab(tabName = "Page Content");
-
-			MouseOver(
-				key_itemName = "Edit Text",
-				locator1 = "PageEditor#PAGE_CONTENTS_ITEM");
-
-			AssertCssValue(
-				fragmentName = "heading",
-				id = "element-text",
-				index = 1,
-				locator1 = "Fragment#CONTRIBUTED_FRAGMENT_TEXT",
-				locator2 = "outline-style",
-				value1 = "dashed");
-
-			MouseOver(
-				key_sidebarButton = "Page Content",
-				locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE");
-
-			MouseOver(
-				key_itemName = "Edited Rich Text",
-				locator1 = "PageEditor#PAGE_CONTENTS_ITEM");
-
-			AssertCssValue(
-				fragmentName = "paragraph",
-				id = "element-text",
-				index = 1,
-				locator1 = "Fragment#CONTRIBUTED_FRAGMENT_TEXT",
-				locator2 = "outline-style",
-				value1 = "dashed");
-		}
-	}
-
 	@description = "This is a test for LPS-122396. The outline of editable field should be dashed when hover on mapped assets in Page Content panel."
 	@priority = 5
 	test ViewDashedOutlineOfMappedEditableFieldWhenHoverOnAssets {
@@ -1147,6 +1046,91 @@ definition {
 				key_itemType = "Web Content Article - Basic Web Content",
 				key_style = "semi-bold",
 				locator1 = "PageEditor#PAGE_CONTENTS_ITEM_DETAILS_WITH_TYPE");
+		}
+	}
+
+	@description = "This is a test for LPS-103454. When one WC displayed in multiple fields in a content page, there should be one WC entry in Contents Panel list."
+	@priority = 4
+	test ViewDisplayedWebContentInContentsPanelWithWebContentArticleUpdatePermission {
+		task ("Add a web content") {
+			JSONWebcontent.addWebContent(
+				content = "WC WebContent Content",
+				groupName = ${randomSiteName},
+				title = "WC WebContent Title");
+		}
+
+		task ("Add a Heading fragment to page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = ${randomSiteName});
+
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				fragmentName = "Heading");
+		}
+
+		task ("Map the Title of the web content to editable field") {
+			PageEditorMapping.gotoEditableFieldMapping(
+				fragmentName = "Heading",
+				id = "text");
+
+			PageEditorMapping.mapEditableFieldToAsset(
+				entryTitle = "WC WebContent Title",
+				navItem = "Web Content");
+
+			Select(
+				locator1 = "PageEditorEditableLink#FIELD",
+				value1 = "Title");
+
+			PageEditor.waitForAutoSave();
+		}
+
+		task ("Add a Web Content Display below the Heading") {
+			PageEditor.addWidget(
+				portletName = "Web Content Display",
+				targetFragmentName = "Heading");
+		}
+
+		task ("Select the web content") {
+			WebContentDisplayPortlet.selectWebContent(webContentTitle = "WC WebContent Title");
+		}
+
+		task ("Add an Asset Publisher below the Web Content Display") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = ${randomSiteName});
+
+			PageEditor.addWidget(
+				portletName = "Asset Publisher",
+				targetFragmentName = "Web Content Display");
+		}
+
+		task ("Select the web content in Asset Publisher") {
+			AssetPublisherPortlet.configureManualAssetSelectionPG(
+				assetTitle = "WC WebContent Title",
+				assetType = "Basic Web Content");
+
+			Refresh();
+
+			PageEditor.assertFragmentSidebarLoaded();
+
+			PageEditor.publish();
+		}
+
+		task ("View the displayed web content in Contents panel") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Content Page Name",
+				siteName = ${randomSiteName});
+
+			PageEditor.gotoTab(tabName = "Page Content");
+
+			AssertVisible(
+				key_itemName = "WC WebContent Title",
+				locator1 = "PageEditor#PAGE_CONTENTS_ITEM");
+
+			AssertElementNotPresent(
+				index = 2,
+				locator1 = "PageEditor#PAGE_CONTENTS_ITEM_POSITION");
 		}
 	}
 

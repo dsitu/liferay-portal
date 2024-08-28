@@ -101,9 +101,6 @@ public class ClientExtensionProjectConfigurator
 	public static final String BUILD_SITE_INITIALIZER_ZIP_TASK_NAME =
 		"buildSiteInitializerZip";
 
-	public static final String CLIENT_EXTENSION_BUILD_DIR =
-		"liferay-client-extension-build";
-
 	public static final String CREATE_CLIENT_EXTENSION_CONFIG_TASK_NAME =
 		"createClientExtensionConfig";
 
@@ -112,6 +109,15 @@ public class ClientExtensionProjectConfigurator
 
 	public static final String VALIDATE_CLIENT_EXTENSIONS_TASK_NAME =
 		"validateClientExtensions";
+
+	public static String getClientExtensionBuildDir(Project project) {
+		WorkspaceExtension workspaceExtension = GradleUtil.getExtension(
+			(ExtensionAware)project.getGradle(), WorkspaceExtension.class);
+
+		return StringUtil.suffixIfNotBlank(
+			"liferay-client-extension-build",
+			workspaceExtension.getVirtualInstanceId());
+	}
 
 	public ClientExtensionProjectConfigurator(Settings settings) {
 		super(settings);
@@ -244,6 +250,11 @@ public class ClientExtensionProjectConfigurator
 								if (!_isActiveProfile(project, profileName)) {
 									return;
 								}
+
+								createClientExtensionConfigTask.
+									setVirtualInstanceId(
+										workspaceExtension.
+											getVirtualInstanceId());
 
 								createClientExtensionConfigTask.
 									addClientExtension(clientExtension);
@@ -482,7 +493,7 @@ public class ClientExtensionProjectConfigurator
 			buildSiteInitializerZipTaskProvider,
 			createClientExtensionConfigTaskProvider,
 			validateClientExtensionIdsTaskProvider,
-			validateClientExtensionTaskProvider);
+			validateClientExtensionTaskProvider, workspaceExtension);
 
 		addTaskDockerDeploy(
 			project, buildClientExtensionZipTaskProvider,
@@ -558,7 +569,8 @@ public class ClientExtensionProjectConfigurator
 								}
 
 								copySpec.exclude(
-									"**/" + CLIENT_EXTENSION_BUILD_DIR);
+									"**/" +
+										getClientExtensionBuildDir(project));
 
 								if (includeJsonNode instanceof ArrayNode) {
 									ArrayNode arrayNode =
@@ -654,7 +666,8 @@ public class ClientExtensionProjectConfigurator
 		TaskProvider<CreateClientExtensionConfigTask>
 			createClientExtensionConfigTaskProvider,
 		TaskProvider<Task> validateClientExtensionIdsTaskProvider,
-		TaskProvider<Task> validateClientExtensionTaskProvider) {
+		TaskProvider<Task> validateClientExtensionTaskProvider,
+		WorkspaceExtension workspaceExtension) {
 
 		File clientExtensionYamlFile = project.file(_CLIENT_EXTENSION_YAML);
 
@@ -672,7 +685,7 @@ public class ClientExtensionProjectConfigurator
 			});
 
 		File clientExtensionBuildDir = new File(
-			project.getBuildDir(), CLIENT_EXTENSION_BUILD_DIR);
+			project.getBuildDir(), getClientExtensionBuildDir(project));
 
 		assembleClientExtensionTaskProvider.configure(
 			copy -> {
@@ -682,11 +695,24 @@ public class ClientExtensionProjectConfigurator
 
 				copy.into(clientExtensionBuildDir);
 
+				copy.doFirst(
+					new Action<Task>() {
+
+						@Override
+						public void execute(Task task) {
+							Copy copy1 = (Copy)task;
+
+							project.delete(copy1.getDestinationDir());
+						}
+
+					});
 				copy.doLast(
 					new Action<Task>() {
 
 						@Override
-						public void execute(Task copy1) {
+						public void execute(Task task) {
+							Copy copy1 = (Copy)task;
+
 							if (!copy1.getDidWork()) {
 								return;
 							}
@@ -724,7 +750,9 @@ public class ClientExtensionProjectConfigurator
 
 							@Override
 							public String call() throws Exception {
-								return project.getName();
+								return StringUtil.suffixIfNotBlank(
+									project.getName(),
+									workspaceExtension.getVirtualInstanceId());
 							}
 
 						}));
@@ -896,8 +924,12 @@ public class ClientExtensionProjectConfigurator
 
 		Map<String, String> environmentVariables = new HashMap<>();
 
-		String liferayVirtualInstanceId = GradleUtil.getProperty(
-			project.getRootProject(), "liferay.virtual.instance.id", "default");
+		String liferayVirtualInstanceId =
+			workspaceExtension.getVirtualInstanceId();
+
+		if (StringUtil.isBlank(liferayVirtualInstanceId)) {
+			liferayVirtualInstanceId = "default";
+		}
 
 		environmentVariables.put(
 			_ENV_LIFERAY_ROUTES_CLIENT_EXTENSION,

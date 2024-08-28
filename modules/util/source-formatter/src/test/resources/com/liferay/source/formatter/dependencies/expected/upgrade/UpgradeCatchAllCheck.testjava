@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.cookies.constants.CookiesConstants;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.util.HtmlParser;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ import org.osgi.service.component.annotations.Reference;
 public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 	public void method() {
+		_countryService.fetchCountryByA2(123, "test123");
+
 		AccountPortletKeys.ACCOUNT_USERS_ADMIN;
 		AccountPortletKeys.ACCOUNT_GROUPS_ADMIN;
 
@@ -34,11 +37,9 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 		CommerceOrderPaymentConstants.STATUS_COMPLETED;
 		CommerceOrderPaymentConstants.STATUS_PENDING;
 
-		for (CommerceOrderItem commerceOrderItem : commerceOrder.getCommerceOrderItems()) {
-			commerceOrderItem.getQuantity();
-		}
-
-		_countryService.fetchCountryByA2(123, "test123");
+		CookiesConstants.NAME_COMMERCE_CONTINUE_AS_GUEST;
+		CookiesConstants.NAME_ID;
+		CookiesConstants.NAME_USER_UUID;
 
 		DestinationNames.COMMERCE_BASE_PRICE_LIST;
 		DestinationNames.COMMERCE_ORDER_STATUS;
@@ -53,18 +54,299 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 		fDSTableSchemaBuilder.add("test123", "test123");
 
+		for (CommerceOrderItem commerceOrderItem : commerceOrder.getCommerceOrderItems()) {
+			commerceOrderItem.getQuantity();
+		}
+
 		_htmlParser.extractText(null);
+
+		_http.hasProxyConfig();
+		HttpComponentsUtil.addParameter(null, null, null);
+		HttpComponentsUtil.decodePath(null);
+		HttpComponentsUtil.decodeURL(null);
+		HttpComponentsUtil.encodeParameters(null);
+		HttpComponentsUtil.encodePath(null);
+		HttpComponentsUtil.fixPath(null);
+		HttpComponentsUtil.getCompleteURL(null, null, null);
+		HttpComponentsUtil.getDomain(null);
+		HttpComponentsUtil.getIpAddress(null);
+		HttpComponentsUtil.getParameter(null, null);
+		HttpComponentsUtil.getParameterMap(null);
+		HttpComponentsUtil.getPath(null);
+		HttpComponentsUtil.getProtocol(null);
+		HttpComponentsUtil.getQueryString(null);
+		HttpComponentsUtil.getRequestURL(null);
+		HttpComponentsUtil.getURI(null);
+		HttpComponentsUtil.hasDomain(null);
+		HttpComponentsUtil.hasProtocol(null);
+		HttpComponentsUtil.isForwarded(null);
+		HttpComponentsUtil.isSecure(null);
+		HttpComponentsUtil.normalizePath(null);
+		HttpComponentsUtil.parameterMapFromString(null);
+		HttpComponentsUtil.protocolize(null, null);
+		HttpComponentsUtil.removeDomain(null);
+		HttpComponentsUtil.removeParameter(null);
+		HttpComponentsUtil.removePathParameters(null);
+		HttpComponentsUtil.removeProtocol(null);
+		HttpComponentsUtil.sanitizeHeader(null);
+		HttpComponentsUtil.setParameter(null, null, null);
+		HttpComponentsUtil.shortenURL(null);
+
+		HttpUtil.hasProxyConfig();
+		HttpComponentsUtil.addParameter(null, null, null);
+		HttpComponentsUtil.decodePath(null);
+		HttpComponentsUtil.decodeURL(null);
+		HttpComponentsUtil.encodeParameters(null);
+		HttpComponentsUtil.encodePath(null);
+		HttpComponentsUtil.fixPath(null);
+		HttpComponentsUtil.getCompleteURL(null, null, null);
+		HttpComponentsUtil.getDomain(null);
+		HttpComponentsUtil.getIpAddress(null);
+		HttpComponentsUtil.getParameter(null, null);
+		HttpComponentsUtil.getParameterMap(null);
+		HttpComponentsUtil.getPath(null);
+		HttpComponentsUtil.getProtocol(null);
+		HttpComponentsUtil.getQueryString(null);
+		HttpComponentsUtil.getRequestURL(null);
+		HttpComponentsUtil.getURI(null);
+		HttpComponentsUtil.hasDomain(null);
+		HttpComponentsUtil.hasProtocol(null);
+		HttpComponentsUtil.isForwarded(null);
+		HttpComponentsUtil.isSecure(null);
+		HttpComponentsUtil.normalizePath(null);
+		HttpComponentsUtil.parameterMapFromString(null);
+		HttpComponentsUtil.protocolize(null, null);
+		HttpComponentsUtil.removeDomain(null);
+		HttpComponentsUtil.removeParameter(null);
+		HttpComponentsUtil.removePathParameters(null);
+		HttpComponentsUtil.removeProtocol(null);
+		HttpComponentsUtil.sanitizeHeader(null);
+		HttpComponentsUtil.setParameter(null, null, null);
+		HttpComponentsUtil.shortenURL(null);
+
+		JSONUtil.isJSONObject("test123");
 
 		new ArrayList<>(LanguageUtil.getAvailableLocales());
 
-		CookiesConstants.NAME_COMMERCE_CONTINUE_AS_GUEST;
-		CookiesConstants.NAME_ID;
-		CookiesConstants.NAME_USER_UUID;
+		ArticleCreateDateComparator.getInstance(false);
+		ArticleDisplayDateComparator.getInstance(false);
+		ArticleIDComparator.getInstance(false);
+		ArticleModifiedDateComparator.getInstance(false);
+		ArticleResourcePKComparator.getInstance(true);
+		ArticleReviewDateComparator.getInstance(false);
+		ArticleTitleComparator.getInstance(false);
+		ArticleVersionComparator.getInstance(false);
+		AssetCategoryCreateDateComparator.getInstance(true);
+		AssetListEntryCreateDateComparator.getInstance(false);
+		AssetTagAssetCountComparator.getInstance(true);
+		AssetTagCountComparator.getInstance(false);
+		AssetVocabularyCreateDateComparator.getInstance(true);
+		BackgroundTaskCompletionDateComparator.getInstance(false);
+		BackgroundTaskCreateDateComparator.getInstance(false);
+		BackgroundTaskNameComparator.getInstance(false);
+		CPAttachmentFileEntryDisplayDateComparator.getInstance(false);
+		CPAttachmentFileEntryModifiedDateComparator.getInstance(false);
+		CPAttachmentFileEntryPriorityComparator.getInstance(false);
+		CPDefinitionDisplayDateComparator.getInstance(false);
+		CPDefinitionGroupedEntryPriorityComparator.getInstance(false);
+		CPDefinitionGroupedEntryQuantityComparator.getInstance(false);
+		CPDefinitionLinkPriorityComparator.getInstance(false);
+		CPDefinitionModifiedDateComparator.getInstance(false);
+		CPDefinitionNameComparator.getInstance(false);
+		CPDefinitionOptionRelCreateDateComparator.getInstance(false);
+		CPDefinitionOptionRelNameComparator.getInstance(false);
+		CPDefinitionOptionRelPriorityComparator.getInstance(false);
+		CPDefinitionOptionValueRelNameComparator.getInstance(false);
+		CPDefinitionOptionValueRelPriorityComparator.getInstance(false);
+		CPDefinitionSpecificationOptionValuePriorityComparator.getInstance(false);
+		CPDefinitionVersionComparator.getInstance(false);
+		CPInstanceCreateDateComparator.getInstance(false);
+		CPInstanceDisplayDateComparator.getInstance(false);
+		CPInstanceSkuComparator.getInstance(false);
+		CPInstanceUnitOfMeasurePriorityComparator.getInstance(true);
+		CPMeasurementUnitPriorityComparator.getInstance(false);
+		CPOptionCategoryModifiedDateComparator.getInstance(false);
+		CPOptionCategoryPriorityComparator.getInstance(false);
+		CPOptionCategoryTitleComparator.getInstance(false);
+		CPOptionModifiedDateComparator.getInstance(false);
+		CPOptionNameComparator.getInstance(false);
+		CPOptionValueNameComparator.getInstance(false);
+		CPOptionValuePriorityComparator.getInstance(false);
+		CPSpecificationOptionModifiedDateComparator.getInstance(false);
+		CPSpecificationOptionTitleComparator.getInstance(false);
+		CPTaxCategoryCreateDateComparator.getInstance(false);
+		CPTaxCategoryNameComparator.getInstance(false);
+		CategoryModifiedDateComparator.getInstance(false);
+		CategoryTitleComparator.getInstance(false);
+		CommerceAddressCreateDateComparator.getInstance(false);
+		CommerceAddressNameComparator.getInstance(false);
+		CommerceAddressRestrictionCreateDateComparator.getInstance(false);
+		CommerceAvailabilityEstimatePriorityComparator.getInstance(false);
+		CommerceCatalogCreateDateComparator.getInstance(false);
+		CommerceCurrencyPriorityComparator.getInstance(false);
+		CommerceDiscountCommerceAccountGroupRelCreateDateComparator.getInstance(false);
+		CommerceDiscountCreateDateComparator.getInstance(false);
+		CommerceDiscountRelCreateDateComparator.getInstance(false);
+		CommerceDiscountRuleCreateDateComparator.getInstance(false);
+		CommerceInventoryReplenishmentItemAvailabilityDateComparator.getInstance(true);
+		CommerceInventoryWarehouseCityComparator.getInstance(false);
+		CommerceInventoryWarehouseItemQuantityComparator.getInstance(false);
+		CommerceInventoryWarehouseItemWarehouseNameComparator.getInstance(false);
+		CommerceInventoryWarehouseNameComparator.getInstance(false);
+		CommerceNotificationAttachmentCreateDateComparator.getInstance(false);
+		CommerceNotificationQueueEntryPriorityComparator.getInstance(false);
+		CommerceNotificationTemplateCommerceAccountGroupRelCreateDateComparator.getInstance(false);
+		CommerceNotificationTemplateModifiedDateComparator.getInstance(false);
+		CommerceNotificationTemplateNameComparator.getInstance(false);
+		CommerceOrderCreateDateComparator.getInstance(false);
+		CommerceOrderIdComparator.getInstance(false);
+		CommerceOrderItemCreateDateComparator.getInstance(false);
+		CommerceOrderPaymentCreateDateComparator.getInstance(false);
+		CommerceOrderTotalComparator.getInstance(false);
+		CommercePriceEntryUOMCreateDateComparator.getInstance(false);
+		CommercePriceListCreateDateComparator.getInstance(false);
+		CommercePriceListDisplayDateComparator.getInstance(false);
+		CommercePriceListPriorityComparator.getInstance(false);
+		CommercePricingClassCreateDateComparator.getInstance(false);
+		CommerceShipmentCreateDateComparator.getInstance(false);
+		CommerceShipmentExpectedDateComparator.getInstance(false);
+		CommerceShipmentIdComparator.getInstance(false);
+		CommerceShipmentItemCreateDateComparator.getInstance(false);
+		CommerceShipmentShippingDateComparator.getInstance(false);
+		CommerceShippingMethodPriorityComparator.getInstance(false);
+		CommerceSubscriptionEntryCreateDateComparatorOrganizationIdComparator.getInstance(false);
+		CommerceTaxFixedRateAddressRelCreateDateComparator.getInstance(false);
+		CommerceTaxFixedRateCreateDateComparator.getInstance(false);
+		CommerceTierPriceEntryMinQuantityComparator.getInstance(false);
+		CommerceVirtualOrderItemCreateDateComparator.getInstance(false);
+		CommerceWishListCreateDateComparator.getInstance(false);
+		CommerceWishListItemCreateDateComparator.getInstance(false);
+		CommerceWishListNameComparator.getInstance(false);
+		DDLRecordCreateDateComparator.getInstance(false);
+		DDLRecordIdComparator.getInstance(false);
+		DDLRecordSetCreateDateComparator.getInstance(false);
+		DDLRecordSetNameComparator.getInstance(false);
+		DDMFormInstanceNameComparator.getInstance(false);
+		DDMFormInstanceRecordIdComparator.getInstance(false);
+		DEDataListViewCreateDateComparator.getInstance(false);
+		DEDataListViewNameComparator.getInstance(false);
+		DLFileVersionVersionComparator.getInstance(false);
+		DataProviderInstanceModifiedDateComparator.getInstance(false);
+		DataProviderInstanceNameComparator.getInstance(false);
+		ExportImportConfigurationNameComparator.getInstance(false);
+		FeedIDComparator.getInstance(false);
+		FeedNameComparator.getInstance(false);
+		FolderArticleArticleIdComparator.getInstance(false);
+		FolderArticleCreateDateComparator.getInstance(false);
+		FolderArticleDisplayDateComparator.getInstance(false);
+		FolderArticleModifiedDateComparator.getInstance(false);
+		FolderArticleTitleComparator.getInstance(false);
+		FolderIdComparator.getInstance(false);
+		FolderNameComparator.getInstance(false);
+		FragmentCollectionCreateDateComparator.getInstance(true);
+		FragmentCollectionNameComparator.getInstance(false);
+		FragmentCompositionFragmentEntryCreateDateComparator.getInstance(true);
+		FragmentCompositionFragmentEntryModifiedDateComparator.getInstance(true);
+		FragmentCompositionFragmentEntryNameComparator.getInstance(false);
+		FragmentEntryCreateDateComparator.getInstance(true);
+		FragmentEntryLinkLastPropagationDateComparator.getInstance(true);
+		FragmentEntryNameComparator.getInstance(false);
+		GroupFriendlyURLComparator.getInstance(false);
+		GroupIdComparator.getInstance(false);
+		GroupTypeComparator.getInstance(false);
+		KBArticleCreateDateComparator.getInstance(false);
+		KBArticleModifiedDateComparator.getInstance(false);
+		KBArticlePriorityComparator.getInstance(false);
+		KBArticleStatusComparator.getInstance(false);
+		KBArticleTitleComparator.getInstance(false);
+		KBArticleUserNameComparator.getInstance(false);
+		KBArticleVersionComparator.getInstance(false);
+		KBArticleViewCountComparator.getInstance(false);
+		KBCommentCreateDateComparator.getInstance(false);
+		KBCommentModifiedDateComparator.getInstance(false);
+		KBCommentStatusComparator.getInstance(false);
+		KBCommentUserNameComparator.getInstance(false);
+		KBFolderNameComparator.getInstance(false);
+		KBObjectsPriorityComparator.getInstance(false);
+		KBObjectsViewCountComparator.getInstance(false);
+		KBTemplateCreateDateComparator.getInstance(false);
+		KBTemplateModifiedDateComparator.getInstance(false);
+		KBTemplateTitleComparator.getInstance(false);
+		KBTemplateUserNameComparator.getInstance(false);
+		KaleoDefinitionVersionActiveComparator.getInstance(false);
+		KaleoDefinitionVersionComparator.getInstance(false);
+		KaleoDefinitionVersionIdComparator.getInstance(false);
+		KaleoDefinitionVersionModifiedDateComparator.getInstance(false);
+		KaleoDefinitionVersionNameComparator.getInstance(false);
+		KaleoDefinitionVersionVersionComparator.getInstance(false);
+		KaleoProcessCreateDateComparator.getInstance(false);
+		LayoutClassedModelUsageModifiedDateComparator.getInstance(true);
+		LayoutComparator.getInstance(false);
+		LayoutCreateDateComparator.getInstance(true);
+		LayoutModifiedDateComparator.getInstance(false);
+		LayoutPageTemplateCollectionCreateDateComparator.getInstance(true);
+		LayoutPageTemplateCollectionLayoutPageTemplateEntryCreateDateComparator.getInstance(false);
+		LayoutPageTemplateCollectionLayoutPageTemplateEntryModifiedDateComparator.getInstance(false);
+		LayoutPageTemplateCollectionLayoutPageTemplateEntryNameComparator.getInstance(false);
+		LayoutPageTemplateCollectionModifiedDateComparator.getInstance(true);
+		LayoutPageTemplateCollectionNameComparator.getInstance(false);
+		LayoutPageTemplateEntryCreateDateComparator.getInstance(true);
+		LayoutPageTemplateEntryModifiedDateComparator.getInstance(true);
+		LayoutPageTemplateEntryNameComparator.getInstance(false);
+		LayoutPrototypeCreateDateComparator.getInstance(false);
+		LayoutRelevanceComparator.getInstance(true);
+		LayoutRevisionCreateDateComparator.getInstance(false);
+		LayoutRevisionIdComparator.getInstance(false);
+		LayoutRevisionModifiedDateComparator.getInstance(false);
+		LayoutSetBranchCreateDateComparator.getInstance(false);
+		LayoutSetPrototypeCreateDateComparator.getInstance(false);
+		MBObjectsComparator.getInstance(false);
+		MBObjectsModifiedDateComparator.getInstance(false);
+		MBObjectsTitleComparator.getInstance(false);
+		MessageCreateDateComparator.getInstance(false);
+		MessageModifiedDateComparator.getInstance(false);
+		MessageSubjectComparator.getInstance(false);
+		MessageURLSubjectComparator.getInstance(false);
+		OrganizationNameComparator.getInstance(false);
+		OrganizationTypeComparator.getInstance(false);
+		PasswordPolicyDescriptionComparator.getInstance(false);
+		PasswordPolicyNameComparator.getInstance(false);
+		ResourceActionBitwiseValueComparator.getInstance(false);
+		RoleDescriptionComparator.getInstance(false);
+		RoleNameComparator.getInstance(false);
+		RoleRoleIdComparator.getInstance(false);
+		RoleTypeComparator.getInstance(false);
+		SXPBlueprintModifiedDateComparator.getInstance(false);
+		SocialActivitySetModifiedDateComparator.getInstance(false);
+		StructureCreateDateComparator.getInstance(false);
+		StructureIdComparator.getInstance(false);
+		StructureLayoutCreateDateComparator.getInstance(false);
+		StructureLayoutNameComparator.getInstance(true);
+		StructureLinkStructureModifiedDateComparator.getInstance(false);
+		TeamNameComparator.getInstance(false);
+		TemplateIdComparator.getInstance(false);
+		ThreadCreateDateComparator.getInstance(false);
+		ThreadLastPostDateComparator.getInstance(false);
+		ThreadModifiedDateComparator.getInstance(false);
+		ThreadTitleComparator.getInstance(false);
+		UserEmailAddressComparator.getInstance(false);
+		UserFirstNameComparator.getInstance(false);
+		UserGroupDescriptionComparator.getInstance(false);
+		UserGroupIdComparator.getInstance(false);
+		UserIdComparator.getInstance(false);
+		UserJobTitleComparator.getInstance(false);
+		UserLastNameComparator.getInstance(false);
+		UserLoginDateComparator.getInstance(false);
+		UserScreenNameComparator.getInstance(false);
+		WorkflowMetricsSLADefinitionVersionIdComparator.getInstance(false);
 
 		PortletDisplayTemplateConstants.DISPLAY_STYLE_PREFIX;
 		PortletDisplayTemplateConstants.ENTRIES;
 
 		ServiceTrackerList<Class<E>> serviceTrackerList = ServiceTrackerListFactory.open(null, null);
+
+		StructureStructureKeyComparator.getInstance(true);
+		StructureStructureKeyComparator.getInstance(false);
 	}
 
 	public void method(
@@ -92,6 +374,218 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 		LayoutItemSelectorCriterion layoutItemSelectorCriterion = new LayoutItemSelectorCriterion();
 
 		layoutItemSelectorCriterion.setShowHiddenPages(null);
+
+		ArticleCreateDateComparator.getInstance(showHiddenPages);
+		ArticleDisplayDateComparator.getInstance(showHiddenPages);
+		ArticleIDComparator.getInstance(showHiddenPages);
+		ArticleModifiedDateComparator.getInstance(showHiddenPages);
+		ArticleResourcePKComparator.getInstance(showHiddenPages);
+		ArticleReviewDateComparator.getInstance(showHiddenPages);
+		ArticleTitleComparator.getInstance(showHiddenPages);
+		ArticleVersionComparator.getInstance(showHiddenPages);
+		AssetCategoryCreateDateComparator.getInstance(showHiddenPages);
+		AssetListEntryCreateDateComparator.getInstance(showHiddenPages);
+		AssetTagAssetCountComparator.getInstance(showHiddenPages);
+		AssetTagCountComparator.getInstance(showHiddenPages);
+		AssetVocabularyCreateDateComparator.getInstance(showHiddenPages);
+		BackgroundTaskCompletionDateComparator.getInstance(showHiddenPages);
+		BackgroundTaskCreateDateComparator.getInstance(showHiddenPages);
+		BackgroundTaskNameComparator.getInstance(showHiddenPages);
+		CPAttachmentFileEntryDisplayDateComparator.getInstance(showHiddenPages);
+		CPAttachmentFileEntryModifiedDateComparator.getInstance(showHiddenPages);
+		CPAttachmentFileEntryPriorityComparator.getInstance(showHiddenPages);
+		CPDefinitionDisplayDateComparator.getInstance(showHiddenPages);
+		CPDefinitionGroupedEntryPriorityComparator.getInstance(showHiddenPages);
+		CPDefinitionGroupedEntryQuantityComparator.getInstance(showHiddenPages);
+		CPDefinitionLinkPriorityComparator.getInstance(showHiddenPages);
+		CPDefinitionModifiedDateComparator.getInstance(showHiddenPages);
+		CPDefinitionNameComparator.getInstance(showHiddenPages);
+		CPDefinitionOptionRelCreateDateComparator.getInstance(showHiddenPages);
+		CPDefinitionOptionRelNameComparator.getInstance(showHiddenPages);
+		CPDefinitionOptionRelPriorityComparator.getInstance(showHiddenPages);
+		CPDefinitionOptionValueRelNameComparator.getInstance(showHiddenPages);
+		CPDefinitionOptionValueRelPriorityComparator.getInstance(showHiddenPages);
+		CPDefinitionSpecificationOptionValuePriorityComparator.getInstance(showHiddenPages);
+		CPDefinitionVersionComparator.getInstance(showHiddenPages);
+		CPInstanceCreateDateComparator.getInstance(showHiddenPages);
+		CPInstanceDisplayDateComparator.getInstance(showHiddenPages);
+		CPInstanceSkuComparator.getInstance(showHiddenPages);
+		CPInstanceUnitOfMeasurePriorityComparator.getInstance(showHiddenPages);
+		CPMeasurementUnitPriorityComparator.getInstance(showHiddenPages);
+		CPOptionCategoryModifiedDateComparator.getInstance(showHiddenPages);
+		CPOptionCategoryPriorityComparator.getInstance(showHiddenPages);
+		CPOptionCategoryTitleComparator.getInstance(showHiddenPages);
+		CPOptionModifiedDateComparator.getInstance(showHiddenPages);
+		CPOptionNameComparator.getInstance(showHiddenPages);
+		CPOptionValueNameComparator.getInstance(showHiddenPages);
+		CPOptionValuePriorityComparator.getInstance(showHiddenPages);
+		CPSpecificationOptionModifiedDateComparator.getInstance(showHiddenPages);
+		CPSpecificationOptionTitleComparator.getInstance(showHiddenPages);
+		CPTaxCategoryCreateDateComparator.getInstance(showHiddenPages);
+		CPTaxCategoryNameComparator.getInstance(showHiddenPages);
+		CategoryModifiedDateComparator.getInstance(showHiddenPages);
+		CategoryTitleComparator.getInstance(showHiddenPages);
+		CommerceAddressCreateDateComparator.getInstance(showHiddenPages);
+		CommerceAddressNameComparator.getInstance(showHiddenPages);
+		CommerceAddressRestrictionCreateDateComparator.getInstance(showHiddenPages);
+		CommerceAvailabilityEstimatePriorityComparator.getInstance(showHiddenPages);
+		CommerceCatalogCreateDateComparator.getInstance(showHiddenPages);
+		CommerceCurrencyPriorityComparator.getInstance(showHiddenPages);
+		CommerceDiscountCommerceAccountGroupRelCreateDateComparator.getInstance(showHiddenPages);
+		CommerceDiscountCreateDateComparator.getInstance(showHiddenPages);
+		CommerceDiscountRelCreateDateComparator.getInstance(showHiddenPages);
+		CommerceDiscountRuleCreateDateComparator.getInstance(showHiddenPages);
+		CommerceInventoryReplenishmentItemAvailabilityDateComparator.getInstance(showHiddenPages);
+		CommerceInventoryWarehouseCityComparator.getInstance(showHiddenPages);
+		CommerceInventoryWarehouseItemQuantityComparator.getInstance(showHiddenPages);
+		CommerceInventoryWarehouseItemWarehouseNameComparator.getInstance(showHiddenPages);
+		CommerceInventoryWarehouseNameComparator.getInstance(showHiddenPages);
+		CommerceNotificationAttachmentCreateDateComparator.getInstance(showHiddenPages);
+		CommerceNotificationQueueEntryPriorityComparator.getInstance(showHiddenPages);
+		CommerceNotificationTemplateCommerceAccountGroupRelCreateDateComparator.getInstance(showHiddenPages);
+		CommerceNotificationTemplateModifiedDateComparator.getInstance(showHiddenPages);
+		CommerceNotificationTemplateNameComparator.getInstance(showHiddenPages);
+		CommerceOrderCreateDateComparator.getInstance(showHiddenPages);
+		CommerceOrderIdComparator.getInstance(showHiddenPages);
+		CommerceOrderItemCreateDateComparator.getInstance(showHiddenPages);
+		CommerceOrderPaymentCreateDateComparator.getInstance(showHiddenPages);
+		CommerceOrderTotalComparator.getInstance(showHiddenPages);
+		CommercePriceEntryUOMCreateDateComparator.getInstance(showHiddenPages);
+		CommercePriceListCreateDateComparator.getInstance(showHiddenPages);
+		CommercePriceListDisplayDateComparator.getInstance(showHiddenPages);
+		CommercePriceListPriorityComparator.getInstance(showHiddenPages);
+		CommercePricingClassCreateDateComparator.getInstance(showHiddenPages);
+		CommerceShipmentCreateDateComparator.getInstance(showHiddenPages);
+		CommerceShipmentExpectedDateComparator.getInstance(showHiddenPages);
+		CommerceShipmentIdComparator.getInstance(showHiddenPages);
+		CommerceShipmentItemCreateDateComparator.getInstance(showHiddenPages);
+		CommerceShipmentShippingDateComparator.getInstance(showHiddenPages);
+		CommerceShippingMethodPriorityComparator.getInstance(showHiddenPages);
+		CommerceSubscriptionEntryCreateDateComparatorOrganizationIdComparator.getInstance(showHiddenPages);
+		CommerceTaxFixedRateAddressRelCreateDateComparator.getInstance(showHiddenPages);
+		CommerceTaxFixedRateCreateDateComparator.getInstance(showHiddenPages);
+		CommerceTierPriceEntryMinQuantityComparator.getInstance(showHiddenPages);
+		CommerceVirtualOrderItemCreateDateComparator.getInstance(showHiddenPages);
+		CommerceWishListCreateDateComparator.getInstance(showHiddenPages);
+		CommerceWishListItemCreateDateComparator.getInstance(showHiddenPages);
+		CommerceWishListNameComparator.getInstance(showHiddenPages);
+		DDLRecordCreateDateComparator.getInstance(showHiddenPages);
+		DDLRecordIdComparator.getInstance(showHiddenPages);
+		DDLRecordSetCreateDateComparator.getInstance(showHiddenPages);
+		DDLRecordSetNameComparator.getInstance(showHiddenPages);
+		DDMFormInstanceNameComparator.getInstance(showHiddenPages);
+		DDMFormInstanceRecordIdComparator.getInstance(showHiddenPages);
+		DEDataListViewCreateDateComparator.getInstance(showHiddenPages);
+		DEDataListViewNameComparator.getInstance(showHiddenPages);
+		DLFileVersionVersionComparator.getInstance(showHiddenPages);
+		DataProviderInstanceModifiedDateComparator.getInstance(showHiddenPages);
+		DataProviderInstanceNameComparator.getInstance(showHiddenPages);
+		ExportImportConfigurationNameComparator.getInstance(showHiddenPages);
+		FeedIDComparator.getInstance(showHiddenPages);
+		FeedNameComparator.getInstance(showHiddenPages);
+		FolderArticleArticleIdComparator.getInstance(showHiddenPages);
+		FolderArticleCreateDateComparator.getInstance(showHiddenPages);
+		FolderArticleDisplayDateComparator.getInstance(showHiddenPages);
+		FolderArticleModifiedDateComparator.getInstance(showHiddenPages);
+		FolderArticleTitleComparator.getInstance(showHiddenPages);
+		FolderIdComparator.getInstance(showHiddenPages);
+		FolderNameComparator.getInstance(showHiddenPages);
+		FragmentCollectionCreateDateComparator.getInstance(showHiddenPages);
+		FragmentCollectionNameComparator.getInstance(showHiddenPages);
+		FragmentCompositionFragmentEntryCreateDateComparator.getInstance(showHiddenPages);
+		FragmentCompositionFragmentEntryModifiedDateComparator.getInstance(showHiddenPages);
+		FragmentCompositionFragmentEntryNameComparator.getInstance(showHiddenPages);
+		FragmentEntryCreateDateComparator.getInstance(showHiddenPages);
+		FragmentEntryLinkLastPropagationDateComparator.getInstance(showHiddenPages);
+		FragmentEntryNameComparator.getInstance(showHiddenPages);
+		GroupFriendlyURLComparator.getInstance(showHiddenPages);
+		GroupIdComparator.getInstance(showHiddenPages);
+		GroupTypeComparator.getInstance(showHiddenPages);
+		KBArticleCreateDateComparator.getInstance(showHiddenPages);
+		KBArticleModifiedDateComparator.getInstance(showHiddenPages);
+		KBArticlePriorityComparator.getInstance(showHiddenPages);
+		KBArticleStatusComparator.getInstance(showHiddenPages);
+		KBArticleTitleComparator.getInstance(showHiddenPages);
+		KBArticleUserNameComparator.getInstance(showHiddenPages);
+		KBArticleVersionComparator.getInstance(showHiddenPages);
+		KBArticleViewCountComparator.getInstance(showHiddenPages);
+		KBCommentCreateDateComparator.getInstance(showHiddenPages);
+		KBCommentModifiedDateComparator.getInstance(showHiddenPages);
+		KBCommentStatusComparator.getInstance(showHiddenPages);
+		KBCommentUserNameComparator.getInstance(showHiddenPages);
+		KBFolderNameComparator.getInstance(showHiddenPages);
+		KBObjectsPriorityComparator.getInstance(showHiddenPages);
+		KBObjectsViewCountComparator.getInstance(showHiddenPages);
+		KBTemplateCreateDateComparator.getInstance(showHiddenPages);
+		KBTemplateModifiedDateComparator.getInstance(showHiddenPages);
+		KBTemplateTitleComparator.getInstance(showHiddenPages);
+		KBTemplateUserNameComparator.getInstance(showHiddenPages);
+		KaleoDefinitionVersionActiveComparator.getInstance(showHiddenPages);
+		KaleoDefinitionVersionComparator.getInstance(showHiddenPages);
+		KaleoDefinitionVersionIdComparator.getInstance(showHiddenPages);
+		KaleoDefinitionVersionModifiedDateComparator.getInstance(showHiddenPages);
+		KaleoDefinitionVersionNameComparator.getInstance(showHiddenPages);
+		KaleoDefinitionVersionVersionComparator.getInstance(showHiddenPages);
+		KaleoProcessCreateDateComparator.getInstance(showHiddenPages);
+		LayoutClassedModelUsageModifiedDateComparator.getInstance(showHiddenPages);
+		LayoutComparator.getInstance(showHiddenPages);
+		LayoutCreateDateComparator.getInstance(showHiddenPages);
+		LayoutModifiedDateComparator.getInstance(showHiddenPages);
+		LayoutPageTemplateCollectionCreateDateComparator.getInstance(showHiddenPages);
+		LayoutPageTemplateCollectionLayoutPageTemplateEntryCreateDateComparator.getInstance(showHiddenPages);
+		LayoutPageTemplateCollectionLayoutPageTemplateEntryModifiedDateComparator.getInstance(showHiddenPages);
+		LayoutPageTemplateCollectionLayoutPageTemplateEntryNameComparator.getInstance(showHiddenPages);
+		LayoutPageTemplateCollectionModifiedDateComparator.getInstance(showHiddenPages);
+		LayoutPageTemplateCollectionNameComparator.getInstance(showHiddenPages);
+		LayoutPageTemplateEntryCreateDateComparator.getInstance(showHiddenPages);
+		LayoutPageTemplateEntryModifiedDateComparator.getInstance(showHiddenPages);
+		LayoutPageTemplateEntryNameComparator.getInstance(showHiddenPages);
+		LayoutPrototypeCreateDateComparator.getInstance(showHiddenPages);
+		LayoutRelevanceComparator.getInstance(showHiddenPages);
+		LayoutRevisionCreateDateComparator.getInstance(showHiddenPages);
+		LayoutRevisionIdComparator.getInstance(showHiddenPages);
+		LayoutRevisionModifiedDateComparator.getInstance(showHiddenPages);
+		LayoutSetBranchCreateDateComparator.getInstance(showHiddenPages);
+		LayoutSetPrototypeCreateDateComparator.getInstance(showHiddenPages);
+		MBObjectsComparator.getInstance(showHiddenPages);
+		MBObjectsModifiedDateComparator.getInstance(showHiddenPages);
+		MBObjectsTitleComparator.getInstance(showHiddenPages);
+		MessageCreateDateComparator.getInstance(showHiddenPages);
+		MessageModifiedDateComparator.getInstance(showHiddenPages);
+		MessageSubjectComparator.getInstance(showHiddenPages);
+		MessageURLSubjectComparator.getInstance(showHiddenPages);
+		OrganizationNameComparator.getInstance(showHiddenPages);
+		OrganizationTypeComparator.getInstance(showHiddenPages);
+		PasswordPolicyDescriptionComparator.getInstance(showHiddenPages);
+		PasswordPolicyNameComparator.getInstance(showHiddenPages);
+		ResourceActionBitwiseValueComparator.getInstance(showHiddenPages);
+		RoleDescriptionComparator.getInstance(showHiddenPages);
+		RoleNameComparator.getInstance(showHiddenPages);
+		RoleRoleIdComparator.getInstance(showHiddenPages);
+		RoleTypeComparator.getInstance(showHiddenPages);
+		SXPBlueprintModifiedDateComparator.getInstance(showHiddenPages);
+		SocialActivitySetModifiedDateComparator.getInstance(showHiddenPages);
+		StructureCreateDateComparator.getInstance(showHiddenPages);
+		StructureIdComparator.getInstance(showHiddenPages);
+		StructureLayoutCreateDateComparator.getInstance(showHiddenPages);
+		StructureLayoutNameComparator.getInstance(showHiddenPages);
+		StructureLinkStructureModifiedDateComparator.getInstance(showHiddenPages);
+		TeamNameComparator.getInstance(showHiddenPages);
+		TemplateIdComparator.getInstance(showHiddenPages);
+		ThreadCreateDateComparator.getInstance(showHiddenPages);
+		ThreadLastPostDateComparator.getInstance(showHiddenPages);
+		ThreadModifiedDateComparator.getInstance(showHiddenPages);
+		ThreadTitleComparator.getInstance(showHiddenPages);
+		UserEmailAddressComparator.getInstance(showHiddenPages);
+		UserFirstNameComparator.getInstance(showHiddenPages);
+		UserGroupDescriptionComparator.getInstance(showHiddenPages);
+		UserGroupIdComparator.getInstance(showHiddenPages);
+		UserIdComparator.getInstance(showHiddenPages);
+		UserJobTitleComparator.getInstance(showHiddenPages);
+		UserLastNameComparator.getInstance(showHiddenPages);
+		UserLoginDateComparator.getInstance(showHiddenPages);
+		UserScreenNameComparator.getInstance(showHiddenPages);
+		WorkflowMetricsSLADefinitionVersionIdComparator.getInstance(showHiddenPages);
 	}
 
 	public void method(CommerceAddress commerceAddress) {
@@ -150,6 +644,10 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 		Map<Indexer<?>, Indexer<?>> indexerRequests = new LinkedHashMap<>();
 		List<Indexer<?>> indexers = portlet.getIndexerInstances();
+	}
+
+	public void method(Layout layout, String friendlyURL) {
+		LayoutFriendlyURLComposite(layout, friendlyURL, false);
 	}
 
 	public void method(long commerceOrderId) {
@@ -435,6 +933,10 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 		AssetVocabularyLocalServiceUtil.fetchAssetVocabularyByExternalReferenceCode(companyId, externalReferenceCode);
 		_assetVocabularyLocalService.fetchAssetVocabularyByExternalReferenceCode(companyId, externalReferenceCode);
 
+		CommerceCatalogLocalServiceUtil.fetchCommerceCatalogByExternalReferenceCode(externalReferenceCode, companyId);
+		_commerceCatalogLocalService.fetchCommerceCatalogByExternalReferenceCode(123, "test123");
+		_commerceCatalogLocalService.fetchCommerceCatalogByExternalReferenceCode(externalReferenceCode, companyId);
+
 		CommercePriceListLocalServiceUtil.fetchByExternalReferenceCode(externalReferenceCode, companyId);
 		_commercePriceListLocalService.fetchByExternalReferenceCode(123, "test123");
 		_commercePriceListLocalService.fetchByExternalReferenceCode(externalReferenceCode, companyId);
@@ -494,6 +996,17 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 		_addressService.addAddress(null, userId, className, classPK, null, null, street1, street2, street3, city, zip, regionId, countryId, typeId, mailing, primary, null, serviceContext);
 	}
 
+	public void method(
+		long companyId, String webId, String virtualHostname, String mx,
+		int maxUsers, boolean active, String defaultAdminPassword,
+		String defaultAdminScreenName, String defaultAdminEmailAddress,
+		String defaultAdminFirstName, String defaultAdminMiddleName,
+		String defaultAdminLastName) {
+
+		CompanyLocalServiceUtil.addCompany(companyId, webId, virtualHost, mx, maxUsers, active, defaultAdminPassword, defaultAdminScreenName, defaultAdminEmailAddress, defaultAdminFirstName, defaultAdminMiddleName, defaultAdminLastName);
+		_companyLocalService.addCompany(companyId, webId, virtualHost, mx, maxUsers, active, defaultAdminPassword, defaultAdminScreenName, defaultAdminEmailAddress, defaultAdminFirstName, defaultAdminMiddleName, defaultAdminLastName);
+	}
+
 	public void method(long[] segmentsExperienceIds) {
 		DefaultFragmentRendererContext defaultFragmentRendererContext = new DefaultFragmentRendererContext(null);
 
@@ -516,10 +1029,29 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 		portletDisplay.getPortletInstanceConfiguration(null);
 	}
 
+	public void method(Product product) {
+		product.getProductConfiguration();
+	}
+
 	public void method(
 		ResourceRequest resourceRequest, ResourceResponse resourceResponse) {
 
 		CaptchaUtil.serveImage(PortalUtil.getHttpServletRequest(resourceRequest), PortalUtil.getHttpServletResponse(resourceResponse));
+	}
+
+	public void method(String searchEngineId) {
+		IndexableActionableDynamicQuery indexableActionableDynamicQuery =
+			new IndexableActionableDynamicQuery();
+
+		indexableActionableDynamicQuery.setSearchEngineId("test123");
+	}
+
+	public void method(
+		String searchEngineId, long companyId, Collection<Document> documents,
+		boolean commitImmediately) {
+
+		IndexWriterHelperUtil.updateDocument(companyId, documents);
+		IndexWriterHelperUtil.updateDocument("test123", 123, null, null);
 	}
 
 	public void method(
@@ -608,6 +1140,9 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 	private CommerceAddressLocalService _commerceAddressLocalService;
 
 	@Reference
+	private CommerceCatalogLocalService _commerceCatalogLocalService;
+
+	@Reference
 	private CommerceOrderItemLocalService _commerceOrderItemLocalService;
 
 	@Reference
@@ -657,6 +1192,9 @@ public class UpgradeCatchAllCheck implements ConfigurationBeanDeclaration {
 
 	@Reference
 	private HtmlParser _htmlParser;
+
+	@Reference
+	private Http _http;
 
 	@Reference
 	private JournalFolderLocalService _journalFolderLocalService;

@@ -31,6 +31,9 @@ import com.liferay.portal.model.impl.ClassNameImpl;
 import com.liferay.portal.model.impl.ResourceActionImpl;
 import com.liferay.portal.service.impl.ClassNameLocalServiceImpl;
 import com.liferay.portal.service.impl.ResourceActionLocalServiceImpl;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 
 import java.sql.Connection;
@@ -660,6 +663,44 @@ public class DBPartitionTest extends BaseDBPartitionTestCase {
 			DBPartitionUtil.forEachCompanyId(
 				companyId -> dropTable(TEST_TABLE_NAME));
 		}
+	}
+
+	@Test
+	public void testUpdateIndexOnControlTable() throws Exception {
+		DataSource dataSource = InfrastructureUtil.getDataSource();
+
+		DBPartitionUtil.forEachCompanyId(
+			companyId -> {
+				try (Connection connection = dataSource.getConnection();
+					LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+						"com.liferay.portal.dao.db.BaseDB",
+						LoggerTestUtil.INFO)) {
+
+					db.updateIndexes(
+						connection, "Company",
+						"create index " + TEST_INDEX_NAME +
+							" on Company (logoId, companyId);",
+						false);
+
+					List<LogEntry> logEntries = logCapture.getLogEntries();
+
+					long expectedLogEntriesCount = 0;
+
+					if (companyId == PortalInstancePool.getDefaultCompanyId()) {
+						expectedLogEntriesCount = 1;
+					}
+
+					Assert.assertEquals(
+						logEntries.toString(), expectedLogEntriesCount,
+						logEntries.size());
+				}
+				finally {
+					if (dbInspector.hasIndex("Company", TEST_INDEX_NAME)) {
+						db.runSQL(
+							"drop index " + TEST_INDEX_NAME + " on Company");
+					}
+				}
+			});
 	}
 
 	@Test

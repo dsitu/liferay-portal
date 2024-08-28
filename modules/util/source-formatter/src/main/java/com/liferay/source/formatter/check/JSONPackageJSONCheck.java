@@ -64,23 +64,29 @@ public class JSONPackageJSONCheck extends BaseFileCheck {
 
 		_checkIncorrectEntry(fileName, jsonObject, "devDependencies");
 
-		if (absolutePath.endsWith("frontend-theme-admin") ||
-			absolutePath.endsWith("frontend-theme-classic") ||
-			absolutePath.endsWith("frontend-theme-styled") ||
-			absolutePath.endsWith("frontend-theme-unstyled")) {
+		if (absolutePath.endsWith("commerce-theme-minium/package.json") ||
+			absolutePath.endsWith("commerce-theme-speedwell/package.json") ||
+			absolutePath.endsWith("frontend-theme-admin/package.json") ||
+			absolutePath.endsWith("frontend-theme-classic/package.json") ||
+			absolutePath.endsWith("frontend-theme-dialect/package.json") ||
+			absolutePath.endsWith("frontend-theme-styled/package.json") ||
+			absolutePath.endsWith("frontend-theme-unstyled/package.json")) {
 
 			_checkScript(
-				fileName, scriptsJSONObject, "build", false, "theme build");
+				fileName, scriptsJSONObject, "build", false, "theme build",
+				"build:theme");
 		}
 		else {
 			_checkScript(
 				fileName, scriptsJSONObject, "build", false, "build",
-				"webpack");
+				"build:custom", "webpack");
 		}
 
 		_checkScript(
-			fileName, scriptsJSONObject, "checkFormat", true, "--check");
-		_checkScript(fileName, scriptsJSONObject, "format", true, "format");
+			fileName, scriptsJSONObject, "checkFormat", true, "--check",
+			"check", "check:ci");
+		_checkScript(
+			fileName, scriptsJSONObject, "format", true, "fix", "format");
 
 		return content;
 	}
@@ -109,7 +115,9 @@ public class JSONPackageJSONCheck extends BaseFileCheck {
 		String value = scriptsJSONObject.getString(key);
 
 		for (String allowedValue : allowedValues) {
-			if (value.endsWith(StringPool.SPACE + allowedValue)) {
+			if (value.equals(allowedValue) ||
+				value.endsWith(StringPool.SPACE + allowedValue)) {
+
 				return;
 			}
 		}
@@ -124,21 +132,24 @@ public class JSONPackageJSONCheck extends BaseFileCheck {
 			return;
 		}
 
-		StringBundler sb = new StringBundler((allowedValues.length * 3) + 5);
+		StringBundler sb = new StringBundler((allowedValues.length * 4) + 5);
 
 		sb.append("Value '");
 		sb.append(value);
 		sb.append("' for entry '");
 		sb.append(key);
-		sb.append("' should end with one of the following values: ");
+		sb.append(
+			"' should end with (or be exactly) one of the following values: ");
 
-		for (String allowedValue : allowedValues) {
+		for (int i = 0; i < allowedValues.length; i++) {
+			if (i > 0) {
+				sb.append(", ");
+			}
+
 			sb.append(StringPool.APOSTROPHE);
-			sb.append(allowedValue);
-			sb.append("', ");
+			sb.append(allowedValues[i]);
+			sb.append(StringPool.APOSTROPHE);
 		}
-
-		sb.setIndex(sb.index() - 1);
 
 		addMessage(fileName, sb.toString());
 	}

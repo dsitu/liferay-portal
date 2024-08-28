@@ -191,7 +191,7 @@ definition {
 	}
 
 	@summary = "Default summary"
-	macro addObjectFieldViaAPI(isRequired = null, userPassword = null, fieldName = null, indexed = null, outputOption = null, fileSource = null, showFilesInDocumentsAndMedia = null, userEmailAddress = null, fieldBusinessType = null, readOnlyExpression = null, picklistName = null, indexedAsKeyword = null, isReadOnly = null, formulaScript = null, fieldLabelName = null, indexedLanguageId = null, objectName = null, fieldType = null, timeStorageOption = null, externalReferenceCode = null) {
+	macro addObjectFieldViaAPI(externalReferenceCode = null, fieldName = null, fieldBusinessType = null, fieldLabelName = null, fieldType = null, fileSource = null, formulaScript = null, indexed = null, indexedAsKeyword = null, indexedLanguageId = null, isReadOnly = null, isRequired = null, objectName = null, outputOption = null, picklistName = null, readOnlyExpression = null, showFilesInDocumentsAndMedia = null, timeStorageOption = null, userEmailAddress = null, userPassword = null) {
 		if ((${fieldBusinessType} == "Formula") || (${fieldBusinessType} == "Aggregation")) {
 			var indexed = "false";
 		}
@@ -930,27 +930,27 @@ definition {
 	}
 
 	@summary = "Default summary"
+	macro deleteAllCustomObjectRelationships() {
+		var objectDefinitionIds = JSONObject.getAllObjectDefinitionsId();
+
+		for (var objectDefinitionId : list ${objectDefinitionIds}) {
+			var customObjectRelationshipIds = JSONObject.getCustomObjectRelationshipIds(objectDefinitionId = ${objectDefinitionId});
+
+			if (${customObjectRelationshipIds} != "") {
+				for (var customObjectRelationshipId : list ${customObjectRelationshipIds}) {
+					JSONObject.deleteObjectRelationship(objectRelationshipId = ${customObjectRelationshipId});
+				}
+			}
+		}
+	}
+
+	@summary = "Default summary"
 	macro deleteAllCustomObjectsViaAPI(userPassword = null, userEmailAddress = null) {
-		ObjectAdmin.deleteAllRelationships();
+		ObjectAdmin.deleteAllCustomObjectRelationships();
 
 		JSONObject.deleteAllCustomObjects(
 			userEmailAddress = ${userEmailAddress},
 			userPassword = ${userPassword});
-	}
-
-	@summary = "Default summary"
-	macro deleteAllRelationships() {
-		var objectDefinitionIdList = JSONObject.getAllObjectDefinitionsId();
-
-		for (var objectDefinitionId : list ${objectDefinitionIdList}) {
-			var relationshipIdList = JSONObject.getObjectRelationships(objectDefinitionId = ${objectDefinitionId});
-
-			if (${relationshipIdList} != "") {
-				for (var relationshipId : list ${relationshipIdList}) {
-					JSONObject.deleteRelationship(objectRelationshipId = ${relationshipId});
-				}
-			}
-		}
 	}
 
 	@summary = "Default summary"

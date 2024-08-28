@@ -170,11 +170,14 @@ public class DataSourceControllerTest {
 	}
 
 	@Test
-	public void testGetMappings() throws Exception {
-		List<DataSourceMappingDisplay> mappings =
-			_dataSourceController.getMappings(32719, null, 32783);
+	public void testGetDataSourceMappingDisplays() throws Exception {
+		List<DataSourceMappingDisplay> dataSourceMappingDisplays =
+			_dataSourceController.getDataSourceMappingDisplays(
+				32719, null, 32783);
 
-		Assert.assertEquals(mappings.toString(), 13, mappings.size());
+		Assert.assertEquals(
+			dataSourceMappingDisplays.toString(), 13,
+			dataSourceMappingDisplays.size());
 	}
 
 	private Field _createField(String name, String sourceName, String value) {

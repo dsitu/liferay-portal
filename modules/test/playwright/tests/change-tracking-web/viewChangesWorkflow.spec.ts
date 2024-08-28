@@ -11,6 +11,7 @@ import {changeTrackingPagesTest} from '../../fixtures/changeTrackingPagesTest';
 import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
 import {workflowPagesTest} from '../../fixtures/workflowPagesTest';
 import getRandomString from '../../utils/getRandomString';
+import {waitForSuccessAlert} from '../../utils/waitForSuccessAlert';
 import {journalPagesTest} from '../journal-web/fixtures/journalPagesTest';
 
 export const test = mergeTests(
@@ -402,6 +403,80 @@ test('LPD-22771 Assign button is not visible in other publications', async ({
 	await expect(assignButton).toBeVisible({visible: false});
 });
 
+test('LPD-23430 Workflow transition actions are displayed in dropdown', async ({
+	changeTrackingPage,
+	ctCollection,
+	page,
+}) => {
+	await changeTrackingPage.goToReviewChanges(ctCollection.name);
+
+	await changeTrackingPage.reviewChange(journalName);
+
+	const moreActionsButton = page.getByLabel('more-actions');
+
+	await moreActionsButton.click();
+
+	const assignToMeMenuItem = page.getByRole('menuitem', {
+		name: 'Assign to me',
+	});
+
+	await assignToMeMenuItem.click();
+
+	await page
+		.frameLocator('iframe[title="Assign to Me"]')
+		.getByRole('button', {exact: true, name: 'Done'})
+		.click();
+
+	await moreActionsButton.click();
+
+	await page.getByRole('menuitem', {name: 'Reject'}).click();
+
+	await expect(page.getByRole('heading', {name: 'Reject'})).toBeVisible();
+
+	const doneButton = page.getByText('Done');
+
+	await doneButton.click();
+
+	await page.reload();
+
+	await expect(
+		page.locator('span').filter({hasText: 'Pending'}).first()
+	).toBeVisible();
+
+	await moreActionsButton.click();
+
+	await page.getByRole('menuitem', {name: 'Resubmit'}).click();
+
+	await expect(page.getByRole('heading', {name: 'Resubmit'})).toBeVisible();
+
+	await doneButton.click();
+
+	await page.reload();
+
+	await moreActionsButton.click();
+
+	await assignToMeMenuItem.click();
+
+	await page
+		.frameLocator('iframe[title="Assign to Me"]')
+		.getByRole('button', {exact: true, name: 'Done'})
+		.click();
+
+	await page.getByRole('cell', {exact: true, name: 'Test Test'});
+
+	await moreActionsButton.click();
+
+	await page.getByRole('menuitem', {name: 'Approve'}).click();
+
+	await expect(page.getByRole('heading', {name: 'Approve'})).toBeVisible();
+
+	await doneButton.click();
+
+	await expect(
+		page.locator('span').filter({hasText: 'Approved'}).first()
+	).toBeVisible();
+});
+
 test('LPD-27013 Cannot assign tasks once task is completed', async ({
 	changeTrackingPage,
 	ctCollection,
@@ -466,4 +541,134 @@ test('LPD-24758 Error when viewing Workflow tab in publication history', async (
 	}
 
 	await expect(page.getByLabel('more-actions')).toBeHidden();
+});
+
+test('LPD-28970 Error when viewing data tab after viewing Workflow tab', async ({
+	changeTrackingPage,
+	ctCollection,
+	page,
+}) => {
+	await changeTrackingPage.goToReviewChanges(ctCollection.name);
+
+	await changeTrackingPage.reviewChange(journalName);
+
+	await changeTrackingPage.selectTab('Workflow');
+
+	await changeTrackingPage.selectTab('Data');
+
+	await expect(page.locator('.alert-danger')).not.toBeVisible();
+
+	await expect(
+		page.getByRole('cell', {exact: true, name: journalName})
+	).toBeVisible();
+});
+
+test('LPD-28734 SuccessMessage appears on Workflow Portlet after doing workflow transition actions', async ({
+	changeTrackingPage,
+	ctCollection,
+	page,
+}) => {
+	await changeTrackingPage.goToReviewChanges(ctCollection.name);
+
+	await changeTrackingPage.reviewChange(journalName);
+
+	await changeTrackingPage.selectTab('Workflow');
+
+	const moreActionsButton = page.getByLabel('more-actions');
+
+	await moreActionsButton.click();
+
+	const assignToMeMenuItem = page.getByRole('menuitem', {
+		name: 'Assign to me',
+	});
+
+	await expect(assignToMeMenuItem).toBeVisible();
+
+	await assignToMeMenuItem.click();
+
+	const assignDoneButton = page
+		.frameLocator('iframe[title="Assign to Me"]')
+		.getByRole('button', {exact: true, name: 'Done'});
+
+	await assignDoneButton.click();
+
+	await moreActionsButton.click();
+
+	const approveMenuItem = page.getByRole('menuitem', {name: 'Approve'});
+
+	await expect(approveMenuItem).toBeVisible();
+
+	await approveMenuItem.click();
+
+	await expect(page.getByRole('heading', {name: 'Approve'})).toBeVisible();
+
+	const approveDoneButton = page.getByRole('button', {
+		exact: true,
+		name: 'Done',
+	});
+
+	await approveDoneButton.click();
+
+	await expect(
+		page.locator('span').filter({hasText: 'Approved'}).first()
+	).toBeVisible();
+
+	await page.locator('button[data-qa-id="userPersonalMenu"]').click();
+
+	await page.getByRole('menuitem', {name: 'My Workflow Tasks'}).click();
+
+	await expect(
+		page.getByRole('heading', {name: 'My Workflow Tasks'})
+	).toBeVisible();
+
+	await expect(
+		page.locator('#ToastAlertContainer .alert-success').first()
+	).toBeHidden();
+});
+
+test('LPD-28975 Workflow tab shows unexpected error for asset added in publication and subsequently enabling workflow', async ({
+	changeTrackingPage,
+	ctCollection,
+	journalEditArticlePage,
+	page,
+	workflowPage,
+}) => {
+	await changeTrackingPage.workOnProduction();
+
+	await workflowPage.goto();
+
+	await workflowPage.changeWorkflow('Web Content Article', 'No Workflow', {
+		disable: true,
+	});
+
+	await changeTrackingPage.workOnPublication(ctCollection);
+
+	await journalEditArticlePage.goto();
+
+	const title1 = getRandomString();
+
+	await journalEditArticlePage.fillTitle(title1);
+
+	await page.getByRole('button', {name: 'Publish'}).click();
+
+	await waitForSuccessAlert(
+		page,
+		`Success:${title1} was created successfully.`
+	);
+
+	await workflowPage.goto();
+
+	await workflowPage.changeWorkflow('Web Content Article', 'Single Approver');
+
+	await journalEditArticlePage.goto();
+
+	const title2 = getRandomString();
+
+	await journalEditArticlePage.submitArticleForWorkflow(title2);
+
+	await changeTrackingPage.goToReviewChanges(ctCollection.name);
+
+	await changeTrackingPage.reviewChange(title1);
+
+	await changeTrackingPage.viewDisplayTab('Workflow', {isHidden: true});
 });

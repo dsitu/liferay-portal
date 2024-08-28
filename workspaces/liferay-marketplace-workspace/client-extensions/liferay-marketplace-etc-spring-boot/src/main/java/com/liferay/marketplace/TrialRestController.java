@@ -109,6 +109,9 @@ public class TrialRestController extends BaseRestController {
 			userAccountResource.getUserAccountByEmailAddress(
 				order.getCreatorEmailAddress());
 
+		Map<String, String> customFields =
+			(Map<String, String>)order.getCustomFields();
+
 		_postNotificationQueueEntry(
 			order.getCreatorEmailAddress(), "TRY-IT-NOW-EXPIRING-ORDER",
 			new HashMapBuilder<String, Object>().put(
@@ -116,15 +119,21 @@ public class TrialRestController extends BaseRestController {
 			).put(
 				"%TRIAL_END_DATE%",
 				ZonedDateTime.parse(
-					order.getCustomFields(
-					).get(
-						"trial-end-date"
-					).toString()
+					customFields.get("trial-end-date")
 				).format(
 					DateTimeFormatter.ofPattern(
 						"MMMM d, yyyy", LocaleUtil.ENGLISH)
 				)
 			).build());
+
+		customFields.put(
+			"trial-notify-end-date",
+			ZonedDateTime.now(
+			).format(
+				DateTimeFormatter.ISO_INSTANT
+			));
+
+		_updateOrder(customFields, orderId, order.getOrderStatus());
 	}
 
 	@PostMapping("provisioning")
@@ -250,6 +259,33 @@ public class TrialRestController extends BaseRestController {
 			).put(
 				"%URL%", portalInstance.getVirtualHost()
 			).build());
+	}
+
+	@PostMapping("provisioning/{orderId}")
+	public void postProvisioningOrder(
+			@AuthenticationPrincipal Jwt jwt, @PathVariable long orderId)
+		throws Exception {
+
+		OrderResource orderResource = _getOrderResource();
+
+		Order order = orderResource.getOrder(orderId);
+
+		postProvisioning(
+			jwt,
+			new JSONObject(
+			).put(
+				"classPK", orderId
+			).put(
+				"modelDTOOrder",
+				new JSONObject(
+				).put(
+					"accountId", String.valueOf(order.getAccountId())
+				).put(
+					"creatorEmailAddress", order.getCreatorEmailAddress()
+				).put(
+					"orderStatus", order.getOrderStatus()
+				)
+			).toString());
 	}
 
 	private void _deletePortalInstance(long orderId) throws Exception {

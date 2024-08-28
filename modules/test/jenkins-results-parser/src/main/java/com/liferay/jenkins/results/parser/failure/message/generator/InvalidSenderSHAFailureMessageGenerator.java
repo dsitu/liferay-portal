@@ -17,9 +17,7 @@ public class InvalidSenderSHAFailureMessageGenerator
 	extends BaseFailureMessageGenerator {
 
 	@Override
-	public Element getMessageElement(Build build) {
-		String consoleText = build.getConsoleText();
-
+	public String getMessage(String consoleText) {
 		if (!consoleText.contains(_TOKEN_FATAL_NOT_A_VALID_BRANCH_POINT)) {
 			return null;
 		}
@@ -28,6 +26,17 @@ public class InvalidSenderSHAFailureMessageGenerator
 			_TOKEN_FATAL_NOT_A_VALID_BRANCH_POINT);
 
 		int end = consoleText.indexOf("\n", start);
+
+		return getConsoleTextSnippet(consoleText, false, start, end);
+	}
+
+	@Override
+	public Element getMessageElement(Build build) {
+		Element messageElement = super.getMessageElement(build);
+
+		if (messageElement == null) {
+			return null;
+		}
 
 		return Dom4JUtil.getNewElement(
 			"div", null,
@@ -38,7 +47,7 @@ public class InvalidSenderSHAFailureMessageGenerator
 					getBaseBranchAnchorElement(build.getTopLevelBuild())),
 				". The sender branch may have been force pushed or deleted ",
 				"after the pull request test was initiated."),
-			getConsoleTextSnippetElement(consoleText, false, start, end));
+			messageElement);
 	}
 
 	private static final String _TOKEN_FATAL_NOT_A_VALID_BRANCH_POINT =

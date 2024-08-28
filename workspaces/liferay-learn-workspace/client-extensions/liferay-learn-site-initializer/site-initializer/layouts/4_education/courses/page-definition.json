@@ -103,7 +103,7 @@
 																"fragmentImage": {
 																	"url": {
 																		"value_i18n": {
-																			"en_US": "/documents/d/liferay-learn/education_courses-svg?imagePreview=1"
+																			"en_US": "[$DOCUMENT_URL:/site-initializer/documents/group/icons/education_courses.svg$]"
 																		}
 																	}
 																},
@@ -175,6 +175,7 @@
 						"pageElements": [
 							{
 								"definition": {
+									"customCSS": ".[$FRAGMENT_CLASS$] {\n  font-family: 'Source Sans 3';\n  font-weight: 400;\n}",
 									"fragment": {
 										"key": "dialect-text",
 										"siteKey": "Liferay Learn"
@@ -191,7 +192,7 @@
 												},
 												"text": {
 													"value_i18n": {
-														"en_US": "Welcome to Liferay Courses! This set of practical guides will teach you how to build fantastic solutions with Liferay using hands-on examples, practical explanations, and references to our official documentation. Start your journey to become a Certified Liferay Practitioner!"
+														"en_US": "Learn at your own pace with self-directed courses that guide you through specific topics in-depth."
 													}
 												}
 											}
@@ -325,7 +326,7 @@
 																"fragmentImage": {
 																	"url": {
 																		"value_i18n": {
-																			"en_US": "/documents/d/liferay-learn/education_courses_wh-svg?imagePreview=1"
+																			"en_US": "[$DOCUMENT_URL:/site-initializer/documents/group/icons/education_courses_wh.svg$]"
 																		}
 																	}
 																},
@@ -386,7 +387,7 @@
 											"fragmentLink": {
 												"href": {
 													"value_i18n": {
-														"en_US": "w/courses/building-enterprise-websites-with-liferay"
+														"en_US": "/w/education/courses/building-enterprise-websites-with-liferay"
 													}
 												}
 											},
@@ -465,7 +466,7 @@
 																},
 																"text": {
 																	"value_i18n": {
-																		"en_US": "Deploy, configure, and maintain Liferay DXP on your own infrastructure."
+																		"en_US": "Use Liferay DXP's low-code and user-friendly tools to build an engaging and scalable enterprise website. Bridge theory and practice by crafting a marketing website for a fictional company."
 																	}
 																}
 															}
@@ -498,50 +499,6 @@
 																"contentDisplay": "FlexRow"
 															}
 														},
-														"pageElements": [
-															{
-																"definition": {
-																	"cssClasses": [
-																		"card-tag__content-type"
-																	],
-																	"fragment": {
-																		"key": "dialect-text",
-																		"siteKey": "Liferay Learn"
-																	},
-																	"fragmentConfig": {
-																		"textType": "text-paragraph-sm",
-																		"truncateText": false
-																	},
-																	"fragmentFields": [
-																		{
-																			"id": "element-text",
-																			"value": {
-																				"fragmentLink": {
-																				},
-																				"text": {
-																					"value_i18n": {
-																						"en_US": "Gated Content"
-																					}
-																				}
-																			}
-																		}
-																	],
-																	"fragmentStyle": {
-																		"backgroundColor": "colorNeutral2",
-																		"borderRadius": "borderRadiusSm",
-																		"fontFamily": "fontFamilySansSerif",
-																		"fontWeight": "fontWeightNormal",
-																		"paddingBottom": "1",
-																		"paddingLeft": "2",
-																		"paddingRight": "2",
-																		"paddingTop": "1",
-																		"textColor": "colorNeutral8"
-																	},
-																	"indexed": true
-																},
-																"type": "Fragment"
-															}
-														],
 														"type": "Section"
 													},
 													{
@@ -574,7 +531,7 @@
 																				},
 																				"text": {
 																					"value_i18n": {
-																						"en_US": "Developer &amp; Internal&nbsp;"
+																						"en_US": "Practitioner, +2"
 																					}
 																				}
 																			}
@@ -598,7 +555,7 @@
 															{
 																"definition": {
 																	"cssClasses": [
-																		"card-tag__expertise"
+																		"card-tag__expertise-beginner"
 																	],
 																	"fragment": {
 																		"key": "dialect-text",
@@ -710,7 +667,7 @@
 																"fragmentImage": {
 																	"url": {
 																		"value_i18n": {
-																			"en_US": "/documents/d/liferay-learn/education_courses_wh-svg?imagePreview=1"
+																			"en_US": "[$DOCUMENT_URL:/site-initializer/documents/group/icons/education_courses_wh.svg$]"
 																		}
 																	}
 																},
@@ -771,7 +728,7 @@
 											"fragmentLink": {
 												"href": {
 													"value_i18n": {
-														"en_US": "w/courses/building-enterprise-websites-with-liferay"
+														"en_US": "/w/education/courses/selling-liferay/level-1-business"
 													}
 												}
 											},
@@ -850,7 +807,7 @@
 																},
 																"text": {
 																	"value_i18n": {
-																		"en_US": "Description of Level 1 Business Sale Course."
+																		"en_US": "Learn how to succeed in the sales process, from generating prospects to closing deals and working with Liferay’s contracts."
 																	}
 																}
 															}
@@ -959,7 +916,7 @@
 																				},
 																				"text": {
 																					"value_i18n": {
-																						"en_US": "Developer &amp; Internal&nbsp;"
+																						"en_US": "Business Sales"
 																					}
 																				}
 																			}
@@ -983,7 +940,7 @@
 															{
 																"definition": {
 																	"cssClasses": [
-																		"card-tag__expertise"
+																		"card-tag__expertise-intermediate"
 																	],
 																	"fragment": {
 																		"key": "dialect-text",
@@ -1001,7 +958,7 @@
 																				},
 																				"text": {
 																					"value_i18n": {
-																						"en_US": "Beginner"
+																						"en_US": "Intermediate"
 																					}
 																				}
 																			}
@@ -1095,7 +1052,7 @@
 																"fragmentImage": {
 																	"url": {
 																		"value_i18n": {
-																			"en_US": "/documents/d/liferay-learn/education_courses_wh-svg?imagePreview=1"
+																			"en_US": "[$DOCUMENT_URL:/site-initializer/documents/group/icons/education_courses_wh.svg$]"
 																		}
 																	}
 																},
@@ -1156,7 +1113,7 @@
 											"fragmentLink": {
 												"href": {
 													"value_i18n": {
-														"en_US": "w/courses/building-enterprise-websites-with-liferay"
+														"en_US": "/w/education/courses/selling-liferay/level-0"
 													}
 												}
 											},
@@ -1235,7 +1192,7 @@
 																},
 																"text": {
 																	"value_i18n": {
-																		"en_US": "Description of Level 0 for Partners and Internal"
+																		"en_US": "Receive an introduction to Liferay the company, its products, and how to compete in the competitive landscape."
 																	}
 																}
 															}
@@ -1344,7 +1301,7 @@
 																				},
 																				"text": {
 																					"value_i18n": {
-																						"en_US": "Developer &amp; Internal&nbsp;"
+																						"en_US": "Partner &amp; Internal"
 																					}
 																				}
 																			}
@@ -1368,7 +1325,7 @@
 															{
 																"definition": {
 																	"cssClasses": [
-																		"card-tag__expertise"
+																		"card-tag__expertise-beginner"
 																	],
 																	"fragment": {
 																		"key": "dialect-text",
@@ -1480,7 +1437,7 @@
 																"fragmentImage": {
 																	"url": {
 																		"value_i18n": {
-																			"en_US": "/documents/d/liferay-learn/education_courses_wh-svg?imagePreview=1"
+																			"en_US": "[$DOCUMENT_URL:/site-initializer/documents/group/icons/education_courses_wh.svg$]"
 																		}
 																	}
 																},
@@ -1541,7 +1498,7 @@
 											"fragmentLink": {
 												"href": {
 													"value_i18n": {
-														"en_US": "w/courses/building-enterprise-websites-with-liferay"
+														"en_US": "/w/education/courses/building-enterprise-websites-with-liferay"
 													}
 												}
 											},
@@ -1620,7 +1577,7 @@
 																},
 																"text": {
 																	"value_i18n": {
-																		"en_US": "Description of Level 0 for Technical Sales"
+																		"en_US": "Craft compelling 30-minute Liferay demos tailored to client needs. This course equips Sales Engineers to conduct impactful demos, showcase Liferay's potential, and discuss successful deployments."
 																	}
 																}
 															}
@@ -1729,7 +1686,7 @@
 																				},
 																				"text": {
 																					"value_i18n": {
-																						"en_US": "Developer &amp; Internal&nbsp;"
+																						"en_US": "Technical Sales"
 																					}
 																				}
 																			}
@@ -1753,7 +1710,7 @@
 															{
 																"definition": {
 																	"cssClasses": [
-																		"card-tag__expertise"
+																		"card-tag__expertise-intermediate"
 																	],
 																	"fragment": {
 																		"key": "dialect-text",
@@ -1771,7 +1728,7 @@
 																				},
 																				"text": {
 																					"value_i18n": {
-																						"en_US": "Beginner"
+																						"en_US": "Intermediate"
 																					}
 																				}
 																			}

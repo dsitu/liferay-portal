@@ -6,12 +6,13 @@
 import {ESLint} from 'eslint';
 import fg from 'fast-glob';
 import * as fs from 'fs/promises';
+import micromatch from 'micromatch';
 import path from 'path';
 import prettier from 'prettier';
 import stylelint from 'stylelint';
 
 import {getRootDir} from '../util/constants.mjs';
-import filterChangedFiles from '../util/filterChangedFiles.mjs';
+import fileExists from '../util/fileExists.mjs';
 import {readIgnoreFile} from '../util/readIgnoreFile.mjs';
 import {ID_END, ID_START} from './jsp/getPaddedReplacement.mjs';
 import processJSP from './jsp/processJSP.mjs';
@@ -24,58 +25,31 @@ const PRETTIER_IGNORE_FILE = '.prettierignore';
 const ESLINT_IGNORE_FILE = '.eslintignore';
 const GIT_IGNORE_FILE = '.gitignore';
 
-async function getFilesToCheck(rootDir) {
-	const eslintIgnoreFilePath = path.join(rootDir, ESLINT_IGNORE_FILE);
-	const prettierIgnoreFilePath = path.join(rootDir, PRETTIER_IGNORE_FILE);
-	const gitIgnoreFilePath = path.join(rootDir, GIT_IGNORE_FILE);
-
-	const eslintIgnores = readIgnoreFile(eslintIgnoreFilePath);
-	const prettierIgnores = readIgnoreFile(prettierIgnoreFilePath);
-	const gitIgnores = readIgnoreFile(gitIgnoreFilePath);
-
-	return await fg(
-		[
-			'*.{graphql,js,mjs,scss,ts,tsx}',
-			'**/*.{graphql,js,mjs,scss,ts,tsx}',
-			'**/src/**/*.{jsp,jspf}',
-		],
-		{
-			dot: true,
-			ignore: [
-				'**/src/test/**',
-				'**/build_gradle/**',
-				...gitIgnores,
-				...eslintIgnores,
-				...prettierIgnores,
-			].map((ignore) => {
-				if (ignore.startsWith('*') && !ignore.startsWith('**')) {
-					ignore = `**/${ignore}`;
-				}
-
-				if (!ignore.startsWith('*')) {
-					ignore = `**${ignore.startsWith('/') ? '' : '/'}${ignore}`;
-				}
-
-				if (!ignore.endsWith('**') && !ignore.includes('.')) {
-					ignore = `${ignore}${ignore.endsWith('/') ? '' : '/'}**`;
-				}
-
-				return ignore;
-			}),
-		}
-	);
-}
+const EXTENSIONS = ['graphql', 'js', 'jsp', 'jspf', 'mjs', 'scss', 'ts', 'tsx'];
 
 const FALLBACK_FILE_PATH = '__fallback__.js';
 
-export default async function format(fix) {
+/**
+ * @param string[]|undefined filesToFormat
+ * List of files to format (if undefined all files are formatted).
+ *
+ * @returns string|undefined
+ * A string with the result of the format operation (empty if nothing was formatted or had errors)
+ * or undefined if no files were checked.
+ */
+export default async function format(fix, filesToFormat = undefined) {
 	const rootDir = await getRootDir();
 
-	let filepaths = await getFilesToCheck(rootDir);
+	const filepaths = await getFilePaths(rootDir, filesToFormat);
 
-	filepaths = await filterChangedFiles(filepaths);
+	if (!filepaths.length) {
+		return undefined;
+	}
 
-	console.log(`Formatting ${filepaths.length} files`);
+	const errMessages = [];
+	const fixedFiles = [];
+
+	// Configure tools
 
 	const [eslintConfig, prettierConfig, stylelintConfig] = await Promise.all([
 		getEslintConfig(rootDir),
@@ -87,12 +61,10 @@ export default async function format(fix) {
 		baseConfig: eslintConfig,
 		fix: true,
 		ignorePath: path.join(rootDir, ESLINT_IGNORE_FILE),
+		resolvePluginsRelativeTo: rootDir,
 	});
 
-	const badFiles = [];
-	const errMessages = [];
-	let checked = 0;
-	let fixed = 0;
+	// Define tool helpers
 
 	async function formatWithPrettier(input, filepath, configOverride = {}) {
 		return await prettier.format(input, {
@@ -110,9 +82,8 @@ export default async function format(fix) {
 		const {messages, output} = lintResult;
 
 		if (messages?.length) {
-			errMessages[filepath] = errMessages[filepath]
-				? errMessages[filepath].push(...messages)
-				: messages;
+			errMessages[filepath] = errMessages[filepath] || [];
+			errMessages[filepath].push(...messages);
 		}
 
 		return output ?? input;
@@ -132,20 +103,19 @@ export default async function format(fix) {
 		if (results?.length) {
 			results.forEach((result) => {
 				if (result.warnings.length) {
-					const messages = result.warnings.map(
-						({column, line, rule, text}) => ({
-							column,
-							filepath,
-							line,
-							message: text,
-							ruleId: rule,
-							severity: 2,
-						})
+					errMessages[filepath] = errMessages[filepath] || [];
+					errMessages[filepath].push(
+						...result.warnings.map(
+							({column, line, rule, text}) => ({
+								column,
+								filepath,
+								line,
+								message: text,
+								ruleId: rule,
+								severity: 2,
+							})
+						)
 					);
-
-					errMessages[filepath] = errMessages[filepath]
-						? errMessages[filepath].push(...messages)
-						: messages;
 				}
 			});
 		}
@@ -153,20 +123,23 @@ export default async function format(fix) {
 		return output.endsWith('\n') ? output : `${output}\n`;
 	}
 
+	// Run the format process
+
 	for (const filepath of filepaths) {
-		checked++;
+		if (!(await fileExists(filepath))) {
+			continue;
+		}
 
 		const source = await fs.readFile(filepath, 'utf8');
-		const extName = path.extname(filepath);
-
-		let transformedContent = source;
 
 		if (!source.length) {
 			continue;
 		}
 
+		let transformedContent = source;
+
 		try {
-			switch (extName) {
+			switch (path.extname(filepath)) {
 				case '.jsp':
 				case '.jspf': {
 					transformedContent = await processJSP(
@@ -190,26 +163,9 @@ export default async function format(fix) {
 							);
 						}
 					);
-
-					if (!fix && transformedContent !== source) {
-						const messages = [
-							{
-								column: 1,
-								filepath,
-								line: 1,
-								message: 'Check failed',
-								ruleId: 'Prettier',
-								severity: 2,
-							},
-						];
-
-						errMessages[filepath] = errMessages[filepath]
-							? errMessages[filepath].push(...messages)
-							: messages;
-					}
-
 					break;
 				}
+
 				case '.css':
 				case '.scss': {
 					transformedContent = await formatWithPrettier(
@@ -222,6 +178,7 @@ export default async function format(fix) {
 					);
 					break;
 				}
+
 				default: {
 					transformedContent = await formatWithPrettier(
 						transformedContent,
@@ -237,55 +194,167 @@ export default async function format(fix) {
 		catch (error) {
 
 			// eslint-disable-next-line no-console
-			console.log(`${filepath}: ${error}`);
+			console.log(`🚨 ${filepath}: ${error}`);
 		}
 
 		if (transformedContent !== source) {
-			badFiles.push(filepath);
-
 			if (fix) {
-				fixed++;
+				await fs.writeFile(filepath, transformedContent);
+
+				fixedFiles.push(filepath);
+			}
+			else {
+				errMessages[filepath] = errMessages[filepath] || [];
+				errMessages[filepath].push({
+					column: 1,
+					filepath,
+					line: 1,
+					message: 'File has format errors.',
+					ruleId: '(format check)',
+					severity: 2,
+				});
+			}
+		}
+	}
+
+	// Return summary
+
+	let summary = '';
+
+	if (Object.keys(errMessages).length) {
+		summary += logError(errMessages, true);
+	}
+
+	if (fixedFiles.length) {
+		summary += `• The following files were automatically formatted:\n`;
+		summary += fixedFiles.map((file) => `  · ${file}`).join('\n');
+	}
+
+	return summary;
+}
+
+async function getFilePaths(rootDir, filesToFormat) {
+	const workspacesDir = path.join(rootDir, '..', 'workspaces');
+	const playwrightDir = path.join(rootDir, 'test', 'playwright');
+
+	const [rootIgnored, workspacesIgnored, playwrightIgnored] =
+		await Promise.all([
+			getIgnoredFiles(rootDir),
+			getIgnoredFiles(workspacesDir),
+			getIgnoredFiles(playwrightDir),
+		]);
+
+	let filepaths = [];
+
+	if (!filesToFormat) {
+		filepaths = (
+			await Promise.all([
+				getFilesToCheck(rootDir, rootIgnored),
+				getFilesToCheck(workspacesDir, workspacesIgnored),
+				getFilesToCheck(playwrightDir, playwrightIgnored),
+			])
+		).flat();
+	}
+	else {
+		for (const file of filesToFormat) {
+			if (file.startsWith('modules/test/playwright/')) {
+				filepaths.push(
+					...micromatch(
+						[file],
+						EXTENSIONS.map((ext) => `**/*.${ext}`),
+						{ignore: playwrightIgnored}
+					)
+				);
+			}
+
+			if (file.startsWith('modules/')) {
+				filepaths.push(
+					...micromatch(
+						[file],
+						EXTENSIONS.map((ext) => `**/*.${ext}`),
+						{ignore: rootIgnored}
+					)
+				);
+			}
+
+			if (file.startsWith('workspaces/')) {
+				filepaths.push(
+					...micromatch(
+						[file],
+						EXTENSIONS.map((ext) => `**/*.${ext}`),
+						{ignore: workspacesIgnored}
+					)
+				);
 			}
 		}
 
-		if (fixed) {
-			await fs.writeFile(filepath, transformedContent);
-		}
-	}
+		filepaths = filepaths.map(
 
-	const files = (count) => (count === 1 ? 'file' : 'files');
-	const have = (count) => (count === 1 ? 'has' : 'have');
+			// make sure the path is absolute
 
-	const summary = [`Format checked ${checked} ${files(checked)}`];
-
-	if (Object.keys(errMessages).length) {
-		logError(errMessages);
-	}
-
-	if (fixed) {
-		summary.push(`fixed ${fixed} ${files(fixed)}`);
-	}
-
-	if (!fixed && badFiles.length) {
-		const totalBad = badFiles.length;
-
-		summary.push(
-			`${totalBad} ${files(totalBad)} ${have(totalBad)} problems`
+			(filepath) => path.join(rootDir, '..', filepath)
 		);
-
-		throw new Error(summary.join('\n') + '\n');
 	}
-	else {
 
-		// eslint-disable-next-line no-console
-		console.log(summary.join('\n'));
-	}
+	return filepaths;
+}
+
+async function getIgnoredFiles(rootDir) {
+	const eslintIgnoreFilePath = path.join(rootDir, ESLINT_IGNORE_FILE);
+	const prettierIgnoreFilePath = path.join(rootDir, PRETTIER_IGNORE_FILE);
+	const gitIgnoreFilePath = path.join(rootDir, GIT_IGNORE_FILE);
+
+	const [eslintIgnores, prettierIgnores, gitIgnores] = await Promise.all([
+		readIgnoreFile(eslintIgnoreFilePath),
+		readIgnoreFile(prettierIgnoreFilePath),
+		readIgnoreFile(gitIgnoreFilePath),
+	]);
+
+	return [
+		'**/src/test/**',
+		'**/build_gradle/**',
+		...gitIgnores,
+		...eslintIgnores,
+		...prettierIgnores,
+	].map((ignore) => {
+		if (ignore.startsWith('*') && !ignore.startsWith('**')) {
+			ignore = `**/${ignore}`;
+		}
+
+		if (!ignore.startsWith('*')) {
+			ignore = `**${ignore.startsWith('/') ? '' : '/'}${ignore}`;
+		}
+
+		if (!ignore.endsWith('**') && !ignore.includes('.')) {
+			ignore = `${ignore}${ignore.endsWith('/') ? '' : '/'}**`;
+		}
+
+		return ignore;
+	});
+}
+
+async function getFilesToCheck(rootDir, ignore = []) {
+	const files = await fg(
+		[
+			'**/*.',
+			'*.{graphql,js,mjs,scss,ts,tsx}',
+			'**/*.{graphql,js,mjs,scss,ts,tsx}',
+			'**/src/**/*.{jsp,jspf}',
+		],
+		{
+			cwd: rootDir,
+			dot: true,
+			ignore,
+		}
+	);
+
+	return files.map((filepath) => path.join(rootDir, filepath));
 }
 
 async function getEslintConfig(rootDir) {
 	const eslintConfigPath = path.join(rootDir, '.eslintrc.js');
 
-	const {default: eslintConfig} = await import(eslintConfigPath);
+	const {default: eslintConfig} = await import('file://' + eslintConfigPath);
 
 	return eslintConfig;
 }
@@ -293,7 +362,9 @@ async function getEslintConfig(rootDir) {
 async function getPrettierConfig(rootDir) {
 	const prettierConfigPath = path.join(rootDir, '.prettierrc.js');
 
-	const {default: prettierConfig} = await import(prettierConfigPath);
+	const {default: prettierConfig} = await import(
+		'file://' + prettierConfigPath
+	);
 
 	return prettierConfig;
 }
@@ -301,7 +372,9 @@ async function getPrettierConfig(rootDir) {
 async function getStylelintConfig(rootDir) {
 	const stylelintConfigPath = path.join(rootDir, '.stylelintrc.js');
 
-	const {default: stylelintConfig} = await import(stylelintConfigPath);
+	const {default: stylelintConfig} = await import(
+		'file://' + stylelintConfigPath
+	);
 
 	return stylelintConfig;
 }

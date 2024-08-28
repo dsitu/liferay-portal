@@ -8,7 +8,6 @@ package com.liferay.jenkins.results.parser.testray;
 import com.liferay.jenkins.results.parser.AxisBuild;
 import com.liferay.jenkins.results.parser.Build;
 import com.liferay.jenkins.results.parser.BuildDatabase;
-import com.liferay.jenkins.results.parser.BuildDatabaseUtil;
 import com.liferay.jenkins.results.parser.BuildReportFactory;
 import com.liferay.jenkins.results.parser.Dom4JUtil;
 import com.liferay.jenkins.results.parser.DownstreamBuild;
@@ -64,7 +63,9 @@ public class TestrayAttachmentRecorder {
 			else {
 				_recordDockerLogs();
 				_recordFailureMessages();
+				_recordGCLogs();
 				_recordGradlePluginsFiles();
+				_recordJStacks();
 				_recordLiferayLogs();
 				_recordLiferayOSGiLogs();
 				_recordPlaywrightReportFile();
@@ -89,7 +90,7 @@ public class TestrayAttachmentRecorder {
 
 		_build = build;
 
-		BuildDatabase buildDatabase = BuildDatabaseUtil.getBuildDatabase(build);
+		BuildDatabase buildDatabase = build.getBuildDatabase();
 
 		String jobVariant = build.getParameterValue("JOB_VARIANT");
 
@@ -151,6 +152,21 @@ public class TestrayAttachmentRecorder {
 		}
 
 		return sb.toString();
+	}
+
+	private void _copyToRecordedFilesBuildDir(File sourceFile) {
+		if (!sourceFile.exists()) {
+			return;
+		}
+
+		try {
+			JenkinsResultsParserUtil.copy(
+				sourceFile,
+				new File(_getRecordedFilesBuildDir(), sourceFile.getName()));
+		}
+		catch (IOException ioException) {
+			throw new RuntimeException(ioException);
+		}
 	}
 
 	private List<File> _getLiferayBundlesDirs() {
@@ -509,6 +525,29 @@ public class TestrayAttachmentRecorder {
 		}
 	}
 
+	private void _recordGCLogs() {
+		File sourceGCLogsDir = new File(System.getenv("BUILD_DIR"), "gc");
+
+		if (!sourceGCLogsDir.exists()) {
+			return;
+		}
+
+		File destinationGCLogsDir = new File(_getRecordedFilesBuildDir(), "gc");
+
+		for (File sourceGCLogFile : sourceGCLogsDir.listFiles()) {
+			try {
+				JenkinsResultsParserUtil.copy(
+					sourceGCLogFile,
+					new File(
+						destinationGCLogsDir,
+						sourceGCLogFile.getName() + ".txt"));
+			}
+			catch (IOException ioException) {
+				throw new RuntimeException(ioException);
+			}
+		}
+	}
+
 	private void _recordGradlePluginsFiles() {
 		PortalGitWorkingDirectory portalGitWorkingDirectory =
 			_getPortalGitWorkingDirectory();
@@ -589,6 +628,30 @@ public class TestrayAttachmentRecorder {
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
+		}
+	}
+
+	private void _recordJStacks() {
+		File sourceJStacksDir = new File(System.getenv("BUILD_DIR"), "jstacks");
+
+		if (!sourceJStacksDir.exists()) {
+			return;
+		}
+
+		File destinationJStacksDir = new File(
+			_getRecordedFilesBuildDir(), "jstacks");
+
+		for (File sourceJStackFile : sourceJStacksDir.listFiles()) {
+			try {
+				JenkinsResultsParserUtil.copy(
+					sourceJStackFile,
+					new File(
+						destinationJStacksDir,
+						sourceJStackFile.getName() + ".txt"));
+			}
+			catch (IOException ioException) {
+				throw new RuntimeException(ioException);
+			}
 		}
 	}
 
@@ -714,19 +777,24 @@ public class TestrayAttachmentRecorder {
 				"modules/test/playwright/playwright-report/index.html");
 
 			if (playwrightReportFile.exists()) {
-				File sourceReportDir = playwrightReportFile.getParentFile();
+				_copyToRecordedFilesBuildDir(
+					playwrightReportFile.getParentFile());
 
-				File recordedFilesBuildDir = _getRecordedFilesBuildDir();
+				return;
+			}
+		}
 
-				try {
-					JenkinsResultsParserUtil.copy(
-						sourceReportDir,
-						new File(
-							recordedFilesBuildDir, sourceReportDir.getName()));
-				}
-				catch (IOException ioException) {
-					throw new RuntimeException(ioException);
-				}
+		GitWorkingDirectory qaWebsitesGitWorkingDirectory =
+			_getQAWebsitesGitWorkingDirectory();
+
+		if (qaWebsitesGitWorkingDirectory != null) {
+			File playwrightReportFile = new File(
+				qaWebsitesGitWorkingDirectory.getWorkingDirectory(),
+				"playwright/playwright-report/index.html");
+
+			if (playwrightReportFile.exists()) {
+				_copyToRecordedFilesBuildDir(
+					playwrightReportFile.getParentFile());
 			}
 		}
 	}

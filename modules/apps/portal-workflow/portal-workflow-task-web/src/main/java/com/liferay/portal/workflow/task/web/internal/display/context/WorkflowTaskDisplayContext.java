@@ -667,6 +667,11 @@ public class WorkflowTaskDisplayContext {
 		return false;
 	}
 
+	public boolean isReadOnly() {
+		return (boolean)_liferayPortletRequest.getAttribute(
+			WebKeys.WORKFLOW_TASK_READ_ONLY);
+	}
+
 	public boolean isShowEditURL(WorkflowTask workflowTask) {
 		boolean showEditURL = false;
 
@@ -748,28 +753,23 @@ public class WorkflowTaskDisplayContext {
 	private String _getCurParam(boolean searchByUserRoles) {
 		Boolean completedTasks = _getCompleted();
 
-		String curParam;
-
 		if (!searchByUserRoles && (completedTasks == null)) {
-			curParam = SearchContainer.DEFAULT_CUR_PARAM;
+			return SearchContainer.DEFAULT_CUR_PARAM;
 		}
 		else if (!searchByUserRoles && completedTasks) {
-			curParam = "cur1";
+			return "cur1";
 		}
 		else if (!searchByUserRoles && !completedTasks) {
-			curParam = "cur2";
+			return "cur2";
 		}
 		else if (searchByUserRoles && (completedTasks == null)) {
-			curParam = "cur3";
+			return "cur3";
 		}
 		else if (searchByUserRoles && completedTasks) {
-			curParam = "cur4";
-		}
-		else {
-			curParam = "cur5";
+			return "cur4";
 		}
 
-		return curParam;
+		return "cur5";
 	}
 
 	private PortletURL _getEditPortletURL(WorkflowTask workflowTask)

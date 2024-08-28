@@ -44,7 +44,6 @@ import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.internal.dao.db.ObjectDBManagerUtil;
 import com.liferay.object.internal.deployer.InactiveObjectDefinitionDeployerImpl;
 import com.liferay.object.internal.deployer.ObjectDefinitionDeployerImpl;
-import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionLocalizationTableFactory;
 import com.liferay.object.internal.security.permission.resource.util.ObjectDefinitionResourcePermissionUtil;
 import com.liferay.object.model.ObjectAction;
 import com.liferay.object.model.ObjectDefinition;
@@ -56,7 +55,9 @@ import com.liferay.object.model.ObjectFolder;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.model.impl.ObjectDefinitionImpl;
 import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionLocalizationTable;
+import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionLocalizationTableFactory;
 import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionTable;
+import com.liferay.object.petra.sql.dsl.DynamicObjectDefinitionTableFactory;
 import com.liferay.object.related.models.ObjectRelatedModelsProviderRegistrarHelper;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectActionLocalService;
@@ -89,16 +90,12 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.cluster.ClusterExecutorUtil;
 import com.liferay.portal.kernel.cluster.ClusterRequest;
-import com.liferay.portal.kernel.dao.db.DB;
-import com.liferay.portal.kernel.dao.db.DBManagerUtil;
-import com.liferay.portal.kernel.dao.jdbc.ConnectionUtil;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnection;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.dependency.manager.DependencyManagerSyncUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -141,8 +138,6 @@ import com.liferay.portal.search.spi.model.query.contributor.ModelPreFilterContr
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
-import java.sql.Connection;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -151,8 +146,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.sql.DataSource;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -273,7 +266,7 @@ public class ObjectDefinitionLocalServiceImpl
 				systemObjectDefinitionManager.getExternalReferenceCode(),
 				userId, objectFolderId,
 				systemObjectDefinitionManager.getModelClassName(),
-				table.getTableName(), false, true,
+				table.getTableName(), false, true, false,
 				systemObjectDefinitionManager.getLabelMap(), false,
 				systemObjectDefinitionManager.getName(), null, null,
 				primaryKeyColumn.getName(), primaryKeyColumn.getName(),
@@ -331,8 +324,8 @@ public class ObjectDefinitionLocalServiceImpl
 					newObjectField.getDBColumnName(),
 					objectDefinition.getDBTableName(),
 					newObjectField.getDBType(), false, false, "",
-					newObjectField.getLabelMap(), newObjectField.getName(),
-					newObjectField.getReadOnly(),
+					newObjectField.getLabelMap(), newObjectField.isLocalized(),
+					newObjectField.getName(), newObjectField.getReadOnly(),
 					newObjectField.getReadOnlyConditionExpression(),
 					newObjectField.isRequired(), newObjectField.isState(),
 					newObjectField.getObjectFieldSettings());
@@ -367,18 +360,19 @@ public class ObjectDefinitionLocalServiceImpl
 	public ObjectDefinition addSystemObjectDefinition(
 			String externalReferenceCode, long userId, long objectFolderId,
 			String className, String dbTableName, boolean enableComments,
-			boolean enableIndexSearch, Map<Locale, String> labelMap,
-			boolean modifiable, String name, String panelAppOrder,
-			String panelCategoryKey, String pkObjectFieldDBColumnName,
-			String pkObjectFieldName, Map<Locale, String> pluralLabelMap,
-			boolean portlet, String scope, String titleObjectFieldName,
-			int version, int status, List<ObjectField> objectFields)
+			boolean enableIndexSearch, boolean enableLocalization,
+			Map<Locale, String> labelMap, boolean modifiable, String name,
+			String panelAppOrder, String panelCategoryKey,
+			String pkObjectFieldDBColumnName, String pkObjectFieldName,
+			Map<Locale, String> pluralLabelMap, boolean portlet, String scope,
+			String titleObjectFieldName, int version, int status,
+			List<ObjectField> objectFields)
 		throws PortalException {
 
 		return _addObjectDefinition(
 			externalReferenceCode, userId, objectFolderId, className,
-			dbTableName, enableComments, enableIndexSearch, false, false,
-			labelMap, modifiable, name, panelAppOrder, panelCategoryKey,
+			dbTableName, enableComments, enableIndexSearch, enableLocalization,
+			false, labelMap, modifiable, name, panelAppOrder, panelCategoryKey,
 			pkObjectFieldDBColumnName, pkObjectFieldName, pluralLabelMap,
 			portlet, scope, ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT,
 			true, titleObjectFieldName, version, status, objectFields);
@@ -627,9 +621,8 @@ public class ObjectDefinitionLocalServiceImpl
 			Map<Long, List<ServiceRegistration<?>>> serviceRegistrationsMap =
 				entry.getValue();
 
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setWithSafeCloseable(
-						objectDefinition.getCompanyId())) {
+			try (SafeCloseable safeCloseable = CompanyThreadLocal.lock(
+					objectDefinition.getCompanyId())) {
 
 				serviceRegistrationsMap.computeIfAbsent(
 					objectDefinition.getObjectDefinitionId(),
@@ -1328,6 +1321,12 @@ public class ObjectDefinitionLocalServiceImpl
 		}
 	}
 
+	@Override
+	protected void runSQL(String sql) {
+		ObjectDBManagerUtil.runSQL(
+			objectDefinitionPersistence.getDataSource(), _log, sql);
+	}
+
 	private ObjectDefinitionDeployer _addingObjectDefinitionDeployer(
 		ObjectDefinitionDeployer objectDefinitionDeployer) {
 
@@ -1469,8 +1468,8 @@ public class ObjectDefinitionLocalServiceImpl
 						objectField.getDBType(), objectField.isIndexed(),
 						objectField.isIndexedAsKeyword(),
 						objectField.getIndexedLanguageId(),
-						objectField.getLabelMap(), objectField.getName(),
-						objectField.getReadOnly(),
+						objectField.getLabelMap(), objectField.isLocalized(),
+						objectField.getName(), objectField.getReadOnly(),
 						objectField.getReadOnlyConditionExpression(),
 						objectField.isRequired(), objectField.isState(),
 						objectField.getObjectFieldSettings());
@@ -1502,7 +1501,8 @@ public class ObjectDefinitionLocalServiceImpl
 
 		if (objectDefinition.isUnmodifiableSystemObject()) {
 			_createTable(
-				objectDefinition.getExtensionDBTableName(), objectDefinition);
+				DynamicObjectDefinitionTableFactory.createExtension(
+					objectDefinition, _objectFieldLocalService));
 		}
 
 		return objectDefinition;
@@ -1540,8 +1540,8 @@ public class ObjectDefinitionLocalServiceImpl
 			ObjectFieldConstants.DB_TYPE_STRING, false, false, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "author")),
-			"creator", ObjectFieldConstants.READ_ONLY_FALSE, null, false, false,
-			null);
+			false, "creator", ObjectFieldConstants.READ_ONLY_FALSE, null, false,
+			false, null);
 
 		_objectFieldLocalService.addSystemObjectField(
 			null, userId, 0, objectDefinition.getObjectDefinitionId(),
@@ -1550,8 +1550,8 @@ public class ObjectDefinitionLocalServiceImpl
 			ObjectFieldConstants.DB_TYPE_DATE, false, false, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "create-date")),
-			"createDate", ObjectFieldConstants.READ_ONLY_FALSE, null, false,
-			false, null);
+			false, "createDate", ObjectFieldConstants.READ_ONLY_FALSE, null,
+			false, false, null);
 
 		_objectFieldLocalService.addSystemObjectField(
 			null, userId, 0, objectDefinition.getObjectDefinitionId(),
@@ -1562,8 +1562,8 @@ public class ObjectDefinitionLocalServiceImpl
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(
 					LocaleUtil.getDefault(), "external-reference-code")),
-			"externalReferenceCode", ObjectFieldConstants.READ_ONLY_FALSE, null,
-			false, false, null);
+			false, "externalReferenceCode",
+			ObjectFieldConstants.READ_ONLY_FALSE, null, false, false, null);
 
 		String dbColumnName = ObjectEntryTable.INSTANCE.objectEntryId.getName();
 
@@ -1577,8 +1577,8 @@ public class ObjectDefinitionLocalServiceImpl
 			dbTableName, ObjectFieldConstants.DB_TYPE_LONG, true, true, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "id")),
-			"id", ObjectFieldConstants.READ_ONLY_FALSE, null, false, false,
-			null);
+			false, "id", ObjectFieldConstants.READ_ONLY_FALSE, null, false,
+			false, null);
 
 		_objectFieldLocalService.addSystemObjectField(
 			null, userId, 0, objectDefinition.getObjectDefinitionId(),
@@ -1587,8 +1587,8 @@ public class ObjectDefinitionLocalServiceImpl
 			ObjectFieldConstants.DB_TYPE_DATE, false, false, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "modified-date")),
-			"modifiedDate", ObjectFieldConstants.READ_ONLY_FALSE, null, false,
-			false, null);
+			false, "modifiedDate", ObjectFieldConstants.READ_ONLY_FALSE, null,
+			false, false, null);
 
 		_objectFieldLocalService.addSystemObjectField(
 			null, userId, 0, objectDefinition.getObjectDefinitionId(),
@@ -1597,15 +1597,13 @@ public class ObjectDefinitionLocalServiceImpl
 			ObjectFieldConstants.DB_TYPE_INTEGER, false, false, null,
 			LocalizedMapUtil.getLocalizedMap(
 				_language.get(LocaleUtil.getDefault(), "status")),
-			"status", ObjectFieldConstants.READ_ONLY_FALSE, null, false, false,
-			null);
+			false, "status", ObjectFieldConstants.READ_ONLY_FALSE, null, false,
+			false, null);
 	}
 
-	private void _createLocalizationTable(ObjectDefinition objectDefinition) {
+	private void _createLocalizationTable(
 		DynamicObjectDefinitionLocalizationTable
-			dynamicObjectDefinitionLocalizedTable =
-				DynamicObjectDefinitionLocalizationTableFactory.create(
-					objectDefinition, _objectFieldLocalService);
+			dynamicObjectDefinitionLocalizedTable) {
 
 		if (dynamicObjectDefinitionLocalizedTable == null) {
 			return;
@@ -1615,20 +1613,14 @@ public class ObjectDefinitionLocalServiceImpl
 	}
 
 	private void _createTable(
-			String dbTableName, ObjectDefinition objectDefinition)
+			DynamicObjectDefinitionTable dynamicObjectDefinitionTable)
 		throws PortalException {
-
-		List<ObjectField> objectFields =
-			_objectFieldLocalService.getObjectFields(
-				objectDefinition.getObjectDefinitionId(), dbTableName);
-
-		DynamicObjectDefinitionTable dynamicObjectDefinitionTable =
-			new DynamicObjectDefinitionTable(
-				objectDefinition, objectFields, dbTableName);
 
 		runSQL(dynamicObjectDefinitionTable.getCreateTableSQL());
 
-		for (ObjectField objectField : objectFields) {
+		for (ObjectField objectField :
+				dynamicObjectDefinitionTable.getObjectFields()) {
+
 			if (!StringUtil.equals(
 					objectField.getBusinessType(),
 					ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
@@ -1639,27 +1631,13 @@ public class ObjectDefinitionLocalServiceImpl
 			ObjectDBManagerUtil.createIndexMetadata(
 				_currentConnection.getConnection(
 					objectDefinitionPersistence.getDataSource()),
-				dbTableName, false, objectField.getDBColumnName());
+				dynamicObjectDefinitionTable.getTableName(), false,
+				objectField.getDBColumnName());
 		}
 	}
 
 	private void _dropTable(String dbTableName) {
-		String sql = "DROP_TABLE_IF_EXISTS(" + dbTableName + ")";
-
-		if (_log.isDebugEnabled()) {
-			_log.debug("SQL: " + sql);
-		}
-
-		DataSource dataSource = objectDefinitionPersistence.getDataSource();
-
-		DB db = DBManagerUtil.getDB();
-
-		try (Connection connection = ConnectionUtil.getConnection(dataSource)) {
-			db.runSQL(connection, new String[] {sql});
-		}
-		catch (Exception exception) {
-			throw new SystemException(exception);
-		}
+		runSQL("DROP_TABLE_IF_EXISTS(" + dbTableName + ")");
 	}
 
 	private String _getClassName(
@@ -1842,10 +1820,15 @@ public class ObjectDefinitionLocalServiceImpl
 
 		objectDefinition = objectDefinitionPersistence.update(objectDefinition);
 
-		_createLocalizationTable(objectDefinition);
-		_createTable(objectDefinition.getDBTableName(), objectDefinition);
+		_createLocalizationTable(
+			DynamicObjectDefinitionLocalizationTableFactory.create(
+				objectDefinition, _objectFieldLocalService));
 		_createTable(
-			objectDefinition.getExtensionDBTableName(), objectDefinition);
+			DynamicObjectDefinitionTableFactory.create(
+				objectDefinition, _objectFieldLocalService));
+		_createTable(
+			DynamicObjectDefinitionTableFactory.createExtension(
+				objectDefinition, _objectFieldLocalService));
 
 		for (ObjectRelationship objectRelationship :
 				_objectRelationshipLocalService.getObjectRelationships(

@@ -14,6 +14,7 @@ import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.Curren
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.DiagramResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.GroupedProductResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.LinkedProductResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ListTypeDefinitionResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.LowStockActionResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.MappedProductResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.OptionCategoryResourceImpl;
@@ -32,11 +33,13 @@ import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.Produc
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductSpecificationResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductSubscriptionConfigurationResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductTaxConfigurationResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductVirtualSettingsFileEntryResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.ProductVirtualSettingsResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.RelatedProductResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.SkuResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.SkuSubscriptionConfigurationResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.SkuUnitOfMeasureResourceImpl;
+import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.SkuVirtualSettingsFileEntryResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.SkuVirtualSettingsResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.internal.resource.v1_0.SpecificationResourceImpl;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.AttachmentResource;
@@ -46,6 +49,7 @@ import com.liferay.headless.commerce.admin.catalog.resource.v1_0.CurrencyResourc
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.DiagramResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.GroupedProductResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.LinkedProductResource;
+import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ListTypeDefinitionResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.LowStockActionResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.MappedProductResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.OptionCategoryResource;
@@ -64,11 +68,13 @@ import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductShipping
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductSpecificationResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductSubscriptionConfigurationResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductTaxConfigurationResource;
+import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductVirtualSettingsFileEntryResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductVirtualSettingsResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.RelatedProductResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.SkuResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.SkuSubscriptionConfigurationResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.SkuUnitOfMeasureResource;
+import com.liferay.headless.commerce.admin.catalog.resource.v1_0.SkuVirtualSettingsFileEntryResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.SkuVirtualSettingsResource;
 import com.liferay.headless.commerce.admin.catalog.resource.v1_0.SpecificationResource;
 import com.liferay.portal.kernel.util.ObjectValuePair;
@@ -108,6 +114,8 @@ public class ServletDataImpl implements ServletData {
 			_diagramResourceComponentServiceObjects);
 		Mutation.setGroupedProductResourceComponentServiceObjects(
 			_groupedProductResourceComponentServiceObjects);
+		Mutation.setListTypeDefinitionResourceComponentServiceObjects(
+			_listTypeDefinitionResourceComponentServiceObjects);
 		Mutation.setLowStockActionResourceComponentServiceObjects(
 			_lowStockActionResourceComponentServiceObjects);
 		Mutation.setMappedProductResourceComponentServiceObjects(
@@ -145,12 +153,17 @@ public class ServletDataImpl implements ServletData {
 				_productSubscriptionConfigurationResourceComponentServiceObjects);
 		Mutation.setProductTaxConfigurationResourceComponentServiceObjects(
 			_productTaxConfigurationResourceComponentServiceObjects);
+		Mutation.
+			setProductVirtualSettingsFileEntryResourceComponentServiceObjects(
+				_productVirtualSettingsFileEntryResourceComponentServiceObjects);
 		Mutation.setRelatedProductResourceComponentServiceObjects(
 			_relatedProductResourceComponentServiceObjects);
 		Mutation.setSkuResourceComponentServiceObjects(
 			_skuResourceComponentServiceObjects);
 		Mutation.setSkuUnitOfMeasureResourceComponentServiceObjects(
 			_skuUnitOfMeasureResourceComponentServiceObjects);
+		Mutation.setSkuVirtualSettingsFileEntryResourceComponentServiceObjects(
+			_skuVirtualSettingsFileEntryResourceComponentServiceObjects);
 		Mutation.setSpecificationResourceComponentServiceObjects(
 			_specificationResourceComponentServiceObjects);
 
@@ -168,6 +181,8 @@ public class ServletDataImpl implements ServletData {
 			_groupedProductResourceComponentServiceObjects);
 		Query.setLinkedProductResourceComponentServiceObjects(
 			_linkedProductResourceComponentServiceObjects);
+		Query.setListTypeDefinitionResourceComponentServiceObjects(
+			_listTypeDefinitionResourceComponentServiceObjects);
 		Query.setLowStockActionResourceComponentServiceObjects(
 			_lowStockActionResourceComponentServiceObjects);
 		Query.setMappedProductResourceComponentServiceObjects(
@@ -207,6 +222,8 @@ public class ServletDataImpl implements ServletData {
 			_productTaxConfigurationResourceComponentServiceObjects);
 		Query.setProductVirtualSettingsResourceComponentServiceObjects(
 			_productVirtualSettingsResourceComponentServiceObjects);
+		Query.setProductVirtualSettingsFileEntryResourceComponentServiceObjects(
+			_productVirtualSettingsFileEntryResourceComponentServiceObjects);
 		Query.setRelatedProductResourceComponentServiceObjects(
 			_relatedProductResourceComponentServiceObjects);
 		Query.setSkuResourceComponentServiceObjects(
@@ -217,6 +234,8 @@ public class ServletDataImpl implements ServletData {
 			_skuUnitOfMeasureResourceComponentServiceObjects);
 		Query.setSkuVirtualSettingsResourceComponentServiceObjects(
 			_skuVirtualSettingsResourceComponentServiceObjects);
+		Query.setSkuVirtualSettingsFileEntryResourceComponentServiceObjects(
+			_skuVirtualSettingsFileEntryResourceComponentServiceObjects);
 		Query.setSpecificationResourceComponentServiceObjects(
 			_specificationResourceComponentServiceObjects);
 	}
@@ -453,6 +472,16 @@ public class ServletDataImpl implements ServletData {
 							GroupedProductResourceImpl.class,
 							"postProductIdGroupedProductBatch"));
 					put(
+						"mutation#createSpecificationIdListTypeDefinition",
+						new ObjectValuePair<>(
+							ListTypeDefinitionResourceImpl.class,
+							"postSpecificationIdListTypeDefinition"));
+					put(
+						"mutation#createSpecificationIdListTypeDefinitionBatch",
+						new ObjectValuePair<>(
+							ListTypeDefinitionResourceImpl.class,
+							"postSpecificationIdListTypeDefinitionBatch"));
+					put(
 						"mutation#createLowStockActionsPageExportBatch",
 						new ObjectValuePair<>(
 							LowStockActionResourceImpl.class,
@@ -537,6 +566,16 @@ public class ServletDataImpl implements ServletData {
 						new ObjectValuePair<>(
 							OptionCategoryResourceImpl.class,
 							"postOptionCategoryBatch"));
+					put(
+						"mutation#deleteOptionCategoryByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"deleteOptionCategoryByExternalReferenceCode"));
+					put(
+						"mutation#patchOptionCategoryByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"patchOptionCategoryByExternalReferenceCode"));
 					put(
 						"mutation#deleteOptionCategory",
 						new ObjectValuePair<>(
@@ -871,6 +910,26 @@ public class ServletDataImpl implements ServletData {
 							ProductTaxConfigurationResourceImpl.class,
 							"patchProductIdTaxConfiguration"));
 					put(
+						"mutation#deleteProductVirtualSettingsFileEntry",
+						new ObjectValuePair<>(
+							ProductVirtualSettingsFileEntryResourceImpl.class,
+							"deleteProductVirtualSettingsFileEntry"));
+					put(
+						"mutation#deleteProductVirtualSettingsFileEntryBatch",
+						new ObjectValuePair<>(
+							ProductVirtualSettingsFileEntryResourceImpl.class,
+							"deleteProductVirtualSettingsFileEntryBatch"));
+					put(
+						"mutation#patchProductVirtualSettingsFileEntry",
+						new ObjectValuePair<>(
+							ProductVirtualSettingsFileEntryResourceImpl.class,
+							"patchProductVirtualSettingsFileEntry"));
+					put(
+						"mutation#createProductVirtualSettingIdProductVirtualSettingsFileEntry",
+						new ObjectValuePair<>(
+							ProductVirtualSettingsFileEntryResourceImpl.class,
+							"postProductVirtualSettingIdProductVirtualSettingsFileEntry"));
+					put(
 						"mutation#createProductByExternalReferenceCodeRelatedProduct",
 						new ObjectValuePair<>(
 							RelatedProductResourceImpl.class,
@@ -965,6 +1024,26 @@ public class ServletDataImpl implements ServletData {
 							SkuUnitOfMeasureResourceImpl.class,
 							"postSkuIdSkuUnitOfMeasureBatch"));
 					put(
+						"mutation#deleteSkuVirtualSettingsFileEntry",
+						new ObjectValuePair<>(
+							SkuVirtualSettingsFileEntryResourceImpl.class,
+							"deleteSkuVirtualSettingsFileEntry"));
+					put(
+						"mutation#deleteSkuVirtualSettingsFileEntryBatch",
+						new ObjectValuePair<>(
+							SkuVirtualSettingsFileEntryResourceImpl.class,
+							"deleteSkuVirtualSettingsFileEntryBatch"));
+					put(
+						"mutation#patchSkuVirtualSettingsFileEntry",
+						new ObjectValuePair<>(
+							SkuVirtualSettingsFileEntryResourceImpl.class,
+							"patchSkuVirtualSettingsFileEntry"));
+					put(
+						"mutation#createSkuVirtualSettingIdSkuVirtualSettingsFileEntry",
+						new ObjectValuePair<>(
+							SkuVirtualSettingsFileEntryResourceImpl.class,
+							"postSkuVirtualSettingIdSkuVirtualSettingsFileEntry"));
+					put(
 						"mutation#createSpecificationsPageExportBatch",
 						new ObjectValuePair<>(
 							SpecificationResourceImpl.class,
@@ -979,6 +1058,16 @@ public class ServletDataImpl implements ServletData {
 						new ObjectValuePair<>(
 							SpecificationResourceImpl.class,
 							"postSpecificationBatch"));
+					put(
+						"mutation#deleteSpecificationByExternalReferenceCode",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"deleteSpecificationByExternalReferenceCode"));
+					put(
+						"mutation#patchSpecificationByExternalReferenceCode",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"patchSpecificationByExternalReferenceCode"));
 					put(
 						"mutation#deleteSpecification",
 						new ObjectValuePair<>(
@@ -1080,6 +1169,11 @@ public class ServletDataImpl implements ServletData {
 							LinkedProductResourceImpl.class,
 							"getProductIdLinkedProductsPage"));
 					put(
+						"query#specificationIdListTypeDefinitions",
+						new ObjectValuePair<>(
+							ListTypeDefinitionResourceImpl.class,
+							"getSpecificationIdListTypeDefinitionsPage"));
+					put(
 						"query#lowStockActions",
 						new ObjectValuePair<>(
 							LowStockActionResourceImpl.class,
@@ -1122,6 +1216,11 @@ public class ServletDataImpl implements ServletData {
 						new ObjectValuePair<>(
 							OptionCategoryResourceImpl.class,
 							"getOptionCategoriesPage"));
+					put(
+						"query#optionCategoryByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"getOptionCategoryByExternalReferenceCode"));
 					put(
 						"query#optionCategory",
 						new ObjectValuePair<>(
@@ -1317,6 +1416,16 @@ public class ServletDataImpl implements ServletData {
 							ProductVirtualSettingsResourceImpl.class,
 							"getProductIdProductVirtualSettings"));
 					put(
+						"query#productVirtualSettingsFileEntry",
+						new ObjectValuePair<>(
+							ProductVirtualSettingsFileEntryResourceImpl.class,
+							"getProductVirtualSettingsFileEntry"));
+					put(
+						"query#productVirtualSettingIdProductVirtualSettingsFileEntries",
+						new ObjectValuePair<>(
+							ProductVirtualSettingsFileEntryResourceImpl.class,
+							"getProductVirtualSettingIdProductVirtualSettingsFileEntriesPage"));
+					put(
 						"query#productByExternalReferenceCodeRelatedProducts",
 						new ObjectValuePair<>(
 							RelatedProductResourceImpl.class,
@@ -1392,10 +1501,25 @@ public class ServletDataImpl implements ServletData {
 							SkuVirtualSettingsResourceImpl.class,
 							"getSkuIdSkuVirtualSettings"));
 					put(
+						"query#skuVirtualSettingsFileEntry",
+						new ObjectValuePair<>(
+							SkuVirtualSettingsFileEntryResourceImpl.class,
+							"getSkuVirtualSettingsFileEntry"));
+					put(
+						"query#skuVirtualSettingIdSkuVirtualSettingsFileEntries",
+						new ObjectValuePair<>(
+							SkuVirtualSettingsFileEntryResourceImpl.class,
+							"getSkuVirtualSettingIdSkuVirtualSettingsFileEntriesPage"));
+					put(
 						"query#specifications",
 						new ObjectValuePair<>(
 							SpecificationResourceImpl.class,
 							"getSpecificationsPage"));
+					put(
+						"query#specificationByExternalReferenceCode",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"getSpecificationByExternalReferenceCode"));
 					put(
 						"query#specification",
 						new ObjectValuePair<>(
@@ -1447,6 +1571,11 @@ public class ServletDataImpl implements ServletData {
 						new ObjectValuePair<>(
 							CatalogResourceImpl.class,
 							"getCatalogByExternalReferenceCode"));
+					put(
+						"query#Catalog.specificationByExternalReferenceCode",
+						new ObjectValuePair<>(
+							SpecificationResourceImpl.class,
+							"getSpecificationByExternalReferenceCode"));
 					put(
 						"query#Catalog.productByExternalReferenceCodeMappedProducts",
 						new ObjectValuePair<>(
@@ -1557,6 +1686,11 @@ public class ServletDataImpl implements ServletData {
 						new ObjectValuePair<>(
 							ProductVirtualSettingsResourceImpl.class,
 							"getProductByExternalReferenceCodeProductVirtualSettings"));
+					put(
+						"query#Catalog.optionCategoryByExternalReferenceCode",
+						new ObjectValuePair<>(
+							OptionCategoryResourceImpl.class,
+							"getOptionCategoryByExternalReferenceCode"));
 				}
 			};
 
@@ -1583,6 +1717,10 @@ public class ServletDataImpl implements ServletData {
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<GroupedProductResource>
 		_groupedProductResourceComponentServiceObjects;
+
+	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	private ComponentServiceObjects<ListTypeDefinitionResource>
+		_listTypeDefinitionResourceComponentServiceObjects;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<LowStockActionResource>
@@ -1657,6 +1795,10 @@ public class ServletDataImpl implements ServletData {
 		_productTaxConfigurationResourceComponentServiceObjects;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	private ComponentServiceObjects<ProductVirtualSettingsFileEntryResource>
+		_productVirtualSettingsFileEntryResourceComponentServiceObjects;
+
+	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<RelatedProductResource>
 		_relatedProductResourceComponentServiceObjects;
 
@@ -1667,6 +1809,10 @@ public class ServletDataImpl implements ServletData {
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<SkuUnitOfMeasureResource>
 		_skuUnitOfMeasureResourceComponentServiceObjects;
+
+	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
+	private ComponentServiceObjects<SkuVirtualSettingsFileEntryResource>
+		_skuVirtualSettingsFileEntryResourceComponentServiceObjects;
 
 	@Reference(scope = ReferenceScope.PROTOTYPE_REQUIRED)
 	private ComponentServiceObjects<SpecificationResource>

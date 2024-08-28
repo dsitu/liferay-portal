@@ -68,16 +68,15 @@ public class DisplayPageDisplayContext {
 
 	public DisplayPageDisplayContext(
 		HttpServletRequest httpServletRequest,
+		InfoItemServiceRegistry infoItemServiceRegistry,
 		LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse) {
 
 		_httpServletRequest = httpServletRequest;
+		_infoItemServiceRegistry = infoItemServiceRegistry;
 		_liferayPortletRequest = liferayPortletRequest;
 		_liferayPortletResponse = liferayPortletResponse;
 
-		_infoItemServiceRegistry =
-			(InfoItemServiceRegistry)httpServletRequest.getAttribute(
-				InfoItemServiceRegistry.class.getName());
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
@@ -576,16 +575,16 @@ public class DisplayPageDisplayContext {
 		}
 
 		if (Objects.equals(getOrderByCol(), "create-date")) {
-			return new LayoutPageTemplateCollectionLayoutPageTemplateEntryCreateDateComparator(
-				orderByAsc);
+			return LayoutPageTemplateCollectionLayoutPageTemplateEntryCreateDateComparator.
+				getInstance(orderByAsc);
 		}
 		else if (Objects.equals(getOrderByCol(), "modified-date")) {
-			return new LayoutPageTemplateCollectionLayoutPageTemplateEntryModifiedDateComparator(
-				orderByAsc);
+			return LayoutPageTemplateCollectionLayoutPageTemplateEntryModifiedDateComparator.
+				getInstance(orderByAsc);
 		}
 		else if (Objects.equals(getOrderByCol(), "name")) {
-			return new LayoutPageTemplateCollectionLayoutPageTemplateEntryNameComparator(
-				orderByAsc);
+			return LayoutPageTemplateCollectionLayoutPageTemplateEntryNameComparator.
+				getInstance(orderByAsc);
 		}
 
 		return null;

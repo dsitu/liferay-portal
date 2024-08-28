@@ -1,16 +1,16 @@
 {
 	"dependencies": {
 		"@clayui/alert": "3.111.0",
-		"@clayui/button": "3.115.0",
-		"@clayui/drop-down": "3.115.1",
-		"@clayui/empty-state": "3.115.2",
-		"@clayui/form": "3.115.0",
+		"@clayui/button": "3.116.0",
+		"@clayui/drop-down": "3.118.0",
+		"@clayui/empty-state": "3.116.0",
+		"@clayui/form": "3.116.0",
 		"@clayui/icon": "3.111.0",
 		"@clayui/layout": "3.111.0",
 		"@clayui/loading-indicator": "3.111.0",
-		"@clayui/modal": "3.115.0",
-		"@clayui/panel": "3.115.0",
-		"@clayui/popover": "3.115.0",
+		"@clayui/modal": "3.117.0",
+		"@clayui/panel": "3.116.0",
+		"@clayui/popover": "3.116.1",
 		"@liferay/frontend-js-react-web": "*",
 		"@liferay/layout-js-components-web": "*",
 		"classnames": "2.3.1",
@@ -25,7 +25,7 @@
 		"build": "node-scripts build",
 		"checkFormat": "node-scripts format --check",
 		"format": "node-scripts format",
-		"test": "liferay-npm-scripts test"
+		"test": "node-scripts test"
 	},
-	"version": "2.0.108"
+	"version": "2.0.112"
 }

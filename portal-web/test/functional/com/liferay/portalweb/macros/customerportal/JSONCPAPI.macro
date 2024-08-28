@@ -1,0 +1,46 @@
+definition {
+
+	@summary = "Default summary"
+	macro getIdKoreneikiAccount(koroneikiERC = null) {
+		Variables.assertDefined(parameterList = ${koroneikiERC});
+
+		var portalURL = JSONCompany.getPortalURL();
+		var userPassword = PropsUtil.get("default.admin.password");
+
+		var curl = '''
+			${portalURL}/o/c//koroneikiaccounts/by-external-reference-code/${koroneikiERC} \
+				-u test@liferay.com:${userPassword} \
+				-H 'accept: application/json' \
+				-H 'Content-Type: application/json' \
+		''';
+
+		var response = JSONCurlUtil.get(${curl}, "$.id");
+
+		echo(${response});
+
+		return ${response};
+	}
+
+	@summary = "Default summary"
+	macro updateSelfProvisioning(koroneikiAccountId = null) {
+		Variables.assertDefined(parameterList = ${koroneikiAccountId});
+
+		var portalURL = JSONCompany.getPortalURL();
+		var userPassword = PropsUtil.get("default.admin.password");
+
+		var curl = '''
+			${portalURL}/o/c/koroneikiaccounts/${koroneikiAccountId} \
+				-u test@liferay.com:${userPassword} \
+				-H 'accept: application/json' \
+				-H 'Content-Type: application/json' \
+				-d '{
+					"allowSelfProvisioning": true
+				}'
+		''';
+
+		var response = JSONCurlUtil.patch(${curl});
+
+		echo(${response});
+	}
+
+}

@@ -389,9 +389,18 @@ public class DLFileEntryLocalServiceImpl
 
 		Date date = new Date();
 
-		_dates.computeIfAbsent(
+		_dates.compute(
 			companyId,
-			key -> new Date(date.getTime() - (checkInterval * Time.MINUTE)));
+			(key, value) -> {
+				Date checkDate = new Date(
+					date.getTime() - (checkInterval * Time.MINUTE));
+
+				if ((value != null) && value.before(checkDate)) {
+					return value;
+				}
+
+				return checkDate;
+			});
 
 		long userId = _getActiveCompanyAdminUserId(companyId);
 
@@ -747,10 +756,6 @@ public class DLFileEntryLocalServiceImpl
 	public DLFileEntry deleteFileEntry(DLFileEntry dlFileEntry)
 		throws PortalException {
 
-		// File entry
-
-		dlFileEntryPersistence.remove(dlFileEntry);
-
 		// Resources
 
 		_resourceLocalService.deleteResource(
@@ -779,14 +784,14 @@ public class DLFileEntryLocalServiceImpl
 				dlFileEntry.getFileEntryId());
 
 		for (DLFileVersion dlFileVersion : dlFileVersions) {
-			_dlFileVersionPersistence.remove(dlFileVersion);
-
 			_expandoRowLocalService.deleteRows(
 				dlFileVersion.getFileVersionId());
 
 			_workflowInstanceLinkLocalService.deleteWorkflowInstanceLinks(
 				dlFileEntry.getCompanyId(), dlFileEntry.getGroupId(),
 				DLFileEntry.class.getName(), dlFileVersion.getFileVersionId());
+
+			_dlFileVersionPersistence.remove(dlFileVersion);
 		}
 
 		// Expando
@@ -810,6 +815,10 @@ public class DLFileEntryLocalServiceImpl
 		// Lock
 
 		unlockFileEntry(dlFileEntry.getFileEntryId());
+
+		// File entry
+
+		dlFileEntryPersistence.remove(dlFileEntry);
 
 		// File
 
@@ -886,17 +895,30 @@ public class DLFileEntryLocalServiceImpl
 			DLFileVersion dlFileVersion = _dlFileVersionPersistence.findByF_V(
 				fileEntryId, version);
 
-			if (!dlFileVersion.isApproved()) {
+			if (!dlFileVersion.isApproved() && !dlFileVersion.isExpired() &&
+				!dlFileVersion.isScheduled()) {
+
 				throw new InvalidFileVersionException(
 					StringBundler.concat(
 						"Unable to delete the unapproved file version ",
 						version, " for file entry ", fileEntryId));
 			}
 
-			int count = _dlFileVersionPersistence.countByF_S(
+			int fileVersionsCount = _dlFileVersionPersistence.countByF_S(
 				fileEntryId, WorkflowConstants.STATUS_APPROVED);
 
-			if (count <= 1) {
+			fileVersionsCount += _dlFileVersionPersistence.countByF_S(
+				fileEntryId, WorkflowConstants.STATUS_SCHEDULED);
+
+			int fileVersionsExpiredCount = _dlFileVersionPersistence.countByF_S(
+				fileEntryId, WorkflowConstants.STATUS_EXPIRED);
+
+			if ((fileVersionsCount <= 1) &&
+				!((dlFileVersion.getStatus() ==
+					WorkflowConstants.STATUS_EXPIRED) &&
+				  ((fileVersionsCount == 1) ||
+				   (fileVersionsExpiredCount > 1)))) {
+
 				throw new InvalidFileVersionException(
 					StringBundler.concat(
 						"Unable to delete the only approved file version ",
@@ -1774,7 +1796,7 @@ public class DLFileEntryLocalServiceImpl
 		DLFileVersion dlFileVersion = _dlFileVersionLocalService.getFileVersion(
 			fileEntryId, version);
 
-		if (!dlFileVersion.isApproved()) {
+		if (!dlFileVersion.isApproved() && !dlFileVersion.isScheduled()) {
 			throw new InvalidFileVersionException(
 				"Unable to revert from an unapproved file version");
 		}
@@ -1884,6 +1906,19 @@ public class DLFileEntryLocalServiceImpl
 
 		indexableActionableDynamicQuery.setAddCriteriaMethod(
 			dynamicQuery -> {
+				if (folderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+					DLFolder dlFolder = _dlFolderLocalService.fetchDLFolder(
+						folderId);
+
+					if (dlFolder != null) {
+						Property groupIdProperty = PropertyFactoryUtil.forName(
+							"groupId");
+
+						dynamicQuery.add(
+							groupIdProperty.eq(dlFolder.getGroupId()));
+					}
+				}
+
 				Property folderIdProperty = PropertyFactoryUtil.forName(
 					"folderId");
 
@@ -3206,7 +3241,6 @@ public class DLFileEntryLocalServiceImpl
 
 		subscriptionSender.setClassName(DLFileEntryConstants.getClassName());
 		subscriptionSender.setClassPK(fileVersion.getFileEntryId());
-		subscriptionSender.setCompanyId(fileVersion.getCompanyId());
 
 		if (folder != null) {
 			subscriptionSender.setContextAttribute(
@@ -3394,7 +3428,6 @@ public class DLFileEntryLocalServiceImpl
 
 		subscriptionSender.setClassName(DLFileEntryConstants.getClassName());
 		subscriptionSender.setClassPK(fileVersion.getFileEntryId());
-		subscriptionSender.setCompanyId(fileVersion.getCompanyId());
 
 		if (folder != null) {
 			subscriptionSender.setContextAttribute(

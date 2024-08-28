@@ -9,8 +9,33 @@ import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {loginTest} from '../../fixtures/loginTest';
 import {objectPagesTest} from '../../fixtures/objectPagesTest';
 import {getRandomInt} from '../../utils/getRandomInt';
+import {createObjectField} from './utils/mockObjectFields';
 
 export const test = mergeTests(apiHelpersTest, loginTest(), objectPagesTest);
+
+const createdEntities = {
+	objectDefinitionIds: [],
+	objectFolderIds: [],
+	objectRelationshipIds: [],
+} as {
+	objectDefinitionIds: number[];
+	objectFolderIds: number[];
+	objectRelationshipIds: number[];
+};
+
+test.afterEach(async ({apiHelpers}) => {
+	for (const id of createdEntities.objectRelationshipIds) {
+		await apiHelpers.objectAdmin.deleteObjectRelationship(id);
+	}
+
+	for (const id of createdEntities.objectDefinitionIds) {
+		await apiHelpers.objectAdmin.deleteObjectDefinition(id);
+	}
+
+	for (const id of createdEntities.objectFolderIds) {
+		await apiHelpers.objectAdmin.deleteObjectFolder(id);
+	}
+});
 
 test.describe('Manage object relationships through Model Builder', () => {
 	test('can create relationship by dragging node handles', async ({
@@ -20,6 +45,8 @@ test.describe('Manage object relationships through Model Builder', () => {
 	}) => {
 		const objectFolder =
 			await apiHelpers.objectAdmin.postRandomObjectFolder();
+
+		createdEntities.objectFolderIds.push(objectFolder.id);
 
 		const objectDefinition1 =
 			await apiHelpers.objectAdmin.postRandomObjectDefinition({
@@ -34,27 +61,37 @@ test.describe('Manage object relationships through Model Builder', () => {
 				status: {code: 0},
 			});
 
+		createdEntities.objectDefinitionIds.push(
+			objectDefinition1.id,
+			objectDefinition2.id
+		);
+
 		await viewObjectDefinitionsPage.goto();
 
 		await viewObjectDefinitionsPage.openObjectFolder(
 			objectFolder.label['en_US']
 		);
 
-		await viewObjectDefinitionsPage.viewInModelBuilder();
+		await viewObjectDefinitionsPage.viewInModelBuilderButton.click();
 
-		await modelBuilderPage.clickToggleSidebarsButton();
+		await modelBuilderPage.toggleSidebarsButton.click();
 
-		await modelBuilderPage.clickFitViewButton();
+		await modelBuilderPage.fitViewButton.click();
+
+		await modelBuilderPage.connectObjectDefinitionsNodeHandles(
+			objectDefinition1.id,
+			objectDefinition2.id
+		);
 
 		const objectRelationshipLabel = 'objectRelationship' + getRandomInt();
 
 		const objectRelationship =
 			await modelBuilderPage.createObjectRelationship(
-				objectDefinition1.id,
-				objectDefinition2.id,
 				objectRelationshipLabel,
 				'One to Many'
 			);
+
+		createdEntities.objectRelationshipIds.push(objectRelationship.id);
 
 		await expect(
 			modelBuilderPage.objectRelationshipEdges.filter({
@@ -66,28 +103,13 @@ test.describe('Manage object relationships through Model Builder', () => {
 			objectDefinition2.label['en_US']
 		);
 
-		await modelBuilderPage.clickFitViewButton();
+		await modelBuilderPage.fitViewButton.click();
 
 		await expect(
 			modelBuilderPage.objectDefinitionNodes
 				.filter({hasText: objectDefinition2.label['en_US']})
 				.getByText(objectRelationshipLabel)
 		).toBeVisible();
-
-		// Clean up
-
-		await apiHelpers.objectAdmin.deleteObjectRelationship(
-			objectRelationship.id
-		);
-
-		await apiHelpers.objectAdmin.deleteObjectDefinition(
-			objectDefinition1.id
-		);
-		await apiHelpers.objectAdmin.deleteObjectDefinition(
-			objectDefinition2.id
-		);
-
-		await apiHelpers.objectAdmin.deleteObjectFolder(objectFolder.id);
 	});
 
 	test('can delete object relationship from different folders', async ({
@@ -101,6 +123,8 @@ test.describe('Manage object relationships through Model Builder', () => {
 		const objectFolder =
 			await apiHelpers.objectAdmin.postRandomObjectFolder();
 
+		createdEntities.objectFolderIds.push(objectFolder.id);
+
 		const objectDefinition1 =
 			await apiHelpers.objectAdmin.postRandomObjectDefinition({
 				objectFolderExternalReferenceCode:
@@ -113,6 +137,11 @@ test.describe('Manage object relationships through Model Builder', () => {
 				objectFolderExternalReferenceCode: 'default',
 				status: {code: 0},
 			});
+
+		createdEntities.objectDefinitionIds.push(
+			objectDefinition1.id,
+			objectDefinition2.id
+		);
 
 		const objectRelationshipLabel =
 			'objectRelationshipLabel' + getRandomInt();
@@ -138,13 +167,15 @@ test.describe('Manage object relationships through Model Builder', () => {
 			objectRelationshipData
 		);
 
+		createdEntities.objectRelationshipIds.push(objectRelationshipData.id);
+
 		await viewObjectDefinitionsPage.goto();
 
 		await viewObjectDefinitionsPage.openObjectFolder(
 			objectFolder.label['en_US']
 		);
 
-		await viewObjectDefinitionsPage.viewInModelBuilder();
+		await viewObjectDefinitionsPage.viewInModelBuilderButton.click();
 
 		await expect(
 			modelBuilderPage.objectRelationshipEdges.filter({
@@ -175,16 +206,161 @@ test.describe('Manage object relationships through Model Builder', () => {
 				hasText: objectDefinition2.label['en_US'],
 			})
 		).not.toBeVisible();
+	});
 
-		// Clean up
+	test('cannot create relationship between the postal address object and objects without an one-to-many relationship with the account object', async ({
+		apiHelpers,
+		modelBuilderPage,
+		page,
+		viewObjectDefinitionsPage,
+	}) => {
+		const objectDefinition1 =
+			await apiHelpers.objectAdmin.postRandomObjectDefinition({
+				status: {code: 0},
+			});
 
-		await apiHelpers.objectAdmin.deleteObjectDefinition(
+		const postalAddress =
+			await apiHelpers.objectAdmin.getObjectDefinitionByExternalReferenceCode(
+				'L_POSTAL_ADDRESS'
+			);
+
+		createdEntities.objectDefinitionIds.push(objectDefinition1.id);
+
+		await viewObjectDefinitionsPage.goto();
+
+		await viewObjectDefinitionsPage.openObjectFolder('Default');
+
+		await viewObjectDefinitionsPage.viewInModelBuilderButton.click();
+
+		await modelBuilderPage.toggleSidebarsButton.click();
+
+		await modelBuilderPage.fitViewButton.click();
+
+		await modelBuilderPage.connectObjectDefinitionsNodeHandles(
+			postalAddress.id,
 			objectDefinition1.id
 		);
-		await apiHelpers.objectAdmin.deleteObjectDefinition(
+
+		await expect(
+			modelBuilderPage.postalAddressObjectRelationshipWarning
+		).toBeVisible();
+
+		const pagePromise = page.waitForEvent('popup');
+
+		await page.getByRole('link', {name: 'Learn more.'}).click();
+
+		const liferayLearnPage = await pagePromise;
+
+		await liferayLearnPage.waitForLoadState();
+
+		await expect(
+			liferayLearnPage.getByRole('heading', {
+				name: 'Accessing Accounts Data from Custom Object',
+			})
+		).toBeVisible();
+	});
+
+	test('cannot delete the object relationship that is the only custom object field from the published object definition', async ({
+		apiHelpers,
+		modelBuilderPage,
+		page,
+		viewObjectDefinitionsPage,
+	}) => {
+		const objectFolder =
+			await apiHelpers.objectAdmin.postRandomObjectFolder();
+
+		createdEntities.objectFolderIds.push(objectFolder.id);
+
+		const objectDefinition1 =
+			await apiHelpers.objectAdmin.postRandomObjectDefinition({
+				objectFolderExternalReferenceCode:
+					objectFolder.externalReferenceCode,
+				status: {code: 0},
+			});
+
+		const objectDefinition2 =
+			await apiHelpers.objectAdmin.postRandomObjectDefinition({
+				objectFields: [],
+				objectFolderExternalReferenceCode:
+					objectFolder.externalReferenceCode,
+				status: {code: 1},
+			});
+
+		createdEntities.objectDefinitionIds.push(
+			objectDefinition1.id,
 			objectDefinition2.id
 		);
 
-		await apiHelpers.objectAdmin.deleteObjectFolder(objectFolder.id);
+		const objectRelationshipLabel =
+			'objectRelationshipLabel' + getRandomInt();
+		const objectRelationshipName =
+			'objectRelationshipName' + Math.floor(Math.random() * 99);
+
+		const objectRelationshipData: Partial<ObjectRelationship> = {
+			label: {
+				en_US: objectRelationshipLabel,
+			},
+			name: objectRelationshipName,
+			objectDefinitionExternalReferenceCode1:
+				objectDefinition1.externalReferenceCode,
+			objectDefinitionExternalReferenceCode2:
+				objectDefinition2.externalReferenceCode,
+			objectDefinitionId1: objectDefinition1.id,
+			objectDefinitionId2: objectDefinition2.id,
+			objectDefinitionName2: objectDefinition2.name,
+			type: 'oneToMany' as ObjectRelationshipType,
+		};
+
+		const objectRelationship =
+			await apiHelpers.objectAdmin.postObjectRelationship(
+				objectRelationshipData
+			);
+
+		createdEntities.objectRelationshipIds.push(objectRelationship.id);
+
+		const publishedObjectDefinition2 =
+			await apiHelpers.objectAdmin.postObjectDefinitionPublish(
+				objectDefinition2.id
+			);
+
+		await viewObjectDefinitionsPage.goto();
+
+		await viewObjectDefinitionsPage.openObjectFolder(
+			objectFolder.label['en_US']
+		);
+
+		await viewObjectDefinitionsPage.viewInModelBuilderButton.click();
+
+		await modelBuilderPage.fitViewButton.click();
+
+		await modelBuilderPage.clickObjectRelationshipEdge(
+			objectRelationshipLabel
+		);
+
+		await modelBuilderPage.deleteObjectRelationship(
+			objectRelationshipData.name
+		);
+
+		await expect(modelBuilderPage.deletionNotAllowed).toBeVisible();
+
+		const objectFieldObjectRelationship =
+			publishedObjectDefinition2.objectFields.find(
+				(objectField: ObjectField) =>
+					objectField.businessType === 'Relationship'
+			);
+
+		await expect(
+			page.getByText(
+				`The object field "${objectFieldObjectRelationship.name}" cannot be deleted because it is the only custom object field of the published object definition "${objectDefinition2.name}". Add at least one object field to the object definition.`
+			)
+		).toBeVisible();
+
+		await apiHelpers.objectAdmin.postObjectFieldByExternalReferenceCode(
+			publishedObjectDefinition2.externalReferenceCode,
+			createObjectField('text', {
+				label: 'textField',
+				name: 'textField',
+			})
+		);
 	});
 });

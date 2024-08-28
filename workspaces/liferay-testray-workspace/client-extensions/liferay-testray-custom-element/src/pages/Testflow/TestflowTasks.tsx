@@ -4,6 +4,7 @@
  */
 
 import ClayIcon from '@clayui/icon';
+import {useAtom} from 'jotai';
 import {Dispatch, useContext, useState} from 'react';
 import {Link, useNavigate, useOutletContext, useParams} from 'react-router-dom';
 import {KeyedMutator} from 'swr';
@@ -21,15 +22,14 @@ import {StatusBadgeType} from '~/components/StatusBadge/StatusBadge';
 import QATable from '~/components/Table/QATable';
 import {ListViewTypes} from '~/context/ListViewContext';
 import {TestrayContext} from '~/context/TestrayContext';
-import SearchBuilder from '~/core/SearchBuilder';
 import useCaseResultGroupBy from '~/hooks/data/useCaseResultGroupBy';
 import useSubtaskScore from '~/hooks/data/useSubtaskScore';
 import useHeader from '~/hooks/useHeader';
 import useMutate from '~/hooks/useMutate';
+import {taskSidebarRefresh} from '~/hooks/useSidebarTask';
 import i18n from '~/i18n';
 import {Liferay} from '~/services/liferay';
 import {
-	PickList,
 	TestraySubtask,
 	TestrayTask,
 	TestrayTaskUser,
@@ -39,7 +39,6 @@ import {testraySubtaskImpl} from '~/services/rest/TestraySubtask';
 import {StatusesProgressScore, chartClassNames} from '~/util/constants';
 import {getTimeFromNow} from '~/util/date';
 import {getTruncateText} from '~/util/getTruncateText';
-import {SubtaskStatuses} from '~/util/statuses';
 
 import SubtaskCompleteModal from './Subtask/SubtaskCompleteModal';
 import useSubtasksActions from './Subtask/useSubtasksActions';
@@ -62,6 +61,7 @@ const ShortcutIcon = () => (
 );
 
 const TestFlowTasks = () => {
+	const [, setTaskSidebarRefresh] = useAtom(taskSidebarRefresh);
 	const {
 		data: {projectId, testrayTask, testrayTaskUser},
 		revalidate: {revalidateSubtask},
@@ -111,8 +111,8 @@ const TestFlowTasks = () => {
 		const subtasksWithDifferentAssignedUsers = subtasks
 			?.filter(
 				(subtask) =>
-					subtask?.user?.id.toString() &&
-					subtask?.user?.id.toString() !==
+					subtask?.userId &&
+					subtask?.userId.toString() !==
 						Liferay.ThemeDisplay.getUserId()
 			)
 			?.map((subtask) => ({
@@ -144,6 +144,8 @@ const TestFlowTasks = () => {
 			}
 		);
 
+		setTaskSidebarRefresh(new Date().getTime());
+
 		dispatch({
 			payload: [],
 			type: ListViewTypes.SET_CLEAR_CHECKED_ROW,
@@ -166,14 +168,6 @@ const TestFlowTasks = () => {
 			},
 		});
 	};
-
-	const searchBuilder = new SearchBuilder({useURIEncode: false});
-
-	const subtaskFilter = searchBuilder
-		.eq('taskId', taskId as string)
-		.and()
-		.ne('dueStatus', SubtaskStatuses.MERGED)
-		.build();
 
 	return (
 		<>
@@ -318,7 +312,7 @@ const TestFlowTasks = () => {
 						filterSchema: 'subtasks',
 						title: i18n.translate('subtasks'),
 					}}
-					resource={testraySubtaskImpl.resource}
+					resource={`/testray-testflow/testray-subtask?testrayTaskId=${taskId}`}
 					tableProps={{
 						actions,
 						bodyVerticalAlignment: 'top',
@@ -331,14 +325,12 @@ const TestFlowTasks = () => {
 							},
 							{
 								clickable: true,
-								key: 'dueStatus',
-								render: (dueStatus: PickList) => (
+								key: 'status',
+								render: (dueStatus) => (
 									<StatusBadge
-										type={
-											dueStatus?.key.toLowerCase() as StatusBadgeType
-										}
+										type={dueStatus as StatusBadgeType}
 									>
-										{dueStatus?.name}
+										{dueStatus}
 									</StatusBadge>
 								),
 								sorteable: true,
@@ -352,18 +344,20 @@ const TestFlowTasks = () => {
 							},
 							{
 								clickable: true,
-								key: 'tests',
+								key: 'caseResultAmount',
 								value: i18n.translate('tests'),
 							},
 							{
-								key: 'errors',
-								render: (value) => (
-									<Code title={value as string}>
-										{getTruncateText(value)}
-									</Code>
-								),
+								key: 'error',
+								render: (errors: string) =>
+									errors && (
+										<Code title={errors as string}>
+											{getTruncateText(errors)}
+										</Code>
+									),
 								size: 'xl',
 								value: i18n.translate('errors'),
+								width: '400',
 							},
 							{
 								key: 'issues',
@@ -379,30 +373,21 @@ const TestFlowTasks = () => {
 							},
 							{
 								key: 'user',
-								render: (
-									_: any,
-									subtask: TestraySubtask & {
-										actions: {
-											[key: string]: string;
-										};
-									},
-									mutate
-								) => {
-									if (subtask.user) {
+								render: (_: any, subtask, mutate) => {
+									if (subtask.userName) {
 										return (
 											<Avatar
 												className="text-capitalize"
 												displayName
-												name={subtask?.user?.name}
+												name={subtask?.userName}
 												size="sm"
-												url={subtask.user.image}
+												url={subtask.userPortraitUrl}
 											/>
 										);
 									}
 
 									return (
 										<AssignToMe
-											hidden={!subtask.actions.update}
 											onClick={() =>
 												testraySubtaskImpl
 													.assignToMe(subtask)
@@ -417,6 +402,11 @@ const TestFlowTasks = () => {
 															}
 														);
 													})
+													.then(() => {
+														setTaskSidebarRefresh(
+															new Date().getTime()
+														);
+													})
 											}
 										/>
 									);
@@ -424,15 +414,9 @@ const TestFlowTasks = () => {
 								value: i18n.translate('assignee'),
 							},
 						],
-						navigateTo: (subtask) => `subtasks/${subtask.id}`,
+						navigateTo: ({id}) => `subtasks/${id}`,
 						rowSelectable: true,
 						rowWrap: true,
-					}}
-					transformData={(response) =>
-						testraySubtaskImpl.transformDataFromList(response)
-					}
-					variables={{
-						filter: subtaskFilter,
 					}}
 				>
 					{(

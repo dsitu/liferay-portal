@@ -9,6 +9,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
 import com.liferay.document.library.configuration.DLConfiguration;
+import com.liferay.document.library.configuration.DLFileEntryFriendlyURLConfiguration;
 import com.liferay.document.library.kernel.exception.DuplicateFileEntryException;
 import com.liferay.document.library.kernel.exception.DuplicateFileEntryExternalReferenceCodeException;
 import com.liferay.document.library.kernel.exception.DuplicateFolderNameException;
@@ -56,6 +57,8 @@ import com.liferay.expando.kernel.model.ExpandoColumnConstants;
 import com.liferay.expando.kernel.model.ExpandoTable;
 import com.liferay.expando.kernel.service.ExpandoColumnLocalServiceUtil;
 import com.liferay.expando.kernel.service.ExpandoTableLocalServiceUtil;
+import com.liferay.friendly.url.model.FriendlyURLEntry;
+import com.liferay.friendly.url.service.FriendlyURLEntryLocalServiceUtil;
 import com.liferay.petra.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
 import com.liferay.petra.string.StringPool;
@@ -254,6 +257,74 @@ public class DLFileEntryLocalServiceTest {
 	}
 
 	@Test
+	public void testAddFileEntryWithBlankFriendlyURLWithExtensionWhenDisabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "false"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file title.txt",
+				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, -1,
+				new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			FriendlyURLEntry mainFriendlyURLEntry =
+				FriendlyURLEntryLocalServiceUtil.getMainFriendlyURLEntry(
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertEquals(
+				"file-title-txt", mainFriendlyURLEntry.getUrlTitle());
+		}
+	}
+
+	@Test
+	public void testAddFileEntryWithBlankFriendlyURLWithExtensionWhenEnabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "true"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file title.txt",
+				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, -1,
+				new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			FriendlyURLEntry mainFriendlyURLEntry =
+				FriendlyURLEntryLocalServiceUtil.getMainFriendlyURLEntry(
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertEquals(
+				"file-title.txt", mainFriendlyURLEntry.getUrlTitle());
+		}
+	}
+
+	@Test
 	public void testAddFileEntryWithDisplayDateExpirationDateReviewDateUpdateDeletingThem()
 		throws Exception {
 
@@ -369,6 +440,134 @@ public class DLFileEntryLocalServiceTest {
 
 		Assert.assertEquals(
 			externalReferenceCode, dlFileEntry.getExternalReferenceCode());
+	}
+
+	@Test
+	public void testAddFileEntryWithFriendlyURLWithExtensionWhenDisabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "false"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt", "URL.txt",
+				StringPool.BLANK, StringPool.BLANK, -1, new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			FriendlyURLEntry mainFriendlyURLEntry =
+				FriendlyURLEntryLocalServiceUtil.getMainFriendlyURLEntry(
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertEquals("url-txt", mainFriendlyURLEntry.getUrlTitle());
+		}
+	}
+
+	@Test
+	public void testAddFileEntryWithFriendlyURLWithExtensionWhenEnabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "true"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt", "URL.txt",
+				StringPool.BLANK, StringPool.BLANK, -1, new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			FriendlyURLEntry mainFriendlyURLEntry =
+				FriendlyURLEntryLocalServiceUtil.getMainFriendlyURLEntry(
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertEquals("url.txt", mainFriendlyURLEntry.getUrlTitle());
+		}
+	}
+
+	@Test
+	public void testAddFileEntryWithFriendlyURLWithoutExtensionWhenEnabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "true"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt", "URL",
+				StringPool.BLANK, StringPool.BLANK, -1, new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			FriendlyURLEntry mainFriendlyURLEntry =
+				FriendlyURLEntryLocalServiceUtil.getMainFriendlyURLEntry(
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertEquals("url", mainFriendlyURLEntry.getUrlTitle());
+		}
+	}
+
+	@Test
+	public void testAddFileEntryWithFriendlyURLWithWrongExtensionWhenEnabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "true"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt", "URL.exe",
+				StringPool.BLANK, StringPool.BLANK, -1, new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			FriendlyURLEntry mainFriendlyURLEntry =
+				FriendlyURLEntryLocalServiceUtil.getMainFriendlyURLEntry(
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertEquals("url.txt", mainFriendlyURLEntry.getUrlTitle());
+		}
 	}
 
 	@Test
@@ -848,6 +1047,54 @@ public class DLFileEntryLocalServiceTest {
 				_group.getGroupId(), folder.getFolderId()));
 	}
 
+	@Test
+	public void testDeleteFileVersionThatIsExpired() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		DLFileEntry dlFileEntry = addDLFileEntryWithStatus(
+			serviceContext, WorkflowConstants.STATUS_APPROVED);
+
+		dlFileEntry = updateDLFileEntryWithStatus(
+			dlFileEntry, new ByteArrayInputStream(new byte[0]), new HashMap<>(),
+			serviceContext, WorkflowConstants.STATUS_EXPIRED);
+
+		DLFileVersion lastDLFileVersion = dlFileEntry.getLatestFileVersion(
+			true);
+
+		DLFileEntryLocalServiceUtil.deleteFileVersion(
+			TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+			lastDLFileVersion.getVersion());
+
+		Assert.assertEquals(
+			1, dlFileEntry.getFileVersionsCount(WorkflowConstants.STATUS_ANY));
+	}
+
+	@Test
+	public void testDeleteFileVersionThatIsScheduled() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		DLFileEntry dlFileEntry = addDLFileEntryWithStatus(
+			serviceContext, WorkflowConstants.STATUS_SCHEDULED);
+
+		dlFileEntry = updateDLFileEntryWithStatus(
+			dlFileEntry, new ByteArrayInputStream(new byte[0]), new HashMap<>(),
+			serviceContext, WorkflowConstants.STATUS_SCHEDULED);
+
+		DLFileVersion lastDLFileVersion = dlFileEntry.getLatestFileVersion(
+			true);
+
+		DLFileEntryLocalServiceUtil.deleteFileVersion(
+			TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+			lastDLFileVersion.getVersion());
+
+		Assert.assertEquals(
+			1, dlFileEntry.getFileVersionsCount(WorkflowConstants.STATUS_ANY));
+	}
+
 	@Test(expected = InvalidFileVersionException.class)
 	public void testDoesNotDeleteUnapprovedVersion() throws Exception {
 		DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
@@ -948,7 +1195,7 @@ public class DLFileEntryLocalServiceTest {
 
 		DLFileEntryType dlFileEntryType =
 			DLFileEntryTypeLocalServiceUtil.addFileEntryType(
-				TestPropsValues.getUserId(), _group.getGroupId(),
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
 				ddmStructure.getStructureId(), null,
 				Collections.singletonMap(LocaleUtil.US, "New File Entry Type"),
 				Collections.singletonMap(LocaleUtil.US, "New File Entry Type"),
@@ -1201,6 +1448,32 @@ public class DLFileEntryLocalServiceTest {
 	}
 
 	@Test
+	public void testRevertScheduledVersion() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		DLFileEntry dlFileEntry = addDLFileEntryWithStatus(
+			serviceContext, WorkflowConstants.STATUS_SCHEDULED);
+
+		DLFileVersion originalVersion = dlFileEntry.getFileVersion();
+
+		dlFileEntry = updateDLFileEntryWithStatus(
+			dlFileEntry, new ByteArrayInputStream(new byte[0]), new HashMap<>(),
+			serviceContext, WorkflowConstants.STATUS_SCHEDULED);
+
+		DLFileEntryLocalServiceUtil.revertFileEntry(
+			TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+			originalVersion.getVersion(), serviceContext);
+
+		DLFileVersion latestFileVersion = dlFileEntry.getLatestFileVersion(
+			true);
+
+		Assert.assertEquals(
+			originalVersion.getTitle(), latestFileVersion.getTitle());
+	}
+
+	@Test
 	public void testUpdateDisplayDateExpirationDateReviewDate()
 		throws Exception {
 
@@ -1437,6 +1710,316 @@ public class DLFileEntryLocalServiceTest {
 		}
 	}
 
+	@Test
+	public void testUpdateFileEntryWithBlankFriendlyURLWithExtensionWhenDisabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "false"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt",
+				"initial URL.txt", StringPool.BLANK, StringPool.BLANK, -1,
+				new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			dlFileEntry = DLFileEntryLocalServiceUtil.updateFileEntry(
+				TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt",
+				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
+				DLVersionNumberIncrease.fromMajorVersion(false),
+				dlFileEntry.getFileEntryTypeId(), new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+			List<FriendlyURLEntry> friendlyURLEntries =
+				FriendlyURLEntryLocalServiceUtil.getFriendlyURLEntries(
+					dlFileEntry.getGroupId(),
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertTrue(friendlyURLEntries.size() == 1);
+
+			FriendlyURLEntry friendlyURLEntry1 = friendlyURLEntries.get(0);
+
+			Assert.assertEquals(
+				"initial-url-txt", friendlyURLEntry1.getUrlTitle());
+			Assert.assertTrue(friendlyURLEntry1.isMain());
+		}
+	}
+
+	@Test
+	public void testUpdateFileEntryWithBlankFriendlyURLWithExtensionWhenEnabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "true"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file title.txt",
+				"initial URL.txt", StringPool.BLANK, StringPool.BLANK, -1,
+				new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			dlFileEntry = DLFileEntryLocalServiceUtil.updateFileEntry(
+				TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt",
+				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
+				DLVersionNumberIncrease.fromMajorVersion(false),
+				dlFileEntry.getFileEntryTypeId(), new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+			List<FriendlyURLEntry> friendlyURLEntries =
+				FriendlyURLEntryLocalServiceUtil.getFriendlyURLEntries(
+					dlFileEntry.getGroupId(),
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertTrue(friendlyURLEntries.size() == 1);
+
+			FriendlyURLEntry friendlyURLEntry1 = friendlyURLEntries.get(0);
+
+			Assert.assertEquals(
+				"initial-url.txt", friendlyURLEntry1.getUrlTitle());
+			Assert.assertTrue(friendlyURLEntry1.isMain());
+		}
+	}
+
+	@Test
+	public void testUpdateFileEntryWithFriendlyURLWithExtensionWhenDisabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "false"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt",
+				"initial URL.txt", StringPool.BLANK, StringPool.BLANK, -1,
+				new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			dlFileEntry = DLFileEntryLocalServiceUtil.updateFileEntry(
+				TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt", "URL.txt",
+				StringPool.BLANK, StringPool.BLANK,
+				DLVersionNumberIncrease.fromMajorVersion(false),
+				dlFileEntry.getFileEntryTypeId(), new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+			List<FriendlyURLEntry> friendlyURLEntries =
+				FriendlyURLEntryLocalServiceUtil.getFriendlyURLEntries(
+					dlFileEntry.getGroupId(),
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			FriendlyURLEntry friendlyURLEntry1 = friendlyURLEntries.get(0);
+			FriendlyURLEntry friendlyURLEntry2 = friendlyURLEntries.get(1);
+
+			Assert.assertEquals(
+				"initial-url-txt", friendlyURLEntry1.getUrlTitle());
+			Assert.assertFalse(friendlyURLEntry1.isMain());
+			Assert.assertEquals("url-txt", friendlyURLEntry2.getUrlTitle());
+			Assert.assertTrue(friendlyURLEntry2.isMain());
+		}
+	}
+
+	@Test
+	public void testUpdateFileEntryWithFriendlyURLWithExtensionWhenEnabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "true"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt",
+				"initial URL.txt", StringPool.BLANK, StringPool.BLANK, -1,
+				new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			DLFileEntryLocalServiceUtil.updateFileEntry(
+				TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt", "URL.txt",
+				StringPool.BLANK, StringPool.BLANK,
+				DLVersionNumberIncrease.fromMajorVersion(false),
+				dlFileEntry.getFileEntryTypeId(), new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+			List<FriendlyURLEntry> friendlyURLEntries =
+				FriendlyURLEntryLocalServiceUtil.getFriendlyURLEntries(
+					dlFileEntry.getGroupId(),
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertTrue(friendlyURLEntries.size() == 2);
+
+			FriendlyURLEntry friendlyURLEntry1 = friendlyURLEntries.get(0);
+			FriendlyURLEntry friendlyURLEntry2 = friendlyURLEntries.get(1);
+
+			Assert.assertEquals(
+				"initial-url.txt", friendlyURLEntry1.getUrlTitle());
+			Assert.assertFalse(friendlyURLEntry1.isMain());
+			Assert.assertEquals("url.txt", friendlyURLEntry2.getUrlTitle());
+			Assert.assertTrue(friendlyURLEntry2.isMain());
+		}
+	}
+
+	@Test
+	public void testUpdateFileEntryWithFriendlyURLWithoutExtensionWhenEnabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "true"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt",
+				"initial URL.txt", StringPool.BLANK, StringPool.BLANK, -1,
+				new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			DLFileEntryLocalServiceUtil.updateFileEntry(
+				TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt", "URL",
+				StringPool.BLANK, StringPool.BLANK,
+				DLVersionNumberIncrease.fromMajorVersion(false),
+				dlFileEntry.getFileEntryTypeId(), new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+			List<FriendlyURLEntry> friendlyURLEntries =
+				FriendlyURLEntryLocalServiceUtil.getFriendlyURLEntries(
+					dlFileEntry.getGroupId(),
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertTrue(friendlyURLEntries.size() == 2);
+
+			FriendlyURLEntry friendlyURLEntry1 = friendlyURLEntries.get(0);
+			FriendlyURLEntry friendlyURLEntry2 = friendlyURLEntries.get(1);
+
+			Assert.assertEquals(
+				"initial-url.txt", friendlyURLEntry1.getUrlTitle());
+			Assert.assertFalse(friendlyURLEntry1.isMain());
+			Assert.assertEquals("url", friendlyURLEntry2.getUrlTitle());
+			Assert.assertTrue(friendlyURLEntry2.isMain());
+		}
+	}
+
+	@Test
+	public void testUpdateFileEntryWithFriendlyURLWithWrongExtensionWhenEnabledFriendlyURLWithExtension()
+		throws Exception {
+
+		try (ConfigurationTemporarySwapper configurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					DLFileEntryFriendlyURLConfiguration.class.getName(),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"enableFriendlyURLWithExtension", "true"
+					).build())) {
+
+			String content = StringUtil.randomString();
+
+			DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
+				_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt",
+				"initial URL.txt", StringPool.BLANK, StringPool.BLANK, -1,
+				new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(
+					_group.getGroupId(), TestPropsValues.getUserId()));
+
+			DLFileEntryLocalServiceUtil.updateFileEntry(
+				TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+				"file.txt", ContentTypes.TEXT_PLAIN, "file.txt", "URL.exe",
+				StringPool.BLANK, StringPool.BLANK,
+				DLVersionNumberIncrease.fromMajorVersion(false),
+				dlFileEntry.getFileEntryTypeId(), new HashMap<>(), null,
+				new ByteArrayInputStream(content.getBytes()), 0, null, null,
+				null,
+				ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
+
+			List<FriendlyURLEntry> friendlyURLEntries =
+				FriendlyURLEntryLocalServiceUtil.getFriendlyURLEntries(
+					dlFileEntry.getGroupId(),
+					PortalUtil.getClassNameId(FileEntry.class),
+					dlFileEntry.getFileEntryId());
+
+			Assert.assertTrue(friendlyURLEntries.size() == 2);
+
+			FriendlyURLEntry friendlyURLEntry1 = friendlyURLEntries.get(0);
+			FriendlyURLEntry friendlyURLEntry2 = friendlyURLEntries.get(1);
+
+			Assert.assertEquals(
+				"initial-url.txt", friendlyURLEntry1.getUrlTitle());
+			Assert.assertFalse(friendlyURLEntry1.isMain());
+			Assert.assertEquals("url.txt", friendlyURLEntry2.getUrlTitle());
+			Assert.assertTrue(friendlyURLEntry2.isMain());
+		}
+	}
+
 	@Test(expected = DuplicateFolderNameException.class)
 	public void testValidateFileFailsWithAnExistingFolder() throws Exception {
 		Folder folder = DLAppServiceUtil.addFolder(
@@ -1560,6 +2143,29 @@ public class DLFileEntryLocalServiceTest {
 			WorkflowConstants.STATUS_APPROVED, serviceContext, new HashMap<>());
 	}
 
+	protected DLFileEntry addDLFileEntryWithStatus(
+			ServiceContext serviceContext, int status)
+		throws Exception {
+
+		Date displayDate = new Date(System.currentTimeMillis() + Time.MONTH);
+		Date expirationDate = new Date(System.currentTimeMillis() + Time.YEAR);
+
+		DLFileEntry dlFileEntry = DLFileEntryLocalServiceUtil.addFileEntry(
+			null, TestPropsValues.getUserId(), _group.getGroupId(),
+			_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			StringUtil.randomString(), ContentTypes.TEXT_PLAIN,
+			StringUtil.randomString(), StringUtil.randomString(),
+			StringPool.BLANK, StringPool.BLANK, -1, new HashMap<>(), null,
+			new ByteArrayInputStream(new byte[0]), 0, displayDate,
+			expirationDate, new Date(), serviceContext);
+
+		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
+
+		return DLFileEntryLocalServiceUtil.updateStatus(
+			TestPropsValues.getUserId(), dlFileVersion.getFileVersionId(),
+			status, serviceContext, new HashMap<>());
+	}
+
 	protected DDMForm createDDMForm() {
 		DDMForm ddmForm = new DDMForm();
 
@@ -1614,7 +2220,7 @@ public class DLFileEntryLocalServiceTest {
 
 		DLFileEntryType dlFileEntryType =
 			DLFileEntryTypeLocalServiceUtil.addFileEntryType(
-				TestPropsValues.getUserId(), _group.getGroupId(),
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
 				ddmStructure.getStructureId(), null,
 				Collections.singletonMap(LocaleUtil.US, "New File Entry Type"),
 				Collections.singletonMap(LocaleUtil.US, "New File Entry Type"),
@@ -1659,6 +2265,32 @@ public class DLFileEntryLocalServiceTest {
 		return DLFileEntryLocalServiceUtil.updateStatus(
 			TestPropsValues.getUserId(), dlFileVersion.getFileVersionId(),
 			WorkflowConstants.STATUS_APPROVED, serviceContext, new HashMap<>());
+	}
+
+	protected DLFileEntry updateDLFileEntryWithStatus(
+			DLFileEntry dlFileEntry, InputStream inputStream,
+			Map<String, com.liferay.dynamic.data.mapping.kernel.DDMFormValues>
+				ddmFormValuesMap,
+			ServiceContext serviceContext, int status)
+		throws Exception {
+
+		dlFileEntry = DLFileEntryLocalServiceUtil.updateFileEntry(
+			TestPropsValues.getUserId(), dlFileEntry.getFileEntryId(),
+			StringUtil.randomString(), ContentTypes.TEXT_PLAIN,
+			StringUtil.randomString(), StringUtil.randomString(),
+			StringPool.BLANK, StringPool.BLANK, DLVersionNumberIncrease.MAJOR,
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT,
+			ddmFormValuesMap, null, inputStream, 0,
+			dlFileEntry.getDisplayDate(), dlFileEntry.getExpirationDate(),
+			dlFileEntry.getReviewDate(), serviceContext);
+
+		DLFileVersion dlFileVersion = dlFileEntry.getLatestFileVersion(true);
+
+		dlFileVersion.setStatus(status);
+
+		DLFileVersionLocalServiceUtil.updateDLFileVersion(dlFileVersion);
+
+		return dlFileEntry;
 	}
 
 	@Inject

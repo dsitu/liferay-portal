@@ -88,6 +88,9 @@ public class EditCommerceOrderMVCActionCommand extends BaseMVCActionCommand {
 			else if (cmd.equals("customFields")) {
 				updateCustomFields(actionRequest);
 			}
+			else if (cmd.equals("name")) {
+				_updateName(actionRequest);
+			}
 			else if (cmd.equals("orderSummary")) {
 				_updateOrderSummary(actionRequest);
 			}
@@ -451,6 +454,29 @@ public class EditCommerceOrderMVCActionCommand extends BaseMVCActionCommand {
 			_language.getLanguageId(actionRequest.getLocale()));
 	}
 
+	private void _updateName(ActionRequest actionRequest)
+		throws PortalException {
+
+		long commerceOrderId = ParamUtil.getLong(
+			actionRequest, "commerceOrderId");
+		String name = ParamUtil.getString(actionRequest, "name");
+
+		CommerceOrder commerceOrder = _commerceOrderService.getCommerceOrder(
+			commerceOrderId);
+
+		_commerceOrderService.updateCommerceOrder(
+			commerceOrder.getExternalReferenceCode(), commerceOrderId,
+			commerceOrder.getBillingAddressId(),
+			commerceOrder.getCommerceShippingMethodId(),
+			commerceOrder.getShippingAddressId(),
+			commerceOrder.getAdvanceStatus(),
+			commerceOrder.getCommercePaymentMethodKey(), name,
+			commerceOrder.getPurchaseOrderNumber(),
+			commerceOrder.getShippingAmount(),
+			commerceOrder.getShippingOptionName(), commerceOrder.getSubtotal(),
+			commerceOrder.getTotal());
+	}
+
 	private void _updateOrderSummary(ActionRequest actionRequest)
 		throws Exception {
 
@@ -644,7 +670,7 @@ public class EditCommerceOrderMVCActionCommand extends BaseMVCActionCommand {
 			commerceOrder.getShippingAddressId(),
 			commerceOrder.getAdvanceStatus(),
 			commerceOrder.getCommercePaymentMethodKey(),
-			commerceOrder.getPurchaseOrderNumber(),
+			commerceOrder.getName(), commerceOrder.getPurchaseOrderNumber(),
 			_commercePriceFormatter.parse(actionRequest, "shippingPrice"),
 			commerceOrder.getShippingOptionName(),
 			commerceOrder.getShippingWithTaxAmount(),

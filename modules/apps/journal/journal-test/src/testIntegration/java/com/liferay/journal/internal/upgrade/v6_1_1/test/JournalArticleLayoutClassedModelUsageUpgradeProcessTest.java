@@ -110,7 +110,7 @@ public class JournalArticleLayoutClassedModelUsageUpgradeProcessTest {
 	}
 
 	@Test
-	public void testUpgradeProcess() throws Exception {
+	public void testUpgrade() throws Exception {
 		Map<Layout, List<String>> expectedLayoutPortletIdsMap =
 			_addPortletsToLayouts();
 
@@ -120,7 +120,7 @@ public class JournalArticleLayoutClassedModelUsageUpgradeProcessTest {
 	}
 
 	@Test
-	public void testUpgradeProcessExistingDefaultLayoutClassedModelUsage()
+	public void testUpgradeExistingDefaultLayoutClassedModelUsage()
 		throws Exception {
 
 		_addPortletsToLayouts();
@@ -136,9 +136,7 @@ public class JournalArticleLayoutClassedModelUsageUpgradeProcessTest {
 	}
 
 	@Test
-	public void testUpgradeProcessManualAssetPublisherSelection()
-		throws Exception {
-
+	public void testUpgradeManualAssetPublisherSelection() throws Exception {
 		JournalArticle journalArticle1 = JournalTestUtil.addArticle(
 			_group.getGroupId(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID);
@@ -203,7 +201,7 @@ public class JournalArticleLayoutClassedModelUsageUpgradeProcessTest {
 	}
 
 	@Test
-	public void testUpgradeProcessManualAssetPublisherSelectionLocalStagingEnabled()
+	public void testUpgradeManualAssetPublisherSelectionLocalStagingEnabled()
 		throws Exception {
 
 		try {
@@ -452,8 +450,9 @@ public class JournalArticleLayoutClassedModelUsageUpgradeProcessTest {
 			LayoutClassedModelUsage layoutClassedModelUsage =
 				_layoutClassedModelUsageLocalService.
 					fetchLayoutClassedModelUsage(
-						_journalArticleClassNameId, classPK, StringPool.BLANK,
-						containerKey, containerType, layout.getPlid());
+						layout.getGroupId(), _journalArticleClassNameId,
+						classPK, StringPool.BLANK, containerKey, containerType,
+						layout.getPlid());
 
 			Assert.assertNotNull(layoutClassedModelUsage);
 			Assert.assertEquals(

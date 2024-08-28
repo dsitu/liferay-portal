@@ -1,21 +1,21 @@
 {
 	"dependencies": {
 		"@clayui/alert": "3.111.0",
-		"@clayui/button": "3.115.0",
-		"@clayui/card": "3.115.1",
-		"@clayui/core": "3.115.1",
-		"@clayui/drop-down": "3.115.1",
-		"@clayui/empty-state": "3.115.2",
-		"@clayui/form": "3.115.0",
+		"@clayui/button": "3.116.0",
+		"@clayui/card": "3.118.0",
+		"@clayui/core": "3.118.0",
+		"@clayui/drop-down": "3.118.0",
+		"@clayui/empty-state": "3.116.0",
+		"@clayui/form": "3.116.0",
 		"@clayui/icon": "3.111.0",
 		"@clayui/label": "3.111.0",
 		"@clayui/link": "3.111.0",
-		"@clayui/list": "3.115.1",
+		"@clayui/list": "3.118.0",
 		"@clayui/loading-indicator": "3.111.0",
-		"@clayui/modal": "3.115.0",
-		"@clayui/panel": "3.115.0",
-		"@clayui/tabs": "3.115.0",
-		"@clayui/tooltip": "3.115.0",
+		"@clayui/modal": "3.117.0",
+		"@clayui/panel": "3.116.0",
+		"@clayui/tabs": "3.116.0",
+		"@clayui/tooltip": "3.116.0",
 		"@liferay/frontend-data-set-web": "*",
 		"@liferay/frontend-js-codemirror-web": "*",
 		"@liferay/object-js-components-web": "*",
@@ -32,6 +32,7 @@
 			"<rootDir>/jest-setup.config.js"
 		],
 		"testMatch": [
+			"<rootDir>/src/main/resources/META-INF/resources/js/tests/**/*.spec.ts",
 			"<rootDir>/src/main/resources/META-INF/resources/js/tests/**/*.spec.tsx"
 		]
 	},
@@ -42,7 +43,7 @@
 		"build": "node-scripts build",
 		"checkFormat": "node-scripts format --check",
 		"format": "node-scripts format",
-		"test": "liferay-npm-scripts test"
+		"test": "node-scripts test"
 	},
-	"version": "1.0.205"
+	"version": "1.0.210"
 }

@@ -6,12 +6,18 @@
 import {FrameLocator, Locator, Page, expect} from '@playwright/test';
 
 import {clickAndExpectToBeVisible} from '../../utils/clickAndExpectToBeVisible';
+import {waitForSuccessAlert} from '../../utils/waitForSuccessAlert';
 
 export class SearchPage {
 	readonly page: Page;
 	readonly modalIFrame: FrameLocator;
+	readonly addPanelBody: Locator;
+	readonly configurationMenuItem: Locator;
+	readonly controlMenuAddButton: Locator;
 	readonly searchBarInputInMainContent: Locator;
 	readonly searchBarInputInNavBar: Locator;
+	readonly searchBarPortletInMainContent: Locator;
+	readonly searchBarPortletInNavBar: Locator;
 	readonly searchOptionsConfigurationLink: Locator;
 	readonly searchResults: Locator;
 	readonly searchResultsItems: Locator;
@@ -24,17 +30,35 @@ export class SearchPage {
 	constructor(page: Page) {
 		this.page = page;
 
+		this.addPanelBody = page.locator('.add-content-menu');
+		this.controlMenuAddButton = page
+			.locator('.control-menu-nav-item')
+			.getByRole('button', {
+				exact: true,
+				name: 'Add',
+			});
+		this.configurationMenuItem = page.getByRole('menuitem', {
+			exact: true,
+			name: 'Configuration',
+		});
 		this.modalIFrame = page.frameLocator('iframe[id="modalIframe"]');
-		this.searchBarInputInMainContent = page
-			.locator('#main-content')
-			.getByPlaceholder('Search...');
-		this.searchBarInputInNavBar = page
-			.locator('.navbar')
-			.getByPlaceholder('Search...');
+		this.searchBarPortletInMainContent = page.locator(
+			'#main-content .portlet-search-bar'
+		);
+		this.searchBarPortletInNavBar = page.locator(
+			'.navbar .portlet-search-bar'
+		);
 		this.searchOptionsConfigurationLink = page.getByText(
 			'Configure additional search options in this page'
 		);
 		this.searchResults = page.locator('.portlet-search-results');
+
+		// Search Bar Elements
+
+		this.searchBarInputInMainContent =
+			this.searchBarPortletInMainContent.getByPlaceholder('Search...');
+		this.searchBarInputInNavBar =
+			this.searchBarPortletInNavBar.getByPlaceholder('Search...');
 
 		// Search Results Elements
 
@@ -54,6 +78,26 @@ export class SearchPage {
 		this.searchResultsTotalLabel = this.searchResults.locator(
 			'.search-total-label'
 		);
+	}
+
+	async addPortlet(portletName: string, category: string) {
+		if (!(await this.addPanelBody.isVisible())) {
+			await this.controlMenuAddButton.click();
+		}
+
+		await this.addPanelBody
+			.getByRole('textbox', {name: 'Search Form'})
+			.fill(portletName);
+
+		const categoryPanel = this.addPanelBody.locator('.panel').filter({
+			has: this.page.locator(
+				`xpath=//span[@class='panel-title' and contains(.,'${category}')]`
+			),
+		});
+
+		await categoryPanel.getByText(portletName).click();
+
+		await categoryPanel.getByRole('button', {name: 'Add Content'}).click();
 	}
 
 	async getSearchFacetCheckbox(
@@ -78,6 +122,41 @@ export class SearchPage {
 
 	async goto() {
 		await this.page.goto('/search');
+	}
+
+	async openSearchPortletConfiguration(
+		portletName: string,
+		index: number = 0
+	) {
+		const portletTopper = this.page
+			.locator('.portlet-topper', {hasText: portletName})
+			.nth(index);
+
+		await this.page
+			.locator('.portlet', {
+				hasText: portletName,
+			})
+			.nth(index)
+			.hover();
+
+		await expect(portletTopper).toBeVisible();
+
+		await portletTopper.getByLabel('Options').click();
+
+		await this.configurationMenuItem.click();
+
+		await expect(this.page.locator('#modalIframe')).toBeVisible();
+	}
+
+	async savePortletConfiguration() {
+		await this.modalIFrame.getByRole('button', {name: 'Save'}).click();
+
+		await waitForSuccessAlert(
+			this.modalIFrame,
+			'Success:You have successfully updated the setup.'
+		);
+
+		await this.modalIFrame.getByRole('button', {name: 'Cancel'}).click();
 	}
 
 	async searchKeywordInMainContent(searchText: string) {
@@ -119,6 +198,34 @@ export class SearchPage {
 		).toHaveAttribute('aria-current', 'page');
 	}
 
+	async selectPortletConfigurationsCheckbox(
+		options: {label: string; value: boolean}[]
+	) {
+		for (const option of options) {
+			const configurationCheckbox = this.modalIFrame.locator(
+				`xpath=//*[text()[contains(.,'${option.label}')]]//input`
+			);
+
+			await this.selectSearchFacetCheckbox(
+				configurationCheckbox,
+				option.value
+			);
+		}
+	}
+
+	async selectPortletConfigurationsSelect(
+		options: {label: string; value: string}[]
+	) {
+		for (const option of options) {
+			const configurationSelect = this.modalIFrame.getByLabel(
+				option.label,
+				{exact: true}
+			);
+
+			await configurationSelect.selectOption({label: option.value});
+		}
+	}
+
 	async selectSearchFacetCheckbox(
 		searchFacetCheckbox: Locator,
 		value: boolean = true
@@ -151,26 +258,5 @@ export class SearchPage {
 				/facet-term-selected/
 			);
 		}
-	}
-
-	async selectSearchOptionCheckboxConfigurations(
-		options: {label: string; value: boolean}[]
-	) {
-		await this.searchOptionsConfigurationLink.click();
-
-		for (const option of options) {
-			const configurationCheckbox = this.modalIFrame.locator(
-				`xpath=//*[text()[contains(.,'${option.label}')]]//input`
-			);
-
-			await this.selectSearchFacetCheckbox(
-				configurationCheckbox,
-				option.value
-			);
-		}
-
-		await this.modalIFrame.getByRole('button', {name: 'Save'}).click();
-
-		await this.modalIFrame.getByRole('button', {name: 'Cancel'}).click();
 	}
 }

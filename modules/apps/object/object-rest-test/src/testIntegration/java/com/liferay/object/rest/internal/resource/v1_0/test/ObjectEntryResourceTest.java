@@ -18,6 +18,7 @@ import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFolderLocalService;
 import com.liferay.document.library.test.util.DLTestUtil;
 import com.liferay.headless.admin.taxonomy.client.dto.v1_0.TaxonomyCategory;
@@ -46,6 +47,7 @@ import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.dto.v1_0.Folder;
 import com.liferay.object.rest.dto.v1_0.Link;
+import com.liferay.object.rest.dto.v1_0.Scope;
 import com.liferay.object.rest.resource.v1_0.ObjectEntryResource;
 import com.liferay.object.rest.test.util.ObjectEntryTestUtil;
 import com.liferay.object.rest.test.util.ObjectFieldTestUtil;
@@ -64,7 +66,7 @@ import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.function.UnsafeFunction;
-import com.liferay.petra.function.UnsafeRunnable;
+import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.function.UnsafeTriConsumer;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
@@ -78,6 +80,7 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.model.ResourceConstants;
@@ -94,6 +97,7 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -125,6 +129,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.filter.InvalidFilterException;
 import com.liferay.portal.test.log.LogCapture;
@@ -140,6 +145,7 @@ import com.liferay.portal.vulcan.fields.NestedFieldsContextThreadLocal;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portlet.documentlibrary.constants.DLConstants;
 
+import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 
 import java.lang.reflect.Method;
@@ -152,10 +158,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.core.Feature;
 
 import org.hamcrest.CoreMatchers;
 
@@ -165,7 +176,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.ComparisonFailure;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -845,6 +855,8 @@ public class ObjectEntryResourceTest {
 
 		_listTypeDefinitionLocalService.deleteListTypeDefinition(
 			_listTypeDefinition);
+
+		_groupLocalService.deleteGroup(_group);
 	}
 
 	@Test
@@ -4573,7 +4585,8 @@ public class ObjectEntryResourceTest {
 
 	@Test
 	public void testFilterByUnknownObjectField() throws Exception {
-		String filterString = RandomTestUtil.randomString() + " eq 'value'";
+		String filterString =
+			"x" + RandomTestUtil.randomString() + " eq 'value'";
 
 		JSONObject jsonObject = HTTPTestUtil.invokeToJSONObject(
 			null,
@@ -5020,7 +5033,7 @@ public class ObjectEntryResourceTest {
 			JSONUtil.put(
 				_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
 			).put(
-				"externalReferenceCode", "a/b"
+				"externalReferenceCode", "a"
 			).toString(),
 			_objectDefinition1.getRESTContextPath(), Http.Method.POST);
 
@@ -5029,8 +5042,70 @@ public class ObjectEntryResourceTest {
 			HTTPTestUtil.invokeToHttpCode(
 				null,
 				_objectDefinition1.getRESTContextPath() +
-					"/by-external-reference-code/a/b",
+					"/by-external-reference-code/a/",
 				Http.Method.GET));
+
+		HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+			).put(
+				"externalReferenceCode", "a/"
+			).toString(),
+			_objectDefinition1.getRESTContextPath(), Http.Method.POST);
+
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				null,
+				_objectDefinition1.getRESTContextPath() +
+					"/by-external-reference-code/a%252F",
+				Http.Method.GET));
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				null,
+				_objectDefinition1.getRESTContextPath() +
+					"/by-external-reference-code/a%252F/",
+				Http.Method.GET));
+
+		HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+			).put(
+				"externalReferenceCode", "/a"
+			).toString(),
+			_objectDefinition1.getRESTContextPath(), Http.Method.POST);
+
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				null,
+				_objectDefinition1.getRESTContextPath() +
+					"/by-external-reference-code/%252Fa",
+				Http.Method.GET));
+
+		HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+			).put(
+				"externalReferenceCode", "a/b"
+			).toString(),
+			_objectDefinition1.getRESTContextPath(), Http.Method.POST);
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portal.vulcan.internal.jaxrs.exception.mapper." +
+					"WebApplicationExceptionMapper",
+				LoggerTestUtil.ERROR)) {
+
+			Assert.assertEquals(
+				405,
+				HTTPTestUtil.invokeToHttpCode(
+					null,
+					_objectDefinition1.getRESTContextPath() +
+						"/by-external-reference-code/a/b",
+					Http.Method.GET));
+		}
+
 		Assert.assertEquals(
 			200,
 			HTTPTestUtil.invokeToHttpCode(
@@ -5039,20 +5114,47 @@ public class ObjectEntryResourceTest {
 					"/by-external-reference-code/a%252Fb",
 				Http.Method.GET));
 		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				null,
+				_objectDefinition1.getRESTContextPath() +
+					"/by-external-reference-code/a%252Fb/",
+				Http.Method.GET));
+		Assert.assertEquals(
 			400,
 			HTTPTestUtil.invokeToHttpCode(
 				null,
 				_objectDefinition1.getRESTContextPath() +
 					"/by-external-reference-code/a%2Fb",
 				Http.Method.GET));
+
+		HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+			).put(
+				"externalReferenceCode", "a//b"
+			).toString(),
+			_objectDefinition1.getRESTContextPath(), Http.Method.POST);
+
+		Assert.assertEquals(
+			200,
+			HTTPTestUtil.invokeToHttpCode(
+				null,
+				_objectDefinition1.getRESTContextPath() +
+					"/by-external-reference-code/a%252F%252Fb",
+				Http.Method.GET));
 	}
 
 	@Test
 	public void testGetObjectEntryFilteredByKeywords() throws Exception {
+		_postObjectEntryWithKeywords();
 		_postObjectEntryWithKeywords("tag1");
 		_postObjectEntryWithKeywords("TAG1");
 		_postObjectEntryWithKeywords("tag1", "tag2");
 		_postObjectEntryWithKeywords("tag1", "tag2", "tag3");
+
+		_assertFilteredObjectEntries(4, "keywords/any()");
+		_assertFilteredObjectEntries(1, "not keywords/any()");
 
 		_assertFilteredObjectEntries(4, "keywords/any(k:k eq 'tag1')");
 		_assertFilteredObjectEntries(4, "keywords/any(k:k eq 'TAG1')");
@@ -5115,6 +5217,12 @@ public class ObjectEntryResourceTest {
 			_objectDefinition1,
 			HashMapBuilder.<String, Serializable>put(
 				_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
+			).build(),
+			_TAG_1);
+		ObjectEntryTestUtil.addObjectEntry(
+			_objectDefinition1,
+			HashMapBuilder.<String, Serializable>put(
+				_OBJECT_FIELD_NAME_1, RandomTestUtil.randomString()
 			).put(
 				_OBJECT_FIELD_NAME_MULTISELECT_PICKLIST, _LIST_TYPE_ENTRY_KEY_1
 			).build(),
@@ -5141,6 +5249,13 @@ public class ObjectEntryResourceTest {
 			).build(),
 			_TAG_1);
 
+		_assertFilteredObjectEntries(
+			3,
+			String.format("%s/any()", _OBJECT_FIELD_NAME_MULTISELECT_PICKLIST));
+		_assertFilteredObjectEntries(
+			1,
+			String.format(
+				"not %s/any()", _OBJECT_FIELD_NAME_MULTISELECT_PICKLIST));
 		_assertFilteredObjectEntries(
 			3,
 			String.format(
@@ -5297,6 +5412,8 @@ public class ObjectEntryResourceTest {
 		_postObjectEntryWithTaxonomyCategories(
 			taxonomyCategory1, taxonomyCategory2, taxonomyCategory3);
 
+		_assertFilteredObjectEntries(3, "taxonomyCategoryIds/any()");
+		_assertFilteredObjectEntries(1, "not taxonomyCategoryIds/any()");
 		_assertFilteredObjectEntries(
 			3,
 			String.format(
@@ -5460,6 +5577,171 @@ public class ObjectEntryResourceTest {
 		);
 	}
 
+	@Test
+	public void testGetObjectEntryUnsafeSuppliers() throws Exception {
+		_objectEntry1 = ObjectEntryTestUtil.addObjectEntry(
+			_objectDefinition1,
+			HashMapBuilder.<String, Serializable>put(
+				_OBJECT_FIELD_NAME_BOOLEAN, RandomTestUtil.randomBoolean()
+			).put(
+				_OBJECT_FIELD_NAME_DATE,
+				_dateFormat.format(RandomTestUtil.nextDate())
+			).build());
+		_objectEntry2 = ObjectEntryTestUtil.addObjectEntry(
+			_objectDefinition2, _OBJECT_FIELD_NAME_TEXT,
+			RandomTestUtil.randomString());
+		_objectRelationship1 = _addObjectRelationshipAndRelateObjectEntries(
+			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+
+		Bundle bundle = FrameworkUtil.getBundle(ObjectEntryResourceTest.class);
+
+		BundleContext bundleContext = bundle.getBundleContext();
+
+		Map<String, Long> invocations = new HashMap<>();
+
+		ServiceRegistration<Feature> serviceRegistration =
+			bundleContext.registerService(
+				Feature.class,
+				featureContext -> {
+					featureContext.register(
+						(ContainerResponseFilter)
+							(containerRequestContext,
+							 containerResponseContext) -> {
+
+								com.liferay.object.rest.dto.v1_0.ObjectEntry
+									objectEntry =
+										(com.liferay.object.rest.dto.v1_0.
+											ObjectEntry)
+												containerResponseContext.
+													getEntity();
+
+								_registerUnsafeSupplierInvocations(
+									invocations, objectEntry, null);
+							},
+						Priorities.USER + 999);
+
+					return false;
+				},
+				HashMapDictionaryBuilder.<String, Object>put(
+					"osgi.jaxrs.application.select",
+					"(osgi.jaxrs.extension.select=\\(osgi.jaxrs.name=Liferay." +
+						"Vulcan\\))"
+				).put(
+					"osgi.jaxrs.extension", true
+				).put(
+					"osgi.jaxrs.name", "Liferay.Vulcan)"
+				).build());
+
+		try {
+			JSONObject jsonObject = HTTPTestUtil.invokeToJSONObject(
+				null,
+				StringBundler.concat(
+					_objectDefinition1.getRESTContextPath(),
+					"/by-external-reference-code/",
+					_objectEntry1.getExternalReferenceCode(), "?fields=",
+					_OBJECT_FIELD_NAME_BOOLEAN, ",", _OBJECT_FIELD_NAME_TEXT),
+				Http.Method.GET);
+
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_BOOLEAN));
+			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_DATE));
+			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
+			Assert.assertFalse(jsonObject.has(_objectRelationship1.getName()));
+
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_BOOLEAN);
+			_assertInvocations(invocations, false, _OBJECT_FIELD_NAME_DATE);
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_TEXT);
+			_assertInvocations(
+				invocations, false, _objectRelationship1.getName());
+			_assertInvocations(
+				invocations, false,
+				_objectRelationship1.getName() + "." + _OBJECT_FIELD_NAME_TEXT);
+
+			jsonObject = HTTPTestUtil.invokeToJSONObject(
+				null,
+				_objectDefinition1.getRESTContextPath() +
+					"/by-external-reference-code/" +
+						_objectEntry1.getExternalReferenceCode(),
+				Http.Method.GET);
+
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_BOOLEAN));
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_DATE));
+			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
+			Assert.assertFalse(jsonObject.has(_objectRelationship1.getName()));
+
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_BOOLEAN);
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_DATE);
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_TEXT);
+			_assertInvocations(
+				invocations, false, _objectRelationship1.getName());
+			_assertInvocations(
+				invocations, false,
+				_objectRelationship1.getName() + "." + _OBJECT_FIELD_NAME_TEXT);
+
+			jsonObject = HTTPTestUtil.invokeToJSONObject(
+				null,
+				StringBundler.concat(
+					_objectDefinition1.getRESTContextPath(),
+					"/by-external-reference-code/",
+					_objectEntry1.getExternalReferenceCode(), "?nestedFields=",
+					_objectRelationship1.getName()),
+				Http.Method.GET);
+
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_BOOLEAN));
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_DATE));
+			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
+			Assert.assertTrue(jsonObject.has(_objectRelationship1.getName()));
+			Assert.assertFalse(
+				Validator.isNull(
+					JSONUtil.getValueAsString(
+						jsonObject,
+						"JSONArray/" + _objectRelationship1.getName(),
+						"Object/0", "Object/" + _OBJECT_FIELD_NAME_TEXT)));
+
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_BOOLEAN);
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_DATE);
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_TEXT);
+			_assertInvocations(
+				invocations, true, _objectRelationship1.getName());
+			_assertInvocations(
+				invocations, true,
+				_objectRelationship1.getName() + "." + _OBJECT_FIELD_NAME_TEXT);
+
+			jsonObject = HTTPTestUtil.invokeToJSONObject(
+				null,
+				StringBundler.concat(
+					_objectDefinition1.getRESTContextPath(),
+					"/by-external-reference-code/",
+					_objectEntry1.getExternalReferenceCode(), "?nestedFields=",
+					_objectRelationship1.getName(), "&restrictFields=",
+					_objectRelationship1.getName(), ".",
+					_OBJECT_FIELD_NAME_TEXT),
+				Http.Method.GET);
+
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_BOOLEAN));
+			Assert.assertTrue(jsonObject.has(_OBJECT_FIELD_NAME_DATE));
+			Assert.assertFalse(jsonObject.has(_OBJECT_FIELD_NAME_TEXT));
+			Assert.assertTrue(jsonObject.has(_objectRelationship1.getName()));
+			Assert.assertTrue(
+				Validator.isNull(
+					JSONUtil.getValueAsString(
+						jsonObject,
+						"JSONArray/" + _objectRelationship1.getName(),
+						"Object/0", "Object/" + _OBJECT_FIELD_NAME_TEXT)));
+
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_BOOLEAN);
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_DATE);
+			_assertInvocations(invocations, true, _OBJECT_FIELD_NAME_TEXT);
+			_assertInvocations(
+				invocations, true, _objectRelationship1.getName());
+			_assertInvocations(
+				invocations, false,
+				_objectRelationship1.getName() + "." + _OBJECT_FIELD_NAME_TEXT);
+		}
+		finally {
+			serviceRegistration.unregister();
+		}
+	}
+
 	@FeatureFlags("LPS-174455")
 	@Test
 	public void testGetObjectEntryWithAttachmentObjectField() throws Exception {
@@ -5477,10 +5759,23 @@ public class ObjectEntryResourceTest {
 			).toString(),
 			_objectDefinition1.getRESTContextPath(), Http.Method.POST);
 
-		JSONObject attachmentJSONObject = jsonObject.getJSONObject(
-			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1);
+		JSONObject scopeJSONObject = JSONUtil.put(
+			"externalReferenceCode",
+			() -> {
+				Group group = _groupLocalService.getGroup(
+					TestPropsValues.getGroupId());
 
-		Assert.assertNull(attachmentJSONObject.get("fileBase64"));
+				return group.getExternalReferenceCode();
+			}
+		).put(
+			"type", Scope.Type.SITE.getValue()
+		);
+
+		_assertAttachmentJSONObject(
+			null, null,
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1),
+			scopeJSONObject);
 
 		content = RandomTestUtil.randomString();
 
@@ -5500,12 +5795,11 @@ public class ObjectEntryResourceTest {
 				".fileBase64"),
 			Http.Method.POST);
 
-		attachmentJSONObject = jsonObject.getJSONObject(
-			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1);
-
-		Assert.assertEquals(
-			Base64.encode(content.getBytes()),
-			attachmentJSONObject.getString("fileBase64"));
+		_assertAttachmentJSONObject(
+			null, Base64.encode(content.getBytes()),
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1),
+			scopeJSONObject);
 
 		jsonObject = HTTPTestUtil.invokeToJSONObject(
 			null,
@@ -5514,10 +5808,11 @@ public class ObjectEntryResourceTest {
 					jsonObject.getString("externalReferenceCode"),
 			Http.Method.GET);
 
-		attachmentJSONObject = jsonObject.getJSONObject(
-			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1);
-
-		Assert.assertNull(attachmentJSONObject.get("fileBase64"));
+		_assertAttachmentJSONObject(
+			null, null,
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1),
+			scopeJSONObject);
 
 		jsonObject = HTTPTestUtil.invokeToJSONObject(
 			null,
@@ -5529,12 +5824,98 @@ public class ObjectEntryResourceTest {
 				".fileBase64"),
 			Http.Method.GET);
 
-		attachmentJSONObject = jsonObject.getJSONObject(
-			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1);
+		_assertAttachmentJSONObject(
+			null, Base64.encode(content.getBytes()),
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1),
+			scopeJSONObject);
 
-		Assert.assertEquals(
-			Base64.encode(content.getBytes()),
-			attachmentJSONObject.getString("fileBase64"));
+		content = RandomTestUtil.randomString();
+
+		DLFileEntry dlFileEntry = _addDLFileEntry(content);
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				_OBJECT_FIELD_NAME_1, "value1"
+			).put(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+				dlFileEntry.getFileEntryId()
+			).toString(),
+			_objectDefinition1.getRESTContextPath(), Http.Method.POST);
+
+		scopeJSONObject = JSONUtil.put(
+			"externalReferenceCode", _group.getExternalReferenceCode()
+		).put(
+			"type", Scope.Type.SITE.getValue()
+		);
+
+		_assertAttachmentJSONObject(
+			dlFileEntry, null,
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE),
+			scopeJSONObject);
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			null,
+			_objectDefinition1.getRESTContextPath() +
+				"/by-external-reference-code/" +
+					jsonObject.getString("externalReferenceCode"),
+			Http.Method.GET);
+
+		_assertAttachmentJSONObject(
+			dlFileEntry, null,
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE),
+			scopeJSONObject);
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			null,
+			StringBundler.concat(
+				_objectDefinition1.getRESTContextPath(),
+				"/by-external-reference-code/",
+				jsonObject.getString("externalReferenceCode"), "?nestedFields=",
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+				".fileBase64"),
+			Http.Method.GET);
+
+		_assertAttachmentJSONObject(
+			null, Base64.encode(content.getBytes()),
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE),
+			scopeJSONObject);
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				_OBJECT_FIELD_NAME_1, "value1"
+			).put(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+				dlFileEntry.getFileEntryId()
+			).toString(),
+			_getEndpoint(
+				TestPropsValues.getGroupId(), _siteScopedObjectDefinition1),
+			Http.Method.POST);
+
+		_assertAttachmentJSONObject(
+			dlFileEntry, null,
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE),
+			scopeJSONObject);
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				_OBJECT_FIELD_NAME_1, "value1"
+			).put(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+				dlFileEntry.getFileEntryId()
+			).toString(),
+			_getEndpoint(_group.getGroupId(), _siteScopedObjectDefinition1),
+			Http.Method.POST);
+
+		_assertAttachmentJSONObject(
+			dlFileEntry, null,
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE),
+			null);
 	}
 
 	@Test
@@ -5945,13 +6326,13 @@ public class ObjectEntryResourceTest {
 
 		JSONAssert.assertEquals(
 			JSONUtil.put(
-				_OBJECT_FIELD_NAME_LONG_TEXT, ""
+				_OBJECT_FIELD_NAME_LONG_TEXT, "longTextEng"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT, ""
+				_OBJECT_FIELD_NAME_RICH_TEXT, "<p>richTextEng</p>"
 			).put(
-				_OBJECT_FIELD_NAME_RICH_TEXT + "RawText", ""
+				_OBJECT_FIELD_NAME_RICH_TEXT + "RawText", "richTextEng"
 			).put(
-				_OBJECT_FIELD_NAME_TEXT, ""
+				_OBJECT_FIELD_NAME_TEXT, "textEng"
 			).toString(),
 			HTTPTestUtil.invokeToJSONObject(
 				null,
@@ -6033,7 +6414,7 @@ public class ObjectEntryResourceTest {
 				jsonObject.getString("id"),
 			Http.Method.GET);
 
-		Assert.assertEquals(
+		JSONAssert.assertEquals(
 			JSONUtil.putAll(
 				JSONUtil.put(
 					"taxonomyCategoryId",
@@ -6050,7 +6431,8 @@ public class ObjectEntryResourceTest {
 			).toString(),
 			jsonObject.getJSONArray(
 				"taxonomyCategoryBriefs"
-			).toString());
+			).toString(),
+			JSONCompareMode.NON_EXTENSIBLE);
 	}
 
 	@Test
@@ -6078,7 +6460,7 @@ public class ObjectEntryResourceTest {
 				"?nestedFields=embeddedTaxonomyCategory"),
 			Http.Method.GET);
 
-		Assert.assertEquals(
+		JSONAssert.assertEquals(
 			JSONUtil.putAll(
 				JSONUtil.put(
 					"embeddedTaxonomyCategory",
@@ -6101,7 +6483,8 @@ public class ObjectEntryResourceTest {
 			).toString(),
 			jsonObject.getJSONArray(
 				"taxonomyCategoryBriefs"
-			).toString());
+			).toString(),
+			JSONCompareMode.NON_EXTENSIBLE);
 	}
 
 	@Test
@@ -6311,7 +6694,7 @@ public class ObjectEntryResourceTest {
 				jsonObject.getString("id"),
 			Http.Method.PATCH);
 
-		Assert.assertEquals(
+		JSONAssert.assertEquals(
 			JSONUtil.putAll(
 				JSONUtil.put(
 					"taxonomyCategoryId",
@@ -6334,7 +6717,8 @@ public class ObjectEntryResourceTest {
 			).toString(),
 			jsonObject.getJSONArray(
 				"taxonomyCategoryBriefs"
-			).toString());
+			).toString(),
+			JSONCompareMode.NON_EXTENSIBLE);
 	}
 
 	@FeatureFlags("LPS-174455")
@@ -7091,6 +7475,60 @@ public class ObjectEntryResourceTest {
 	}
 
 	@Test
+	public void testPostRelatedObjectEntryInDifferentCompany()
+		throws Exception {
+
+		ObjectRelationship objectRelationship1 = _addObjectRelationship(
+			TestPropsValues.getCompanyId());
+
+		ObjectEntry objectEntry = ObjectEntryTestUtil.addObjectEntry(
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectRelationship1.getObjectDefinitionId1()),
+			_OBJECT_FIELD_NAME_TEXT, RandomTestUtil.randomString());
+
+		JSONObject jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				"domain", "able.com"
+			).put(
+				"portalInstanceId", "able.com"
+			).put(
+				"virtualHost", "www.able.com"
+			).toString(),
+			"headless-portal-instances/v1.0/portal-instances",
+			Http.Method.POST);
+
+		ObjectRelationship objectRelationship2 = _addObjectRelationship(
+			jsonObject.getLong("companyId"));
+
+		HTTPTestUtil.customize(
+		).withBaseURL(
+			"http://www.able.com:8080"
+		).withCredentials(
+			"test@able.com", PropsValues.DEFAULT_ADMIN_PASSWORD
+		).apply(
+			() -> {
+				ObjectDefinition objectDefinition =
+					_objectDefinitionLocalService.getObjectDefinition(
+						objectRelationship2.getObjectDefinitionId2());
+
+				ObjectField objectField =
+					_objectFieldLocalService.getObjectField(
+						objectRelationship2.getObjectFieldId2());
+
+				Assert.assertEquals(
+					400,
+					HTTPTestUtil.invokeToHttpCode(
+						JSONUtil.put(
+							objectField.getName(),
+							objectEntry.getObjectEntryId()
+						).toString(),
+						objectDefinition.getRESTContextPath(),
+						Http.Method.POST));
+			}
+		);
+	}
+
+	@Test
 	public void testPostSiteScopedObjectDefinitionInUserGroup()
 		throws Exception {
 
@@ -7161,15 +7599,22 @@ public class ObjectEntryResourceTest {
 
 		// Slash on the left side
 
-		Assert.assertEquals(
-			200,
-			HTTPTestUtil.invokeToHttpCode(
-				null,
-				StringBundler.concat(
-					_objectDefinition1.getRESTContextPath(),
-					"/by-external-reference-code/a/b/",
-					_objectRelationship1.getName(), "/c"),
-				Http.Method.PUT));
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portal.vulcan.internal.jaxrs.exception.mapper." +
+					"WebApplicationExceptionMapper",
+				LoggerTestUtil.ERROR)) {
+
+			Assert.assertEquals(
+				404,
+				HTTPTestUtil.invokeToHttpCode(
+					null,
+					StringBundler.concat(
+						_objectDefinition1.getRESTContextPath(),
+						"/by-external-reference-code/a/b/",
+						_objectRelationship1.getName(), "/c"),
+					Http.Method.PUT));
+		}
+
 		Assert.assertEquals(
 			200,
 			HTTPTestUtil.invokeToHttpCode(
@@ -7182,15 +7627,22 @@ public class ObjectEntryResourceTest {
 
 		// Slash on the right side
 
-		Assert.assertEquals(
-			404,
-			HTTPTestUtil.invokeToHttpCode(
-				null,
-				StringBundler.concat(
-					_objectDefinition1.getRESTContextPath(),
-					"/by-external-reference-code/a/",
-					_objectRelationship1.getName(), "/c/d"),
-				Http.Method.PUT));
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portal.vulcan.internal.jaxrs.exception.mapper." +
+					"WebApplicationExceptionMapper",
+				LoggerTestUtil.ERROR)) {
+
+			Assert.assertEquals(
+				404,
+				HTTPTestUtil.invokeToHttpCode(
+					null,
+					StringBundler.concat(
+						_objectDefinition1.getRESTContextPath(),
+						"/by-external-reference-code/a/",
+						_objectRelationship1.getName(), "/c/d"),
+					Http.Method.PUT));
+		}
+
 		Assert.assertEquals(
 			200,
 			HTTPTestUtil.invokeToHttpCode(
@@ -7203,15 +7655,22 @@ public class ObjectEntryResourceTest {
 
 		// Slash on the both sides
 
-		Assert.assertEquals(
-			404,
-			HTTPTestUtil.invokeToHttpCode(
-				null,
-				StringBundler.concat(
-					_objectDefinition1.getRESTContextPath(),
-					"/by-external-reference-code/a/b/",
-					_objectRelationship1.getName(), "/c/d"),
-				Http.Method.PUT));
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portal.vulcan.internal.jaxrs.exception.mapper." +
+					"WebApplicationExceptionMapper",
+				LoggerTestUtil.ERROR)) {
+
+			Assert.assertEquals(
+				404,
+				HTTPTestUtil.invokeToHttpCode(
+					null,
+					StringBundler.concat(
+						_objectDefinition1.getRESTContextPath(),
+						"/by-external-reference-code/a/b/",
+						_objectRelationship1.getName(), "/c/d"),
+					Http.Method.PUT));
+		}
+
 		Assert.assertEquals(
 			200,
 			HTTPTestUtil.invokeToHttpCode(
@@ -7221,24 +7680,31 @@ public class ObjectEntryResourceTest {
 					"/by-external-reference-code/a%252Fb/",
 					_objectRelationship1.getName(), "/c%252Fd"),
 				Http.Method.PUT));
-		Assert.assertEquals(
-			404,
-			HTTPTestUtil.invokeToHttpCode(
-				null,
-				StringBundler.concat(
-					_objectDefinition1.getRESTContextPath(),
-					"/by-external-reference-code/a%252Fb/",
-					_objectRelationship1.getName(), "/c/d"),
-				Http.Method.PUT));
-		Assert.assertEquals(
-			200,
-			HTTPTestUtil.invokeToHttpCode(
-				null,
-				StringBundler.concat(
-					_objectDefinition1.getRESTContextPath(),
-					"/by-external-reference-code/a/b/",
-					_objectRelationship1.getName(), "/c%252Fd"),
-				Http.Method.PUT));
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portal.vulcan.internal.jaxrs.exception.mapper." +
+					"WebApplicationExceptionMapper",
+				LoggerTestUtil.ERROR)) {
+
+			Assert.assertEquals(
+				404,
+				HTTPTestUtil.invokeToHttpCode(
+					null,
+					StringBundler.concat(
+						_objectDefinition1.getRESTContextPath(),
+						"/by-external-reference-code/a%252Fb/",
+						_objectRelationship1.getName(), "/c/d"),
+					Http.Method.PUT));
+			Assert.assertEquals(
+				404,
+				HTTPTestUtil.invokeToHttpCode(
+					null,
+					StringBundler.concat(
+						_objectDefinition1.getRESTContextPath(),
+						"/by-external-reference-code/a/b/",
+						_objectRelationship1.getName(), "/c%252Fd"),
+					Http.Method.PUT));
+		}
 	}
 
 	@Test
@@ -9156,9 +9622,6 @@ public class ObjectEntryResourceTest {
 				manyToOneDepth1JSONObjects[1] = HTTPTestUtil.invokeToJSONObject(
 					JSONUtil.put(
 						"externalReferenceCode", "ERC1_1"
-					).put(
-						"status",
-						JSONUtil.put("code", WorkflowConstants.STATUS_DRAFT)
 					).toString(),
 					endpoint2, Http.Method.POST)
 		);
@@ -9188,9 +9651,6 @@ public class ObjectEntryResourceTest {
 				manyToOneDepth2JSONObjects[1] = HTTPTestUtil.invokeToJSONObject(
 					JSONUtil.put(
 						"externalReferenceCode", "ERC1_2"
-					).put(
-						"status",
-						JSONUtil.put("code", WorkflowConstants.STATUS_DRAFT)
 					).toString(),
 					endpoint3, Http.Method.POST)
 		);
@@ -9343,6 +9803,9 @@ public class ObjectEntryResourceTest {
 			_testSortByFieldName(
 				endpoint1, jsonObject1, jsonObject2, jsonObject3, jsonObject4,
 				String.format("%s/id", _objectRelationship1.getName()));
+			_testSortByFieldName(
+				endpoint1, jsonObject3, jsonObject4, jsonObject1, jsonObject2,
+				String.format("%s/status", _objectRelationship1.getName()));
 
 			// Depth 2
 
@@ -9376,6 +9839,11 @@ public class ObjectEntryResourceTest {
 				endpoint1, jsonObject1, jsonObject2, jsonObject3, jsonObject4,
 				String.format(
 					"%s/%s/id", _objectRelationship1.getName(),
+					_objectRelationship2.getName()));
+			_testSortByFieldName(
+				endpoint1, jsonObject3, jsonObject4, jsonObject1, jsonObject2,
+				String.format(
+					"%s/%s/status", _objectRelationship1.getName(),
 					_objectRelationship2.getName()));
 			_testSortByFieldName(
 				endpoint1, jsonObject3, jsonObject4, jsonObject1, jsonObject2,
@@ -9418,24 +9886,6 @@ public class ObjectEntryResourceTest {
 				String.format(
 					"%s/%s/userId", _objectRelationship1.getName(),
 					_objectRelationship2.getName()));
-
-			// TODO LPD-20530
-
-			_assertFailure(
-				ComparisonFailure.class,
-				() -> _testSortByFieldName(
-					endpoint1, jsonObject1, jsonObject2, jsonObject3,
-					jsonObject4,
-					String.format(
-						"%s/status", _objectRelationship1.getName())));
-			_assertFailure(
-				ComparisonFailure.class,
-				() -> _testSortByFieldName(
-					endpoint1, jsonObject1, jsonObject2, jsonObject3,
-					jsonObject4,
-					String.format(
-						"%s/%s/status", _objectRelationship1.getName(),
-						_objectRelationship2.getName())));
 		}
 		finally {
 			if (jsonObject1 != null) {
@@ -10448,6 +10898,9 @@ public class ObjectEntryResourceTest {
 			_testSortByFieldName(
 				endpoint1, jsonObject1, jsonObject2,
 				String.format("%s/id", _objectRelationship1.getName()));
+			_testSortByFieldName(
+				endpoint1, jsonObject2, jsonObject1,
+				String.format("%s/status", _objectRelationship1.getName()));
 
 			// Depth 2
 
@@ -10481,6 +10934,11 @@ public class ObjectEntryResourceTest {
 				endpoint1, jsonObject1, jsonObject2,
 				String.format(
 					"%s/%s/id", _objectRelationship1.getName(),
+					_objectRelationship2.getName()));
+			_testSortByFieldName(
+				endpoint1, jsonObject2, jsonObject1,
+				String.format(
+					"%s/%s/status", _objectRelationship1.getName(),
 					_objectRelationship2.getName()));
 			_testSortByFieldName(
 				endpoint1, jsonObject2, jsonObject1,
@@ -10523,22 +10981,6 @@ public class ObjectEntryResourceTest {
 				String.format(
 					"%s/%s/userId", _objectRelationship1.getName(),
 					_objectRelationship2.getName()));
-
-			// TODO LPD-20530
-
-			_assertFailure(
-				ComparisonFailure.class,
-				() -> _testSortByFieldName(
-					endpoint1, jsonObject2, jsonObject1,
-					String.format(
-						"%s/status", _objectRelationship1.getName())));
-			_assertFailure(
-				ComparisonFailure.class,
-				() -> _testSortByFieldName(
-					endpoint1, jsonObject2, jsonObject1,
-					String.format(
-						"%s/%s/status", _objectRelationship1.getName(),
-						_objectRelationship2.getName())));
 		}
 		finally {
 			for (JSONObject jsonObject :
@@ -10737,6 +11179,21 @@ public class ObjectEntryResourceTest {
 			"siteId");
 	}
 
+	private DLFileEntry _addDLFileEntry(String content) throws Exception {
+		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
+			null, TestPropsValues.getUserId(), _group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			TempFileEntryUtil.getTempFileName(
+				RandomTestUtil.randomString() + ".txt"),
+			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
+			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
+			new ByteArrayInputStream(content.getBytes()), 0, null, null, null,
+			ServiceContextTestUtil.getServiceContext());
+
+		return _dlFileEntryLocalService.getFileEntry(
+			fileEntry.getFileEntryId());
+	}
+
 	private void _addModelResourcePermissions(
 			String[] actionIds, String className, long objectEntryId,
 			long userId)
@@ -10770,6 +11227,39 @@ public class ObjectEntryResourceTest {
 				"url", "https://standalone.com"
 			).build(),
 			false);
+	}
+
+	private ObjectRelationship _addObjectRelationship(long companyId)
+		throws Exception {
+
+		User user = UserTestUtil.getAdminUser(companyId);
+
+		ObjectDefinition objectDefinition1 =
+			ObjectDefinitionTestUtil.publishObjectDefinition(
+				Collections.singletonList(
+					new TextObjectFieldBuilder(
+					).labelMap(
+						LocalizedMapUtil.getLocalizedMap(
+							RandomTestUtil.randomString())
+					).name(
+						_OBJECT_FIELD_NAME_TEXT
+					).build()),
+				ObjectDefinitionConstants.SCOPE_COMPANY, user.getUserId());
+		ObjectDefinition objectDefinition2 =
+			ObjectDefinitionTestUtil.publishObjectDefinition(
+				Collections.singletonList(
+					new TextObjectFieldBuilder(
+					).labelMap(
+						LocalizedMapUtil.getLocalizedMap(
+							RandomTestUtil.randomString())
+					).name(
+						_OBJECT_FIELD_NAME_TEXT
+					).build()),
+				ObjectDefinitionConstants.SCOPE_COMPANY, user.getUserId());
+
+		return ObjectRelationshipTestUtil.addObjectRelationship(
+			objectDefinition1, objectDefinition2, user.getUserId(),
+			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 	}
 
 	private ObjectRelationship _addObjectRelationshipAndRelateObjectEntries(
@@ -10862,6 +11352,36 @@ public class ObjectEntryResourceTest {
 		return UserLocalServiceUtil.updateUser(user);
 	}
 
+	private void _assertAttachmentJSONObject(
+			DLFileEntry dlFileEntry, String fileBase64, JSONObject jsonObject,
+			JSONObject scopeJSONObject)
+		throws Exception {
+
+		if (dlFileEntry != null) {
+			Assert.assertEquals(
+				dlFileEntry.getExternalReferenceCode(),
+				jsonObject.getString("externalReferenceCode"));
+			Assert.assertEquals(
+				dlFileEntry.getFileEntryId(), jsonObject.getLong("id"));
+			Assert.assertEquals(
+				dlFileEntry.getFileName(), jsonObject.getString("name"));
+		}
+		else {
+			Assert.assertNotNull(jsonObject.get("externalReferenceCode"));
+		}
+
+		Assert.assertEquals(fileBase64, jsonObject.get("fileBase64"));
+
+		if (scopeJSONObject == null) {
+			Assert.assertFalse(jsonObject.has("scope"));
+		}
+		else {
+			JSONAssert.assertEquals(
+				scopeJSONObject.toString(), jsonObject.getString("scope"),
+				JSONCompareMode.LENIENT);
+		}
+	}
+
 	private void _assertEquals(JSONArray nestedObjectEntriesJSONArray)
 		throws Exception {
 
@@ -10879,24 +11399,6 @@ public class ObjectEntryResourceTest {
 				)
 			).toString(),
 			nestedObjectEntriesJSONArray.toString(), JSONCompareMode.LENIENT);
-	}
-
-	private void _assertFailure(
-		Class<?> clazz, UnsafeRunnable<Exception> unsafeRunnable) {
-
-		try {
-			unsafeRunnable.run();
-
-			Assert.fail();
-		}
-		catch (Throwable throwable) {
-			Class<?> throwableClass = throwable.getClass();
-
-			Assert.assertTrue(
-				throwableClass.getName() + " is not an instance of " +
-					clazz.getName(),
-				clazz.isInstance(throwable));
-		}
 	}
 
 	private void _assertFilteredObjectEntries(
@@ -10937,6 +11439,23 @@ public class ObjectEntryResourceTest {
 		Assert.assertEquals(
 			String.valueOf(expectedObjectFieldValue),
 			String.valueOf(itemJSONObject.get(expectedObjectFieldName)));
+	}
+
+	private void _assertInvocations(
+		Map<String, Long> invocations, boolean invoked, String name) {
+
+		if (invoked) {
+			Assert.assertEquals(
+				name + " should have been computed once", 1,
+				(long)invocations.getOrDefault(name, 1L));
+
+			invocations.put(name, 0L);
+		}
+		else {
+			Assert.assertEquals(
+				name + " should not have been computed", 0,
+				(long)invocations.getOrDefault(name, 0L));
+		}
 	}
 
 	private void _assertItem(
@@ -11166,63 +11685,112 @@ public class ObjectEntryResourceTest {
 		return objectDefinition.getRESTContextPath();
 	}
 
-	private JSONObject _getLinkJSONObject(
-			DLFolder dlFolder, long fileEntryId, String fileName, Folder folder,
+	private JSONObject _getFileEntryJSONObject(
+			DLFolder dlFolder,
+			com.liferay.object.rest.dto.v1_0.FileEntry fileEntry,
 			ObjectDefinition objectDefinition)
 		throws Exception {
 
-		Link link = new Link();
-
-		FileEntry fileEntry = _dlAppLocalService.getFileEntry(fileEntryId);
-
-		FileVersion fileVersion = fileEntry.getFileVersion();
-
-		long folderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
-		long repositoryId = 0;
-
-		if (dlFolder == null) {
-			if (folder == null) {
-				if (StringUtil.equals(
-						objectDefinition.getScope(),
-						ObjectDefinitionConstants.SCOPE_SITE)) {
-
-					repositoryId = TestPropsValues.getGroupId();
-				}
-				else {
-					Company company = _companyLocalService.getCompany(
-						objectDefinition.getCompanyId());
-
-					repositoryId = company.getGroupId();
-				}
-			}
-			else {
-				repositoryId = folder.getSiteId();
-			}
-		}
-		else {
-			folderId = dlFolder.getFolderId();
-			repositoryId = dlFolder.getRepositoryId();
-		}
-
-		Date modifiedDate = fileVersion.getModifiedDate();
+		DLFileEntry dlFileEntry = _dlFileEntryLocalService.getDLFileEntry(
+			_testDLFileEntryModelListener.getLastFileEntryId());
 
 		ObjectEntry objectEntry = _objectEntryLocalService.getObjectEntry(
 			_testObjectEntryModelListener.getLastObjectEntryId());
 
-		link.setHref(
-			StringBundler.concat(
-				"/documents/", repositoryId, "/", folderId, "/",
-				URLCodec.encodeURL(fileName), "/",
-				fileEntry.getExternalReferenceCode(), "?version=",
-				fileVersion.getVersion(), "&t=", modifiedDate.getTime(),
-				"&download=true&objectDefinitionExternalReferenceCode=",
-				objectDefinition.getExternalReferenceCode(),
-				"&objectEntryExternalReferenceCode=",
-				objectEntry.getExternalReferenceCode()));
+		return JSONUtil.put(
+			"externalReferenceCode", dlFileEntry::getExternalReferenceCode
+		).put(
+			"id", _testDLFileEntryModelListener.getLastFileEntryId()
+		).put(
+			"link",
+			() -> {
+				Link link = new Link();
 
-		link.setLabel(fileName);
+				FileEntry serviceBuilderFileEntry =
+					_dlAppLocalService.getFileEntry(
+						_testDLFileEntryModelListener.getLastFileEntryId());
 
-		return JSONFactoryUtil.createJSONObject(link.toString());
+				FileVersion fileVersion =
+					serviceBuilderFileEntry.getFileVersion();
+
+				long folderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+				long repositoryId = 0;
+
+				if (dlFolder == null) {
+					Folder folder = fileEntry.getFolder();
+
+					if (folder == null) {
+						if (StringUtil.equals(
+								objectDefinition.getScope(),
+								ObjectDefinitionConstants.SCOPE_SITE)) {
+
+							repositoryId = TestPropsValues.getGroupId();
+						}
+						else {
+							Company company = _companyLocalService.getCompany(
+								objectDefinition.getCompanyId());
+
+							repositoryId = company.getGroupId();
+						}
+					}
+					else {
+						repositoryId = folder.getSiteId();
+					}
+				}
+				else {
+					folderId = dlFolder.getFolderId();
+					repositoryId = dlFolder.getRepositoryId();
+				}
+
+				Date modifiedDate = fileVersion.getModifiedDate();
+
+				link.setHref(
+					StringBundler.concat(
+						"/documents/", repositoryId, "/", folderId, "/",
+						URLCodec.encodeURL(fileEntry.getName()), "/",
+						serviceBuilderFileEntry.getExternalReferenceCode(),
+						"?version=", fileVersion.getVersion(), "&t=",
+						modifiedDate.getTime(),
+						"&download=true&objectDefinitionExternalReferenceCode=",
+						objectDefinition.getExternalReferenceCode(),
+						"&objectEntryExternalReferenceCode=",
+						objectEntry.getExternalReferenceCode()));
+
+				link.setLabel(fileEntry.getName());
+
+				return JSONFactoryUtil.createJSONObject(link.toString());
+			}
+		).put(
+			"name", fileEntry.getName()
+		).put(
+			"scope",
+			() -> {
+				if (!StringUtil.equals(
+						objectDefinition.getScope(),
+						ObjectDefinitionConstants.SCOPE_COMPANY) &&
+					(dlFileEntry.getGroupId() == objectEntry.getGroupId())) {
+
+					return null;
+				}
+
+				Scope scope = new Scope();
+
+				Group group = _groupLocalService.getGroup(
+					dlFileEntry.getGroupId());
+
+				scope.setExternalReferenceCode(group::getExternalReferenceCode);
+				scope.setType(
+					() -> {
+						if (group.getType() == GroupConstants.TYPE_DEPOT) {
+							return Scope.Type.ASSET_LIBRARY;
+						}
+
+						return Scope.Type.SITE;
+					});
+
+				return JSONFactoryUtil.createJSONObject(scope.toString());
+			}
+		);
 	}
 
 	private NestedFieldsContext _getNestedFieldsContext(String nestedFields) {
@@ -11343,6 +11911,42 @@ public class ObjectEntryResourceTest {
 					taxonomyCategories, TaxonomyCategory::getId, String.class)
 			).toString(),
 			_objectDefinition1.getRESTContextPath(), Http.Method.POST);
+	}
+
+	private void _registerUnsafeSupplierInvocations(
+		Map<String, Long> invocations,
+		com.liferay.object.rest.dto.v1_0.ObjectEntry objectEntry,
+		String relationshipName) {
+
+		Map<String, Object> properties = objectEntry.getProperties();
+
+		properties.replaceAll(
+			(name, value) -> (UnsafeSupplier<Object, Exception>)() -> {
+				String key = name;
+
+				if (relationshipName != null) {
+					key = relationshipName + "." + name;
+				}
+
+				invocations.compute(
+					key,
+					(__, invocation) -> GetterUtil.get(invocation, 0L) + 1);
+
+				if (StringUtil.equals(name, _objectRelationship1.getName())) {
+					com.liferay.object.rest.dto.v1_0.ObjectEntry[]
+						objectEntries =
+							(com.liferay.object.rest.dto.v1_0.ObjectEntry[])
+								value;
+
+					_registerUnsafeSupplierInvocations(
+						invocations, objectEntries[0],
+						_objectRelationship1.getName());
+				}
+
+				return value;
+			});
+
+		objectEntry.setProperties(properties);
 	}
 
 	private void _testFilterObjectEntriesByRelatedSystemObjectEntriesFields(
@@ -11564,20 +12168,8 @@ public class ObjectEntryResourceTest {
 				_testPatchPutCustomObjectEntryWithAttachmentField(
 					fileEntry -> JSONUtil.put(
 						_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-						JSONUtil.put(
-							"id",
-							_testDLFileEntryModelListener.getLastFileEntryId()
-						).put(
-							"link",
-							_getLinkJSONObject(
-								dlFolder,
-								_testDLFileEntryModelListener.
-									getLastFileEntryId(),
-								fileEntry.getName(), fileEntry.getFolder(),
-								objectDefinition)
-						).put(
-							"name", fileEntry.getName()
-						)),
+						_getFileEntryJSONObject(
+							dlFolder, fileEntry, objectDefinition)),
 					testFileEntry, httpMethod, null, objectDefinition,
 					_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
 					useExternalReferenceCode);
@@ -11613,18 +12205,8 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						dlFolder1,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					dlFolder1, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt",
@@ -11638,18 +12220,8 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						dlFolder2,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					dlFolder2, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt",
@@ -11661,18 +12233,7 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						null,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(null, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null,
@@ -11683,18 +12244,7 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						null,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(null, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null,
@@ -11705,18 +12255,7 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						null,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(null, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -11729,18 +12268,9 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, false),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, false), fileEntry,
+					objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -11750,18 +12280,9 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, false),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, false), fileEntry,
+					objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt",
@@ -11772,18 +12293,9 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, true),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, true), fileEntry,
+					objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -11793,18 +12305,9 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, true),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, true), fileEntry,
+					objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt",
@@ -11825,24 +12328,16 @@ public class ObjectEntryResourceTest {
 					}
 				};
 
+				JSONObject jsonObject = _getFileEntryJSONObject(
+					dlFolder1, fileEntry, objectDefinition);
+
 				return JSONUtil.put(
 					_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-					JSONUtil.put(
+					jsonObject.put(
 						"fileBase64", fileEntry.getFileBase64()
 					).put(
 						"folder",
 						JSONFactoryUtil.createJSONObject(folder.toString())
-					).put(
-						"id", _testDLFileEntryModelListener.getLastFileEntryId()
-					).put(
-						"link",
-						_getLinkJSONObject(
-							dlFolder1,
-							_testDLFileEntryModelListener.getLastFileEntryId(),
-							fileEntry.getName(), fileEntry.getFolder(),
-							objectDefinition)
-					).put(
-						"name", fileEntry.getName()
 					));
 			},
 			_toFileEntry(
@@ -11855,20 +12350,14 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-				JSONUtil.put(
-					"fileBase64", fileEntry.getFileBase64()
-				).put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, false),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				() -> {
+					JSONObject jsonObject = _getFileEntryJSONObject(
+						_getDLFolder(objectDefinition, false), fileEntry,
+						objectDefinition);
+
+					return jsonObject.put(
+						"fileBase64", fileEntry.getFileBase64());
+				}),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -11878,20 +12367,14 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-				JSONUtil.put(
-					"fileBase64", fileEntry.getFileBase64()
-				).put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, true),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				() -> {
+					JSONObject jsonObject = _getFileEntryJSONObject(
+						_getDLFolder(objectDefinition, true), fileEntry,
+						objectDefinition);
+
+					return jsonObject.put(
+						"fileBase64", fileEntry.getFileBase64());
+				}),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -11908,39 +12391,23 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, false),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, false), fileEntry,
+					objectDefinition)),
 			testFileEntry, httpMethod, null, objectDefinition,
 			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
 			useExternalReferenceCode);
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> {
-				String newName = StringUtil.replace(
-					fileEntry.getName(), ".txt", " (1).txt");
+				fileEntry.setName(
+					StringUtil.replace(
+						fileEntry.getName(), ".txt", " (1).txt"));
 
 				return JSONUtil.put(
 					_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-					JSONUtil.put(
-						"id", _testDLFileEntryModelListener.getLastFileEntryId()
-					).put(
-						"link",
-						_getLinkJSONObject(
-							_getDLFolder(objectDefinition, false),
-							_testDLFileEntryModelListener.getLastFileEntryId(),
-							newName, fileEntry.getFolder(), objectDefinition)
-					).put(
-						"name", newName
-					));
+					_getFileEntryJSONObject(
+						_getDLFolder(objectDefinition, false), fileEntry,
+						objectDefinition));
 			},
 			testFileEntry, httpMethod, null, objectDefinition,
 			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
@@ -11953,39 +12420,23 @@ public class ObjectEntryResourceTest {
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, true),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, true), fileEntry,
+					objectDefinition)),
 			testFileEntry, httpMethod, null, objectDefinition,
 			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
 			useExternalReferenceCode);
 		_testPatchPutCustomObjectEntryWithAttachmentField(
 			fileEntry -> {
-				String newName = StringUtil.replace(
-					fileEntry.getName(), ".txt", " (1).txt");
+				fileEntry.setName(
+					StringUtil.replace(
+						fileEntry.getName(), ".txt", " (1).txt"));
 
 				return JSONUtil.put(
 					_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-					JSONUtil.put(
-						"id", _testDLFileEntryModelListener.getLastFileEntryId()
-					).put(
-						"link",
-						_getLinkJSONObject(
-							_getDLFolder(objectDefinition, true),
-							_testDLFileEntryModelListener.getLastFileEntryId(),
-							newName, fileEntry.getFolder(), objectDefinition)
-					).put(
-						"name", newName
-					));
+					_getFileEntryJSONObject(
+						_getDLFolder(objectDefinition, true), fileEntry,
+						objectDefinition));
 			},
 			testFileEntry, httpMethod, null, objectDefinition,
 			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
@@ -12215,20 +12666,8 @@ public class ObjectEntryResourceTest {
 				_testPostCustomObjectEntryWithAttachmentField(
 					fileEntry -> JSONUtil.put(
 						_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-						JSONUtil.put(
-							"id",
-							_testDLFileEntryModelListener.getLastFileEntryId()
-						).put(
-							"link",
-							_getLinkJSONObject(
-								dlFolder,
-								_testDLFileEntryModelListener.
-									getLastFileEntryId(),
-								fileEntry.getName(), fileEntry.getFolder(),
-								objectDefinition)
-						).put(
-							"name", fileEntry.getName()
-						)),
+						_getFileEntryJSONObject(
+							dlFolder, fileEntry, objectDefinition)),
 					_toFileEntry(
 						Base64::encode, RandomTestUtil.randomString(),
 						RandomTestUtil.randomString() + ".txt",
@@ -12267,18 +12706,8 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						dlFolder1,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					dlFolder1, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt",
@@ -12291,18 +12720,8 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						dlFolder2,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					dlFolder2, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt",
@@ -12313,18 +12732,7 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						null,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(null, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null,
@@ -12334,18 +12742,7 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						null,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(null, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null,
@@ -12355,18 +12752,7 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						null,
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(null, fileEntry, objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -12378,18 +12764,9 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, false),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, false), fileEntry,
+					objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -12398,18 +12775,9 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, false),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, false), fileEntry,
+					objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt",
@@ -12419,18 +12787,9 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, true),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, true), fileEntry,
+					objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -12439,18 +12798,9 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, true),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, true), fileEntry,
+					objectDefinition)),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt",
@@ -12470,24 +12820,16 @@ public class ObjectEntryResourceTest {
 					}
 				};
 
+				JSONObject jsonObject = _getFileEntryJSONObject(
+					dlFolder1, fileEntry, objectDefinition);
+
 				return JSONUtil.put(
 					_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
-					JSONUtil.put(
+					jsonObject.put(
 						"fileBase64", fileEntry.getFileBase64()
 					).put(
 						"folder",
 						JSONFactoryUtil.createJSONObject(folder.toString())
-					).put(
-						"id", _testDLFileEntryModelListener.getLastFileEntryId()
-					).put(
-						"link",
-						_getLinkJSONObject(
-							dlFolder1,
-							_testDLFileEntryModelListener.getLastFileEntryId(),
-							fileEntry.getName(), fileEntry.getFolder(),
-							objectDefinition)
-					).put(
-						"name", fileEntry.getName()
 					));
 			},
 			_toFileEntry(
@@ -12499,20 +12841,14 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-				JSONUtil.put(
-					"fileBase64", fileEntry.getFileBase64()
-				).put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, false),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				() -> {
+					JSONObject jsonObject = _getFileEntryJSONObject(
+						_getDLFolder(objectDefinition, false), fileEntry,
+						objectDefinition);
+
+					return jsonObject.put(
+						"fileBase64", fileEntry.getFileBase64());
+				}),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -12521,20 +12857,14 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-				JSONUtil.put(
-					"fileBase64", fileEntry.getFileBase64()
-				).put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, true),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				() -> {
+					JSONObject jsonObject = _getFileEntryJSONObject(
+						_getDLFolder(objectDefinition, true), fileEntry,
+						objectDefinition);
+
+					return jsonObject.put(
+						"fileBase64", fileEntry.getFileBase64());
+				}),
 			_toFileEntry(
 				Base64::encode, RandomTestUtil.randomString(),
 				RandomTestUtil.randomString() + ".txt", null, null),
@@ -12550,38 +12880,22 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, false),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, false), fileEntry,
+					objectDefinition)),
 			testFileEntry, null, objectDefinition,
 			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1);
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> {
-				String newName = StringUtil.replace(
-					fileEntry.getName(), ".txt", " (1).txt");
+				fileEntry.setName(
+					StringUtil.replace(
+						fileEntry.getName(), ".txt", " (1).txt"));
 
 				return JSONUtil.put(
 					_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1,
-					JSONUtil.put(
-						"id", _testDLFileEntryModelListener.getLastFileEntryId()
-					).put(
-						"link",
-						_getLinkJSONObject(
-							_getDLFolder(objectDefinition, false),
-							_testDLFileEntryModelListener.getLastFileEntryId(),
-							newName, fileEntry.getFolder(), objectDefinition)
-					).put(
-						"name", newName
-					));
+					_getFileEntryJSONObject(
+						_getDLFolder(objectDefinition, false), fileEntry,
+						objectDefinition));
 			},
 			testFileEntry, null, objectDefinition,
 			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_1);
@@ -12593,38 +12907,22 @@ public class ObjectEntryResourceTest {
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> JSONUtil.put(
 				_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-				JSONUtil.put(
-					"id", _testDLFileEntryModelListener.getLastFileEntryId()
-				).put(
-					"link",
-					_getLinkJSONObject(
-						_getDLFolder(objectDefinition, true),
-						_testDLFileEntryModelListener.getLastFileEntryId(),
-						fileEntry.getName(), fileEntry.getFolder(),
-						objectDefinition)
-				).put(
-					"name", fileEntry.getName()
-				)),
+				_getFileEntryJSONObject(
+					_getDLFolder(objectDefinition, true), fileEntry,
+					objectDefinition)),
 			testFileEntry, null, objectDefinition,
 			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2);
 		_testPostCustomObjectEntryWithAttachmentField(
 			fileEntry -> {
-				String newName = StringUtil.replace(
-					fileEntry.getName(), ".txt", " (1).txt");
+				fileEntry.setName(
+					StringUtil.replace(
+						fileEntry.getName(), ".txt", " (1).txt"));
 
 				return JSONUtil.put(
 					_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2,
-					JSONUtil.put(
-						"id", _testDLFileEntryModelListener.getLastFileEntryId()
-					).put(
-						"link",
-						_getLinkJSONObject(
-							_getDLFolder(objectDefinition, true),
-							_testDLFileEntryModelListener.getLastFileEntryId(),
-							newName, fileEntry.getFolder(), objectDefinition)
-					).put(
-						"name", newName
-					));
+					_getFileEntryJSONObject(
+						_getDLFolder(objectDefinition, true), fileEntry,
+						objectDefinition));
 			},
 			testFileEntry, null, objectDefinition,
 			_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER_SOURCE_2);
@@ -13571,9 +13869,16 @@ public class ObjectEntryResourceTest {
 	private DLAppLocalService _dlAppLocalService;
 
 	@Inject
+	private DLFileEntryLocalService _dlFileEntryLocalService;
+
+	@Inject
 	private DLFolderLocalService _dlFolderLocalService;
 
 	private Group _group;
+
+	@Inject
+	private GroupLocalService _groupLocalService;
+
 	private ListTypeDefinition _listTypeDefinition;
 
 	@Inject

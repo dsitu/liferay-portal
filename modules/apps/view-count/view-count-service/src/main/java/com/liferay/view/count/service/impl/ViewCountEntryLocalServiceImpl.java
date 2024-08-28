@@ -115,10 +115,12 @@ public class ViewCountEntryLocalServiceImpl
 	public void incrementViewCount(
 		long companyId, long classNameId, long classPK, int increment) {
 
-		if (isViewCountEnabled(classNameId)) {
-			viewCountEntryFinder.incrementViewCount(
-				companyId, classNameId, classPK, increment);
+		if (!isViewCountEnabled(classNameId)) {
+			return;
 		}
+
+		viewCountEntryFinder.incrementViewCount(
+			companyId, classNameId, classPK, increment);
 
 		ClassName className = _classNameLocalService.fetchClassName(
 			classNameId);
@@ -148,11 +150,14 @@ public class ViewCountEntryLocalServiceImpl
 	@Override
 	@Transactional(enabled = false)
 	public boolean isViewCountEnabled(long classNameId) {
-		if (_disabledClassNameIds.contains(classNameId)) {
+		if (!isViewCountEnabled()) {
 			return false;
 		}
 
-		return isViewCountEnabled();
+		ClassName className = _classNameLocalService.fetchByClassNameId(
+			classNameId);
+
+		return !_disabledClassNames.contains(className.getValue());
 	}
 
 	@Activate
@@ -179,16 +184,15 @@ public class ViewCountEntryLocalServiceImpl
 			ConfigurableUtil.createConfigurable(
 				ViewCountConfiguration.class, properties);
 
-		Set<Long> disabledClassNameIds = new HashSet<>();
+		Set<String> disabledClassNames = new HashSet<>();
 
 		for (String className : viewCountConfiguration.disabledClassNames()) {
 			if (Validator.isNotNull(className)) {
-				disabledClassNameIds.add(
-					_classNameLocalService.getClassNameId(className));
+				disabledClassNames.add(className);
 			}
 		}
 
-		_disabledClassNameIds = disabledClassNameIds;
+		_disabledClassNames = disabledClassNames;
 
 		_enabled = viewCountConfiguration.enabled();
 	}
@@ -196,7 +200,7 @@ public class ViewCountEntryLocalServiceImpl
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
 
-	private volatile Set<Long> _disabledClassNameIds;
+	private volatile Set<String> _disabledClassNames;
 	private volatile boolean _enabled;
 	private ServiceTrackerMap<String, ViewCountEntryModelListener>
 		_serviceTrackerMap;

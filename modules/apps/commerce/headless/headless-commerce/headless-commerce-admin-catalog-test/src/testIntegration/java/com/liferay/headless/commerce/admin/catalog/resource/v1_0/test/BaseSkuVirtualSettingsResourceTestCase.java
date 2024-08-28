@@ -195,38 +195,297 @@ public abstract class BaseSkuVirtualSettingsResourceTestCase {
 	public void testGetSkuByExternalReferenceCodeSkuVirtualSettings()
 		throws Exception {
 
-		Assert.assertTrue(false);
+		SkuVirtualSettings postSkuVirtualSettings =
+			testGetSkuByExternalReferenceCodeSkuVirtualSettings_addSkuVirtualSettings();
+
+		SkuVirtualSettings getSkuVirtualSettings =
+			skuVirtualSettingsResource.
+				getSkuByExternalReferenceCodeSkuVirtualSettings(
+					testGetSkuByExternalReferenceCodeSkuVirtualSettings_getExternalReferenceCode());
+
+		assertEquals(postSkuVirtualSettings, getSkuVirtualSettings);
+		assertValid(getSkuVirtualSettings);
+	}
+
+	protected String
+			testGetSkuByExternalReferenceCodeSkuVirtualSettings_getExternalReferenceCode()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected SkuVirtualSettings
+			testGetSkuByExternalReferenceCodeSkuVirtualSettings_addSkuVirtualSettings()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
 	}
 
 	@Test
 	public void testGraphQLGetSkuByExternalReferenceCodeSkuVirtualSettings()
 		throws Exception {
 
-		Assert.assertTrue(true);
+		SkuVirtualSettings skuVirtualSettings =
+			testGraphQLGetSkuByExternalReferenceCodeSkuVirtualSettings_addSkuVirtualSettings();
+
+		// No namespace
+
+		Assert.assertTrue(
+			equals(
+				skuVirtualSettings,
+				SkuVirtualSettingsSerDes.toDTO(
+					JSONUtil.getValueAsString(
+						invokeGraphQLQuery(
+							new GraphQLField(
+								"skuByExternalReferenceCodeSkuVirtualSettings",
+								new HashMap<String, Object>() {
+									{
+										put(
+											"externalReferenceCode",
+											"\"" +
+												testGraphQLGetSkuByExternalReferenceCodeSkuVirtualSettings_getExternalReferenceCode() +
+													"\"");
+									}
+								},
+								getGraphQLFields())),
+						"JSONObject/data",
+						"Object/skuByExternalReferenceCodeSkuVirtualSettings"))));
+
+		// Using the namespace headlessCommerceAdminCatalog_v1_0
+
+		Assert.assertTrue(
+			equals(
+				skuVirtualSettings,
+				SkuVirtualSettingsSerDes.toDTO(
+					JSONUtil.getValueAsString(
+						invokeGraphQLQuery(
+							new GraphQLField(
+								"headlessCommerceAdminCatalog_v1_0",
+								new GraphQLField(
+									"skuByExternalReferenceCodeSkuVirtualSettings",
+									new HashMap<String, Object>() {
+										{
+											put(
+												"externalReferenceCode",
+												"\"" +
+													testGraphQLGetSkuByExternalReferenceCodeSkuVirtualSettings_getExternalReferenceCode() +
+														"\"");
+										}
+									},
+									getGraphQLFields()))),
+						"JSONObject/data",
+						"JSONObject/headlessCommerceAdminCatalog_v1_0",
+						"Object/skuByExternalReferenceCodeSkuVirtualSettings"))));
+	}
+
+	protected String
+			testGraphQLGetSkuByExternalReferenceCodeSkuVirtualSettings_getExternalReferenceCode()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
 	}
 
 	@Test
 	public void testGraphQLGetSkuByExternalReferenceCodeSkuVirtualSettingsNotFound()
 		throws Exception {
 
-		Assert.assertTrue(true);
+		String irrelevantExternalReferenceCode =
+			"\"" + RandomTestUtil.randomString() + "\"";
+
+		// No namespace
+
+		Assert.assertEquals(
+			"Not Found",
+			JSONUtil.getValueAsString(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"skuByExternalReferenceCodeSkuVirtualSettings",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"externalReferenceCode",
+									irrelevantExternalReferenceCode);
+							}
+						},
+						getGraphQLFields())),
+				"JSONArray/errors", "Object/0", "JSONObject/extensions",
+				"Object/code"));
+
+		// Using the namespace headlessCommerceAdminCatalog_v1_0
+
+		Assert.assertEquals(
+			"Not Found",
+			JSONUtil.getValueAsString(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"headlessCommerceAdminCatalog_v1_0",
+						new GraphQLField(
+							"skuByExternalReferenceCodeSkuVirtualSettings",
+							new HashMap<String, Object>() {
+								{
+									put(
+										"externalReferenceCode",
+										irrelevantExternalReferenceCode);
+								}
+							},
+							getGraphQLFields()))),
+				"JSONArray/errors", "Object/0", "JSONObject/extensions",
+				"Object/code"));
+	}
+
+	protected SkuVirtualSettings
+			testGraphQLGetSkuByExternalReferenceCodeSkuVirtualSettings_addSkuVirtualSettings()
+		throws Exception {
+
+		return testGraphQLSkuVirtualSettings_addSkuVirtualSettings();
 	}
 
 	@Test
 	public void testGetSkuIdSkuVirtualSettings() throws Exception {
-		Assert.assertTrue(false);
+		SkuVirtualSettings postSkuVirtualSettings =
+			testGetSkuIdSkuVirtualSettings_addSkuVirtualSettings();
+
+		SkuVirtualSettings getSkuVirtualSettings =
+			skuVirtualSettingsResource.getSkuIdSkuVirtualSettings(
+				testGetSkuIdSkuVirtualSettings_getId(postSkuVirtualSettings));
+
+		assertEquals(postSkuVirtualSettings, getSkuVirtualSettings);
+		assertValid(getSkuVirtualSettings);
+	}
+
+	protected Long testGetSkuIdSkuVirtualSettings_getId(
+			SkuVirtualSettings skuVirtualSettings)
+		throws Exception {
+
+		return skuVirtualSettings.getId();
+	}
+
+	protected SkuVirtualSettings
+			testGetSkuIdSkuVirtualSettings_addSkuVirtualSettings()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
 	}
 
 	@Test
 	public void testGraphQLGetSkuIdSkuVirtualSettings() throws Exception {
-		Assert.assertTrue(true);
+		SkuVirtualSettings skuVirtualSettings =
+			testGraphQLGetSkuIdSkuVirtualSettings_addSkuVirtualSettings();
+
+		// No namespace
+
+		Assert.assertTrue(
+			equals(
+				skuVirtualSettings,
+				SkuVirtualSettingsSerDes.toDTO(
+					JSONUtil.getValueAsString(
+						invokeGraphQLQuery(
+							new GraphQLField(
+								"skuIdSkuVirtualSettings",
+								new HashMap<String, Object>() {
+									{
+										put(
+											"id",
+											testGraphQLGetSkuIdSkuVirtualSettings_getId(
+												skuVirtualSettings));
+									}
+								},
+								getGraphQLFields())),
+						"JSONObject/data", "Object/skuIdSkuVirtualSettings"))));
+
+		// Using the namespace headlessCommerceAdminCatalog_v1_0
+
+		Assert.assertTrue(
+			equals(
+				skuVirtualSettings,
+				SkuVirtualSettingsSerDes.toDTO(
+					JSONUtil.getValueAsString(
+						invokeGraphQLQuery(
+							new GraphQLField(
+								"headlessCommerceAdminCatalog_v1_0",
+								new GraphQLField(
+									"skuIdSkuVirtualSettings",
+									new HashMap<String, Object>() {
+										{
+											put(
+												"id",
+												testGraphQLGetSkuIdSkuVirtualSettings_getId(
+													skuVirtualSettings));
+										}
+									},
+									getGraphQLFields()))),
+						"JSONObject/data",
+						"JSONObject/headlessCommerceAdminCatalog_v1_0",
+						"Object/skuIdSkuVirtualSettings"))));
+	}
+
+	protected Long testGraphQLGetSkuIdSkuVirtualSettings_getId(
+			SkuVirtualSettings skuVirtualSettings)
+		throws Exception {
+
+		return skuVirtualSettings.getId();
 	}
 
 	@Test
 	public void testGraphQLGetSkuIdSkuVirtualSettingsNotFound()
 		throws Exception {
 
-		Assert.assertTrue(true);
+		Long irrelevantId = RandomTestUtil.randomLong();
+
+		// No namespace
+
+		Assert.assertEquals(
+			"Not Found",
+			JSONUtil.getValueAsString(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"skuIdSkuVirtualSettings",
+						new HashMap<String, Object>() {
+							{
+								put("id", irrelevantId);
+							}
+						},
+						getGraphQLFields())),
+				"JSONArray/errors", "Object/0", "JSONObject/extensions",
+				"Object/code"));
+
+		// Using the namespace headlessCommerceAdminCatalog_v1_0
+
+		Assert.assertEquals(
+			"Not Found",
+			JSONUtil.getValueAsString(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"headlessCommerceAdminCatalog_v1_0",
+						new GraphQLField(
+							"skuIdSkuVirtualSettings",
+							new HashMap<String, Object>() {
+								{
+									put("id", irrelevantId);
+								}
+							},
+							getGraphQLFields()))),
+				"JSONArray/errors", "Object/0", "JSONObject/extensions",
+				"Object/code"));
+	}
+
+	protected SkuVirtualSettings
+			testGraphQLGetSkuIdSkuVirtualSettings_addSkuVirtualSettings()
+		throws Exception {
+
+		return testGraphQLSkuVirtualSettings_addSkuVirtualSettings();
+	}
+
+	protected SkuVirtualSettings
+			testGraphQLSkuVirtualSettings_addSkuVirtualSettings()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
 	}
 
 	protected void assertContains(
@@ -313,6 +572,10 @@ public abstract class BaseSkuVirtualSettingsResourceTestCase {
 		throws Exception {
 
 		boolean valid = true;
+
+		if (skuVirtualSettings.getId() == null) {
+			valid = false;
+		}
 
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
@@ -620,6 +883,17 @@ public abstract class BaseSkuVirtualSettingsResourceTestCase {
 				if (!Objects.deepEquals(
 						skuVirtualSettings1.getDuration(),
 						skuVirtualSettings2.getDuration())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("id", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						skuVirtualSettings1.getId(),
+						skuVirtualSettings2.getId())) {
 
 					return false;
 				}
@@ -939,6 +1213,11 @@ public abstract class BaseSkuVirtualSettingsResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("id")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("maxUsages")) {
 			sb.append(String.valueOf(skuVirtualSettings.getMaxUsages()));
 
@@ -1254,6 +1533,7 @@ public abstract class BaseSkuVirtualSettingsResourceTestCase {
 				attachment = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				duration = RandomTestUtil.randomLong();
+				id = RandomTestUtil.randomLong();
 				maxUsages = RandomTestUtil.randomInt();
 				override = RandomTestUtil.randomBoolean();
 				sampleAttachment = StringUtil.toLowerCase(

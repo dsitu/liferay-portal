@@ -63,6 +63,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -240,63 +241,64 @@ public class PageFragmentInstanceDefinitionMapper {
 
 			JSONObject jsonObject = configJSONObject;
 
-			List<FragmentConfigurationField> fragmentConfigurationFields =
-				_fragmentEntryConfigurationParser.
-					getFragmentConfigurationFields(
-						fragmentEntryLink.getConfiguration());
+			List<String> excludedFragmentConfigurationFieldNames =
+				new ArrayList<>();
+
+			for (FragmentConfigurationField fragmentConfigurationField :
+					_fragmentEntryConfigurationParser.
+						getFragmentConfigurationFields(
+							fragmentEntryLink.getConfiguration())) {
+
+				if (ArrayUtil.contains(
+						_EXCLUDED_FRAGMENT_CONFIGURATION_FIELD_TYPES,
+						fragmentConfigurationField.getType())) {
+
+					excludedFragmentConfigurationFieldNames.add(
+						fragmentConfigurationField.getName());
+				}
+			}
 
 			return new HashMap<String, Object>() {
 				{
-					for (FragmentConfigurationField fragmentConfigurationField :
-							fragmentConfigurationFields) {
+					for (String key : jsonObject.keySet()) {
+						if (excludedFragmentConfigurationFieldNames.contains(
+								key)) {
 
-						Object value = null;
+							put(key, jsonObject.get(key));
 
-						if (Objects.equals(
-								fragmentConfigurationField.getType(),
-								"itemSelector") ||
-							Objects.equals(
-								fragmentConfigurationField.getType(), "url")) {
-
-							value = jsonObject.get(
-								fragmentConfigurationField.getName());
+							continue;
 						}
-						else {
-							value =
-								_fragmentEntryConfigurationParser.getFieldValue(
-									fragmentEntryLink.getConfiguration(),
-									fragmentEntryLink.getEditableValues(),
-									LocaleUtil.getMostRelevantLocale(),
-									fragmentConfigurationField.getName());
 
-							if (value == null) {
-								value = jsonObject.get(
-									fragmentConfigurationField.getName());
-							}
+						Object value =
+							_fragmentEntryConfigurationParser.getFieldValue(
+								fragmentEntryLink.getConfiguration(),
+								fragmentEntryLink.getEditableValues(),
+								LocaleUtil.getMostRelevantLocale(), key);
 
-							if (value instanceof JSONObject) {
-								JSONObject valueJSONObject = (JSONObject)value;
+						if (value == null) {
+							value = jsonObject.get(key);
+						}
 
-								if (valueJSONObject.has("color")) {
-									value = valueJSONObject.getString("color");
-								}
-							}
+						if (value instanceof JSONObject) {
+							JSONObject valueJSONObject = (JSONObject)value;
 
-							if (value instanceof JSONArray ||
-								value instanceof JSONObject) {
-
-								JSONDeserializer<Map<String, Object>>
-									jsonDeserializer =
-										_jsonFactory.createJSONDeserializer();
-
-								value = jsonDeserializer.deserialize(
-									value.toString());
+							if (valueJSONObject.has("color")) {
+								value = valueJSONObject.getString("color");
 							}
 						}
 
-						if (value != null) {
-							put(fragmentConfigurationField.getName(), value);
+						if (value instanceof JSONArray ||
+							value instanceof JSONObject) {
+
+							JSONDeserializer<Map<String, Object>>
+								jsonDeserializer =
+									_jsonFactory.createJSONDeserializer();
+
+							value = jsonDeserializer.deserialize(
+								value.toString());
 						}
+
+						put(key, value);
 					}
 				}
 			};
@@ -1258,6 +1260,9 @@ public class PageFragmentInstanceDefinitionMapper {
 			}
 		};
 	}
+
+	private static final String[] _EXCLUDED_FRAGMENT_CONFIGURATION_FIELD_TYPES =
+		{"itemSelector", "url"};
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		PageFragmentInstanceDefinitionMapper.class);

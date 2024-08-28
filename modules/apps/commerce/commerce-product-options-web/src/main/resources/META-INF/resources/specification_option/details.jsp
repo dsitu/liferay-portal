@@ -53,23 +53,45 @@ List<CPOptionCategory> cpOptionCategories = cpSpecificationOptionDisplayContext.
 		<aui:input helpMessage="key-help" name="key" />
 
 		<aui:input name="priority" />
+
+		<aui:input name="listTypeDefinitionId" type="hidden" value="<%= (cpSpecificationOption == null) ? 0 : cpSpecificationOption.getListTypeDefinitionId() %>" />
 	</aui:fieldset>
 </commerce-ui:panel>
 
+<c:if test='<%= FeatureFlagManagerUtil.isEnabled("LPD-21636") %>'>
+	<commerce-ui:panel
+		elementClasses="mt-4"
+		title='<%= LanguageUtil.get(request, "picklist") %>'
+	>
+		<frontend-data-set:classic-display
+			additionalProps='<%=
+				HashMapBuilder.<String, Object>put(
+					"specificationId", (cpSpecificationOption == null) ? 0 : cpSpecificationOption.getCPSpecificationOptionId()
+				).build()
+			%>'
+			contextParams='<%=
+				HashMapBuilder.put(
+					"specificationId", (cpSpecificationOption == null) ? "0" : String.valueOf(cpSpecificationOption.getCPSpecificationOptionId())
+				).build()
+			%>'
+			creationMenu="<%= cpSpecificationOptionDisplayContext.getCreationMenu(cpSpecificationOption) %>"
+			dataProviderKey="<%= CommerceSpecificationOptionFDSNames.LIST_TYPE_DEFINITIONS %>"
+			id="<%= CommerceSpecificationOptionFDSNames.LIST_TYPE_DEFINITIONS %>"
+			itemsPerPage="<%= 10 %>"
+			propsTransformer="{CPSpecificationOptionListTypeDefinitionPropsTransformer} from commerce-product-options-web"
+			style="stacked"
+		/>
+	</commerce-ui:panel>
+
+	<div>
+		<react:component
+			module="{ListTypeEntriesModal} from object-web"
+		/>
+	</div>
+</c:if>
+
 <c:if test="<%= cpSpecificationOption == null %>">
-	<aui:script sandbox="<%= true %>">
-		var form = document.getElementById('<portlet:namespace />fm');
-
-		var keyInput = form.querySelector('#<portlet:namespace />key');
-		var titleInput = form.querySelector('#<portlet:namespace />title');
-
-		var handleOnTitleInput = function () {
-			keyInput.value = titleInput.value;
-		};
-
-		titleInput.addEventListener(
-			'input',
-			Liferay.Util.debounce(handleOnTitleInput, 200)
-		);
-	</aui:script>
+	<liferay-frontend:component
+		module="{CPSpecificationOptionDetails} from commerce-product-options-web"
+	/>
 </c:if>

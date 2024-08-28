@@ -29,8 +29,10 @@ import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlParser;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -171,6 +173,8 @@ public class MBMessageIndexerIndexedFieldsTest {
 	private Map<String, String> _expectedFieldValues(MBMessage mbMessage)
 		throws Exception {
 
+		User user = TestPropsValues.getUser();
+
 		Map<String, String> map = HashMapBuilder.put(
 			Field.ASSET_ENTRY_ID, String.valueOf(_getAssetEntryId(mbMessage))
 		).put(
@@ -217,17 +221,29 @@ public class MBMessageIndexerIndexedFieldsTest {
 		).put(
 			"discussion", "false"
 		).put(
+			"externalReferenceCode", mbMessage.getExternalReferenceCode()
+		).put(
+			"groupExternalReferenceCode", _group.getExternalReferenceCode()
+		).put(
 			"parentMessageId", String.valueOf(mbMessage.getParentMessageId())
 		).put(
 			"question", "false"
+		).put(
+			"scopeGroupExternalReferenceCode", _group.getExternalReferenceCode()
+		).put(
+			"statusByUserExternalReferenceCode", user.getExternalReferenceCode()
 		).put(
 			"statusByUserId", String.valueOf(mbMessage.getStatusByUserId())
 		).put(
 			"threadId", String.valueOf(mbMessage.getThreadId())
 		).put(
-			"urlSubject", mbMessage.getUrlSubject()
+			"urlSubject",
+			HttpComponentsUtil.decodePath(mbMessage.getUrlSubject())
 		).put(
-			"urlSubject_String_sortable", mbMessage.getUrlSubject()
+			"urlSubject_String_sortable",
+			HttpComponentsUtil.decodePath(mbMessage.getUrlSubject())
+		).put(
+			"userExternalReferenceCode", user.getExternalReferenceCode()
 		).put(
 			"visible", "true"
 		).build();

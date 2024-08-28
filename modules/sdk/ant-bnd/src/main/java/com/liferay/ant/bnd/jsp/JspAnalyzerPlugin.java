@@ -448,14 +448,14 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 	}
 
 	protected Set<String> getTaglibURIs(String originalContent) {
+		Set<String> taglibURis = new HashSet<String>();
+
 		String noCommentsContent = _removeComments(originalContent);
 
 		String content = noCommentsContent;
 
 		int contentX = -1;
 		int contentY = content.length();
-
-		Set<String> taglibURis = new HashSet<String>();
 
 		while (true) {
 			contentX = content.lastIndexOf("<%@", contentY);
@@ -513,7 +513,11 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 				if ((importX != -1) && (importY != -1)) {
 					String s = content.substring(importX, importY);
 
-					taglibURis.add(s);
+					if (!s.startsWith("urn:jsptagdir") &&
+						!s.startsWith("urn:jsptld")) {
+
+						taglibURis.add(s);
+					}
 				}
 
 				contentY -= 1;

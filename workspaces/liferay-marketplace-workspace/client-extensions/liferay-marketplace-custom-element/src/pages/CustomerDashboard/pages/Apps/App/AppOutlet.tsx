@@ -48,7 +48,7 @@ const BaseOutlet: React.FC<BaseOutletProps> = ({
 				>
 					<ClayIcon className="mr-2" symbol="order-arrow-left" />
 
-					<h5 className="mt-1">{backTitle}</h5>
+					<span className="h5 mt-1">{backTitle}</span>
 				</Link>
 
 				<OrderDetailsHeader
@@ -93,7 +93,8 @@ const AppOutlet = () => {
 						data?.placedOrder.workflowStatusInfo.code ===
 							ORDER_WORKFLOW_STATUS_CODE.COMPLETED &&
 						placedOrderItems.some(
-							(item: PlacedOrderItems) => item.virtualItems.length
+							(item: PlacedOrderItems) =>
+								item.virtualItems?.length
 						),
 				},
 				{

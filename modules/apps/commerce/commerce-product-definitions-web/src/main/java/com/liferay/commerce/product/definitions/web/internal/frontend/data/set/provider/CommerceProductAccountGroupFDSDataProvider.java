@@ -12,6 +12,9 @@ import com.liferay.account.service.AccountGroupRelLocalService;
 import com.liferay.commerce.product.definitions.web.internal.constants.CommerceProductFDSNames;
 import com.liferay.commerce.product.definitions.web.internal.model.CProductAccountGroup;
 import com.liferay.commerce.product.model.CPDefinition;
+import com.liferay.commerce.product.model.CommerceCatalog;
+import com.liferay.commerce.product.service.CPDefinitionLocalService;
+import com.liferay.commerce.product.service.CommerceCatalogLocalService;
 import com.liferay.frontend.data.set.provider.FDSDataProvider;
 import com.liferay.frontend.data.set.provider.search.FDSKeywords;
 import com.liferay.frontend.data.set.provider.search.FDSPagination;
@@ -48,8 +51,14 @@ public class CommerceProductAccountGroupFDSDataProvider
 		long cpDefinitionId = ParamUtil.getLong(
 			httpServletRequest, "cpDefinitionId");
 
+		CPDefinition cpDefinition =
+			_cpDefinitionLocalService.getCPDefinition(cpDefinitionId);
+
+		CommerceCatalog commerceCatalog = cpDefinition.getCommerceCatalog();
+
 		List<AccountGroupRel> accountGroupRels =
 			_accountGroupRelLocalService.getAccountGroupRels(
+				commerceCatalog.getAccountEntryId(),
 				CPDefinition.class.getName(), cpDefinitionId,
 				fdsKeywords.getKeywords(), fdsPagination.getStartPosition(),
 				fdsPagination.getEndPosition());
@@ -76,7 +85,13 @@ public class CommerceProductAccountGroupFDSDataProvider
 		long cpDefinitionId = ParamUtil.getLong(
 			httpServletRequest, "cpDefinitionId");
 
+		CPDefinition cpDefinition =
+			_cpDefinitionLocalService.getCPDefinition(cpDefinitionId);
+
+		CommerceCatalog commerceCatalog = cpDefinition.getCommerceCatalog();
+
 		return _accountGroupRelLocalService.getAccountGroupRelsCount(
+			commerceCatalog.getAccountEntryId(),
 			CPDefinition.class.getName(), cpDefinitionId);
 	}
 
@@ -85,5 +100,8 @@ public class CommerceProductAccountGroupFDSDataProvider
 
 	@Reference
 	private AccountGroupRelLocalService _accountGroupRelLocalService;
+
+	@Reference
+	private CPDefinitionLocalService _cpDefinitionLocalService;
 
 }

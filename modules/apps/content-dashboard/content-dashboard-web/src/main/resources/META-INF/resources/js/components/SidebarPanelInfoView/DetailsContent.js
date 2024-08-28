@@ -22,12 +22,10 @@ const DetailsContent = ({
 	languageTag = 'en',
 	modifiedDate,
 	preview,
-	specificFields,
+	specificFields = [],
 	title,
 	viewURLs = [],
 }) => {
-	const specificItems = Object.values(specificFields);
-
 	return (
 		<>
 			<>
@@ -44,14 +42,14 @@ const DetailsContent = ({
 			<CollapsibleSection title={Liferay.Language.get('properties')}>
 				<div className="sidebar-section">
 					<SpecificFields
-						fields={specificItems}
+						fields={specificFields}
 						languageTag={languageTag}
 					/>
 
 					<div className="c-mb-4 sidebar-section" key="creation-date">
-						<h5 className="c-mb-1 font-weight-semi-bold">
+						<div className="c-mb-1 font-weight-semi-bold h5">
 							{Liferay.Language.get('creation-date')}
-						</h5>
+						</div>
 
 						<p className="text-secondary">
 							{formatDate(createDate, languageTag)}
@@ -59,9 +57,9 @@ const DetailsContent = ({
 					</div>
 
 					<div className="c-mb-4 sidebar-section" key="modified-date">
-						<h5 className="c-mb-1 font-weight-semi-bold">
+						<div className="c-mb-1 font-weight-semi-bold h5">
 							{Liferay.Language.get('modified-date')}
-						</h5>
+						</div>
 
 						<p className="text-secondary">
 							{formatDate(modifiedDate, languageTag)}
@@ -69,9 +67,9 @@ const DetailsContent = ({
 					</div>
 
 					<div className="c-mb-4 sidebar-section" key="id">
-						<h5 className="c-mb-1 font-weight-semi-bold">
+						<div className="c-mb-1 font-weight-semi-bold h5">
 							{Liferay.Language.get('id')}
-						</h5>
+						</div>
 
 						<p className="text-secondary">{classPK}</p>
 					</div>
@@ -91,7 +89,7 @@ DetailsContent.propTypes = {
 	classPK: PropTypes.string.isRequired,
 	createDate: PropTypes.string.isRequired,
 	modifiedDate: PropTypes.string.isRequired,
-	specificFields: PropTypes.object.isRequired,
+	specificFields: PropTypes.array.isRequired,
 	viewURLs: PropTypes.array.isRequired,
 };
 

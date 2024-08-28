@@ -277,6 +277,10 @@ public class KoroneikiRestController extends BaseRestController {
 			@AuthenticationPrincipal Jwt jwt, @RequestBody String json)
 		throws Exception {
 
+		if (_log.isInfoEnabled()) {
+			_log.info("POST product purchase " + json);
+		}
+
 		JSONObject jsonObject = new JSONObject(json);
 
 		JSONObject commerceOrderJSONObject = jsonObject.getJSONObject(
@@ -313,6 +317,12 @@ public class KoroneikiRestController extends BaseRestController {
 			return;
 		}
 
+		if (_log.isInfoEnabled()) {
+			_log.info(
+				"Updating status for order " +
+					commerceOrderJSONObject.getLong("id") + " to processing");
+		}
+
 		order.setOrderStatus(() -> _COMMERCE_ORDER_STATUS_PROCESSING);
 
 		_orderResource.patchOrder(commerceOrderJSONObject.getLong("id"), order);
@@ -337,6 +347,13 @@ public class KoroneikiRestController extends BaseRestController {
 
 		if (Objects.equals(
 				productSpecificationsMap.get("price-model"), "Free")) {
+
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Updating status for free order " +
+						commerceOrderJSONObject.getLong("id") +
+							" to completed");
+			}
 
 			order.setOrderStatus(() -> _COMMERCE_ORDER_STATUS_COMPLETED);
 
@@ -366,6 +383,13 @@ public class KoroneikiRestController extends BaseRestController {
 			for (OrderItem orderItem : orderItemPage.getItems()) {
 				_postAccountAccountKeyProductPurchase(
 					account, jwt, orderItem, productSpecificationsMap);
+			}
+
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Updating status for paid order " +
+						commerceOrderJSONObject.getLong("id") +
+							" to completed");
 			}
 
 			order.setOrderStatus(() -> _COMMERCE_ORDER_STATUS_COMPLETED);

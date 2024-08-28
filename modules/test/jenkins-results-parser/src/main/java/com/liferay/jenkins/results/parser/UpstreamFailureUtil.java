@@ -282,7 +282,14 @@ public class UpstreamFailureUtil {
 	public static boolean isUpstreamComparisonAvailable(
 		TopLevelBuild topLevelBuild) {
 
-		getUpstreamTopLevelBuildReport(topLevelBuild);
+		try {
+			getUpstreamTopLevelBuildReport(topLevelBuild);
+		}
+		catch (Exception exception) {
+			exception.printStackTrace();
+
+			return false;
+		}
 
 		return _upstreamComparisonAvailable;
 	}
@@ -399,11 +406,17 @@ public class UpstreamFailureUtil {
 			portalBranchInformationBuild.getPortalBranchInformation();
 
 		try {
+			String testHistoryRoutineURL = JenkinsResultsParserUtil.getProperty(
+				JenkinsResultsParserUtil.getBuildProperties(),
+				"test.history.routine.url",
+				branchInformation.getUpstreamBranchName());
+
+			if (JenkinsResultsParserUtil.isNullOrEmpty(testHistoryRoutineURL)) {
+				return null;
+			}
+
 			_upstreamTestrayRoutine = TestrayFactory.newTestrayRoutine(
-				JenkinsResultsParserUtil.getProperty(
-					JenkinsResultsParserUtil.getBuildProperties(),
-					"test.history.routine.url",
-					branchInformation.getUpstreamBranchName()));
+				testHistoryRoutineURL);
 
 			return _upstreamTestrayRoutine;
 		}

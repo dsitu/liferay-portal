@@ -40,6 +40,7 @@ import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManagerRegistry;
 import com.liferay.object.rest.manager.v1_0.ObjectRelationshipElementsParser;
 import com.liferay.object.rest.manager.v1_0.ObjectRelationshipElementsParserRegistry;
+import com.liferay.object.rest.manager.v1_0.util.ObjectEntryManagerUtil;
 import com.liferay.object.service.ObjectActionLocalService;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryService;
@@ -142,7 +143,8 @@ public class DefaultObjectEntryManagerImpl
 		validateReadOnlyObjectFields(null, objectDefinition, objectEntry);
 
 		ServiceContext serviceContext = ServiceContextUtil.createServiceContext(
-			objectEntry, dtoConverterContext.getUserId());
+			dtoConverterContext.getLocale(), objectEntry,
+			dtoConverterContext.getUserId());
 
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			_objectEntryService.addObjectEntry(
@@ -170,7 +172,7 @@ public class DefaultObjectEntryManagerImpl
 
 		_objectRelationshipService.addObjectRelationshipMappingTableValues(
 			objectRelationship.getObjectRelationshipId(), primaryKey1,
-			primaryKey2, new ServiceContext());
+			primaryKey2, ServiceContextUtil.createServiceContext(primaryKey2));
 
 		return getObjectEntry(
 			dtoConverterContext,
@@ -621,6 +623,15 @@ public class DefaultObjectEntryManagerImpl
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			_objectEntryService.getObjectEntry(objectEntryId);
 
+		long groupId = serviceBuilderObjectEntry.getGroupId();
+
+		if (Objects.equals(
+				relatedObjectDefinition.getScope(),
+				ObjectDefinitionConstants.SCOPE_COMPANY)) {
+
+			groupId = 0;
+		}
+
 		return Page.of(
 			HashMapBuilder.put(
 				"get",
@@ -631,21 +642,18 @@ public class DefaultObjectEntryManagerImpl
 					serviceBuilderObjectEntry.getUserId(),
 					_getObjectEntryPermissionName(
 						objectDefinition.getObjectDefinitionId()),
-					serviceBuilderObjectEntry.getGroupId(),
-					dtoConverterContext.getUriInfo())
+					groupId, dtoConverterContext.getUriInfo())
 			).build(),
 			_toObjectEntries(
 				dtoConverterContext,
 				objectRelatedModelsProvider.getRelatedModels(
-					serviceBuilderObjectEntry.getGroupId(),
-					objectRelationship.getObjectRelationshipId(),
+					groupId, objectRelationship.getObjectRelationshipId(),
 					serviceBuilderObjectEntry.getPrimaryKey(), null,
 					_getStartPosition(pagination),
 					_getEndPosition(pagination))),
 			pagination,
 			objectRelatedModelsProvider.getRelatedModelsCount(
-				serviceBuilderObjectEntry.getGroupId(),
-				objectRelationship.getObjectRelationshipId(),
+				groupId, objectRelationship.getObjectRelationshipId(),
 				serviceBuilderObjectEntry.getPrimaryKey(), null));
 	}
 
@@ -734,43 +742,11 @@ public class DefaultObjectEntryManagerImpl
 			ObjectEntry objectEntry)
 		throws Exception {
 
-		ObjectEntry existingObjectEntry = getObjectEntry(
-			dtoConverterContext, objectDefinition, objectEntryId);
-
-		if (objectEntry.getDateCreated() != null) {
-			existingObjectEntry.setDateCreated(objectEntry::getDateCreated);
-		}
-
-		if (objectEntry.getDateModified() != null) {
-			existingObjectEntry.setDateModified(objectEntry::getDateModified);
-		}
-
-		if (objectEntry.getExternalReferenceCode() != null) {
-			existingObjectEntry.setExternalReferenceCode(
-				objectEntry::getExternalReferenceCode);
-		}
-
-		if (objectEntry.getKeywords() != null) {
-			existingObjectEntry.setKeywords(objectEntry::getKeywords);
-		}
-
-		if (objectEntry.getProperties() != null) {
-			Map<String, Object> properties =
-				existingObjectEntry.getProperties();
-
-			properties.putAll(objectEntry.getProperties());
-
-			existingObjectEntry.setProperties(() -> properties);
-		}
-
-		if (objectEntry.getStatus() != null) {
-			existingObjectEntry.setStatus(objectEntry::getStatus);
-		}
-
-		if (objectEntry.getTaxonomyCategoryIds() != null) {
-			existingObjectEntry.setTaxonomyCategoryIds(
-				objectEntry::getTaxonomyCategoryIds);
-		}
+		ObjectEntry existingObjectEntry =
+			ObjectEntryManagerUtil.partialUpdateObjectEntry(
+				getObjectEntry(
+					dtoConverterContext, objectDefinition, objectEntryId),
+				objectDefinition.getObjectDefinitionId(), objectEntry);
 
 		return updateObjectEntry(
 			dtoConverterContext, objectDefinition, objectEntryId,
@@ -795,7 +771,8 @@ public class DefaultObjectEntryManagerImpl
 			objectDefinition, objectEntry);
 
 		ServiceContext serviceContext = ServiceContextUtil.createServiceContext(
-			objectEntry, dtoConverterContext.getUserId());
+			dtoConverterContext.getLocale(), objectEntry,
+			dtoConverterContext.getUserId());
 
 		serviceBuilderObjectEntry = _objectEntryService.updateObjectEntry(
 			objectEntryId,
@@ -825,7 +802,8 @@ public class DefaultObjectEntryManagerImpl
 			externalReferenceCode, objectDefinition, objectEntry);
 
 		ServiceContext serviceContext = ServiceContextUtil.createServiceContext(
-			objectEntry, dtoConverterContext.getUserId());
+			dtoConverterContext.getLocale(), objectEntry,
+			dtoConverterContext.getUserId());
 
 		serviceContext.setCompanyId(companyId);
 

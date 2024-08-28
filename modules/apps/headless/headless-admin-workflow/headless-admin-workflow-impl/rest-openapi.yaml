@@ -211,6 +211,11 @@ components:
                 content:
                     type: string
                     x-json-string: true
+                creator:
+                    $ref: "#/components/schemas/Creator"
+                    description:
+                        The workflow's creator.
+                    readOnly: true
                 dateCreated:
                     format: date-time
                     readOnly: true
@@ -642,7 +647,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.admin.workflow.client', and version '4.0.30'."
+        'com.liferay.headless.admin.workflow.client', and version '4.0.31'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

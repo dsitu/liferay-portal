@@ -48,22 +48,11 @@ export function ModalAddObjectValidation({
 	const getObjectValidationRuleEngines = () => {
 		let newObjectValidationRuleEngines = [...objectValidationRuleEngines];
 
-		if (
-			Liferay.FeatureFlags['LPD-11179'] &&
-			!allowScriptContentToBeExecutedOrIncluded
-		) {
+		if (!allowScriptContentToBeExecutedOrIncluded) {
 			newObjectValidationRuleEngines =
 				newObjectValidationRuleEngines.filter(
 					(objectValidationRuleEngine) =>
 						objectValidationRuleEngine.value !== 'groovy'
-				);
-		}
-
-		if (!Liferay.FeatureFlags['LPS-187854']) {
-			newObjectValidationRuleEngines =
-				newObjectValidationRuleEngines.filter(
-					(objectValidationRuleEngine) =>
-						objectValidationRuleEngine.value !== 'compositeKey'
 				);
 		}
 

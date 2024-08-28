@@ -5,10 +5,10 @@
 
 import {Page, expect, mergeTests} from '@playwright/test';
 
-import {pagesAdminPageTest} from '../../fixtures/PagesAdminPageTest';
 import {isolatedSiteTest} from '../../fixtures/isolatedSiteTest';
 import {localizationSiteSettingsPageTest} from '../../fixtures/localizationSiteSettingsPageTest';
 import {loginTest} from '../../fixtures/loginTest';
+import {pagesAdminPagesTest} from '../../fixtures/pagesAdminPagesTest';
 import {PagesAdminPage} from '../../pages/layout-admin-web/PagesAdminPage';
 import {clickAndExpectToBeVisible} from '../../utils/clickAndExpectToBeVisible';
 import getRandomString from '../../utils/getRandomString';
@@ -18,33 +18,45 @@ import {ClientExtensionsPage} from './pages/ClientExtensionsPage';
 import {EditJSClientExtensionsPage} from './pages/EditJSClientExtensionsPage';
 import {ViewClientExtensionPage} from './pages/ViewClientExtensionPage';
 
-const SAMPLE = {
-	erc: 'LXC:liferay-sample-global-js-1',
-	name: 'Liferay Sample Global JS',
-	url: '/o/liferay-sample-global-js-1/global.7d2b9f54c4f8f75ba0c6.js',
-};
+const SAMPLES = [
+	{
+		erc: 'LXC:liferay-sample-global-js-1',
+		name: 'Liferay Sample Global JS 1',
+		url: '/o/liferay-sample-global-js-1/global.d4caf6cbfdcfd38c0ed9.js',
+	},
+	{
+		erc: 'LXC:liferay-sample-global-js-2',
+		name: 'Liferay Sample Global JS 2',
+		url: '/o/liferay-sample-global-js-2/global.a0ff2e4a08889609cd1e.js',
+	},
+];
 
 export const testSample = mergeTests(loginTest());
 
-testSample(`${SAMPLE.name} is registered`, async ({page}) => {
-	const viewClientExtensionPage = new ViewClientExtensionPage(
-		page,
-		SAMPLE.erc
+for (const sample of SAMPLES) {
+	testSample(`${sample.name} is registered`, async ({page}) => {
+		const viewClientExtensionPage = new ViewClientExtensionPage(
+			page,
+			sample.erc
+		);
+
+		await viewClientExtensionPage.goto();
+
+		expect(viewClientExtensionPage.nameLocator).toHaveValue(sample.name);
+		expect(
+			viewClientExtensionPage.fieldLocator('JavaScript URL')
+		).toHaveValue(sample.url);
+	});
+
+	testSample(
+		`${sample.name}'s .js file can be downloaded`,
+		async ({page}) => {
+			const response = await page.goto(sample.url);
+
+			expect(response.status()).toBe(200);
+		}
 	);
-
-	await viewClientExtensionPage.goto();
-
-	expect(viewClientExtensionPage.nameLocator).toHaveValue(SAMPLE.name);
-	expect(viewClientExtensionPage.fieldLocator('JavaScript URL')).toHaveValue(
-		SAMPLE.url
-	);
-});
-
-testSample(`${SAMPLE.name}'s .js file can be downloaded`, async ({page}) => {
-	const response = await page.goto(SAMPLE.url);
-
-	expect(response.status()).toBe(200);
-});
+}
 
 export const test = mergeTests(
 	clientExtensionsPageTest,
@@ -52,7 +64,7 @@ export const test = mergeTests(
 	isolatedSiteTest,
 	localizationSiteSettingsPageTest,
 	loginTest(),
-	pagesAdminPageTest
+	pagesAdminPagesTest
 );
 
 test('Create a new JS client extension with a script element attribute', async ({
@@ -87,7 +99,7 @@ test('Create a new JS client extension with a script element attribute', async (
 
 	// Apply JS client extension to all pages.
 
-	await pagesAdminPage.selectJavaScriptClientExtension(clientExtensionName);
+	await pagesAdminPage.selectJavaScriptClientExtension({clientExtensionName});
 
 	await page.goto('/');
 
@@ -115,6 +127,23 @@ test('JS client extension does not allow "src" as a script element attribute', a
 		.fill('src');
 
 	expect(page.getByText('Use the "JavaScript URL" field.')).toBeVisible();
+});
+
+test('Assert the help link is pointing to the correct url', async ({
+	editJSClientExtensionsPage,
+	page,
+}) => {
+	await editJSClientExtensionsPage.goto();
+
+	const link = page.getByRole('link', {
+		name: 'Learn more about browser based client extensions.',
+	});
+
+	await expect(link).toBeVisible();
+
+	expect(await link.getAttribute('href')).toBe(
+		'https://learn.liferay.com/w/dxp/liferay-development/customizing-liferays-look-and-feel'
+	);
 });
 
 const assertDefaultSelectedLoadType = async (
@@ -176,7 +205,7 @@ const testJSClientExtensionWithAttributes = async ({
 
 	// Apply the JS client extension and assert its attributes
 
-	await pagesAdminPage.selectJavaScriptClientExtension(clientExtensionName);
+	await pagesAdminPage.selectJavaScriptClientExtension({clientExtensionName});
 
 	await pagesAdminPage.javaScriptClientExtensionsTab.click();
 
@@ -224,13 +253,13 @@ test('JS client extension with async and defer attributes set to true', async ({
 			{
 				name: 'async',
 				type: 'boolean',
-				value: 'true',
+				value: 'True',
 				valueWhenInPage: '',
 			},
 			{
 				name: 'defer',
 				type: 'boolean',
-				value: 'true',
+				value: 'True',
 				valueWhenInPage: null,
 			},
 			{
@@ -262,7 +291,7 @@ test('JS client extension with async attribute set to true', async ({
 			{
 				name: 'async',
 				type: 'boolean',
-				value: 'true',
+				value: 'True',
 				valueWhenInPage: '',
 			},
 			{
@@ -294,7 +323,7 @@ test('JS client extension with defer attribute set to true', async ({
 			{
 				name: 'defer',
 				type: 'boolean',
-				value: 'true',
+				value: 'True',
 				valueWhenInPage: '',
 			},
 			{
@@ -325,13 +354,13 @@ test('JS client extension with async and defer attributes set to false and data-
 			{
 				name: 'async',
 				type: 'boolean',
-				value: 'false',
+				value: 'False',
 				valueWhenInPage: null,
 			},
 			{
 				name: 'defer',
 				type: 'boolean',
-				value: 'false',
+				value: 'False',
 				valueWhenInPage: null,
 			},
 			{

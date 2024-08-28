@@ -22,6 +22,69 @@ export class FragmentsPage {
 		);
 	}
 
+	async gotoFragmentSet(name: string) {
+		await this.page
+			.getByRole('menuitem', {
+				exact: true,
+				name,
+			})
+			.click();
+
+		await this.page
+			.locator('.sheet-title')
+			.getByText(name, {exact: true})
+			.waitFor();
+	}
+
+	async copyFragment(title: string) {
+		await this.clickAction('Make a Copy', title);
+
+		await waitForSuccessAlert(
+			this.page,
+			'Success:The fragment was copied successfully.'
+		);
+	}
+
+	async copyFragmentToSet(fragmentName: string, setName: string) {
+		const setExists = await this.page
+			.getByRole('menuitem', {name: setName})
+			.isVisible();
+
+		await this.clickAction('Copy To', fragmentName);
+
+		await this.page.locator('.modal-body').waitFor();
+
+		if (await this.page.getByText('Add Fragment Set').isVisible()) {
+			await this.page.getByLabel('Name').fill(setName);
+		}
+		else if (setExists) {
+			await this.page
+				.getByLabel('Fragment Sets')
+				.selectOption({label: setName});
+		}
+		else {
+			await this.page.getByText('Save In New Set').click();
+
+			await this.page.getByLabel('Name').fill(setName);
+		}
+
+		await this.page
+			.getByRole('button', {exact: true, name: 'Save'})
+			.click();
+
+		await waitForSuccessAlert(
+			this.page,
+			'Success:The fragment was copied successfully.'
+		);
+	}
+
+	async clickAction(action: string, title: string) {
+		const actionsPath = '//p[@title="' + title + '"]/../..';
+
+		await this.page.locator(actionsPath).getByLabel('More actions').click();
+		await this.page.getByRole('menuitem', {name: action}).click();
+	}
+
 	async createFragmentSet(name: string) {
 		await this.page.getByTitle('Add Fragment Set').click();
 
@@ -37,11 +100,7 @@ export class FragmentsPage {
 	}
 
 	async createFragment(setName: string, name: string) {
-		await this.page
-			.getByRole('menuitem', {exact: true, name: setName})
-			.click();
-
-		await this.page.locator('.sheet-title').getByText(setName).waitFor();
+		await this.gotoFragmentSet(setName);
 
 		await this.page.getByRole('button', {name: 'Add'}).click();
 
@@ -52,6 +111,44 @@ export class FragmentsPage {
 		await this.page.getByLabel('Name').fill(name);
 
 		await this.page.getByText('Add', {exact: true}).click();
+
+		await waitForSuccessAlert(this.page);
+	}
+
+	async deleteFragment(title: string) {
+		await this.clickAction('Delete', title);
+
+		await this.page.getByRole('button', {name: 'Delete'}).click();
+
+		await waitForSuccessAlert(this.page);
+	}
+
+	async deleteFragmentSet() {
+		await this.page
+			.locator('.sheet-title')
+			.getByLabel('Show Actions')
+			.click();
+		await this.page.getByRole('menuitem', {name: 'Delete'}).click();
+
+		await this.page.getByRole('button', {name: 'Delete'}).click();
+
+		await waitForSuccessAlert(this.page);
+	}
+
+	async markAsCacheable(title: string) {
+		this.page.on('dialog', (dialog) => dialog.accept());
+
+		await this.clickAction('Mark as Cacheable', title);
+
+		await waitForSuccessAlert(this.page);
+	}
+
+	async renameFragment(newName: string, oldName: string) {
+		await this.clickAction('Rename', oldName);
+
+		await this.page.getByLabel('Name', {exact: true}).fill(newName);
+
+		await this.page.getByRole('button', {name: 'Save'}).click();
 
 		await waitForSuccessAlert(this.page);
 	}

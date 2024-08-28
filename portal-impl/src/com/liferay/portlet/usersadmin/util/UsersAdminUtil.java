@@ -355,14 +355,16 @@ public class UsersAdminUtil {
 		Role administratorRole = RoleLocalServiceUtil.getRole(
 			user.getCompanyId(), RoleConstants.ADMINISTRATOR);
 
-		long[] administratorUserIds = UserLocalServiceUtil.getRoleUserIds(
-			administratorRole.getRoleId(), UserConstants.TYPE_REGULAR);
+		if (!ArrayUtil.contains(roleIds, administratorRole.getRoleId())) {
+			long[] administratorUserIds = UserLocalServiceUtil.getRoleUserIds(
+				administratorRole.getRoleId(), UserConstants.TYPE_REGULAR);
 
-		if (ArrayUtil.contains(administratorUserIds, user.getUserId()) &&
-			!ArrayUtil.contains(roleIds, administratorRole.getRoleId()) &&
-			(administratorUserIds.length == 1)) {
+			if (ArrayUtil.contains(administratorUserIds, user.getUserId()) &&
+				(administratorUserIds.length == 1)) {
 
-			roleIds = ArrayUtil.append(roleIds, administratorRole.getRoleId());
+				roleIds = ArrayUtil.append(
+					roleIds, administratorRole.getRoleId());
+			}
 		}
 
 		Role userRole = RoleLocalServiceUtil.getRole(
@@ -797,7 +799,7 @@ public class UsersAdminUtil {
 			orderByComparator = new GroupNameComparator(orderByAsc);
 		}
 		else if (orderByCol.equals("type")) {
-			orderByComparator = new GroupTypeComparator(orderByAsc);
+			orderByComparator = GroupTypeComparator.getInstance(orderByAsc);
 		}
 		else {
 			orderByComparator = new GroupNameComparator(orderByAsc);
@@ -851,13 +853,16 @@ public class UsersAdminUtil {
 		OrderByComparator<Organization> orderByComparator = null;
 
 		if (orderByCol.equals("name")) {
-			orderByComparator = new OrganizationNameComparator(orderByAsc);
+			orderByComparator = OrganizationNameComparator.getInstance(
+				orderByAsc);
 		}
 		else if (orderByCol.equals("type")) {
-			orderByComparator = new OrganizationTypeComparator(orderByAsc);
+			orderByComparator = OrganizationTypeComparator.getInstance(
+				orderByAsc);
 		}
 		else {
-			orderByComparator = new OrganizationNameComparator(orderByAsc);
+			orderByComparator = OrganizationNameComparator.getInstance(
+				orderByAsc);
 		}
 
 		return orderByComparator;
@@ -1049,16 +1054,17 @@ public class UsersAdminUtil {
 		OrderByComparator<Role> orderByComparator = null;
 
 		if (orderByCol.equals("name")) {
-			orderByComparator = new RoleNameComparator(orderByAsc);
+			orderByComparator = RoleNameComparator.getInstance(orderByAsc);
 		}
 		else if (orderByCol.equals("description")) {
-			orderByComparator = new RoleDescriptionComparator(orderByAsc);
+			orderByComparator = RoleDescriptionComparator.getInstance(
+				orderByAsc);
 		}
 		else if (orderByCol.equals("type")) {
-			orderByComparator = new RoleTypeComparator(orderByAsc);
+			orderByComparator = RoleTypeComparator.getInstance(orderByAsc);
 		}
 		else {
-			orderByComparator = new RoleNameComparator(orderByAsc);
+			orderByComparator = RoleNameComparator.getInstance(orderByAsc);
 		}
 
 		return orderByComparator;
@@ -1110,13 +1116,14 @@ public class UsersAdminUtil {
 		OrderByComparator<UserGroup> orderByComparator = null;
 
 		if (orderByCol.equals("name")) {
-			orderByComparator = new UserGroupNameComparator(orderByAsc);
+			orderByComparator = UserGroupNameComparator.getInstance(orderByAsc);
 		}
 		else if (orderByCol.equals("description")) {
-			orderByComparator = new UserGroupDescriptionComparator(orderByAsc);
+			orderByComparator = UserGroupDescriptionComparator.getInstance(
+				orderByAsc);
 		}
 		else {
-			orderByComparator = new UserGroupNameComparator(orderByAsc);
+			orderByComparator = UserGroupNameComparator.getInstance(orderByAsc);
 		}
 
 		return orderByComparator;
@@ -1192,22 +1199,24 @@ public class UsersAdminUtil {
 		OrderByComparator<User> orderByComparator = null;
 
 		if (orderByCol.equals("email-address")) {
-			orderByComparator = new UserEmailAddressComparator(orderByAsc);
+			orderByComparator = UserEmailAddressComparator.getInstance(
+				orderByAsc);
 		}
 		else if (orderByCol.equals("first-name")) {
-			orderByComparator = new UserFirstNameComparator(orderByAsc);
+			orderByComparator = UserFirstNameComparator.getInstance(orderByAsc);
 		}
 		else if (orderByCol.equals("job-title")) {
-			orderByComparator = new UserJobTitleComparator(orderByAsc);
+			orderByComparator = UserJobTitleComparator.getInstance(orderByAsc);
 		}
 		else if (orderByCol.equals("last-name")) {
-			orderByComparator = new UserLastNameComparator(orderByAsc);
+			orderByComparator = UserLastNameComparator.getInstance(orderByAsc);
 		}
 		else if (orderByCol.equals("screen-name")) {
-			orderByComparator = new UserScreenNameComparator(orderByAsc);
+			orderByComparator = UserScreenNameComparator.getInstance(
+				orderByAsc);
 		}
 		else {
-			orderByComparator = new UserLastNameComparator(orderByAsc);
+			orderByComparator = UserLastNameComparator.getInstance(orderByAsc);
 		}
 
 		return orderByComparator;

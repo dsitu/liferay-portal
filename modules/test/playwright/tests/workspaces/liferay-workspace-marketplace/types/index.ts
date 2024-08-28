@@ -36,6 +36,11 @@ export type PublishProductPayload = {
 		cpus: number;
 		ram: number;
 	};
+	support: {
+		publisherWebsiteUrl?: string;
+		supportEmail?: string;
+		supportPhone: string;
+	};
 	tags: string[];
 	version: {
 		notes: string;

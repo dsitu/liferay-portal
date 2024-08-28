@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {Locator, Page} from '@playwright/test';
+import {FrameLocator, Locator, Page} from '@playwright/test';
 
 import {ApplicationsMenuPage} from '../product-navigation-applications-menu/ApplicationsMenuPage';
 
@@ -44,6 +44,10 @@ export class AccountsPage {
 	) => Promise<{column: Locator; row: Locator}>;
 	readonly accountsTableRowLink: (name: string) => Promise<Locator>;
 	readonly applicationsMenuPage: ApplicationsMenuPage;
+	readonly channelDefaultsTab: Locator;
+	readonly newButton: Locator;
+	readonly organizationAssignmentFrame: FrameLocator;
+	readonly organizationsTab: Locator;
 	readonly page: Page;
 	readonly pageTitle: Locator;
 
@@ -51,6 +55,18 @@ export class AccountsPage {
 		this.applicationsMenuPage = new ApplicationsMenuPage(page);
 		this.accountGroupsTab = page.getByRole('link', {
 			name: 'Account Groups',
+		});
+		this.channelDefaultsTab = page.getByRole('link', {
+			name: 'Channel Defaults',
+		});
+		this.newButton = page
+			.getByTestId('creationMenuNewButton')
+			.getByText('New');
+		this.organizationAssignmentFrame = page.frameLocator(
+			'iframe[id="modalIframe"]'
+		);
+		this.organizationsTab = page.getByRole('link', {
+			name: 'Organizations',
 		});
 		this.page = page;
 		this.pageTitle = page.getByTestId('headerTitle');
@@ -84,5 +100,9 @@ export class AccountsPage {
 
 	async goto() {
 		await this.applicationsMenuPage.goToAccounts();
+	}
+
+	async organizationName(name: string): Promise<Locator> {
+		return this.page.getByText(name, {exact: true});
 	}
 }

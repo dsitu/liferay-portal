@@ -5,7 +5,7 @@
 
 package com.liferay.jenkins.results.parser.test.batch;
 
-import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+import com.liferay.jenkins.results.parser.test.suite.RelevantRuleConfigurationException;
 
 import java.io.File;
 
@@ -27,32 +27,37 @@ public class TestBatchFactory {
 		try {
 			if (batchName.startsWith("functional")) {
 				PoshiTestSelector poshiTestSelector = new PoshiTestSelector(
-					properties, batchName, relevantRuleName, testSuiteName);
+					propertiesFile, properties, batchName, relevantRuleName,
+					testSuiteName);
 
 				PoshiTestBatch poshiTestBatch = new PoshiTestBatch(
 					batchName, poshiTestSelector);
 
 				poshiTestSelector.setTestBatch(poshiTestBatch);
+
+				return poshiTestBatch;
 			}
 
-			if (batchName.startsWith("integration") ||
-				batchName.startsWith("modules-integration") ||
-				batchName.startsWith("modules-unit") ||
-				batchName.startsWith("unit")) {
+			if (batchName.startsWith("modules-integration") ||
+				batchName.startsWith("modules-unit")) {
 
 				JUnitTestSelector jUnitTestSelector = new JUnitTestSelector(
-					properties, batchName, relevantRuleName, testSuiteName);
+					propertiesFile, properties, batchName, relevantRuleName,
+					testSuiteName);
 
 				JUnitTestBatch jUnitTestBatch = new JUnitTestBatch(
 					batchName, jUnitTestSelector);
 
 				jUnitTestSelector.setTestBatch(jUnitTestBatch);
+
+				return jUnitTestBatch;
 			}
 
 			if (batchName.startsWith("playwright-js")) {
 				PlaywrightTestSelector playwrightTestSelector =
 					new PlaywrightTestSelector(
-						properties, batchName, relevantRuleName, testSuiteName);
+						propertiesFile, properties, batchName, relevantRuleName,
+						testSuiteName);
 
 				PlaywrightTestBatch playwrightTestBatch =
 					new PlaywrightTestBatch(batchName, playwrightTestSelector);
@@ -62,16 +67,11 @@ public class TestBatchFactory {
 				return playwrightTestBatch;
 			}
 		}
-		catch (IllegalStateException illegalStateException) {
-			String message = illegalStateException.getMessage();
+		catch (RelevantRuleConfigurationException
+					relevantRuleConfigurationException) {
 
-			if (message.startsWith("Unable to create batch")) {
-				message = JenkinsResultsParserUtil.combine(
-					message, " in ",
-					JenkinsResultsParserUtil.getCanonicalPath(propertiesFile));
-			}
-
-			throw new RuntimeException(message, illegalStateException);
+			RelevantRuleConfigurationException.addException(
+				relevantRuleConfigurationException);
 		}
 
 		return new DefaultTestBatch(batchName);

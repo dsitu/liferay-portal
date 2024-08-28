@@ -79,6 +79,15 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testUpgradeJavaBaseFragmentCollectionContributorExtendedClassesCheck()
+		throws Exception {
+
+		test(
+			"upgrade/UpgradeJavaBaseFragmentCollectionContributor" +
+				"ExtendedClassesCheck.testjava");
+	}
+
+	@Test
 	public void testUpgradeJavaBaseModelListenerCheck() throws Exception {
 		test("upgrade/UpgradeJavaBaseModelListenerCheck.testjava");
 	}
@@ -108,6 +117,13 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testUpgradeJavaDisplayPageInfoItemCapabilityCheck()
+		throws Exception {
+
+		test("upgrade/UpgradeJavaDisplayPageInfoItemCapabilityCheck.testjava");
+	}
+
+	@Test
 	public void testUpgradeJavaFacetedSearcherCheck() throws Exception {
 		test("upgrade/UpgradeJavaFacetedSearcherCheck.testjava");
 	}
@@ -120,6 +136,13 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	@Test
 	public void testUpgradeJavaFDSDataProviderCheck() throws Exception {
 		test("upgrade/UpgradeJavaFDSDataProviderCheck.testjava");
+	}
+
+	@Test
+	public void testUpgradeJavaFinderImplCheck() throws Exception {
+		test(
+			"upgrade/src/service/persistence/impl/UpgradeJavaFinderImplCheck." +
+				"testjava");
 	}
 
 	@Test
@@ -142,7 +165,7 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 			"upgrade/UpgradeJavaGetLayoutDisplayPageObjectProviderCheck." +
 				"testjava",
 			StringBundler.concat(
-				"Could not resolve variable className for new ",
+				"Unable to resolve variable className for new ",
 				"InfoItemReference(). Replace 'TO_BE_REPLACED_FOR_CLASSNAME' ",
 				"with the correct type"));
 	}
@@ -155,6 +178,13 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
+	public void testUpgradeJavaLocalServiceImplCheck() throws Exception {
+		test(
+			"upgrade/src/service/impl" +
+				"/UpgradeJavaLocalServiceImplCheck.testjava");
+	}
+
+	@Test
 	public void testUpgradeJavaModelPermissionsCheck() throws Exception {
 		test("upgrade/UpgradeJavaModelPermissionsCheck.testjava");
 	}
@@ -163,7 +193,7 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	public void testUpgradeJavaMultiVMPoolUtilCheck() throws Exception {
 		test(
 			"upgrade/UpgradeJavaMultiVMPoolUtilCheck.testjava",
-			"Could not resolve types for MultiVMPool.getPortalCache(). " +
+			"Unable to resolve types for MultiVMPool.getPortalCache(). " +
 				"Replace 'TO_BE_REPLACED' with the correct type");
 	}
 
@@ -189,6 +219,11 @@ public class UpgradeSourceProcessorTest extends BaseSourceProcessorTestCase {
 	@Test
 	public void testUpgradeJavaScreenContributorClassCheck() throws Exception {
 		test("upgrade/UpgradeJavaScreenContributorClassCheck.testjava");
+	}
+
+	@Test
+	public void testUpgradeJavaServiceImplCheck() throws Exception {
+		test("upgrade/src/service/impl/UpgradeJavaServiceImplCheck.testjava");
 	}
 
 	@Test

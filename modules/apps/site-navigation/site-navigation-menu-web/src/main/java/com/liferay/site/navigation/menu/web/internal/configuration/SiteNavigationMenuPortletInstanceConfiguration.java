@@ -23,13 +23,30 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 )
 public interface SiteNavigationMenuPortletInstanceConfiguration {
 
-	@Meta.AD(name = "site-navigation-menu-id", required = false)
+	@Meta.AD(
+		name = "site-navigation-menu-external-reference-code", required = false
+	)
+	public String siteNavigationMenuExternalReferenceCode();
+
+	@Meta.AD(
+		description = "site-navigation-menu-id-description",
+		name = "site-navigation-menu-id", required = false
+	)
 	public long siteNavigationMenuId();
 
 	@Meta.AD(name = "site-navigation-menu-name", required = false)
 	public String siteNavigationMenuName();
 
-	@Meta.AD(deflt = "0", name = "display-style-group-id", required = false)
+	@Meta.AD(
+		deflt = "0", name = "display-style-group-external-reference-code",
+		required = false
+	)
+	public String displayStyleGroupExternalReferenceCode();
+
+	@Meta.AD(
+		deflt = "0", description = "display-style-group-id-description",
+		name = "display-style-group-id", required = false
+	)
 	public long displayStyleGroupId();
 
 	@Meta.AD(name = "display-style", required = false)
@@ -41,7 +58,13 @@ public interface SiteNavigationMenuPortletInstanceConfiguration {
 	@Meta.AD(deflt = "0", name = "root-menu-item-level", required = false)
 	public int rootMenuItemLevel();
 
-	@Meta.AD(name = "root-menu-item-id", required = false)
+	@Meta.AD(name = "root-menu-item-external-reference-code", required = false)
+	public String rootMenuItemExternalReferenceCode();
+
+	@Meta.AD(
+		description = "root-menu-item-id-description",
+		name = "root-menu-item-id", required = false
+	)
 	public String rootMenuItemId();
 
 	@Meta.AD(deflt = "-1", name = "site-navigation-menu-type", required = false)

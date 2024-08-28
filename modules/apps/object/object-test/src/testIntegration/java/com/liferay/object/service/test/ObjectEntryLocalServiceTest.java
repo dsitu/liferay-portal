@@ -31,6 +31,7 @@ import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.constants.ObjectValidationRuleConstants;
 import com.liferay.object.constants.ObjectValidationRuleSettingConstants;
+import com.liferay.object.entry.util.ObjectEntryThreadLocal;
 import com.liferay.object.exception.DuplicateObjectEntryExternalReferenceCodeException;
 import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.exception.ObjectDefinitionScopeException;
@@ -82,7 +83,6 @@ import com.liferay.object.tree.TreeFactory;
 import com.liferay.object.validation.rule.ObjectValidationRuleEngine;
 import com.liferay.object.validation.rule.ObjectValidationRuleResult;
 import com.liferay.object.validation.rule.setting.builder.ObjectValidationRuleSettingBuilder;
-import com.liferay.object.validation.rule.util.ObjectValidationRuleThreadLocal;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.string.StringBundler;
@@ -215,7 +215,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
  * @author Marco Leo
  * @author Brian Wing Shun Chan
  */
-@FeatureFlags({"LPS-187142", "LPS-187854"})
+@FeatureFlags("LPS-187142")
 @RunWith(Arquillian.class)
 public class ObjectEntryLocalServiceTest {
 
@@ -232,7 +232,7 @@ public class ObjectEntryLocalServiceTest {
 	public void setUp() throws Exception {
 		_draftObjectDefinition =
 			ObjectDefinitionTestUtil.addCustomObjectDefinition(
-				false, _objectDefinitionLocalService,
+				false,
 				Arrays.asList(
 					ObjectFieldUtil.createObjectField(
 						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
@@ -453,6 +453,54 @@ public class ObjectEntryLocalServiceTest {
 		// unreferenced
 
 		_objectDefinitionLocalService.deleteObjectDefinition(_objectDefinition);
+	}
+
+	@Test
+	public void testAddMultipleObjectEntriesWithTheSameObjectValidationRule()
+		throws Exception {
+
+		ObjectValidationRule objectValidationRule = _addObjectValidationRule(
+			ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+			LocalizedMapUtil.getLocalizedMap("Field must be an email address"),
+			"isEmailAddress(emailAddressRequired)");
+
+		_addObjectEntry(
+			HashMapBuilder.<String, Serializable>put(
+				"emailAddressRequired", "bob@liferay.com"
+			).put(
+				"listTypeEntryKeyRequired", "listTypeEntryKey1"
+			).build());
+
+		_assertCount(1);
+
+		try {
+			_addObjectEntry(
+				HashMapBuilder.<String, Serializable>put(
+					"emailAddressRequired", RandomTestUtil.randomString()
+				).put(
+					"listTypeEntryKeyRequired", "listTypeEntryKey1"
+				).build());
+
+			Assert.fail();
+		}
+		catch (ModelListenerException modelListenerException) {
+			ObjectValidationRuleEngineException
+				objectValidationRuleEngineException =
+					(ObjectValidationRuleEngineException)
+						modelListenerException.getCause();
+
+			List<ObjectValidationRuleResult> objectValidationRuleResults =
+				objectValidationRuleEngineException.
+					getObjectValidationRuleResults();
+
+			Assert.assertEquals(
+				objectValidationRuleResults.toString(), 1,
+				objectValidationRuleResults.size());
+
+			_assertObjectValidationRuleResult(
+				objectValidationRule.getErrorLabel(LocaleUtil.getDefault()),
+				null, objectValidationRuleResults.get(0));
+		}
 	}
 
 	@Test
@@ -774,118 +822,32 @@ public class ObjectEntryLocalServiceTest {
 					"name", "Peter"
 				).build()));
 
-		_addCustomObjectField(
-			new LongTextObjectFieldBuilder(
-			).labelMap(
-				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
-			).name(
-				"longTextLocalized"
-			).objectDefinitionId(
-				objectDefinition.getObjectDefinitionId()
-			).localized(
-				true
-			).build());
-		_addCustomObjectField(
-			new RichTextObjectFieldBuilder(
-			).labelMap(
-				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
-			).name(
-				"richTextLocalized"
-			).objectDefinitionId(
-				objectDefinition.getObjectDefinitionId()
-			).localized(
-				true
-			).build());
-		_addCustomObjectField(
-			new TextObjectFieldBuilder(
-			).labelMap(
-				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
-			).name(
-				"textLocalized"
-			).objectDefinitionId(
-				objectDefinition.getObjectDefinitionId()
-			).localized(
-				true
-			).objectFieldSettings(
-				Collections.singletonList(
-					new ObjectFieldSettingBuilder(
-					).name(
-						ObjectFieldSettingConstants.NAME_UNIQUE_VALUES
-					).value(
-						Boolean.TRUE.toString()
-					).build())
-			).build());
-
-		String value1 = "en_US " + RandomTestUtil.randomString();
-		String value2 = "pt_BR " + RandomTestUtil.randomString();
-
-		Map<String, Serializable> localizedValues =
-			HashMapBuilder.<String, Serializable>put(
-				"longTextLocalized_i18n",
-				HashMapBuilder.put(
-					"en_US", RandomTestUtil.randomString()
-				).put(
-					"pt_BR", RandomTestUtil.randomString()
-				).build()
-			).put(
-				"richTextLocalized_i18n",
-				HashMapBuilder.put(
-					"en_US", RandomTestUtil.randomString()
-				).put(
-					"pt_BR", RandomTestUtil.randomString()
-				).build()
-			).put(
-				"textLocalized_i18n",
-				HashMapBuilder.put(
-					"en_US", value1
-				).put(
-					"pt_BR", value2
-				).build()
-			).build();
-
-		ObjectEntry objectEntry = _addObjectEntry(
-			group.getGroupId(), objectDefinition.getObjectDefinitionId(),
-			localizedValues);
-
-		Map<String, Serializable> values = objectEntry.getValues();
-
-		Assert.assertEquals(
-			localizedValues.get("longTextLocalized_i18n"),
-			values.get("longTextLocalized_i18n"));
-		Assert.assertEquals(
-			localizedValues.get("richTextLocalized_i18n"),
-			values.get("richTextLocalized_i18n"));
-		Assert.assertEquals(
-			localizedValues.get("textLocalized_i18n"),
-			values.get("textLocalized_i18n"));
-
-		AssertUtils.assertFailure(
-			ObjectEntryValuesException.UniqueValueConstraintViolation.class,
-			StringBundler.concat(
-				"Unique value constraint violation for ",
-				objectDefinition.getLocalizationDBTableName(),
-				".textLocalized_ with value ", value1),
-			() -> _addObjectEntry(
-				group.getGroupId(), finalObjectDefinitionId, localizedValues));
-
-		AssertUtils.assertFailure(
-			ObjectEntryValuesException.UniqueValueConstraintViolation.class,
-			StringBundler.concat(
-				"Unique value constraint violation for ",
-				objectDefinition.getLocalizationDBTableName(),
-				".textLocalized_ with value ", value2),
-			() -> _addObjectEntry(
-				group.getGroupId(), finalObjectDefinitionId,
-				HashMapBuilder.<String, Serializable>put(
-					"textLocalized_i18n",
-					HashMapBuilder.put(
-						"en_US", "en_US " + RandomTestUtil.randomString()
-					).put(
-						"pt_BR", value2
-					).build()
-				).build()));
+		_testAddObjectEntryWithLocalizedValues(objectDefinition, group);
 
 		_objectDefinitionLocalService.deleteObjectDefinition(objectDefinition);
+
+		ObjectDefinition modifiableSystemObjectDefinition =
+			ObjectDefinitionTestUtil.addModifiableSystemObjectDefinition(
+				TestPropsValues.getUserId(), null, true,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				"Test", null, null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				ObjectDefinitionConstants.SCOPE_SITE, null, 1,
+				Arrays.asList(
+					ObjectFieldUtil.createObjectField(
+						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+						ObjectFieldConstants.DB_TYPE_STRING,
+						RandomTestUtil.randomString(), StringUtil.randomId())));
+
+		_objectDefinitionLocalService.publishSystemObjectDefinition(
+			TestPropsValues.getUserId(),
+			modifiableSystemObjectDefinition.getObjectDefinitionId());
+
+		_testAddObjectEntryWithLocalizedValues(
+			modifiableSystemObjectDefinition, group);
+
+		_objectDefinitionLocalService.deleteObjectDefinition(
+			modifiableSystemObjectDefinition.getObjectDefinitionId());
 	}
 
 	@Test
@@ -1788,6 +1750,70 @@ public class ObjectEntryLocalServiceTest {
 		_assertCount(8);
 	}
 
+	@FeatureFlags("LPD-31212")
+	@Test
+	public void testAddObjectEntryWithRichTextObjectField() throws Exception {
+		ObjectDefinition objectDefinition = _publishCustomObjectDefinition(
+			true,
+			Arrays.asList(
+				ObjectFieldUtil.createObjectField(
+					ObjectFieldConstants.BUSINESS_TYPE_TEXT,
+					ObjectFieldConstants.DB_TYPE_STRING, true, true, null,
+					RandomTestUtil.randomString(), "name",
+					Arrays.asList(
+						new ObjectFieldSettingBuilder(
+						).name(
+							ObjectFieldSettingConstants.NAME_UNIQUE_VALUES
+						).value(
+							Boolean.TRUE.toString()
+						).build()),
+					false)));
+
+		_addCustomObjectField(
+			new RichTextObjectFieldBuilder(
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+			).name(
+				"richText"
+			).objectDefinitionId(
+				objectDefinition.getObjectDefinitionId()
+			).build());
+
+		objectDefinition.setScope(ObjectDefinitionConstants.SCOPE_SITE);
+
+		objectDefinition = _objectDefinitionLocalService.updateObjectDefinition(
+			objectDefinition);
+
+		Map<String, Serializable> expectedValues =
+			HashMapBuilder.<String, Serializable>put(
+				"richText",
+				StringBundler.concat(
+					"<div class=\"embed-responsive embed-responsive-16by9\" ",
+					"data-embed-id=",
+					"\"https://www.youtube.com/embed/6LjQ7Z99N74?rel=0\" ",
+					"data-styles=\"{&quot;width&quot;:&quot;81%&quot;}",
+					"\" style=\"width:81%\"><iframe allow=\"autoplay; ",
+					"encrypted-media\" allowfullscreen=\"\" frameborder=\"0\" ",
+					"height=\"315\" src=",
+					"\"https://www.youtube.com/embed/6LjQ7Z99N74?rel=0\" ",
+					"width=\"560\"></iframe></div><p>&nbsp;</p>")
+			).build();
+
+		ObjectEntry objectEntry = _addObjectEntry(
+			TestPropsValues.getGroupId(),
+			objectDefinition.getObjectDefinitionId(),
+			HashMapBuilder.create(
+				expectedValues
+			).build());
+
+		Map<String, Serializable> actualValues = objectEntry.getValues();
+
+		Assert.assertEquals(
+			expectedValues.get("richText"), actualValues.get("richText"));
+
+		_objectDefinitionLocalService.deleteObjectDefinition(objectDefinition);
+	}
+
 	@Test
 	public void testAddOrUpdateObjectEntry() throws Exception {
 		_assertCount(0);
@@ -2296,7 +2322,7 @@ public class ObjectEntryLocalServiceTest {
 
 		ObjectDefinition draftObjectDefinition =
 			ObjectDefinitionTestUtil.addCustomObjectDefinition(
-				false, _objectDefinitionLocalService,
+				false,
 				Arrays.asList(
 					ObjectFieldUtil.createObjectField(
 						ObjectFieldConstants.BUSINESS_TYPE_TEXT,
@@ -3486,7 +3512,11 @@ public class ObjectEntryLocalServiceTest {
 		try {
 			user.setEmailAddress(RandomTestUtil.randomString());
 
-			_clearExecutedObjectValidationIds();
+			ThreadLocal<Set<Long>> threadLocal =
+				ReflectionTestUtil.getFieldValue(
+					ObjectEntryThreadLocal.class, "_validatedObjectEntryIds");
+
+			threadLocal.set(new HashSet<>());
 
 			_userLocalService.updateUser(user);
 
@@ -3632,8 +3662,6 @@ public class ObjectEntryLocalServiceTest {
 			Map<String, Serializable> values)
 		throws Exception {
 
-		_clearExecutedObjectValidationIds();
-
 		return _objectEntryLocalService.addObjectEntry(
 			TestPropsValues.getUserId(), groupId, objectDefinitionId, values,
 			ServiceContextTestUtil.getServiceContext());
@@ -3679,6 +3707,23 @@ public class ObjectEntryLocalServiceTest {
 			externalReferenceCode, TestPropsValues.getUserId(), groupId,
 			_objectDefinition.getObjectDefinitionId(), values,
 			ServiceContextTestUtil.getServiceContext());
+	}
+
+	private void _addSystemObjectField(ObjectField objectField)
+		throws Exception {
+
+		_objectFieldLocalService.addSystemObjectField(
+			objectField.getExternalReferenceCode(), TestPropsValues.getUserId(),
+			objectField.getListTypeDefinitionId(),
+			objectField.getObjectDefinitionId(), objectField.getBusinessType(),
+			null, null, objectField.getDBType(), objectField.isIndexed(),
+			objectField.isIndexedAsKeyword(),
+			objectField.getIndexedLanguageId(), objectField.getLabelMap(),
+			objectField.isLocalized(), objectField.getName(),
+			objectField.getReadOnly(),
+			objectField.getReadOnlyConditionExpression(),
+			objectField.isRequired(), objectField.isState(),
+			objectField.getObjectFieldSettings());
 	}
 
 	private FileEntry _addTempFileEntry(String title) throws Exception {
@@ -3759,14 +3804,6 @@ public class ObjectEntryLocalServiceTest {
 		Assert.assertEquals(
 			expectedObjectFieldName,
 			objectValidationRuleResult.getObjectFieldName());
-	}
-
-	private void _clearExecutedObjectValidationIds() throws Exception {
-		ThreadLocal<Set<Long>> threadLocal = ReflectionTestUtil.getFieldValue(
-			ObjectValidationRuleThreadLocal.class,
-			"_executedObjectValidationRuleIds");
-
-		threadLocal.set(new HashSet<>());
 	}
 
 	private boolean _containsObjectEntryValuesSQLQuery(LogCapture logCapture) {
@@ -3885,8 +3922,7 @@ public class ObjectEntryLocalServiceTest {
 
 		ObjectDefinition objectDefinition =
 			ObjectDefinitionTestUtil.addCustomObjectDefinition(
-				enableLocalization, _objectDefinitionLocalService,
-				objectFields);
+				enableLocalization, objectFields);
 
 		return _objectDefinitionLocalService.publishCustomObjectDefinition(
 			TestPropsValues.getUserId(),
@@ -3971,7 +4007,7 @@ public class ObjectEntryLocalServiceTest {
 		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_SAVE_DRAFT);
 
 		AssertUtils.assertFailure(
-			ObjectEntryStatusException.class, null,
+			ObjectEntryStatusException.class, "Draft status is not allowed",
 			() -> _objectEntryLocalService.updateObjectEntry(
 				TestPropsValues.getUserId(), objectEntryId1, values2,
 				serviceContext));
@@ -3995,7 +4031,7 @@ public class ObjectEntryLocalServiceTest {
 		long objectEntryId2 = objectEntry.getObjectEntryId();
 
 		AssertUtils.assertFailure(
-			ObjectEntryStatusException.class, null,
+			ObjectEntryStatusException.class, "Draft status is not allowed",
 			() -> _objectEntryLocalService.updateObjectEntry(
 				TestPropsValues.getUserId(), objectEntryId2, values2,
 				serviceContext));
@@ -4008,6 +4044,155 @@ public class ObjectEntryLocalServiceTest {
 
 		Assert.assertEquals(
 			WorkflowConstants.STATUS_APPROVED, objectEntry.getStatus());
+	}
+
+	private void _testAddObjectEntryWithLocalizedValues(
+			ObjectDefinition objectDefinition, Group group)
+		throws Exception {
+
+		if (objectDefinition.isModifiableAndSystem()) {
+			_addSystemObjectField(
+				new TextObjectFieldBuilder(
+				).labelMap(
+					LocalizedMapUtil.getLocalizedMap(
+						RandomTestUtil.randomString())
+				).name(
+					"longTextLocalized1"
+				).objectDefinitionId(
+					objectDefinition.getObjectDefinitionId()
+				).localized(
+					true
+				).system(
+					true
+				).build());
+		}
+
+		_addCustomObjectField(
+			new LongTextObjectFieldBuilder(
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+			).name(
+				"longTextLocalized2"
+			).objectDefinitionId(
+				objectDefinition.getObjectDefinitionId()
+			).localized(
+				true
+			).build());
+		_addCustomObjectField(
+			new RichTextObjectFieldBuilder(
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+			).name(
+				"richTextLocalized"
+			).objectDefinitionId(
+				objectDefinition.getObjectDefinitionId()
+			).localized(
+				true
+			).build());
+		_addCustomObjectField(
+			new TextObjectFieldBuilder(
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+			).name(
+				"textLocalized"
+			).objectDefinitionId(
+				objectDefinition.getObjectDefinitionId()
+			).localized(
+				true
+			).objectFieldSettings(
+				Collections.singletonList(
+					new ObjectFieldSettingBuilder(
+					).name(
+						ObjectFieldSettingConstants.NAME_UNIQUE_VALUES
+					).value(
+						Boolean.TRUE.toString()
+					).build())
+			).build());
+
+		String value1 = "en_US " + RandomTestUtil.randomString();
+		String value2 = "pt_BR " + RandomTestUtil.randomString();
+
+		Map<String, Serializable> localizedValues = new HashMap<>();
+
+		if (objectDefinition.isModifiableAndSystem()) {
+			localizedValues.put(
+				"longTextLocalized1_i18n",
+				HashMapBuilder.put(
+					"en_US", RandomTestUtil.randomString()
+				).put(
+					"pt_BR", RandomTestUtil.randomString()
+				).build());
+		}
+
+		localizedValues.put(
+			"longTextLocalized2_i18n",
+			HashMapBuilder.put(
+				"en_US", RandomTestUtil.randomString()
+			).put(
+				"pt_BR", RandomTestUtil.randomString()
+			).build());
+		localizedValues.put(
+			"richTextLocalized_i18n",
+			HashMapBuilder.put(
+				"en_US", RandomTestUtil.randomString()
+			).put(
+				"pt_BR", RandomTestUtil.randomString()
+			).build());
+		localizedValues.put(
+			"textLocalized_i18n",
+			HashMapBuilder.put(
+				"en_US", value1
+			).put(
+				"pt_BR", value2
+			).build());
+
+		ObjectEntry objectEntry = _addObjectEntry(
+			group.getGroupId(), objectDefinition.getObjectDefinitionId(),
+			localizedValues);
+
+		Map<String, Serializable> values = objectEntry.getValues();
+
+		if (objectDefinition.isModifiableAndSystem()) {
+			Assert.assertEquals(
+				localizedValues.get("longTextLocalized1_i18n"),
+				values.get("longTextLocalized1_i18n"));
+		}
+
+		Assert.assertEquals(
+			localizedValues.get("longTextLocalized2_i18n"),
+			values.get("longTextLocalized2_i18n"));
+		Assert.assertEquals(
+			localizedValues.get("richTextLocalized_i18n"),
+			values.get("richTextLocalized_i18n"));
+		Assert.assertEquals(
+			localizedValues.get("textLocalized_i18n"),
+			values.get("textLocalized_i18n"));
+
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.UniqueValueConstraintViolation.class,
+			StringBundler.concat(
+				"Unique value constraint violation for ",
+				objectDefinition.getLocalizationDBTableName(),
+				".textLocalized_ with value ", value1),
+			() -> _addObjectEntry(
+				group.getGroupId(), objectDefinition.getObjectDefinitionId(),
+				localizedValues));
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.UniqueValueConstraintViolation.class,
+			StringBundler.concat(
+				"Unique value constraint violation for ",
+				objectDefinition.getLocalizationDBTableName(),
+				".textLocalized_ with value ", value2),
+			() -> _addObjectEntry(
+				group.getGroupId(), objectDefinition.getObjectDefinitionId(),
+				HashMapBuilder.<String, Serializable>put(
+					"textLocalized_i18n",
+					HashMapBuilder.put(
+						"en_US", "en_US " + RandomTestUtil.randomString()
+					).put(
+						"pt_BR", value2
+					).build()
+				).build()));
 	}
 
 	private void _testScope(long groupId, String scope, boolean expectSuccess)

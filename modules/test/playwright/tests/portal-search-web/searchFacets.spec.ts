@@ -5,10 +5,66 @@
 
 import {Locator, expect, mergeTests} from '@playwright/test';
 
+import {dataApiHelpersTest} from '../../fixtures/dataApiHelpersTest';
 import {loginTest} from '../../fixtures/loginTest';
 import {searchPageTest} from '../../fixtures/searchPageTest';
+import getRandomString from '../../utils/getRandomString';
 
-export const test = mergeTests(loginTest(), searchPageTest);
+export const test = mergeTests(loginTest(), searchPageTest, dataApiHelpersTest);
+
+test.describe('Category facet configuration for vocabularies', () => {
+	test('Lists 20+ sites available to the user @LPD-33194', async ({
+		apiHelpers,
+		searchPage,
+	}) => {
+		const siteName = getRandomString();
+
+		await test.step('Create 21 sites to test listing', async () => {
+			for (let count = 0; count < 21; count++) {
+				const newSite = await apiHelpers.headlessSite.createSite({
+					name: `${siteName}-${count}`,
+				});
+
+				apiHelpers.data.push({id: newSite.id, type: 'site'});
+			}
+		});
+
+		await test.step('Navigate to search page', async () => {
+			await searchPage.goto();
+		});
+
+		await test.step('Search for keyword "Test"', async () => {
+			await searchPage.searchKeywordInNavBar('test');
+
+			await expect(searchPage.searchResultsTotalLabel).toHaveText(
+				/\d+ Results for test/
+			);
+		});
+
+		await test.step('Open category facet configurations', async () => {
+			await searchPage.openSearchPortletConfiguration('Category Facet');
+		});
+
+		await test.step('Assert 21 sites are listed in the configuration', async () => {
+			await searchPage.modalIFrame
+				.getByLabel('Select Vocabularies')
+				.click();
+
+			await searchPage.modalIFrame
+				.getByRole('treeitem', {name: 'Global'})
+				.waitFor();
+
+			for (let count = 0; count < 21; count++) {
+				await expect(
+					searchPage.modalIFrame.getByRole('treeitem', {
+						exact: true,
+						name: `${siteName}-${count}`,
+					})
+				).toBeVisible();
+			}
+		});
+	});
+});
 
 test.describe('Clear and retain facet selections', () => {
 	let typeDocumentFacetCheckbox: Locator;
@@ -56,7 +112,9 @@ test.describe('Clear and retain facet selections', () => {
 
 		// Teardown by resetting search options
 
-		await searchPage.selectSearchOptionCheckboxConfigurations([
+		await searchPage.searchOptionsConfigurationLink.click();
+
+		await searchPage.selectPortletConfigurationsCheckbox([
 			{
 				label: 'Allow Empty Searches',
 				value: false,
@@ -66,9 +124,11 @@ test.describe('Clear and retain facet selections', () => {
 				value: false,
 			},
 		]);
+
+		await searchPage.savePortletConfiguration();
 	});
 
-	test('clears facet terms after new keyword search @LPD-19994', async ({
+	test('Clears facet terms after new keyword search @LPD-19994', async ({
 		searchPage,
 	}) => {
 
@@ -90,7 +150,7 @@ test.describe('Clear and retain facet selections', () => {
 		);
 	});
 
-	test('retains facet terms if search keyword has not changed @LPD-19994', async ({
+	test('Retains facet terms if search keyword has not changed @LPD-19994', async ({
 		page,
 		searchPage,
 	}) => {
@@ -115,7 +175,7 @@ test.describe('Clear and retain facet selections', () => {
 		await page.reload();
 	});
 
-	test('retains items per page after new keyword search @LPD-19994', async ({
+	test('Retains items per page after new keyword search @LPD-19994', async ({
 		searchPage,
 	}) => {
 
@@ -148,19 +208,23 @@ test.describe('Clear and retain facet selections', () => {
 		);
 	});
 
-	test('clears facet terms if performing an empty search @LPD-19994', async ({
+	test('Clears facet terms if performing an empty search @LPD-19994', async ({
 		page,
 		searchPage,
 	}) => {
 
 		// Configure search options to retain facet selections
 
-		await searchPage.selectSearchOptionCheckboxConfigurations([
+		await searchPage.searchOptionsConfigurationLink.click();
+
+		await searchPage.selectPortletConfigurationsCheckbox([
 			{
 				label: 'Allow Empty Searches',
 				value: true,
 			},
 		]);
+
+		await searchPage.savePortletConfiguration();
 
 		await page.reload();
 
@@ -182,19 +246,23 @@ test.describe('Clear and retain facet selections', () => {
 		);
 	});
 
-	test('retains facet terms if configured under search options @LPD-19994', async ({
+	test('Retains facet terms if configured under search options @LPD-19994', async ({
 		page,
 		searchPage,
 	}) => {
 
 		// Configure search options to retain facet selections
 
-		await searchPage.selectSearchOptionCheckboxConfigurations([
+		await searchPage.searchOptionsConfigurationLink.click();
+
+		await searchPage.selectPortletConfigurationsCheckbox([
 			{
 				label: 'Retain Facet Selections Across Searches',
 				value: true,
 			},
 		]);
+
+		await searchPage.savePortletConfiguration();
 
 		await page.reload();
 

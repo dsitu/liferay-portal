@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.ReleaseConstants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.spring.hibernate.DialectDetector;
 import com.liferay.portal.upgrade.PortalUpgradeProcess;
@@ -28,6 +29,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import java.util.Date;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -82,6 +84,13 @@ public class DBInitUtil {
 				_setDBNew();
 			}
 
+			Date currentBuildDate = PortalUpgradeProcess.getCurrentBuildDate(
+				connection);
+
+			StartupHelperUtil.setNewRelease(
+				(currentBuildDate == null) ? true :
+					currentBuildDate.before(ReleaseInfo.getBuildDate()));
+
 			return true;
 		}
 		catch (Exception exception) {
@@ -102,10 +111,10 @@ public class DBInitUtil {
 
 		ClassLoader classLoader = DBInitUtil.class.getClassLoader();
 
-		_runSQLTemplate(db, connection, classLoader, "portal-tables.sql");
-		_runSQLTemplate(db, connection, classLoader, "portal-data-counter.sql");
-		_runSQLTemplate(db, connection, classLoader, "indexes.sql");
-		_runSQLTemplate(db, connection, classLoader, "sequences.sql");
+		_runSQLFile(db, connection, classLoader, "portal-tables.sql");
+		_runSQLFile(db, connection, classLoader, "portal-data-counter.sql");
+		_runSQLFile(db, connection, classLoader, "indexes.sql");
+		_runSQLFile(db, connection, classLoader, "sequences.sql");
 
 		PortalUpgradeProcess.createPortalRelease(connection);
 
@@ -203,11 +212,11 @@ public class DBInitUtil {
 		return dataSource;
 	}
 
-	private static void _runSQLTemplate(
+	private static void _runSQLFile(
 			DB db, Connection connection, ClassLoader classLoader, String path)
 		throws Exception {
 
-		db.runSQLTemplateString(
+		db.runSQLTemplate(
 			connection,
 			StreamUtil.toString(
 				classLoader.getResourceAsStream(

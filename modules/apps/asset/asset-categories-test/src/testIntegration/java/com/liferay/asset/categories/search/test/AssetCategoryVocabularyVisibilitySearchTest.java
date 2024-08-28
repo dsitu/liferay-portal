@@ -20,6 +20,8 @@ import com.liferay.journal.test.util.search.JournalArticleContent;
 import com.liferay.journal.test.util.search.JournalArticleSearchFixture;
 import com.liferay.journal.test.util.search.JournalArticleTitle;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
@@ -100,10 +102,11 @@ public class AssetCategoryVocabularyVisibilitySearchTest {
 		_assertSearchInternalFields(
 			keyword, Arrays.asList(assetCategory.getCategoryId()),
 			_getAssetCategoryTitles(assetCategory),
-			Arrays.asList(assetCategory.getVocabularyId()));
+			Arrays.asList(assetCategory.getVocabularyId()),
+			_getExpectedGroupAssetCategoryExternalReferenceCodes());
 		_assertSearchPublicFields(
 			keyword, Collections.emptyList(), Collections.emptyList(),
-			Collections.emptyList());
+			Collections.emptyList(), Collections.emptyList());
 	}
 
 	@Test
@@ -117,11 +120,12 @@ public class AssetCategoryVocabularyVisibilitySearchTest {
 
 		_assertSearchInternalFields(
 			keyword, Collections.emptyList(), Collections.emptyList(),
-			Collections.emptyList());
+			Collections.emptyList(), Collections.emptyList());
 		_assertSearchPublicFields(
 			keyword, Arrays.asList(assetCategory.getCategoryId()),
 			_getAssetCategoryTitles(assetCategory),
-			Arrays.asList(assetCategory.getVocabularyId()));
+			Arrays.asList(assetCategory.getVocabularyId()),
+			_getExpectedGroupAssetCategoryExternalReferenceCodes());
 	}
 
 	@Rule
@@ -208,11 +212,13 @@ public class AssetCategoryVocabularyVisibilitySearchTest {
 
 	private void _assertSearch(
 			String keyword, String assetCategoryIdsFieldName,
-			String assetVocabularyIdsFieldName,
-			List<Long> expectedAssetCategoryIds,
 			String assetCategoryTitlesFieldName,
+			String assetVocabularyIdsFieldName,
+			String groupAssetCategoryExternalReferenceCodeFieldName,
+			List<Long> expectedAssetCategoryIds,
 			List<String> expectedAssetCategoryTitles,
-			List<Long> expectedAssetVocabularyIds)
+			List<Long> expectedAssetVocabularyIds,
+			List<String> expectedGroupAssetCategoryExternalReferenceCodes)
 		throws Exception {
 
 		SearchContext searchContext = SearchContextTestUtil.getSearchContext(
@@ -239,31 +245,41 @@ public class AssetCategoryVocabularyVisibilitySearchTest {
 			assetVocabularyIdsFieldName,
 			TransformUtil.transform(
 				expectedAssetVocabularyIds, String::valueOf));
+		DocumentsAssert.assertValuesIgnoreRelevance(
+			(String)searchContext.getAttribute("queryString"), hits.getDocs(),
+			groupAssetCategoryExternalReferenceCodeFieldName,
+			expectedGroupAssetCategoryExternalReferenceCodes);
 	}
 
 	private void _assertSearchInternalFields(
 			String keyword, List<Long> assetCategoryIds,
-			List<String> assetCategoryTitles, List<Long> assetVocabularyIds)
+			List<String> assetCategoryTitles, List<Long> assetVocabularyIds,
+			List<String> groupAssetCategoryExternalReferenceCodes)
 		throws Exception {
 
 		_assertSearch(
 			keyword, Field.ASSET_INTERNAL_CATEGORY_IDS,
-			Field.ASSET_INTERNAL_VOCABULARY_IDS, assetCategoryIds,
 			Field.getLocalizedName(
 				LocaleUtil.US, Field.ASSET_INTERNAL_CATEGORY_TITLES),
-			assetCategoryTitles, assetVocabularyIds);
+			Field.ASSET_INTERNAL_VOCABULARY_IDS,
+			"groupAssetInternalCategoryExternalReferenceCodes",
+			assetCategoryIds, assetCategoryTitles, assetVocabularyIds,
+			groupAssetCategoryExternalReferenceCodes);
 	}
 
 	private void _assertSearchPublicFields(
 			String keyword, List<Long> assetCategoryIds,
-			List<String> assetCategoryTitles, List<Long> assetVocabularyIds)
+			List<String> assetCategoryTitles, List<Long> assetVocabularyIds,
+			List<String> groupAssetCategoryExternalReferenceCodes)
 		throws Exception {
 
 		_assertSearch(
-			keyword, Field.ASSET_CATEGORY_IDS, Field.ASSET_VOCABULARY_IDS,
-			assetCategoryIds,
+			keyword, Field.ASSET_CATEGORY_IDS,
 			Field.getLocalizedName(LocaleUtil.US, Field.ASSET_CATEGORY_TITLES),
-			assetCategoryTitles, assetVocabularyIds);
+			Field.ASSET_VOCABULARY_IDS,
+			"groupAssetCategoryExternalReferenceCodes", assetCategoryIds,
+			assetCategoryTitles, assetVocabularyIds,
+			groupAssetCategoryExternalReferenceCodes);
 	}
 
 	private List<String> _getAssetCategoryTitles(AssetCategory assetCategory) {
@@ -271,6 +287,19 @@ public class AssetCategoryVocabularyVisibilitySearchTest {
 
 		return TransformUtil.transform(titleMap.values(), String::toLowerCase);
 	}
+
+	private List<String>
+		_getExpectedGroupAssetCategoryExternalReferenceCodes() {
+
+		return TransformUtil.transform(
+			_assetCategories,
+			assetCategory -> StringBundler.concat(
+				_group.getExternalReferenceCode(), _DELIMITER,
+				assetCategory.getExternalReferenceCode()));
+	}
+
+	private static final String _DELIMITER =
+		StringPool.AMPERSAND + StringPool.AMPERSAND;
 
 	@Inject
 	private static AssetCategoryService _assetCategoryService;

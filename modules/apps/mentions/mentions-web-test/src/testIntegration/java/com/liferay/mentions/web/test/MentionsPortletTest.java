@@ -160,10 +160,10 @@ public class MentionsPortletTest {
 			StringPool.SLASH + FriendlyURLNormalizerUtil.normalize(name);
 
 		return _layoutLocalService.addLayout(
-			userId, groupId, false, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
-			name, null, RandomTestUtil.randomString(),
-			LayoutConstants.TYPE_PORTLET, false, friendlyURL,
-			ServiceContextTestUtil.getServiceContext());
+			null, userId, groupId, false,
+			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, name, null,
+			RandomTestUtil.randomString(), LayoutConstants.TYPE_PORTLET, false,
+			friendlyURL, ServiceContextTestUtil.getServiceContext());
 	}
 
 	private User _addUser(String screenName) throws Exception {
@@ -179,10 +179,10 @@ public class MentionsPortletTest {
 			String query)
 		throws Exception {
 
-		ThemeDisplay themeDisplay = _getThemeDisplay();
-
 		MockLiferayResourceRequest mockLiferayResourceRequest =
 			new MockLiferayResourceRequest();
+
+		ThemeDisplay themeDisplay = _getThemeDisplay();
 
 		mockLiferayResourceRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, themeDisplay);

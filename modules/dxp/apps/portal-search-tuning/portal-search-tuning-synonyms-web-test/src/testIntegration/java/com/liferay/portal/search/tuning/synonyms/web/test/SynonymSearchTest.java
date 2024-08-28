@@ -10,22 +10,23 @@ import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.test.util.ConfigurationTemporarySwapper;
-import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.PortalPreferences;
+import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.kernel.service.CompanyLocalService;
-import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.PortalPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.portlet.MockLiferayPortletActionRequest;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -35,9 +36,9 @@ import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.search.query.Queries;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 import com.liferay.portal.search.searcher.SearchRequestBuilderFactory;
 import com.liferay.portal.search.searcher.SearchResponse;
@@ -81,105 +82,86 @@ public class SynonymSearchTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		try (ConfigurationTemporarySwapper
-				elasticSearchConfigurationTemporarySwapper =
-					new ConfigurationTemporarySwapper(
-							_getSearchEngineConfigurationPid(),
-						setUpSearchEngineProperties());
+		_companyId = TestPropsValues.getCompanyId();
+		_originalName = PrincipalThreadLocal.getName();
 
-			ConfigurationTemporarySwapper synonymConfigurationTemporarySwapper =
-				new ConfigurationTemporarySwapper(
-					_CONFIGURATION_PID_SYNONYMS,
-					setUpSynonymsProperties())) {
+		_user = UserTestUtil.getAdminUser(_companyId);
 
-			_originalName = PrincipalThreadLocal.getName();
+		PrincipalThreadLocal.setName(_user.getUserId());
 
-			PrincipalThreadLocal.setName(TestPropsValues.getUserId());
+		_group = GroupTestUtil.addGroup(
+			_companyId, _user.getUserId(),
+			GroupConstants.DEFAULT_PARENT_GROUP_ID);
 
-			_company = CompanyTestUtil.addCompany();
+		PortalPreferences portalPreferences =
+			PortletPreferencesFactoryUtil.getPortalPreferences(
+				_user.getUserId(), true);
 
-			addSynonymSet("dxp,portal");
-			addSynonymSet("efectivo,productivo");
-			addSynonymSet("hatékony,produktív");
-			addSynonymSet("maison,logement");
-		}
+		_originalPortalPreferencesXML = PortletPreferencesFactoryUtil.toXML(
+			portalPreferences);
 
-		addJournalArticles();
+		portalPreferences.setValue(
+			"", "locales",
+			"ar_SA,ca_ES,zh_CN,nl_NL,en_US,pt_PT,fi_FI,fr_FR,de_DE,hu_HU," +
+				"it_IT,ja_JP,pt_BR,es_ES,sv_SE");
+
+		PortalPreferencesLocalServiceUtil.updatePreferences(
+			_companyId, PortletKeys.PREFS_OWNER_TYPE_COMPANY,
+			PortletPreferencesFactoryUtil.toXML(portalPreferences));
+
+		LanguageUtil.init();
+
+		_setUpSynonyms();
+
+		_addJournalArticles();
 	}
 
 	@AfterClass
-	public static void tearDownClass() throws Exception {
-		_companyLocalService.deleteCompany(_company);
-
+	public static void tearDownClass() {
 		PrincipalThreadLocal.setName(_originalName);
+
+		PortalPreferencesLocalServiceUtil.updatePreferences(
+			_companyId, PortletKeys.PREFS_OWNER_TYPE_COMPANY,
+			_originalPortalPreferencesXML);
 	}
 
 	@Test
-	public void testSearchOnLocalesWithDefaultSynonymFilters()
-		throws Exception {
-
-		doAssertSearch("efectivo", Field.TITLE, LocaleUtil.SPAIN, 2);
-		doAssertSearch("dxp", Field.TITLE, LocaleUtil.US, 2);
+	public void testSearchOnLocalesWithDefaultSynonymFilters() {
+		for (Map.Entry<Locale, String[]> entry : _synonymsMap.entrySet()) {
+			_assertSearch(entry.getValue()[0], entry.getKey());
+		}
 	}
 
-	@Test
-	public void testSearchOnLocaleWithCustomSynonymFilter() throws Exception {
-		doAssertSearch("maison", Field.TITLE, LocaleUtil.FRANCE, 2);
-	}
-
-	@Test
-	public void testSearchOnLocaleWithoutSynonymFilter() throws Exception {
-		doAssertSearch("hatékony", Field.TITLE, LocaleUtil.HUNGARY, 1);
-	}
-
-	protected static void addJournalArticle(Map<Locale, String> localeStringMap)
+	private static void _addJournalArticle(Map<Locale, String> localeStringMap)
 		throws Exception {
 
 		JournalTestUtil.addArticle(
 			_group.getGroupId(), 0,
 			PortalUtil.getClassNameId(JournalArticle.class), localeStringMap,
 			null, localeStringMap, LocaleUtil.getSiteDefault(), false, true,
-			_serviceContext);
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), _user.getUserId()));
 	}
 
-	protected static void addJournalArticles() throws Exception {
-		_user = UserTestUtil.getAdminUser(_company.getCompanyId());
-
-		_group = GroupTestUtil.addGroup(
-			_company.getCompanyId(), _user.getUserId(),
-			GroupConstants.DEFAULT_PARENT_GROUP_ID);
-
-		_serviceContext = ServiceContextTestUtil.getServiceContext(
-			_group.getGroupId(), _user.getUserId());
-
-		addJournalArticle(
-			HashMapBuilder.put(
-				LocaleUtil.FRANCE, "maison"
-			).put(
-				LocaleUtil.HUNGARY, "hatékony"
-			).put(
-				LocaleUtil.SPAIN, "efectivo"
-			).put(
-				LocaleUtil.US, "dxp"
-			).build());
-		addJournalArticle(
-			HashMapBuilder.put(
-				LocaleUtil.FRANCE, "logement"
-			).put(
-				LocaleUtil.HUNGARY, "produktív"
-			).put(
-				LocaleUtil.SPAIN, "productivo"
-			).put(
-				LocaleUtil.US, "portal"
-			).build());
+	private static void _addJournalArticles() throws Exception {
+		for (Map.Entry<Locale, String[]> entry : _synonymsMap.entrySet()) {
+			_addJournalArticle(
+				HashMapBuilder.put(
+					entry.getKey(), entry.getValue()[0]
+				).build());
+			_addJournalArticle(
+				HashMapBuilder.put(
+					entry.getKey(), entry.getValue()[1]
+				).build());
+		}
 	}
 
-	protected static void addSynonymSet(String synonymSet) {
+	private static void _addSynonymSet(String synonymSet) {
 		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
 			new MockLiferayPortletActionRequest();
 
 		mockLiferayPortletActionRequest.setAttribute(
-			WebKeys.COMPANY_ID, _company.getCompanyId());
+			WebKeys.COMPANY_ID, _companyId);
 		mockLiferayPortletActionRequest.addParameter("synonymSet", synonymSet);
 
 		ReflectionTestUtil.invoke(
@@ -188,7 +170,7 @@ public class SynonymSearchTest {
 			mockLiferayPortletActionRequest);
 	}
 
-	protected static String getResourceAsString(
+	private static String _getResourceAsString(
 		Class<?> clazz, String resourceName) {
 
 		try (InputStream inputStream = clazz.getResourceAsStream(
@@ -202,21 +184,19 @@ public class SynonymSearchTest {
 		}
 	}
 
-	protected static String loadAdditionalIndexConfigurations() {
-		try {
-			return getResourceAsString(
-				SynonymSearchTest.class,
-				"dependencies/" + SynonymSearchTest.class.getSimpleName() +
-					"-additionalIndexConfigurations.json");
+	private static String _getSearchEngineConfigurationPid() {
+		SearchEngine searchEngine = SearchEngineHelperUtil.getSearchEngine();
+
+		if (Objects.equals(searchEngine.getVendor(), "OpenSearch")) {
+			return _CONFIGURATION_PID_OPENSEARCH_2;
 		}
-		catch (Exception exception) {
-			throw new RuntimeException(exception);
-		}
+
+		return _CONFIGURATION_PID_ELASTICSEARCH;
 	}
 
-	protected static String loadOverrideTypeMappings() {
+	private static String _loadOverrideTypeMappings() {
 		try {
-			return getResourceAsString(
+			return _getResourceAsString(
 				SynonymSearchTest.class,
 				"dependencies/" + SynonymSearchTest.class.getSimpleName() +
 					"-overrideTypeMappings.json");
@@ -226,7 +206,7 @@ public class SynonymSearchTest {
 		}
 	}
 
-	protected static Dictionary<String, Object> setUpSearchEngineProperties()
+	private static Dictionary<String, Object> _setUpSearchEngineProperties()
 		throws Exception {
 
 		Configuration configuration = _configurationAdmin.getConfiguration(
@@ -238,33 +218,52 @@ public class SynonymSearchTest {
 			properties = new HashMapDictionary<>();
 		}
 
-		properties.put(
-			"additionalIndexConfigurations",
-			loadAdditionalIndexConfigurations());
-		properties.put("overrideTypeMappings", loadOverrideTypeMappings());
+		properties.put("overrideTypeMappings", _loadOverrideTypeMappings());
 
 		return properties;
 	}
 
-	protected static Dictionary<String, Object> setUpSynonymsProperties() {
+	private static void _setUpSynonyms() throws Exception {
+		try (ConfigurationTemporarySwapper
+				elasticSearchConfigurationTemporarySwapper =
+					new ConfigurationTemporarySwapper(
+							_getSearchEngineConfigurationPid(),
+						_setUpSearchEngineProperties());
+
+			 ConfigurationTemporarySwapper synonymConfigurationTemporarySwapper =
+				new ConfigurationTemporarySwapper(
+					_CONFIGURATION_PID_SYNONYMS,
+					_setUpSynonymsProperties())) {
+
+			for (String[] words : _synonymsMap.values()) {
+				_addSynonymSet(String.join(",", words));
+			}
+		}
+	}
+
+	private static Dictionary<String, Object> _setUpSynonymsProperties() {
 		return HashMapDictionaryBuilder.<String, Object>put(
 			"filterNames",
 			new String[] {
-				"liferay_filter_synonym_en", "liferay_filter_synonym_es",
-				"custom-synonym-filter-fr"
+				"liferay_filter_synonym_ar", "liferay_filter_synonym_ca",
+				"liferay_filter_synonym_de", "liferay_filter_synonym_en",
+				"liferay_filter_synonym_es", "liferay_filter_synonym_fi",
+				"liferay_filter_synonym_fr", "liferay_filter_synonym_hu",
+				"liferay_filter_synonym_it", "liferay_filter_synonym_ja",
+				"liferay_filter_synonym_nl", "liferay_filter_synonym_pt_BR",
+				"liferay_filter_synonym_pt_PT", "liferay_filter_synonym_sv",
+				"liferay_filter_synonym_zh"
 			}
 		).build();
 	}
 
-	protected void doAssertSearch(
-		String keyword, String fieldName, Locale locale, int expectedCount) {
-
-		String localizedFieldName = Field.getLocalizedName(locale, fieldName);
+	private void _assertSearch(String keyword, Locale locale) {
+		String localizedFieldName = Field.getLocalizedName(locale, Field.TITLE);
 
 		SearchRequestBuilder searchRequestBuilder =
 			_searchRequestBuilderFactory.builder(
 			).companyId(
-				_company.getCompanyId()
+				_companyId
 			).entryClassNames(
 				JournalArticle.class.getName()
 			).groupIds(
@@ -280,19 +279,12 @@ public class SynonymSearchTest {
 
 		DocumentsAssert.assertCount(
 			searchResponse.getRequestString(),
-			documents.toArray(new Document[0]), localizedFieldName,
-			expectedCount);
+			documents.toArray(new Document[0]), localizedFieldName, 2);
 	}
 
-	private static String _getSearchEngineConfigurationPid() {
-		SearchEngine searchEngine = SearchEngineHelperUtil.getSearchEngine();
+	private static final Locale _ARABIC_LOCALE = new Locale("ar", "SA");
 
-		if (Objects.equals(searchEngine.getVendor(), "OpenSearch")) {
-			return _CONFIGURATION_PID_OPENSEARCH_2;
-		}
-
-		return _CONFIGURATION_PID_ELASTICSEARCH;
-	}
+	private static final Locale _CATALAN_LOCALE = new Locale("ca", "ES");
 
 	private static final String _CONFIGURATION_PID_ELASTICSEARCH =
 		"com.liferay.portal.search.elasticsearch7.configuration." +
@@ -306,15 +298,19 @@ public class SynonymSearchTest {
 		"com.liferay.portal.search.tuning.synonyms.web.internal." +
 			"configuration.SynonymsConfiguration";
 
-	private static Company _company;
+	private static final Locale _FINNISH_LOCALE = new Locale("fi", "FI");
 
-	@Inject
-	private static CompanyLocalService _companyLocalService;
+	private static final Locale _SWEDISH_LOCALE = new Locale("sv", "SE");
+
+	private static Long _companyId;
 
 	@Inject
 	private static ConfigurationAdmin _configurationAdmin;
 
 	private static Group _group;
+
+	@Inject
+	private static Language _language;
 
 	@Inject(
 		filter = "mvc.command.name=/synonyms/edit_synonym_sets",
@@ -323,11 +319,40 @@ public class SynonymSearchTest {
 	private static MVCActionCommand _mvcActionCommand;
 
 	private static String _originalName;
-	private static ServiceContext _serviceContext;
+	private static String _originalPortalPreferencesXML;
+	private static final Map<Locale, String[]> _synonymsMap =
+		HashMapBuilder.put(
+			_ARABIC_LOCALE, new String[] {"فعال", "منتج"}
+		).put(
+			_CATALAN_LOCALE, new String[] {"feliç", "satisfet"}
+		).put(
+			_FINNISH_LOCALE, new String[] {"tehokas", "tuottava"}
+		).put(
+			_SWEDISH_LOCALE, new String[] {"lycklig", "nöjd"}
+		).put(
+			LocaleUtil.BRAZIL, new String[] {"feliz", "alegre"}
+		).put(
+			LocaleUtil.CHINA, new String[] {"有效的", "富有成效的"}
+		).put(
+			LocaleUtil.FRANCE, new String[] {"maison", "logement"}
+		).put(
+			LocaleUtil.GERMANY, new String[] {"glücklich", "heiter"}
+		).put(
+			LocaleUtil.HUNGARY, new String[] {"hatékony", "produktív"}
+		).put(
+			LocaleUtil.ITALY, new String[] {"contento", "soddisfatto"}
+		).put(
+			LocaleUtil.JAPAN, new String[] {"効果的", "生産的な"}
+		).put(
+			LocaleUtil.NETHERLANDS, new String[] {"effectief", "productief"}
+		).put(
+			LocaleUtil.PORTUGAL, new String[] {"carro", "automovel"}
+		).put(
+			LocaleUtil.SPAIN, new String[] {"efectivo", "productivo"}
+		).put(
+			LocaleUtil.US, new String[] {"dxp", "portal"}
+		).build();
 	private static User _user;
-
-	@Inject
-	private Queries _queries;
 
 	@Inject
 	private Searcher _searcher;

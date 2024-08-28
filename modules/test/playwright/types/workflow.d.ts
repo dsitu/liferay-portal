@@ -30,10 +30,34 @@ interface ScriptedRecipient {
 }
 
 interface WorkflowDefinition {
-	active: true;
+	active: boolean;
 	content: string;
-	id?: number;
+	dateCreated: string;
+	dateModified: string;
+	id: number;
 	name: string;
 	title_i18n: DataObject;
 	version: string;
+}
+
+interface WorkflowTaskDefinition {
+	completed: boolean;
+	description: string;
+	id: number;
+	label: string;
+	name: string;
+	objectReviewed: {
+		assetTitle: string;
+		assetType: string;
+		id: number;
+		resourceType: string;
+	};
+	workflowDefinitionId: number;
+	workflowDefinitionName: string;
+	workflowDefinitionVersion: string;
+	workflowInstanceId: number;
+}
+
+interface WorkflowTaskDefinitions {
+	items: WorkflowTaskDefinition[];
 }

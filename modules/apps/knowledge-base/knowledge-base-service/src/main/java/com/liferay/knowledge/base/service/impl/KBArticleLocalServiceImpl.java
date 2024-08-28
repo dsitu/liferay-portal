@@ -111,6 +111,7 @@ import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.GroupThreadLocal;
 import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -502,8 +503,10 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 
 			// Attachments
 
-			_portletFileRepository.deletePortletFolder(
-				kbArticle.getAttachmentsFolderId());
+			if (!GroupThreadLocal.isDeleteInProcess()) {
+				_portletFileRepository.deletePortletFolder(
+					kbArticle.getAttachmentsFolderId());
+			}
 
 			// Subscriptions
 
@@ -642,7 +645,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 		return kbArticlePersistence.fetchByG_P_L_NotS_First(
 			groupId, parentResourcePrimKey, true,
 			WorkflowConstants.STATUS_IN_TRASH,
-			new KBArticlePriorityComparator(true));
+			KBArticlePriorityComparator.getInstance(true));
 	}
 
 	@Override
@@ -693,11 +696,12 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	public KBArticle fetchLatestKBArticle(long resourcePrimKey, int status) {
 		if (status == WorkflowConstants.STATUS_ANY) {
 			return kbArticlePersistence.fetchByResourcePrimKey_First(
-				resourcePrimKey, new KBArticleVersionComparator());
+				resourcePrimKey, KBArticleVersionComparator.getInstance(false));
 		}
 
 		return kbArticlePersistence.fetchByR_S_First(
-			resourcePrimKey, status, new KBArticleVersionComparator());
+			resourcePrimKey, status,
+			KBArticleVersionComparator.getInstance(false));
 	}
 
 	@Override
@@ -711,7 +715,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 		long groupId, String externalReferenceCode) {
 
 		return kbArticlePersistence.fetchByG_ERC_Last(
-			groupId, externalReferenceCode, new KBArticleVersionComparator());
+			groupId, externalReferenceCode,
+			KBArticleVersionComparator.getInstance(false));
 	}
 
 	@Override
@@ -724,7 +729,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 		List<KBArticle> kbArticles = null;
 
 		OrderByComparator<KBArticle> orderByComparator =
-			new KBArticleVersionComparator();
+			KBArticleVersionComparator.getInstance(false);
 
 		if (status == WorkflowConstants.STATUS_ANY) {
 			kbArticles = kbArticlePersistence.findByG_KBFI_UT_NotS(
@@ -929,7 +934,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 			}
 			else {
 				curKBArticles = kbArticlePersistence.findByR_S(
-					ArrayUtil.toArray(params[1]), status);
+					ArrayUtil.toArray(params[1]), new int[] {status});
 			}
 
 			kbArticles.addAll(curKBArticles);
@@ -1017,11 +1022,32 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 
 		if (status == WorkflowConstants.STATUS_ANY) {
 			return kbArticlePersistence.findByResourcePrimKey_First(
-				resourcePrimKey, new KBArticleVersionComparator());
+				resourcePrimKey, KBArticleVersionComparator.getInstance(false));
 		}
 
 		return kbArticlePersistence.findByR_S_First(
-			resourcePrimKey, status, new KBArticleVersionComparator());
+			resourcePrimKey, status,
+			KBArticleVersionComparator.getInstance(false));
+	}
+
+	@Override
+	public KBArticle getLatestKBArticle(long resourcePrimKey, int[] statuses)
+		throws PortalException {
+
+		if (ArrayUtil.contains(statuses, WorkflowConstants.STATUS_ANY)) {
+			return kbArticlePersistence.findByResourcePrimKey_First(
+				resourcePrimKey, KBArticleVersionComparator.getInstance(false));
+		}
+
+		List<KBArticle> kbArticles = kbArticlePersistence.findByR_S(
+			new long[] {resourcePrimKey}, statuses, 0, 1,
+			KBArticleVersionComparator.getInstance(false));
+
+		if (!kbArticles.isEmpty()) {
+			return kbArticles.get(0);
+		}
+
+		return null;
 	}
 
 	@Override
@@ -1030,7 +1056,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 		throws PortalException {
 
 		return kbArticlePersistence.findByG_ERC_First(
-			groupId, externalReferenceCode, new KBArticleVersionComparator());
+			groupId, externalReferenceCode,
+			KBArticleVersionComparator.getInstance(false));
 	}
 
 	@Override
@@ -1263,7 +1290,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 			List<KBArticle> kbArticles = getKBArticleVersions(
 				resourcePrimKey, WorkflowConstants.STATUS_ANY,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new KBArticleVersionComparator());
+				KBArticleVersionComparator.getInstance(false));
 
 			for (KBArticle curKBArticle : kbArticles) {
 				curKBArticle.setParentResourceClassNameId(
@@ -1286,7 +1313,8 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 					List<KBArticle> kbArticleVersions = getKBArticleVersions(
 						curKBArticle.getResourcePrimKey(),
 						WorkflowConstants.STATUS_ANY, QueryUtil.ALL_POS,
-						QueryUtil.ALL_POS, new KBArticleVersionComparator());
+						QueryUtil.ALL_POS,
+						KBArticleVersionComparator.getInstance(false));
 
 					for (KBArticle kbArticleVersion : kbArticleVersions) {
 						kbArticleVersion.setKbFolderId(kbFolderId);
@@ -2434,7 +2462,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 
 		List<KBArticle> kbArticles = getKBArticles(
 			groupId, parentResourcePrimKey, WorkflowConstants.STATUS_ANY, 0, 1,
-			new KBArticlePriorityComparator());
+			KBArticlePriorityComparator.getInstance(false));
 
 		if (kbArticles.isEmpty()) {
 			return KBArticleConstants.DEFAULT_PRIORITY;
@@ -2693,7 +2721,6 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 			_getBody(action, kbGroupServiceConfiguration));
 		subscriptionSender.setClassName(kbArticle.getModelClassName());
 		subscriptionSender.setClassPK(kbArticle.getClassPK());
-		subscriptionSender.setCompanyId(kbArticle.getCompanyId());
 		subscriptionSender.setContextAttribute(
 			"[$ARTICLE_CONTENT$]", kbArticleContent, false);
 		subscriptionSender.setContextAttribute(

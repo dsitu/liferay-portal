@@ -1032,6 +1032,11 @@ public class ObjectDefinitionWrapper
 	}
 
 	@Override
+	public boolean isModifiableAndSystem() {
+		return model.isModifiableAndSystem();
+	}
+
+	@Override
 	public boolean isNodeCandidate() {
 		return model.isNodeCandidate();
 	}

@@ -3,8 +3,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {useAtom} from 'jotai';
 import {useEffect, useMemo} from 'react';
 import {useForm} from 'react-hook-form';
+import {taskSidebarRefresh} from '~/hooks/useSidebarTask';
 import {getUniqueList} from '~/util';
 
 import Form from '../../../components/Form';
@@ -22,7 +24,6 @@ import {
 	TestrayCaseResult,
 	TestraySubtask,
 	liferayMessageBoardImpl,
-	testrayCaseResultImpl,
 	testraySubtaskImpl,
 } from '../../../services/rest';
 import {CaseResultStatuses} from '../../../util/statuses';
@@ -36,12 +37,15 @@ type SubtaskCompleteModalProps = {
 	subtask: TestraySubtask;
 };
 
+const uri = '/caseresults';
+
 const SubtaskCompleteModal: React.FC<SubtaskCompleteModalProps> = ({
 	modal: {observer, onClose, onError, onSave},
 	revalidateSubtask,
 	setForceRefetch,
 	subtask,
 }) => {
+	const [, setTaskSidebarRefresh] = useAtom(taskSidebarRefresh);
 	const {data: mbMessage} = useFetch(
 		liferayMessageBoardImpl.getMessagesIdURL(subtask.mbMessageId)
 	);
@@ -56,18 +60,49 @@ const SubtaskCompleteModal: React.FC<SubtaskCompleteModalProps> = ({
 		[subtask.id]
 	);
 
-	const {data: caseResults} = useFetch<APIResponse<TestrayCaseResult>>(
-		testrayCaseResultImpl.resource,
+	const caseResultsFilter = useMemo(
+		() =>
+			new SearchBuilder()
+				.eq('r_subtaskToCaseResults_c_subtaskId', subtask.id)
+				.and()
+				.ne('issues', null)
+				.build(),
+		[subtask.id]
+	);
+
+	const {data: caseResultsStatus} = useFetch<APIResponse<TestrayCaseResult>>(
+		uri,
 		{
 			params: {
 				aggregationTerms: 'dueStatus',
 				fields: 'id',
 				filter: caseResultsStatusFilter,
-				nestedFields: 'subtaskToCaseResults',
 				pageSize: 4,
 			},
 		}
 	);
+
+	const {data: caseResult} = useFetch<APIResponse<TestrayCaseResult>>(uri, {
+		params: {
+			fields: 'issues',
+			filter: caseResultsFilter,
+		},
+	});
+
+	const caseResultIssues =
+		caseResult?.items?.reduce((previousIssues: string[], currentIssues) => {
+			const newIssues = currentIssues.issues || '';
+
+			return getUniqueList([
+				...previousIssues,
+				...(newIssues
+					? newIssues
+							.split(',')
+							.map((name) => name.trim())
+							.filter(Boolean)
+					: []),
+			]);
+		}, []) || [];
 
 	const subtaskIssues = subtask.issues
 		? subtask.issues
@@ -76,13 +111,12 @@ const SubtaskCompleteModal: React.FC<SubtaskCompleteModalProps> = ({
 				.filter(Boolean)
 		: [];
 
-	const issues = getUniqueList([
-		...subtaskIssues,
-		...subtask.caseResultIssues,
-	]).join(', ');
+	const issues = getUniqueList([...subtaskIssues, ...caseResultIssues]).join(
+		', '
+	);
 
 	const statusMode = useMemo(() => {
-		const statuses = caseResults?.facets[0].facetValues;
+		const statuses = caseResultsStatus?.facets[0].facetValues;
 
 		if (!statuses) {
 			return CaseResultStatuses.FAILED;
@@ -102,7 +136,7 @@ const SubtaskCompleteModal: React.FC<SubtaskCompleteModalProps> = ({
 		);
 
 		return status.term;
-	}, [caseResults]);
+	}, [caseResultsStatus]);
 
 	const {
 		formState: {errors, isSubmitting},
@@ -142,6 +176,9 @@ const SubtaskCompleteModal: React.FC<SubtaskCompleteModalProps> = ({
 			revalidateSubtask();
 
 			onSave();
+
+			setTaskSidebarRefresh(new Date().getTime());
+
 			setForceRefetch && setForceRefetch(new Date().getTime());
 		}
 		catch (error) {

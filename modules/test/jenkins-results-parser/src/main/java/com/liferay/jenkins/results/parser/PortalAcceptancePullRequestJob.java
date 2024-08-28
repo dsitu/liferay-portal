@@ -5,14 +5,21 @@
 
 package com.liferay.jenkins.results.parser;
 
+import com.liferay.jenkins.results.parser.test.batch.TestBatch;
+import com.liferay.jenkins.results.parser.test.clazz.group.BatchTestClassGroup;
+import com.liferay.jenkins.results.parser.test.suite.RelevantTestSuite;
+
 import java.io.File;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -23,6 +30,43 @@ import org.json.JSONObject;
  */
 public class PortalAcceptancePullRequestJob
 	extends PortalAcceptanceTestSuiteJob implements PortalWorkspaceJob {
+
+	@Override
+	public List<BatchTestClassGroup> getBatchTestClassGroups() {
+		synchronized (jobProperties) {
+			if (_isRelevantTestSuite()) {
+				PortalGitWorkingDirectory portalGitWorkingDirectory =
+					getPortalGitWorkingDirectory();
+
+				Properties testProperties =
+					JenkinsResultsParserUtil.getProperties(
+						new File(
+							portalGitWorkingDirectory.getWorkingDirectory(),
+							"test.properties"));
+
+				boolean relevantEngineEnabled = Boolean.parseBoolean(
+					testProperties.getProperty("relevant.engine.enabled"));
+
+				if (relevantEngineEnabled) {
+					if (batchTestClassGroups != null) {
+						return batchTestClassGroups;
+					}
+
+					System.out.println("Relevant engine is enabled");
+
+					batchTestClassGroups = Collections.synchronizedList(
+						new ArrayList<BatchTestClassGroup>());
+
+					batchTestClassGroups.addAll(
+						getBatchTestClassGroups(getTestBatches()));
+
+					return batchTestClassGroups;
+				}
+			}
+		}
+
+		return super.getBatchTestClassGroups();
+	}
 
 	public boolean isCentralMergePullRequest() {
 		if (_centralMergePullRequest != null) {
@@ -102,6 +146,21 @@ public class PortalAcceptancePullRequestJob
 		}
 
 		return batchNames;
+	}
+
+	@Override
+	protected List<TestBatch> getTestBatches() {
+		if (!_isRelevantTestSuite()) {
+			return super.getTestBatches();
+		}
+
+		RelevantTestSuite relevantTestSuite = new RelevantTestSuite(this);
+
+		List<TestBatch> testBatches = relevantTestSuite.getTestBatches();
+
+		recordJobProperties(relevantTestSuite.getTestBatchNamesJobProperties());
+
+		return testBatches;
 	}
 
 	private boolean _hasMatchingFiles(List<PathMatcher> pathMatchers) {

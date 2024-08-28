@@ -169,7 +169,7 @@ public class KBCommentLocalServiceImpl extends KBCommentLocalServiceBaseImpl {
 
 		return kbCommentPersistence.findByU_C_C_Last(
 			userId, _classNameLocalService.getClassNameId(className), classPK,
-			new KBCommentCreateDateComparator());
+			KBCommentCreateDateComparator.getInstance(false));
 	}
 
 	@Override
@@ -213,7 +213,7 @@ public class KBCommentLocalServiceImpl extends KBCommentLocalServiceBaseImpl {
 
 		return getKBComments(
 			className, classPK, status, start, end,
-			new KBCommentCreateDateComparator());
+			KBCommentCreateDateComparator.getInstance(false));
 	}
 
 	@Override
@@ -242,7 +242,7 @@ public class KBCommentLocalServiceImpl extends KBCommentLocalServiceBaseImpl {
 
 		return kbCommentPersistence.findByC_C_S(
 			_classNameLocalService.getClassNameId(className), classPK, status,
-			start, end, new KBCommentCreateDateComparator());
+			start, end, KBCommentCreateDateComparator.getInstance(false));
 	}
 
 	@Override
@@ -491,7 +491,6 @@ public class KBCommentLocalServiceImpl extends KBCommentLocalServiceBaseImpl {
 				kbArticle, serviceContext);
 
 		subscriptionSender.setBody(body);
-		subscriptionSender.setCompanyId(kbArticle.getCompanyId());
 		subscriptionSender.setContextAttribute(
 			"[$ARTICLE_CONTENT$]", kbArticleContent, false);
 		subscriptionSender.setContextAttribute(

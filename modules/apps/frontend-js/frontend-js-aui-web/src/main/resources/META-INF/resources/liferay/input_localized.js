@@ -59,6 +59,11 @@ AUI.add(
 					value: defaultLanguageId,
 				},
 
+				edited: {
+					validator: Lang.isBoolean,
+					value: false,
+				},
+
 				editor: {},
 
 				fieldPrefix: {
@@ -362,6 +367,10 @@ AUI.add(
 						value = input.val();
 					}
 
+					if (Liferay.FeatureFlags['LPD-11228']) {
+						instance.set('edited', true);
+					}
+
 					instance.updateInputLanguage(value);
 				},
 
@@ -468,6 +477,11 @@ AUI.add(
 							item: event.item,
 							source: instance,
 						});
+
+						Liferay.fire('journal:localeChanged', {
+							item: event.item,
+							source: instance,
+						});
 					}
 				},
 
@@ -569,6 +583,18 @@ AUI.add(
 				_selectedLanguageIdAtom: null,
 
 				_selectedLanguageIdSubscription: null,
+
+				_storeState() {
+					const instance = this;
+
+					if (instance.get('edited')) {
+						instance.set('edited', false);
+
+						Liferay.fire('journal:storeState', {
+							fieldName: instance.get('name'),
+						});
+					}
+				},
 
 				_updateHelpMessage(languageId) {
 					const instance = this;
@@ -797,6 +823,14 @@ AUI.add(
 					];
 
 					if (!instance.get('editor')) {
+						if (Liferay.FeatureFlags['LPD-11228']) {
+							eventHandles.push(
+								inputPlaceholder.on(
+									'blur',
+									A.bind('_storeState', instance)
+								)
+							);
+						}
 						eventHandles.push(
 							inputPlaceholder.on(
 								'input',

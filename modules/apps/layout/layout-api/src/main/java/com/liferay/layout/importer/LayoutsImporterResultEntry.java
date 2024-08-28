@@ -5,10 +5,19 @@
 
 package com.liferay.layout.importer;
 
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.language.LanguageUtil;
+
+import java.util.Locale;
+
 /**
  * @author Rubén Pulido
  */
 public class LayoutsImporterResultEntry {
+
+	public static final int TYPE_COLLECTION = 0;
+
+	public static final int TYPE_ENTRY = 1;
 
 	public LayoutsImporterResultEntry(String name, int type, Status status) {
 		_name = name;
@@ -17,7 +26,7 @@ public class LayoutsImporterResultEntry {
 	}
 
 	public LayoutsImporterResultEntry(
-		String name, int type, Status status, String errorMessage) {
+		String name, int type, Status status, ErrorMessage errorMessage) {
 
 		_name = name;
 		_type = type;
@@ -35,7 +44,7 @@ public class LayoutsImporterResultEntry {
 	}
 
 	public LayoutsImporterResultEntry(
-		String name, Status status, String errorMessage) {
+		String name, Status status, ErrorMessage errorMessage) {
 
 		_name = name;
 		_status = status;
@@ -50,8 +59,12 @@ public class LayoutsImporterResultEntry {
 		_warningMessages = warningMessages;
 	}
 
-	public String getErrorMessage() {
-		return _errorMessage;
+	public String getErrorMessage(Locale locale) {
+		if (_errorMessage == null) {
+			return StringPool.BLANK;
+		}
+
+		return _errorMessage.getErrorMessage(locale);
 	}
 
 	public String getName() {
@@ -70,6 +83,22 @@ public class LayoutsImporterResultEntry {
 		return _warningMessages;
 	}
 
+	public static class ErrorMessage {
+
+		public ErrorMessage(String[] arguments, String message) {
+			_arguments = arguments;
+			_message = message;
+		}
+
+		public String getErrorMessage(Locale locale) {
+			return LanguageUtil.format(locale, _message, _arguments);
+		}
+
+		private final String[] _arguments;
+		private final String _message;
+
+	}
+
 	public enum Status {
 
 		IGNORED("ignored"), IMPORTED("imported"), INVALID("invalid");
@@ -86,10 +115,10 @@ public class LayoutsImporterResultEntry {
 
 	}
 
-	private String _errorMessage;
+	private ErrorMessage _errorMessage;
 	private final String _name;
 	private final Status _status;
-	private int _type = -1;
+	private int _type = TYPE_ENTRY;
 	private String[] _warningMessages;
 
 }

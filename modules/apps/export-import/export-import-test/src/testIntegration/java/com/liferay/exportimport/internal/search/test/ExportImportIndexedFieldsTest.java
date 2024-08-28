@@ -16,6 +16,7 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.test.rule.SearchTestRule;
@@ -128,10 +129,12 @@ public class ExportImportIndexedFieldsTest {
 	}
 
 	private Map<String, String> _expectedFieldValues(
-		ExportImportConfiguration exportImportConfiguration) {
+			ExportImportConfiguration exportImportConfiguration)
+		throws Exception {
 
 		Map<String, Serializable> setttingMap =
 			exportImportConfiguration.getSettingsMap();
+		User user = TestPropsValues.getUser();
 
 		Map<String, String> map = HashMapBuilder.put(
 			Field.COMPANY_ID,
@@ -172,8 +175,12 @@ public class ExportImportIndexedFieldsTest {
 			String.valueOf(
 				exportImportConfiguration.getExportImportConfigurationId())
 		).put(
+			"groupExternalReferenceCode", _group.getExternalReferenceCode()
+		).put(
 			"name_sortable",
 			StringUtil.lowerCase(exportImportConfiguration.getName())
+		).put(
+			"scopeGroupExternalReferenceCode", _group.getExternalReferenceCode()
 		).put(
 			"setting_locale", String.valueOf(setttingMap.get("locale"))
 		).put(
@@ -187,8 +194,12 @@ public class ExportImportIndexedFieldsTest {
 		).put(
 			"setting_userId", String.valueOf(setttingMap.get("userId"))
 		).put(
+			"statusByUserExternalReferenceCode", user.getExternalReferenceCode()
+		).put(
 			"statusByUserId",
 			String.valueOf(exportImportConfiguration.getStatusByUserId())
+		).put(
+			"userExternalReferenceCode", user.getExternalReferenceCode()
 		).build();
 
 		_populateDates(exportImportConfiguration, map);

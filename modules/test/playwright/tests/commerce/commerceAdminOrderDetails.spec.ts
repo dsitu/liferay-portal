@@ -6,12 +6,17 @@
 import {expect, mergeTests} from '@playwright/test';
 
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
+import {applicationsMenuPageTest} from '../../fixtures/applicationsMenuPageTest';
 import {commercePagesTest} from '../../fixtures/commercePagesTest';
 import {dataApiHelpersTest} from '../../fixtures/dataApiHelpersTest';
 import {loginTest} from '../../fixtures/loginTest';
+import getRandomString from '../../utils/getRandomString';
+import performLogin, {performLogout} from '../../utils/performLogin';
+import {miniumSetUp} from './utils/commerce';
 
 export const test = mergeTests(
 	apiHelpersTest,
+	applicationsMenuPageTest,
 	commercePagesTest,
 	dataApiHelpersTest,
 	loginTest()
@@ -52,7 +57,12 @@ test('LPD-15231 Escape account name on admin order details page', async ({
 
 	await commerceAdminOrdersPage.goto();
 
-	await (await commerceAdminOrdersPage.ordersTableRowLink(cart.id)).click();
+	await (
+		await commerceAdminOrdersPage.tableRowLink({
+			colIndex: 1,
+			rowValue: cart.id,
+		})
+	).click();
 
 	await expect(
 		commerceAdminOrderDetailsPage.headerDetailsTitle
@@ -61,4 +71,464 @@ test('LPD-15231 Escape account name on admin order details page', async ({
 	await expect(
 		commerceAdminOrderDetailsPage.commerceOrderAccountEntryName
 	).toHaveText(account.name);
+});
+
+test('LPD-26244 Split order items are shown on admin order details page when show separate order items toggle is enabled', async ({
+	apiHelpers,
+	commerceAdminChannelDetailsPage,
+	commerceAdminChannelsPage,
+	commerceAdminOrderDetailsPage,
+	commerceAdminOrdersPage,
+}) => {
+	const site = await apiHelpers.headlessSite.createSite({
+		name: getRandomString(),
+	});
+
+	apiHelpers.data.push({id: site.id, type: 'site'});
+
+	const channel = await apiHelpers.headlessCommerceAdminChannel.postChannel({
+		name: getRandomString(),
+		siteGroupId: site.id,
+	});
+
+	await commerceAdminChannelsPage.goto();
+
+	await (
+		await commerceAdminChannelsPage.channelsTableRowLink(channel.name)
+	).click();
+
+	await (
+		await commerceAdminChannelDetailsPage.showSeparateOrderItemsToggle
+	).check();
+
+	await expect(
+		await commerceAdminChannelDetailsPage.showSeparateOrderItemsToggle
+	).toBeChecked();
+
+	await (await commerceAdminChannelDetailsPage.saveButton).click();
+
+	await expect(
+		await commerceAdminChannelDetailsPage.showSeparateOrderItemsToggle
+	).toBeChecked();
+
+	const catalog = await apiHelpers.headlessCommerceAdminCatalog.postCatalog({
+		name: getRandomString(),
+	});
+
+	const product = await apiHelpers.headlessCommerceAdminCatalog.postProduct({
+		catalogId: catalog.id,
+		name: {en_US: getRandomString()},
+	});
+
+	const productSkus = await apiHelpers.headlessCommerceAdminCatalog
+		.getProduct(product.productId)
+		.then((product) => {
+			return product.skus;
+		});
+
+	const sku = productSkus[0];
+
+	const account = await apiHelpers.headlessAdminUser.postAccount({
+		name: getRandomString(),
+		type: 'person',
+	});
+
+	apiHelpers.data.push({id: account.id, type: 'account'});
+
+	await apiHelpers.headlessAdminUser.assignUserToAccountByEmailAddress(
+		account.id,
+		['test@liferay.com']
+	);
+
+	const cartItem1 = {
+		options: '[]',
+		quantity: 1,
+		replacedSkuId: 0,
+		skuId: sku.id,
+	};
+
+	const cartItem2 = {
+		options: '[]',
+		quantity: 10,
+		replacedSkuId: 0,
+		skuId: sku.id,
+	};
+
+	const cart = await apiHelpers.headlessCommerceDeliveryCart.postCart(
+		{
+			accountId: account.id,
+			cartItems: [cartItem1, cartItem2],
+		},
+		channel.id
+	);
+
+	await commerceAdminOrdersPage.goto();
+
+	await (
+		await commerceAdminOrdersPage.tableRowLink({
+			colIndex: 1,
+			rowValue: cart.id,
+		})
+	).click();
+
+	await expect(
+		commerceAdminOrderDetailsPage.headerDetailsTitle
+	).toBeVisible();
+
+	await expect(
+		(
+			await commerceAdminOrderDetailsPage.tableRow(
+				2,
+				product.name['en_US'],
+				true
+			)
+		).row
+	).toBeVisible();
+
+	await expect(
+		(
+			await commerceAdminOrderDetailsPage.tableRow(
+				8,
+				cartItem1.quantity,
+				true
+			)
+		).row
+	).toBeVisible();
+
+	await expect(
+		(
+			await commerceAdminOrderDetailsPage.tableRow(
+				8,
+				cartItem2.quantity,
+				true
+			)
+		).row
+	).toBeVisible();
+});
+
+test('COMMERCE-11888. As a supplier user, I can edit the order details, payments and shipments', async ({
+	apiHelpers,
+	applicationsMenuPage,
+	commerceAdminChannelDetailsPage,
+	commerceAdminChannelsPage,
+	commerceAdminOrderDetailsPage,
+	commerceAdminOrdersPage,
+	page,
+}) => {
+	test.setTimeout(180000);
+
+	const {channel} = await miniumSetUp(apiHelpers);
+
+	const accountBusiness = await apiHelpers.headlessAdminUser.postAccount({
+		name: 'Account Business',
+		type: 'business',
+	});
+
+	apiHelpers.data.push({id: accountBusiness.id, type: 'account'});
+
+	const phoneNumber = '12345';
+
+	const address = await apiHelpers.headlessCommerceAdminAccount.postAddress(
+		accountBusiness.id,
+		{phoneNumber, regionISOCode: 'AL'}
+	);
+
+	const accountSupplier = await apiHelpers.headlessAdminUser.postAccount({
+		name: 'Account Supplier',
+		type: 'supplier',
+	});
+
+	apiHelpers.data.push({id: accountSupplier.id, type: 'account'});
+
+	await apiHelpers.headlessAdminUser.assignUserToAccountByEmailAddress(
+		accountSupplier.id,
+		['demo.unprivileged@liferay.com']
+	);
+
+	const rolesResponse = await apiHelpers.headlessAdminUser.getAccountRoles(
+		accountSupplier.id
+	);
+
+	const accountSupplierRole = rolesResponse?.items?.filter((role) => {
+		return role.name === 'Account Supplier';
+	});
+
+	await apiHelpers.headlessAdminUser.assignAccountRoles(
+		accountSupplier.externalReferenceCode,
+		accountSupplierRole[0].id,
+		'demo.unprivileged@liferay.com'
+	);
+
+	await apiHelpers.headlessCommerceAdminChannel.patchChannelWithAccountId(
+		accountSupplier.id,
+		channel
+	);
+
+	const deliveryTerm1 = await apiHelpers.headlessCommerceAdminOrder.postTerms(
+		{
+			type: 'delivery-terms',
+		}
+	);
+
+	const deliveryTerm2 = await apiHelpers.headlessCommerceAdminOrder.postTerms(
+		{
+			type: 'delivery-terms',
+		}
+	);
+
+	const paymentTerm1 = await apiHelpers.headlessCommerceAdminOrder.postTerms({
+		type: 'payment-terms',
+	});
+
+	const paymentTerm2 = await apiHelpers.headlessCommerceAdminOrder.postTerms({
+		type: 'payment-terms',
+	});
+
+	const orderType = await apiHelpers.headlessCommerceAdminOrder.postOrderType(
+		{
+			active: true,
+		}
+	);
+
+	await commerceAdminChannelsPage.goto();
+	await (
+		await commerceAdminChannelsPage.channelsTableRowLink(channel.name)
+	).click();
+	await commerceAdminChannelDetailsPage.activateChannelConfiguration(
+		'Money Order',
+		'Payment Methods'
+	);
+	await (
+		await commerceAdminChannelDetailsPage.generalCommerceAdminChannelTableLink(
+			'Money Order'
+		)
+	).click();
+	await commerceAdminChannelDetailsPage.setEntryEligibility(
+		'Specific Payment Terms',
+		paymentTerm1.name,
+		'Payment Methods'
+	);
+	await commerceAdminChannelDetailsPage.activateChannelConfiguration(
+		'PayPal',
+		'Payment Methods'
+	);
+	await (
+		await commerceAdminChannelDetailsPage.generalCommerceAdminChannelTableLink(
+			'PayPal'
+		)
+	).click();
+	await commerceAdminChannelDetailsPage.setEntryEligibility(
+		'Specific Payment Terms',
+		paymentTerm2.name,
+		'Payment Methods'
+	);
+	await commerceAdminChannelDetailsPage.activateChannelConfiguration(
+		'Flat Rate',
+		'Shipping Methods'
+	);
+	await (
+		await commerceAdminChannelDetailsPage.generalCommerceAdminChannelTableLink(
+			'Flat Rate'
+		)
+	).click();
+	await commerceAdminChannelDetailsPage.setEntryEligibility(
+		'Specific Delivery Terms',
+		deliveryTerm1.name,
+		'Shipping Methods',
+		'Expedited Delivery'
+	);
+	await commerceAdminChannelDetailsPage.setEntryEligibility(
+		'Specific Delivery Terms',
+		deliveryTerm2.name,
+		'Shipping Methods',
+		'Standard Delivery'
+	);
+
+	const miniumProduct =
+		await apiHelpers.headlessCommerceAdminCatalog.getProducts(
+			new URLSearchParams({
+				filter: `name eq 'Abs Sensor'`,
+			})
+		);
+
+	const miniumProductId = miniumProduct.items[0].productId;
+
+	const productSkus = await apiHelpers.headlessCommerceAdminCatalog
+		.getProduct(miniumProductId)
+		.then((product) => {
+			return product.skus;
+		});
+
+	const sku = productSkus[0];
+
+	const order = await apiHelpers.headlessCommerceAdminOrder.postOrder({
+		accountId: accountBusiness.id,
+		billingAddressId: address.id,
+		channelId: channel.id,
+		orderItems: [
+			{
+				quantity: 2,
+				skuId: sku.id,
+			},
+		],
+		orderStatus: '1',
+		paymentMethod: 'paypal-integration',
+		paymentStatus: '0',
+		shippingAddressId: address.id,
+	});
+
+	apiHelpers.data.push({id: order.id, type: 'order'});
+
+	await performLogout(page);
+	await performLogin(page, 'demo.unprivileged');
+
+	await applicationsMenuPage.goToCommerceOrders(false);
+
+	await (
+		await commerceAdminOrdersPage.tableRowLink({
+			colIndex: 1,
+			rowValue: order.id,
+		})
+	).click();
+
+	await expect(
+		page.getByText('PendingProcessingShippedCompleted')
+	).toBeVisible();
+
+	await expect(
+		await commerceAdminOrderDetailsPage.editEntryActionLink(
+			'Billing Address Edit',
+			'Edit'
+		)
+	).toBeVisible();
+
+	await (
+		await commerceAdminOrderDetailsPage.editEntryActionLink(
+			'Billing Address Edit',
+			'Edit'
+		)
+	).click();
+
+	await (
+		await commerceAdminOrderDetailsPage.editEntryActionLink(
+			'Billing Address Edit',
+			'Edit'
+		)
+	).waitFor();
+
+	await expect(
+		await commerceAdminOrderDetailsPage.orderDetailsModalHeader(
+			'Edit Billing Address'
+		)
+	).toBeVisible();
+
+	const city = 'City';
+	const country = 'Italy';
+	const region = 'Lombardia';
+	const streetName = 'Street1';
+	const zip = 'zip';
+
+	await commerceAdminOrderDetailsPage.editAddress(
+		city,
+		country,
+		region,
+		streetName,
+		zip
+	);
+
+	await page.waitForLoadState('domcontentloaded');
+
+	await expect(
+		page.getByText('PendingProcessingShippedCompleted')
+	).toBeVisible();
+
+	await expect(
+		await commerceAdminOrderDetailsPage.orderDetailsEntryDescription(
+			'Billing Address'
+		)
+	).toContainText(`${city}, ${region}, ${zip}`);
+
+	await expect(
+		await commerceAdminOrderDetailsPage.orderDetailsEntryDescription(
+			'Shipping Address'
+		)
+	).toContainText(`${city}, ${region}, ${zip}`);
+
+	await expect(
+		await commerceAdminOrderDetailsPage.editEntryActionLink(
+			'Payment Terms Add',
+			'Add'
+		)
+	).toBeVisible();
+
+	await (
+		await commerceAdminOrderDetailsPage.editEntryActionLink(
+			'Payment Terms Add',
+			'Add'
+		)
+	).click();
+
+	await commerceAdminOrderDetailsPage.selectPaymentTerms.click();
+	await commerceAdminOrderDetailsPage.selectPaymentTerms.selectOption(
+		paymentTerm1.id.toString()
+	);
+	await commerceAdminOrderDetailsPage.submitModalButton.click();
+
+	await page.waitForLoadState('domcontentloaded');
+
+	await expect(
+		await commerceAdminOrderDetailsPage.orderDetailsEntryDescription(
+			'Payment Terms'
+		)
+	).toContainText(paymentTerm1.label['en_US']);
+
+	await (
+		await commerceAdminOrderDetailsPage.editEntryActionLink(
+			'Delivery Terms Add',
+			'Add'
+		)
+	).scrollIntoViewIfNeeded();
+
+	await (
+		await commerceAdminOrderDetailsPage.editEntryActionLink(
+			'Delivery Terms Add',
+			'Add'
+		)
+	).click();
+
+	await commerceAdminOrderDetailsPage.selectDeliveryTerms.click();
+
+	await commerceAdminOrderDetailsPage.selectDeliveryTerms.selectOption(
+		deliveryTerm1.id.toString()
+	);
+	await commerceAdminOrderDetailsPage.submitModalButton.click();
+
+	await expect(
+		await commerceAdminOrderDetailsPage.orderDetailsEntryDescription(
+			'Delivery Terms'
+		)
+	).toContainText(deliveryTerm1.label['en_US']);
+	await expect(
+		await commerceAdminOrderDetailsPage.orderDetailsEntryDescription(
+			'Order Type'
+		)
+	).toContainText(orderType.name['en_US']);
+
+	await (
+		await commerceAdminOrderDetailsPage.orderDetailsTab('Payments')
+	).click();
+	await (
+		await commerceAdminOrderDetailsPage.editEntryActionLink(
+			'Payment Method Edit',
+			'Edit'
+		)
+	).click();
+	await (
+		await commerceAdminOrderDetailsPage.paymentMethodRadioButton('PayPal')
+	).check();
+	await commerceAdminOrderDetailsPage.submitPaymentMethod.click();
+
+	await page.waitForLoadState('domcontentloaded');
+
+	await expect(page.getByText('PayPal', {exact: true})).toBeVisible();
 });

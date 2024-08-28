@@ -25,6 +25,7 @@ import com.liferay.layout.util.structure.FormStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.FragmentStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.layout.util.structure.LayoutStructureItem;
+import com.liferay.layout.util.structure.LayoutStructureItemUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -184,8 +185,9 @@ public class FormItemManager {
 			_jsonFactory.createJSONArray();
 
 		for (String itemId :
-				ListUtil.copy(
-					formStyledLayoutStructureItem.getChildrenItemIds())) {
+				LayoutStructureItemUtil.getChildrenItemIds(
+					formStyledLayoutStructureItem.getItemId(),
+					layoutStructure)) {
 
 			if (ListUtil.isNotEmpty(removedItemIds) &&
 				!removedItemIds.contains(itemId)) {
@@ -228,8 +230,9 @@ public class FormItemManager {
 
 		FragmentEntryLink fragmentEntryLink =
 			_fragmentEntryLinkService.addFragmentEntryLink(
-				layout.getGroupId(), 0, fragmentEntry.getFragmentEntryId(),
-				segmentsExperienceId, layout.getPlid(), fragmentEntry.getCss(),
+				null, layout.getGroupId(), 0,
+				fragmentEntry.getFragmentEntryId(), segmentsExperienceId,
+				layout.getPlid(), fragmentEntry.getCss(),
 				fragmentEntry.getHtml(), fragmentEntry.getJs(),
 				fragmentEntry.getConfiguration(), null, StringPool.BLANK, 0,
 				fragmentEntry.getFragmentEntryKey(), fragmentEntry.getType(),

@@ -17,6 +17,8 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.SortFactoryUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
+import java.util.Objects;
+
 /**
  * @author Alessio Antonio Rendina
  * @author Andrea Di Giorgi
@@ -36,14 +38,15 @@ public class CPOptionsPortletUtil {
 		OrderByComparator<CPOptionCategory> orderByComparator = null;
 
 		if (orderByCol.equals("modified-date")) {
-			orderByComparator = new CPOptionCategoryModifiedDateComparator(
-				orderByAsc);
+			orderByComparator =
+				CPOptionCategoryModifiedDateComparator.getInstance(orderByAsc);
 		}
 		else if (orderByCol.equals("group")) {
-			orderByComparator = new CPOptionCategoryTitleComparator(orderByAsc);
+			orderByComparator = CPOptionCategoryTitleComparator.getInstance(
+				orderByAsc);
 		}
 		else if (orderByCol.equals("priority")) {
-			orderByComparator = new CPOptionCategoryPriorityComparator(
+			orderByComparator = CPOptionCategoryPriorityComparator.getInstance(
 				orderByAsc);
 		}
 
@@ -61,13 +64,17 @@ public class CPOptionsPortletUtil {
 
 		Sort sort = null;
 
-		if (orderByCol.equals("title")) {
+		if (orderByCol.equals("group")) {
 			sort = SortFactoryUtil.create(
 				Field.TITLE, Sort.STRING_TYPE, reverse);
 		}
 		else if (orderByCol.equals("modified-date")) {
 			sort = SortFactoryUtil.create(
 				Field.MODIFIED_DATE + "_sortable", reverse);
+		}
+		else if (Objects.equals(orderByCol, "priority")) {
+			sort = SortFactoryUtil.create(
+				Field.PRIORITY + "_sortable", reverse);
 		}
 
 		return sort;
@@ -86,12 +93,13 @@ public class CPOptionsPortletUtil {
 		OrderByComparator<CPSpecificationOption> orderByComparator = null;
 
 		if (orderByCol.equals("label")) {
-			orderByComparator = new CPSpecificationOptionTitleComparator(
-				orderByAsc);
+			orderByComparator =
+				CPSpecificationOptionTitleComparator.getInstance(orderByAsc);
 		}
 		else if (orderByCol.equals("modified-date")) {
-			orderByComparator = new CPSpecificationOptionModifiedDateComparator(
-				orderByAsc);
+			orderByComparator =
+				CPSpecificationOptionModifiedDateComparator.getInstance(
+					orderByAsc);
 		}
 
 		return orderByComparator;

@@ -5,6 +5,7 @@
 
 package com.liferay.portal.security.password.encryptor.internal;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PwdEncryptorException;
 import com.liferay.portal.kernel.io.BigEndianCodec;
 import com.liferay.portal.kernel.security.SecureRandomUtil;
@@ -19,8 +20,12 @@ import java.nio.ByteBuffer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jodd.util.StringUtil;
+
+import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.jcajce.provider.util.DigestFactory;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -52,7 +57,8 @@ public class PBKDF2PasswordEncryptor implements PasswordEncryptor {
 				algorithm, encryptedPassword);
 
 			PKCS5S2ParametersGenerator pkcs5S2ParametersGenerator =
-				new PKCS5S2ParametersGenerator();
+				new PKCS5S2ParametersGenerator(
+					pbkdf2EncryptionConfiguration.getDigest());
 
 			pkcs5S2ParametersGenerator.init(
 				plainTextPassword.getBytes(),
@@ -85,7 +91,7 @@ public class PBKDF2PasswordEncryptor implements PasswordEncryptor {
 
 	private static final int _KEY_SIZE = 160;
 
-	private static final int _ROUNDS = 720000;
+	private static final int _ROUNDS = 1300000;
 
 	private static final int _SALT_BYTES_LENGTH = 16;
 
@@ -134,6 +140,21 @@ public class PBKDF2PasswordEncryptor implements PasswordEncryptor {
 						bufferUnderflowException);
 				}
 			}
+
+			int index = StringUtil.indexOfIgnoreCase(algorithm, "SHA");
+
+			if (index < 0) {
+				return;
+			}
+
+			String[] parts = StringUtil.split(
+				algorithm.substring(index), StringPool.FORWARD_SLASH);
+
+			_digest = DigestFactory.getDigest(parts[0]);
+		}
+
+		public Digest getDigest() {
+			return _digest;
 		}
 
 		public int getKeySize() {
@@ -148,6 +169,7 @@ public class PBKDF2PasswordEncryptor implements PasswordEncryptor {
 			return _saltBytes;
 		}
 
+		private Digest _digest = DigestFactory.getDigest("SHA1");
 		private int _keySize = _KEY_SIZE;
 		private int _rounds = _ROUNDS;
 		private byte[] _saltBytes;

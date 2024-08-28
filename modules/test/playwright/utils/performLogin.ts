@@ -13,7 +13,7 @@ export type LoginScreenName =
 	| 'demo.unprivileged'
 	| 'test';
 
-const userData = {
+export const userData = {
 	'demo.company.admin': {
 		name: 'Demo',
 		password: 'demo',
@@ -38,22 +38,38 @@ const userData = {
 
 async function performLogin(
 	page: Page,
-	screenName: LoginScreenName
+	screenName: LoginScreenName | string,
+	baseUrl = '/',
+	domain = '@liferay.com'
 ): Promise<Cookie[]> {
 	const {name, password, surname} = userData[screenName];
 
-	await page.goto('/');
+	await page.goto(baseUrl);
 
-	await page.getByRole('button', {name: 'Sign In'}).click();
+	const signInButton = page.getByRole('button', {name: 'Sign In'});
 
-	await page.getByLabel('Email Address').fill(`${screenName}@liferay.com`);
+	await expect(page.getByPlaceholder('Search')).toBeVisible();
+
+	await signInButton.click();
+
+	const emailAddressInput = page.getByLabel('Email Address');
+
+	await expect(emailAddressInput).toBeVisible();
+
+	await emailAddressInput.fill(`${screenName}${domain}`);
+
 	await page.getByLabel('Password').fill(password);
 	await page.getByLabel('Remember Me').check();
 
-	await page
-		.getByLabel('Sign In- Loading')
-		.getByRole('button', {name: 'Sign In'})
-		.click();
+	if ((await signInButton.count()) === 1) {
+		await signInButton.click();
+	}
+	else {
+		await page
+			.getByLabel('Sign In- Loading')
+			.getByRole('button', {name: 'Sign In'})
+			.click();
+	}
 
 	await expect(
 		page.getByLabel(`${name} ${surname} User Profile`)
@@ -67,9 +83,18 @@ async function performLogin(
 export async function performLogout(page: Page) {
 	await page.goto('/');
 
-	await page.getByTestId('userPersonalMenu').click();
+	await page.getByTitle('User Profile Menu').click();
 
 	await page.getByRole('menuitem', {name: 'Sign Out'}).click();
+}
+
+export async function performUserSwitch(
+	page: Page,
+	screenName: LoginScreenName | string
+) {
+	await performLogout(page);
+
+	await performLogin(page, screenName);
 }
 
 export default performLogin;

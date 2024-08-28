@@ -183,6 +183,7 @@ interface ObjectActionParameters {
 	secret?: string;
 	system?: boolean;
 	url?: string;
+	usePreferredLanguageForGuests?: boolean;
 }
 
 interface ObjectDefinition {
@@ -464,9 +465,10 @@ interface ObjectValidation {
 
 interface ObjectValidationRuleSetting {
 	name:
+		| 'allowActiveStatusUpdate'
 		| 'compositeKeyObjectFieldExternalReferenceCode'
 		| 'outputObjectFieldExternalReferenceCode';
-	value: string;
+	value: string | boolean;
 }
 
 interface PickListItem {

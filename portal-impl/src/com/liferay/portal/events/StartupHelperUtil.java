@@ -24,7 +24,6 @@ import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
 import com.liferay.portal.kernel.util.FileUtil;
-import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -64,7 +63,7 @@ public class StartupHelperUtil {
 			ReflectionUtil.throwException(exception);
 		}
 
-		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+		try {
 			ResourceActionsUtil.populateModelResources(
 				StartupHelperUtil.class.getClassLoader(),
 				PropsValues.RESOURCE_ACTIONS_CONFIGS);
@@ -81,6 +80,10 @@ public class StartupHelperUtil {
 	public static boolean isDBWarmed() {
 		return _dbWarmedSCLSingleton.getSingleton(
 			StartupHelperUtil::_isDBWarmed);
+	}
+
+	public static boolean isNewRelease() {
+		return _newRelease;
 	}
 
 	public static boolean isUpgrading() {
@@ -109,6 +112,10 @@ public class StartupHelperUtil {
 
 			_dbNew = dbNew;
 		}
+	}
+
+	public static void setNewRelease(boolean newRelease) {
+		_newRelease = newRelease;
 	}
 
 	public static void setUpgrading(boolean upgrading) {
@@ -256,6 +263,7 @@ public class StartupHelperUtil {
 	private static volatile boolean _dbNew;
 	private static final DCLSingleton<Boolean> _dbWarmedSCLSingleton =
 		new DCLSingleton<>();
+	private static boolean _newRelease;
 	private static volatile ServiceRegistration<?> _serviceRegistration;
 	private static volatile boolean _upgrading;
 

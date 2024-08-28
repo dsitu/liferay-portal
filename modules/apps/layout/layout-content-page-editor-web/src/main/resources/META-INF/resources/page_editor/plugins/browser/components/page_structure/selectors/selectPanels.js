@@ -29,6 +29,9 @@ import EditableLinkPanel from '../components/item_configuration_panels/EditableL
 import FormAdvancedPanel from '../components/item_configuration_panels/FormAdvancedPanel';
 import {FormGeneralPanel} from '../components/item_configuration_panels/FormGeneralPanel';
 import {FormInputGeneralPanel} from '../components/item_configuration_panels/FormInputGeneralPanel';
+import FormStepContainerAdvancedPanel from '../components/item_configuration_panels/FormStepContainerAdvancedPanel';
+import {FormStepContainerGeneralPanel} from '../components/item_configuration_panels/FormStepContainerGeneralPanel';
+import {FormStepContainerStylesPanel} from '../components/item_configuration_panels/FormStepContainerStylesPanel';
 import {FragmentAdvancedPanel} from '../components/item_configuration_panels/FragmentAdvancedPanel';
 import {FragmentGeneralPanel} from '../components/item_configuration_panels/FragmentGeneralPanel';
 import {FragmentStylesPanel} from '../components/item_configuration_panels/FragmentStylesPanel';
@@ -63,6 +66,9 @@ export const PANEL_IDS = {
 	formAdvancedPanel: 'formAdvancedPanel',
 	formGeneral: 'formGeneral',
 	formInputGeneral: 'formInputGeneral',
+	formStepContainerAdvanced: 'formStepContainerAdvanced',
+	formStepContainerGeneral: 'formStepContainerGeneral',
+	formStepContainerStyles: 'formStepContainer',
 	fragmentAdvanced: 'fragmentAdvanced',
 	fragmentGeneral: 'fragmentGeneral',
 	fragmentStyles: 'fragmentStyles',
@@ -155,6 +161,24 @@ export const PANELS = {
 	},
 	[PANEL_IDS.fragmentStyles]: {
 		component: FragmentStylesPanel,
+		label: Liferay.Language.get('styles'),
+		priority: 1,
+		type: PANEL_TYPES.styles,
+	},
+	[PANEL_IDS.formStepContainerAdvanced]: {
+		component: FormStepContainerAdvancedPanel,
+		label: Liferay.Language.get('advanced'),
+		priority: 0,
+		type: PANEL_TYPES.advanced,
+	},
+	[PANEL_IDS.formStepContainerGeneral]: {
+		component: FormStepContainerGeneralPanel,
+		label: Liferay.Language.get('general'),
+		priority: 2,
+		type: PANEL_TYPES.general,
+	},
+	[PANEL_IDS.formStepContainerStyles]: {
+		component: FormStepContainerStylesPanel,
 		label: Liferay.Language.get('styles'),
 		priority: 1,
 		type: PANEL_TYPES.styles,
@@ -290,6 +314,16 @@ export function selectPanels(activeItemId, activeItemType, state) {
 						state.selectedViewportSize === VIEWPORT_SIZES.desktop,
 					[PANEL_IDS.containerStyles]: haveAtLeastLimitedPermission,
 				};
+	}
+	else if (activeItem.type === LAYOUT_DATA_ITEM_TYPES.formStepContainer) {
+		panelsIds = {
+			[PANEL_IDS.formStepContainerAdvanced]:
+				(canUpdateItemAdvancedConfiguration &&
+					state.selectedViewportSize === VIEWPORT_SIZES.desktop) ||
+				canUpdateCSSAdvancedOptions,
+			[PANEL_IDS.formStepContainerGeneral]: true,
+			[PANEL_IDS.formStepContainerStyles]: haveAtLeastLimitedPermission,
+		};
 	}
 	else if (activeItem.type === LAYOUT_DATA_ITEM_TYPES.fragment) {
 		const {fragmentEntryKey, fragmentEntryType} =

@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.portal.util.PropsValues;
 
 import java.util.Collections;
 import java.util.Dictionary;
@@ -32,7 +33,6 @@ import javax.ws.rs.core.Response;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +54,6 @@ public class TOCTOUTest extends BaseClientTestCase {
 	/**
 	 * OAUTH2-101 / OAUTH2-102
 	 */
-	@Ignore
 	@Test
 	public void testPreventTOCTOUWithNewScopes() {
 
@@ -65,7 +64,8 @@ public class TOCTOUTest extends BaseClientTestCase {
 
 		String token = getToken(
 			"oauthTestApplicationCode", null,
-			getAuthorizationCodeBiFunction("test@liferay.com", "test", null),
+			getAuthorizationCodeBiFunction(
+				"test@liferay.com", PropsValues.DEFAULT_ADMIN_PASSWORD, null),
 			this::parseTokenString);
 
 		Invocation.Builder webTarget1InvocationBuilder = authorize(
@@ -109,7 +109,8 @@ public class TOCTOUTest extends BaseClientTestCase {
 			getToken(
 				"oauthTestApplicationCode", null,
 				getAuthorizationCodeBiFunction(
-					"test@liferay.com", "test", null, "everything.read"),
+					"test@liferay.com", PropsValues.DEFAULT_ADMIN_PASSWORD,
+					null, "everything.read"),
 				this::parseTokenString));
 
 		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
@@ -157,7 +158,8 @@ public class TOCTOUTest extends BaseClientTestCase {
 			getToken(
 				"oauthTestApplicationCode", null,
 				getAuthorizationCodeBiFunction(
-					"test@liferay.com", "test", null),
+					"test@liferay.com", PropsValues.DEFAULT_ADMIN_PASSWORD,
+					null),
 				this::parseTokenString));
 
 		Assert.assertEquals(

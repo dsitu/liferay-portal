@@ -166,7 +166,8 @@ public class DDLViewRecordsDisplayContext {
 			orderByComparator = new DDLRecordModifiedDateComparator(orderByAsc);
 		}
 		else {
-			orderByComparator = new DDLRecordCreateDateComparator(orderByAsc);
+			orderByComparator = DDLRecordCreateDateComparator.getInstance(
+				orderByAsc);
 		}
 
 		return orderByComparator;
@@ -192,13 +193,13 @@ public class DDLViewRecordsDisplayContext {
 			DDLRecordVersion recordVersion)
 		throws StorageException {
 
+		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
+			new LinkedHashMap<>();
+
 		DDMFormValues ddmFormValues = recordVersion.getDDMFormValues();
 
 		List<DDMFormFieldValue> ddmFormFieldValues =
 			ddmFormValues.getDDMFormFieldValues();
-
-		Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap =
-			new LinkedHashMap<>();
 
 		for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
 			_putDDMFormFieldValue(ddmFormFieldValuesMap, ddmFormFieldValue);

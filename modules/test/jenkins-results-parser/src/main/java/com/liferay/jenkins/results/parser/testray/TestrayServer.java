@@ -38,6 +38,29 @@ import org.json.JSONObject;
  */
 public class TestrayServer {
 
+	public TestrayProject createTestrayProject(String projectName) {
+		TestrayProject testrayProject = getTestrayProjectByName(projectName);
+
+		if (testrayProject != null) {
+			return testrayProject;
+		}
+
+		JSONObject requestJSONObject = new JSONObject();
+
+		requestJSONObject.put("name", projectName);
+
+		try {
+			JSONObject responseJSONObject = new JSONObject(
+				requestPost("/o/c/projects", requestJSONObject.toString()));
+
+			return getTestrayProjectByID(responseJSONObject.getLong("id"));
+		}
+		catch (IOException ioException) {
+			throw new RuntimeException(
+				requestJSONObject.toString(), ioException);
+		}
+	}
+
 	public JenkinsResultsParserUtil.HTTPAuthorization getHTTPAuthorization() {
 		return _httpAuthorization;
 	}
@@ -276,18 +299,25 @@ public class TestrayServer {
 
 	public String requestGet(String urlPath) throws IOException {
 		return JenkinsResultsParserUtil.toString(
-			getTestrayURL(urlPath), false,
+			getTestrayURL(urlPath), true,
 			JenkinsResultsParserUtil.HttpRequestMethod.GET, null,
+			getHTTPAuthorization());
+	}
+
+	public String requestPost(
+			boolean checkCache, String urlPath, String requestData)
+		throws IOException {
+
+		return JenkinsResultsParserUtil.toString(
+			getTestrayURL(urlPath), checkCache,
+			JenkinsResultsParserUtil.HttpRequestMethod.POST, requestData,
 			getHTTPAuthorization());
 	}
 
 	public String requestPost(String urlPath, String requestData)
 		throws IOException {
 
-		return JenkinsResultsParserUtil.toString(
-			getTestrayURL(urlPath), false,
-			JenkinsResultsParserUtil.HttpRequestMethod.POST, requestData,
-			getHTTPAuthorization());
+		return requestPost(false, urlPath, requestData);
 	}
 
 	public void setHTTPAuthorization(
@@ -349,16 +379,8 @@ public class TestrayServer {
 	}
 
 	protected List<JSONObject> requestGraphQL(
-			String entityName, String[] entityFields, String filter,
-			String sort)
-		throws IOException {
-
-		return requestGraphQL(entityName, entityFields, filter, sort, 0, 0);
-	}
-
-	protected List<JSONObject> requestGraphQL(
-			String entityName, String[] entityFields, String filter,
-			String sort, long maxCount, int pageSize)
+			boolean checkCache, String entityName, String[] entityFields,
+			String filter, String sort, long maxCount, int pageSize)
 		throws IOException {
 
 		if (maxCount <= 0) {
@@ -419,7 +441,8 @@ public class TestrayServer {
 			long start = JenkinsResultsParserUtil.getCurrentTimeMillis();
 
 			JSONObject responseJSONObject = new JSONObject(
-				requestPost("/o/graphql", requestJSONObject.toString()));
+				requestPost(
+					checkCache, "/o/graphql", requestJSONObject.toString()));
 
 			String duration = JenkinsResultsParserUtil.toDurationString(
 				JenkinsResultsParserUtil.getCurrentTimeMillis() - start);
@@ -460,6 +483,23 @@ public class TestrayServer {
 		}
 
 		return entityJSONObjects;
+	}
+
+	protected List<JSONObject> requestGraphQL(
+			String entityName, String[] entityFields, String filter,
+			String sort)
+		throws IOException {
+
+		return requestGraphQL(entityName, entityFields, filter, sort, 0, 0);
+	}
+
+	protected List<JSONObject> requestGraphQL(
+			String entityName, String[] entityFields, String filter,
+			String sort, long maxCount, int pageSize)
+		throws IOException {
+
+		return requestGraphQL(
+			false, entityName, entityFields, filter, sort, maxCount, pageSize);
 	}
 
 	private void _importCaseResultsFromCI(TopLevelBuild topLevelBuild) {

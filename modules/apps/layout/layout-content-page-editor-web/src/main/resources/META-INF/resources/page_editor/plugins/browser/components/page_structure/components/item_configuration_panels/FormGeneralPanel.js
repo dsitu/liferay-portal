@@ -20,54 +20,27 @@ import {
 	useItemLocalConfig,
 	useUpdateItemLocalConfig,
 } from '../../../../../../app/contexts/LocalConfigContext';
-import {
-	useDispatch,
-	useSelector,
-} from '../../../../../../app/contexts/StoreContext';
+import {useSelector} from '../../../../../../app/contexts/StoreContext';
 import selectLanguageId from '../../../../../../app/selectors/selectLanguageId';
-import updateFormItemConfig from '../../../../../../app/thunks/updateFormItemConfig';
 import {formIsMapped} from '../../../../../../app/utils/formIsMapped';
 import {formIsRestricted} from '../../../../../../app/utils/formIsRestricted';
 import {formIsUnavailable} from '../../../../../../app/utils/formIsUnavailable';
 import {getEditableLocalizedValue} from '../../../../../../app/utils/getEditableLocalizedValue';
 import {setIn} from '../../../../../../app/utils/setIn';
+import {useSaveFormConfig} from '../../../../../../app/utils/useSaveFormConfig';
 import CurrentLanguageFlag from '../../../../../../common/components/CurrentLanguageFlag';
 import DisplayPageSelector from '../../../../../../common/components/DisplayPageSelector';
 import {LayoutSelector} from '../../../../../../common/components/LayoutSelector';
 import {CommonStyles} from './CommonStyles';
 import ContainerDisplayOptions from './ContainerDisplayOptions';
 import FormMappingOptions from './FormMappingOptions';
+import FormMultistepOptions from './FormMultistepOptions';
 
 export function FormGeneralPanel({item}) {
 	const isMounted = useIsMounted();
-	const dispatch = useDispatch();
 	const updateItemLocalConfig = useUpdateItemLocalConfig();
 
-	const onValueSelect = useCallback(
-		(nextConfig, fields) => {
-			const isMapping = Boolean(nextConfig.classNameId);
-
-			if (isMapping) {
-				updateItemLocalConfig(item.itemId, {
-					loading: true,
-					showMessagePreview: false,
-				});
-			}
-
-			dispatch(
-				updateFormItemConfig({
-					fields,
-					itemConfig: nextConfig,
-					itemId: item.itemId,
-				})
-			).then(() =>
-				updateItemLocalConfig(item.itemId, {
-					loading: false,
-				})
-			);
-		},
-		[dispatch, item.itemId, updateItemLocalConfig]
-	);
+	const saveFormConfig = useSaveFormConfig(item);
 
 	useEffect(() => {
 		return () => {
@@ -103,7 +76,7 @@ export function FormGeneralPanel({item}) {
 
 	return (
 		<>
-			<FormOptions item={item} onValueSelect={onValueSelect} />
+			<FormOptions item={item} onValueSelect={saveFormConfig} />
 
 			{formIsMapped(item) && (
 				<div className="mb-3 panel-group-sm">
@@ -119,7 +92,7 @@ export function FormGeneralPanel({item}) {
 						<ClayPanel.Body>
 							<SuccessInteractionOptions
 								item={item}
-								onValueSelect={onValueSelect}
+								onValueSelect={saveFormConfig}
 							/>
 						</ClayPanel.Body>
 					</ClayPanel>
@@ -167,6 +140,13 @@ function FormOptions({item, onValueSelect}) {
 						item={item}
 						onValueSelect={onValueSelect}
 					/>
+
+					{formIsMapped(item) && Liferay.FeatureFlags['LPD-10727'] ? (
+						<FormMultistepOptions
+							item={item}
+							onValueSelect={onValueSelect}
+						/>
+					) : null}
 				</ClayPanel.Body>
 			</ClayPanel>
 		</div>

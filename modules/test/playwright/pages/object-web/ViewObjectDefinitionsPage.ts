@@ -33,9 +33,8 @@ export class ViewObjectDefinitionsPage {
 		this.confirmObjectFolderNameInput = page.locator(
 			'input[placeholder="Confirm Folder Name"]'
 		);
-		this.createObjectDefinitionButton = page.getByTestId(
-			'fdsCreationActionButton'
-		);
+		this.createObjectDefinitionButton =
+			page.getByLabel('Create New Object');
 		this.createObjectFolderButton = page.getByRole('button', {
 			name: 'Create Folder',
 		});
@@ -79,23 +78,9 @@ export class ViewObjectDefinitionsPage {
 		await this.page.getByRole('button', {name: 'Save'}).click();
 	}
 
-	async clickDefaultObjectFolder() {
-		await this.defaultObjectFolder.click();
-	}
-
-	async clickEditObjectDefinitionLink(objectDefinitionName: string) {
-		await this.page.getByRole('link', {name: objectDefinitionName}).click();
-	}
-
-	async clickDeleteObjectDefinition() {
-		await this.deleteObjectDefinitionOption.click();
-	}
-
-	async clickEditObjectDefinitionFDSLink(objectDefinitionLabel: string) {
-		await this.frontendDataSetEntries
-			.filter({
-				hasText: objectDefinitionLabel,
-			})
+	async clickEditObjectDefinitionLink(objectDefinitionLabel: string) {
+		await this.page
+			.getByRole('link', {exact: true, name: objectDefinitionLabel})
 			.click();
 	}
 
@@ -138,18 +123,10 @@ export class ViewObjectDefinitionsPage {
 		);
 	}
 
-	async openObjectFolderActions() {
-		await this.objectFolderActions.click();
-	}
-
 	async openObjectFolder(objectFolderLabel: string) {
 		await this.page
 			.getByRole('listitem')
 			.filter({hasText: objectFolderLabel})
 			.click();
-	}
-
-	async viewInModelBuilder() {
-		this.viewInModelBuilderButton.click();
 	}
 }

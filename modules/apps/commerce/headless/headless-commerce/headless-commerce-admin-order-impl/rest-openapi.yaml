@@ -276,6 +276,9 @@ components:
                     example: 2017-08-21
                     format: date
                     type: string
+                name:
+                    example: Order Name
+                    type: string
                 orderDate:
                     example: 2017-07-21
                     format: date
@@ -1390,7 +1393,7 @@ info:
         name: Commerce Team
     description:
         "Liferay Commerce Admin Order API. A Java client JAR is available for use with the group ID 'com.liferay',
-        artifact ID 'com.liferay.headless.commerce.admin.order.client', and version '4.0.41'."
+        artifact ID 'com.liferay.headless.commerce.admin.order.client', and version '4.0.42'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

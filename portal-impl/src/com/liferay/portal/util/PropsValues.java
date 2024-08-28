@@ -350,6 +350,11 @@ public class PropsValues {
 	public static final int COMBO_MAX_FILES = GetterUtil.getInteger(
 		PropsUtil.get(PropsKeys.COMBO_MAX_FILES), -1);
 
+	public static final boolean COMPANY_DEFAULT_ADD_DEFAULT_ADMIN_USER =
+		GetterUtil.getBoolean(
+			PropsUtil.get(PropsKeys.COMPANY_DEFAULT_ADD_DEFAULT_ADMIN_USER),
+			true);
+
 	public static final String COMPANY_DEFAULT_HOME_URL = PropsUtil.get(
 		PropsKeys.COMPANY_DEFAULT_HOME_URL);
 
@@ -1021,6 +1026,9 @@ public class PropsValues {
 	public static final boolean JSON_SERVICE_SERIALIZE_THROWABLE =
 		GetterUtil.getBoolean(
 			PropsUtil.get(PropsKeys.JSON_SERVICE_SERIALIZE_THROWABLE));
+
+	public static final int JSON_STRING_MAX_LENGTH = GetterUtil.getInteger(
+		PropsUtil.get(PropsKeys.JSON_STRING_MAX_LENGTH));
 
 	public static final boolean JSON_WEB_SERVICE_ENABLED =
 		GetterUtil.getBoolean(
@@ -2274,6 +2282,10 @@ public class PropsValues {
 
 	public static String[] STRIP_MIME_TYPES = PropsUtil.getArray(
 		PropsKeys.STRIP_MIME_TYPES);
+
+	public static final boolean TEMPLATE_ENGINE_CACHE_ENABLED =
+		GetterUtil.getBoolean(
+			PropsUtil.get(PropsKeys.TEMPLATE_ENGINE_CACHE_ENABLED));
 
 	public static final boolean
 		TEMPLATE_ENGINE_FREEMARKER_TRANSACTION_READ_ONLY =

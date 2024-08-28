@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"@clayui/core": "3.115.1",
+		"@clayui/core": "3.118.0",
 		"@clayui/icon": "3.111.0",
 		"@liferay/accessibility-settings-state-web": "*",
 		"@liferay/frontend-js-state-web": "*",
@@ -22,7 +22,7 @@
 		"build": "node-scripts build",
 		"checkFormat": "node-scripts format --check",
 		"format": "node-scripts format",
-		"test": "liferay-npm-scripts test"
+		"test": "node-scripts test"
 	},
-	"version": "5.0.42"
+	"version": "5.0.46"
 }

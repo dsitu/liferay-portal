@@ -361,7 +361,7 @@ String navSpecificationsId = liferayPortletResponse.getNamespace() + "navSpecifi
 						</div>
 
 						<div class="autofit-col autofit-col-expand">
-							<h5><%= HtmlUtil.escape(cpMedia.getTitle()) %></h5>
+							<div class="h5"><%= HtmlUtil.escape(cpMedia.getTitle()) %></div>
 
 							<p class="m-0"><%= LanguageUtil.formatStorageSize(cpMedia.getSize(), locale) %></p>
 						</div>
@@ -405,6 +405,7 @@ String navSpecificationsId = liferayPortletResponse.getNamespace() + "navSpecifi
 				dataProviderKey="<%= CPContentFDSNames.REPLACEMENT_CP_INSTANCES %>"
 				id="<%= CPContentFDSNames.REPLACEMENT_CP_INSTANCES %>"
 				itemsPerPage="<%= 10 %>"
+				propsTransformer="{replacementCPInstancePropsTransformer} from commerce-product-content-web"
 				style="stacked"
 			/>
 		</div>

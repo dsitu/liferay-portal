@@ -210,6 +210,34 @@ public class FragmentServiceUpgradeStepRegistrator
 				}
 
 			});
+
+		registry.register(
+			"2.11.0", "2.12.0",
+			new BaseExternalReferenceCodeUpgradeProcess() {
+
+				@Override
+				protected String[][] getTableAndPrimaryKeyColumnNames() {
+					return new String[][] {
+						{"FragmentComposition", "fragmentCompositionId"},
+						{"FragmentEntry", "fragmentEntryId"},
+						{"FragmentEntryVersion", "fragmentEntryId"}
+					};
+				}
+
+			});
+
+		registry.register(
+			"2.12.0", "2.13.0",
+			new BaseExternalReferenceCodeUpgradeProcess() {
+
+				@Override
+				protected String[][] getTableAndPrimaryKeyColumnNames() {
+					return new String[][] {
+						{"FragmentEntryLink", "fragmentEntryLinkId"}
+					};
+				}
+
+			});
 	}
 
 	@Reference

@@ -4,6 +4,12 @@
  */
 
 import type {ApiHelpers} from '../../../helpers/ApiHelpers';
+import type {postTaxonomyVocabularyTaxonomyCategoryProps} from '../../../helpers/HeadlessAdminTaxonomyApiHelper';
+
+export type TCategory = Omit<
+	postTaxonomyVocabularyTaxonomyCategoryProps,
+	'vocabularyId'
+>;
 
 export async function createCategories({
 	apiHelpers,
@@ -12,20 +18,33 @@ export async function createCategories({
 	vocabularyName,
 }: {
 	apiHelpers: ApiHelpers;
-	friendlyUrlCategories: string[];
+	friendlyUrlCategories: TCategory[];
 	site: Site;
 	vocabularyName: string;
-}) {
+}): Promise<({id: number} & TCategory)[]> {
 	const {id: vocabularyId} =
-		await apiHelpers.headlessAdminTaxonomy.createVocabulary({
+		await apiHelpers.headlessAdminTaxonomy.postSiteTaxonomyVocabulary({
 			name: vocabularyName,
 			siteId: site.id,
 		});
 
-	for (const categoryName of friendlyUrlCategories) {
-		await apiHelpers.headlessAdminTaxonomy.createCategory({
-			name: categoryName,
-			vocabularyId,
+	const categories = [];
+	for (const {name, name_i18n} of friendlyUrlCategories) {
+		const {id} =
+			await apiHelpers.headlessAdminTaxonomy.postTaxonomyVocabularyTaxonomyCategory(
+				{
+					name,
+					name_i18n,
+					vocabularyId,
+				}
+			);
+
+		categories.push({
+			id,
+			name,
+			name_i18n,
 		});
 	}
+
+	return categories;
 }

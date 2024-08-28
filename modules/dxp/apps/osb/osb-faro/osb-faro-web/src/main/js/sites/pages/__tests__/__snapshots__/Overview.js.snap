@@ -21,11 +21,11 @@ exports[`Sites Dashboard Overview render 1`] = `
           <div
             class="card-header align-items-center d-flex justify-content-between"
           >
-            <h5
+            <div
               class="card-title"
             >
               Test Channel Activities
-            </h5>
+            </div>
             <div
               class="d-flex"
             >
@@ -88,11 +88,11 @@ exports[`Sites Dashboard Overview render 1`] = `
           <div
             class="card-header align-items-center d-flex justify-content-between"
           >
-            <h5
+            <div
               class="card-title"
             >
               Top Pages
-            </h5>
+            </div>
             <div
               class="d-flex"
             >
@@ -192,11 +192,11 @@ exports[`Sites Dashboard Overview render 1`] = `
           <div
             class="card-header align-items-center d-flex justify-content-between"
           >
-            <h5
+            <div
               class="card-title"
             >
               Acquisitions
-            </h5>
+            </div>
             <div
               class="d-flex"
             >
@@ -284,11 +284,11 @@ exports[`Sites Dashboard Overview render 1`] = `
           <div
             class="card-header align-items-center d-flex justify-content-between"
           >
-            <h5
+            <div
               class="card-title"
             >
               Visitors by Day and Time
-            </h5>
+            </div>
             <div
               class="d-flex"
             >
@@ -318,11 +318,11 @@ exports[`Sites Dashboard Overview render 1`] = `
           <div
             class="card-header align-items-center d-flex justify-content-between"
           >
-            <h5
+            <div
               class="card-title"
             >
               Search Terms
-            </h5>
+            </div>
             <div
               class="d-flex"
             >
@@ -362,6 +362,24 @@ exports[`Sites Dashboard Overview render 1`] = `
               />
             </div>
           </div>
+          <div
+            class="card-footer"
+          >
+            <a
+              class="button-root btn btn-outline-borderless btn-sm btn-outline-secondary"
+              href="/workspace/23/123123/sites/search-terms?rangeKey=30"
+            >
+              All Search Terms
+              <svg
+                class="lexicon-icon lexicon-icon-angle-right-small icon-root ml-2"
+                role="presentation"
+              >
+                <use
+                  href="#angle-right-small"
+                />
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
       <div
@@ -374,11 +392,11 @@ exports[`Sites Dashboard Overview render 1`] = `
           <div
             class="card-header align-items-center d-flex justify-content-between"
           >
-            <h5
+            <div
               class="card-title"
             >
               Interests
-            </h5>
+            </div>
             <div
               class="d-flex"
             >
@@ -455,11 +473,11 @@ exports[`Sites Dashboard Overview render 1`] = `
           <div
             class="card-header align-items-center d-flex justify-content-between"
           >
-            <h5
+            <div
               class="card-title"
             >
               Sessions by Location
-            </h5>
+            </div>
             <div
               class="d-flex"
             >
@@ -490,11 +508,11 @@ exports[`Sites Dashboard Overview render 1`] = `
           <div
             class="card-header align-items-center d-flex justify-content-between"
           >
-            <h5
+            <div
               class="card-title"
             >
               Session Technology
-            </h5>
+            </div>
             <div
               class="d-flex"
             >
@@ -530,11 +548,11 @@ exports[`Sites Dashboard Overview render 1`] = `
             class="card-header"
             data-aria-hidden="true"
           >
-            <h5
+            <div
               class="card-title"
             >
               Cohort Analysis
-            </h5>
+            </div>
           </div>
           <div
             class="card-body"

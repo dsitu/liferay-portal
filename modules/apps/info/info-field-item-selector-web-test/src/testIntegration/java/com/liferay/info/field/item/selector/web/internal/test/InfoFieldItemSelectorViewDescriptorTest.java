@@ -14,16 +14,21 @@ import com.liferay.info.item.provider.InfoItemFormProvider;
 import com.liferay.item.selector.ItemSelectorCriterion;
 import com.liferay.item.selector.ItemSelectorView;
 import com.liferay.item.selector.ItemSelectorViewDescriptor;
+import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.provider.LayoutStructureProvider;
 import com.liferay.layout.test.util.ContentLayoutTestUtil;
 import com.liferay.layout.test.util.LayoutTestUtil;
+import com.liferay.layout.util.structure.LayoutStructure;
+import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.object.test.util.ObjectRelationshipTestUtil;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.search.ResultRowSplitter;
 import com.liferay.portal.kernel.dao.search.ResultRowSplitterEntry;
@@ -115,9 +120,10 @@ public class InfoFieldItemSelectorViewDescriptorTest {
 					ObjectFieldConstants.DB_TYPE_STRING, "myText", "myText",
 					false)));
 
-		ObjectRelationshipTestUtil.addObjectRelationship(
-			_objectRelationshipLocalService, _objectDefinition2,
-			_objectDefinition1);
+		ObjectRelationship objectRelationship =
+			ObjectRelationshipTestUtil.addObjectRelationship(
+				_objectRelationshipLocalService, _objectDefinition2,
+				_objectDefinition1);
 
 		ItemSelectorViewDescriptor<Object> itemSelectorViewDescriptor =
 			_getItemSelectorViewDescriptor(new MockHttpServletRequest());
@@ -139,12 +145,74 @@ public class InfoFieldItemSelectorViewDescriptorTest {
 		Assert.assertEquals(
 			resultRowSplitterEntries.toString(), 2,
 			resultRowSplitterEntries.size());
+
+		ResultRowSplitterEntry resultRowSplitterEntry1 =
+			resultRowSplitterEntries.get(0);
+
+		Assert.assertEquals(
+			_objectDefinition1.getLabel(LocaleUtil.getSiteDefault()),
+			resultRowSplitterEntry1.getTitle());
+
+		ResultRowSplitterEntry resultRowSplitterEntry2 =
+			resultRowSplitterEntries.get(1);
+
+		Assert.assertEquals(
+			StringBundler.concat(
+				objectRelationship.getLabel(LocaleUtil.getSiteDefault()), " (",
+				_objectDefinition2.getLabel(LocaleUtil.getSiteDefault()), ")"),
+			resultRowSplitterEntry2.getTitle());
 	}
 
 	@Test
 	public void testGetSearchContainer() throws Exception {
 		ItemSelectorViewDescriptor<Object> itemSelectorViewDescriptor =
 			_getItemSelectorViewDescriptor(new MockHttpServletRequest());
+
+		SearchContainer<Object> searchContainer =
+			itemSelectorViewDescriptor.getSearchContainer();
+
+		Assert.assertEquals(3, searchContainer.getTotal());
+	}
+
+	@Test
+	public void testGetSearchContainerWithFormTypeMultistep() throws Exception {
+		MockHttpServletRequest mockHttpServletRequest =
+			new MockHttpServletRequest();
+
+		Layout draftLayout = _layout.fetchDraftLayout();
+
+		long defaultSegmentsExperienceId =
+			_segmentsExperienceLocalService.fetchDefaultSegmentsExperienceId(
+				_layout.getPlid());
+
+		LayoutStructure layoutStructure = new LayoutStructure();
+
+		LayoutStructureItem rootLayoutStructureItem =
+			layoutStructure.addRootLayoutStructureItem();
+
+		LayoutStructureItem formStyledLayoutStructureItem =
+			layoutStructure.addFormStyledLayoutStructureItem(
+				rootLayoutStructureItem.getItemId(), 0);
+
+		LayoutStructureItem formStepContainerStyledLayoutStructureItem =
+			layoutStructure.addFormStepContainerStyledLayoutStructureItem(
+				formStyledLayoutStructureItem.getItemId(), 0);
+
+		layoutStructure.addFormStepLayoutStructureItem(
+			formStepContainerStyledLayoutStructureItem.getItemId(), 0);
+		layoutStructure.addFormStepLayoutStructureItem(
+			formStepContainerStyledLayoutStructureItem.getItemId(), 0);
+
+		_layoutPageTemplateStructureLocalService.
+			updateLayoutPageTemplateStructureData(
+				_group.getGroupId(), draftLayout.getPlid(),
+				defaultSegmentsExperienceId, layoutStructure.toString());
+
+		mockHttpServletRequest.setParameter(
+			"formItemId", formStyledLayoutStructureItem.getItemId());
+
+		ItemSelectorViewDescriptor<Object> itemSelectorViewDescriptor =
+			_getItemSelectorViewDescriptor(mockHttpServletRequest);
 
 		SearchContainer<Object> searchContainer =
 			itemSelectorViewDescriptor.getSearchContainer();
@@ -341,6 +409,10 @@ public class InfoFieldItemSelectorViewDescriptorTest {
 	private InfoItemServiceRegistry _infoItemServiceRegistry;
 
 	private Layout _layout;
+
+	@Inject
+	private LayoutPageTemplateStructureLocalService
+		_layoutPageTemplateStructureLocalService;
 
 	@Inject
 	private LayoutStructureProvider _layoutStructureProvider;

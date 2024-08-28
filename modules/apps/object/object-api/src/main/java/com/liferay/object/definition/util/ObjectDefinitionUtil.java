@@ -6,10 +6,10 @@
 package com.liferay.object.definition.util;
 
 import com.liferay.batch.engine.unit.BatchEngineUnitThreadLocal;
+import com.liferay.portal.events.StartupHelperUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PortalInstances;
 
 import java.util.Map;
@@ -54,9 +54,8 @@ public class ObjectDefinitionUtil {
 	}
 
 	public static boolean isInvokerBundleAllowed() {
-		if (DBUpgrader.isUpgradeClient() ||
-			PortalInstances.isCurrentCompanyInDeletionProcess() ||
-			PortalRunMode.isTestMode()) {
+		if (PortalInstances.isCurrentCompanyInDeletionProcess() ||
+			PortalRunMode.isTestMode() || StartupHelperUtil.isUpgrading()) {
 
 			return true;
 		}
@@ -88,7 +87,7 @@ public class ObjectDefinitionUtil {
 
 	private static final String[] _ALLOWED_INVOKER_BUNDLE_SYMBOLIC_NAMES = {
 		"com.liferay.commerce.service", "com.liferay.cookies.impl",
-		"com.liferay.frontend.data.set.views.web",
+		"com.liferay.frontend.data.set.admin.web",
 		"com.liferay.headless.builder.impl", "com.liferay.list.type.service",
 		"com.liferay.notification.service", "com.liferay.object.service"
 	};

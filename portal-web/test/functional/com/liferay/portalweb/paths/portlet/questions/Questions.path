@@ -167,7 +167,7 @@
 </tr>
 <tr>
 	<td>QUESTIONS_DEFAULT_SUBSCRIPTION_TOPICS</td>
-	<td>//div[contains(@class,'questions-container')]/div[contains(.,'Topics')]/div[contains(@class,'c-empty-state')]//span/span[contains(.,'There are no results.')]</td>
+	<td>//div[contains(@class,'questions-container')]/div[contains(.,'Topics')]/div[contains(@class,'c-empty-state')]//div/span[contains(.,'There are no results.')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -373,11 +373,6 @@
 <tr>
 	<td>TAGS_LIST_TAB_NAMES</td>
 	<td>//a[contains(@href, '${key_tagName}')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>TAGS_LIST_TAB_NO_RESULTS</td>
-	<td>//div[contains(@class,'container')]//div[contains(@class,'questions')]//span[@class='text-truncate']</td>
 	<td></td>
 </tr>
 <tr>

@@ -6,8 +6,10 @@
 package com.liferay.portal.kernel.test.util;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 
@@ -20,7 +22,9 @@ public class ServiceContextTestUtil {
 		return getServiceContext(TestPropsValues.getGroupId());
 	}
 
-	public static ServiceContext getServiceContext(Group group, long userId) {
+	public static ServiceContext getServiceContext(Group group, long userId)
+		throws PortalException {
+
 		return getServiceContext(
 			group.getCompanyId(), group.getGroupId(), userId, new long[0],
 			new String[0]);
@@ -47,15 +51,17 @@ public class ServiceContextTestUtil {
 	}
 
 	public static ServiceContext getServiceContext(
-		long companyId, long groupId, long userId) {
+			long companyId, long groupId, long userId)
+		throws PortalException {
 
 		return getServiceContext(
 			companyId, groupId, userId, new long[0], new String[0]);
 	}
 
 	public static ServiceContext getServiceContext(
-		long companyId, long groupId, long userId, long[] assetCategoryIds,
-		String[] assetTagNames) {
+			long companyId, long groupId, long userId, long[] assetCategoryIds,
+			String[] assetTagNames)
+		throws PortalException {
 
 		ServiceContext serviceContext = new ServiceContext();
 
@@ -64,6 +70,11 @@ public class ServiceContextTestUtil {
 		serviceContext.setAssetCategoryIds(assetCategoryIds);
 		serviceContext.setAssetTagNames(assetTagNames);
 		serviceContext.setCompanyId(companyId);
+
+		Company company = CompanyLocalServiceUtil.getCompany(companyId);
+
+		serviceContext.setPortalURL(company.getPortalURL(groupId));
+
 		serviceContext.setScopeGroupId(groupId);
 		serviceContext.setUserId(userId);
 

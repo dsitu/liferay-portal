@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.liferay.gradle.plugins.workspace.internal.util.ResourceUtil;
 import com.liferay.gradle.plugins.workspace.internal.util.StringUtil;
+import com.liferay.release.util.ResourceUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.gradle.api.GradleException;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 
 /**
  * @author Gregory Amerson
@@ -50,7 +52,23 @@ public class ClientExtension {
 		typeSettings.put(name, value);
 	}
 
-	public Map<String, Object> toJSONMap() {
+	@JsonProperty("dxp.lxc.liferay.com.virtualInstanceId")
+	public void setVirtualInstanceId(String virtualInstanceId) {
+		this.virtualInstanceId = virtualInstanceId;
+
+		if (_logger.isWarnEnabled()) {
+			_logger.warn(
+				StringUtil.concat(
+					"The deprecated property ",
+					"\"dxp.lxc.liferay.com.virtualInstanceId\" is set in ",
+					"client-extension.yaml. Set the Gradle property ",
+					"\"liferay.virtual.instance.id\" instead."));
+		}
+	}
+
+	public Map<String, Object> toJSONMap(String virtualInstanceId) {
+		Map<String, Object> jsonMap = new HashMap<>();
+
 		Map<String, Object> typeSettings = new HashMap<>(this.typeSettings);
 
 		String pid = _clientExtensionProperties.getProperty(type + ".pid");
@@ -60,22 +78,51 @@ public class ClientExtension {
 		}
 
 		if (pid == null) {
-			return Collections.emptyMap();
+			return jsonMap;
 		}
 
-		Map<String, Object> jsonMap = new HashMap<>();
+		if (!StringUtil.isBlank(virtualInstanceId)) {
+			if (!StringUtil.isBlank(this.virtualInstanceId) &&
+				!Objects.equals(this.virtualInstanceId, virtualInstanceId)) {
+
+				if (_logger.isWarnEnabled()) {
+					String message = String.format(
+						StringUtil.concat(
+							"The client extension property value ",
+							"\"dxp.lxc.liferay.com.virtualInstanceId\" ",
+							"%s differs from the Gradle property ",
+							"\"liferay.virtual.instance.id\" value %s. The ",
+							"Gradle property will be used."),
+						StringUtil.quote(this.virtualInstanceId),
+						StringUtil.quote(virtualInstanceId));
+
+					_logger.warn(message);
+				}
+			}
+
+			this.virtualInstanceId = virtualInstanceId;
+		}
+
+		if (StringUtil.isBlank(this.virtualInstanceId)) {
+			this.virtualInstanceId = "default";
+		}
 
 		Map<String, Object> configMap = new HashMap<>();
 
 		configMap.put(":configurator:policy", "force");
+
+		String pathSuffix = StringUtil.suffixIfNotBlank(
+			projectName, virtualInstanceId);
+
 		configMap.put(
 			"baseURL",
 			typeSettings.getOrDefault(
-				"baseURL", "${portalURL}/o/" + projectName));
+				"baseURL", "${portalURL}/o/" + pathSuffix));
+
 		configMap.put("buildTimestamp", System.currentTimeMillis());
 		configMap.put("description", description);
 		configMap.put(
-			"dxp.lxc.liferay.com.virtualInstanceId", virtualInstanceId);
+			"dxp.lxc.liferay.com.virtualInstanceId", this.virtualInstanceId);
 		configMap.put("name", name);
 		configMap.put("projectId", projectId);
 		configMap.put("projectName", projectName);
@@ -84,7 +131,7 @@ public class ClientExtension {
 		configMap.put("type", type);
 		configMap.put(
 			"webContextPath",
-			typeSettings.getOrDefault("webContextPath", "/" + projectName));
+			typeSettings.getOrDefault("webContextPath", "/" + pathSuffix));
 
 		if (!pid.contains("CETConfiguration")) {
 			configMap.putAll(typeSettings);
@@ -102,7 +149,10 @@ public class ClientExtension {
 
 		configMap.put("typeSettings", _encode(typeSettings));
 
-		jsonMap.put(pid + "~" + id, configMap);
+		String pidSuffix = StringUtil.suffixIfNotBlank(
+			id, StringUtil.FORWARD_SLASH, virtualInstanceId);
+
+		jsonMap.put(pid + "~" + pidSuffix, configMap);
 
 		return jsonMap;
 	}
@@ -119,7 +169,6 @@ public class ClientExtension {
 	@JsonIgnore
 	public Map<String, Object> typeSettings = new HashMap<>();
 
-	@JsonProperty("dxp.lxc.liferay.com.virtualInstanceId")
 	public String virtualInstanceId = "default";
 
 	private List<String> _encode(Map<String, Object> map) {
@@ -149,5 +198,7 @@ public class ClientExtension {
 				ResourceUtil.getClassLoaderResolver(
 					ClientExtension.class, "client-extension.properties")),
 			"Unable to read client-extension.properties file from class path");
+
+	private final Logger _logger = Logging.getLogger(ClientExtension.class);
 
 }

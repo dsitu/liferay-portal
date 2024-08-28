@@ -133,15 +133,14 @@ public class MyWorkflowTaskPortlet extends MVCPortlet {
 		return false;
 	}
 
-	private void _checkWorkflowTaskViewPermission(
-			WorkflowTask workflowTask, ThemeDisplay themeDisplay)
-		throws PortalException {
+	private boolean _hasWorkflowTaskViewPermission(
+		ThemeDisplay themeDisplay, WorkflowTask workflowTask) {
 
 		long groupId = MapUtil.getLong(
 			workflowTask.getOptionalAttributes(), "groupId",
 			themeDisplay.getSiteGroupId());
 
-		_workflowTaskPermission.check(
+		return _workflowTaskPermission.contains(
 			themeDisplay.getPermissionChecker(), workflowTask, groupId);
 	}
 
@@ -171,9 +170,10 @@ public class MyWorkflowTaskPortlet extends MVCPortlet {
 			WorkflowTask workflowTask = WorkflowTaskManagerUtil.getWorkflowTask(
 				themeDisplay.getCompanyId(), workflowTaskId);
 
-			_checkWorkflowTaskViewPermission(workflowTask, themeDisplay);
-
 			renderRequest.setAttribute(WebKeys.WORKFLOW_TASK, workflowTask);
+			renderRequest.setAttribute(
+				WebKeys.WORKFLOW_TASK_READ_ONLY,
+				!_hasWorkflowTaskViewPermission(themeDisplay, workflowTask));
 		}
 	}
 

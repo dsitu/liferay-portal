@@ -48,10 +48,10 @@ definition {
 			Click.clickNoMouseOver(locator1 = "Blueprints#BLUEPRINTS_ADD_ELEMENTS_SIDEBAR_SEARCH_CLEAR");
 		}
 
-		Blueprints.searchBlueprintsPreview(searchTerm = "test");
+		Blueprints.searchBlueprintsPreview(searchTerm = "tree");
 
 		AssertElementPresent(
-			key_resultTitle = "Test",
+			key_resultTitle = "tree.png",
 			locator1 = "Blueprints#BLUEPRINTS_PREVIEW_SEARCH_RESULT_TITLE");
 
 		PortletEntry.save();
@@ -895,6 +895,8 @@ definition {
 
 		Click(locator1 = "Link#DOWNLOAD");
 
+		Alert.viewSuccessMessage();
+
 		var outputDir = PropsUtil.get("output.dir.name");
 
 		var fileContent = FileUtil.read("${outputDir}/sxpElement.json");
@@ -964,6 +966,8 @@ definition {
 		SelectFrameTop();
 
 		Click(locator1 = "Link#DOWNLOAD");
+
+		Alert.viewSuccessMessage();
 
 		var outputDir = PropsUtil.get("output.dir.name");
 
@@ -1622,6 +1626,8 @@ definition {
 
 		Click(locator1 = "Link#DOWNLOAD");
 
+		Alert.viewSuccessMessage();
+
 		Blueprints.viewDownloadedContent(
 			fileName = "sxpElement.json",
 			text = "clauses");
@@ -1647,6 +1653,8 @@ definition {
 
 		Click(locator1 = "Link#DOWNLOAD");
 
+		Alert.viewSuccessMessage();
+
 		Blueprints.viewDownloadedContent(
 			fileName = "sxpElement.json",
 			text = "queryConfiguration");
@@ -1668,6 +1676,8 @@ definition {
 
 		Click(locator1 = "Link#DOWNLOAD");
 
+		Alert.viewSuccessMessage();
+
 		Blueprints.viewDownloadedContent(
 			fileName = "raw_response.json",
 			text = "hits");
@@ -1688,6 +1698,8 @@ definition {
 		SelectFrameTop();
 
 		Click(locator1 = "Link#DOWNLOAD");
+
+		Alert.viewSuccessMessage();
 
 		Blueprints.viewDownloadedContent(
 			fileName = "score_explanation.json",
@@ -2074,59 +2086,6 @@ definition {
 		SearchResults.viewSearchResultNotPresent(
 			searchAssetTitle = "Hide This Content",
 			searchAssetType = "Web Content Article");
-	}
-
-	@priority = 3
-	test ModifyBlueprintsAdminTableFields {
-		Blueprints.openBlueprintsAdmin();
-
-		Blueprints.createBlueprint(title = "Test Blueprint");
-
-		PortletEntry.save();
-
-		Click(locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELDS_MENU");
-
-		for (var field : list "Description,ID,Author,Created,Modified") {
-			AssertElementPresent(
-				key_fieldName = ${field},
-				locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELD");
-
-			Click(
-				key_fieldName = ${field},
-				locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELDS_MENU_ITEM");
-		}
-
-		for (var field : list "Description,ID,Author,Created,Modified") {
-			AssertElementNotPresent(
-				key_fieldName = ${field},
-				locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELD");
-		}
-
-		Click(
-			key_fieldName = "Title",
-			locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELDS_MENU_ITEM");
-
-		AssertElementPresent(
-			key_fieldName = "Title",
-			locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELD");
-
-		Click(
-			key_fieldName = "Description",
-			locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELDS_MENU_ITEM");
-
-		AssertElementPresent(
-			key_fieldName = "Description",
-			locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELD");
-
-		Click(
-			key_fieldName = "Title",
-			locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELDS_MENU_ITEM");
-
-		for (var field : list "Title,ID,Author,Created,Modified") {
-			AssertElementNotPresent(
-				key_fieldName = ${field},
-				locator1 = "Blueprints#BLUEPRINTS_ADMIN_FIELD");
-		}
 	}
 
 	@priority = 3
@@ -3361,6 +3320,10 @@ definition {
 
 		Button.click(button = "Seleccionar");
 
+		WaitForElementPresent(
+			key_blueprintTitle = "Título en Español",
+			locator1 = "Blueprints#BLUEPRINTS_OPTION_WIDGET_TITLE");
+
 		AssertTextEquals(
 			key_blueprintTitle = "Título en Español",
 			locator1 = "Blueprints#BLUEPRINTS_OPTION_WIDGET_TITLE",
@@ -3919,9 +3882,15 @@ definition {
 
 		Navigator.gotoNavNested(navNested = "Query Settings");
 
-		Button.click(button = "Customize Contributors");
+		AssertChecked.assertCheckedNotVisible(
+			locator1 = "Radio#ANY",
+			radioLabel = "Disable All");
 
-		AssertElementNotPresent(locator1 = "Blueprints#BLUEPRINTS_CLAUSE_CONTRIBUTOR_TOGGLE_ENABLED");
+		Check.checkNotVisible(
+			locator1 = "Radio#ANY",
+			radioLabel = "Customize");
+
+		Button.click(button = "Customize Contributors");
 
 		ManagementBar.clickSelectAllCheckbox();
 
@@ -4819,6 +4788,10 @@ definition {
 
 		Close.closeAndSelectWindow(value1 = "Edit Blueprint - ${siteName}");
 
+		Check.checkNotVisible(
+			locator1 = "Radio#ANY",
+			radioLabel = "Enable All");
+
 		Navigator.gotoNavTab(navTab = "Configuration");
 
 		Click(
@@ -5060,6 +5033,8 @@ definition {
 			PageEditor.clickConfigurableField(
 				fragmentName = "Collection Display",
 				index = 1);
+
+			PageEditor.gotoTab(tabName = "Browser");
 
 			AssertVisible(
 				key_sidebarButton = "Browser",

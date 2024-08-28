@@ -169,6 +169,7 @@ export type TestrayCase = {
 	description: string;
 	descriptionType: string;
 	estimatedDuration: number;
+	flaky?: boolean;
 	id: number;
 	name: string;
 	number: number;
@@ -199,6 +200,7 @@ export type TestrayCaseResult = {
 	dateCreated: string;
 	dateModified: string;
 	dueStatus: PickList;
+	error?: string;
 	errors: string;
 	id: number;
 	issues: string;
@@ -216,7 +218,10 @@ export type TestrayCaseResult = {
 	run?: TestrayRun;
 	runId?: number;
 	startDate: string;
+	status?: string;
+	testrayCaseResultId?: number;
 	user?: UserAccount;
+	userName: string;
 	warnings: number;
 } & CaseResultAggregation;
 
@@ -341,11 +346,15 @@ export type TestraySubtask = {
 	r_userToSubtasks_userId: number;
 	score: number;
 	splitFromSubtask: TestraySubtask;
+	status: string;
 	statusUpdateDate: string;
+	subtaskId: string;
 	subtaskToCaseResults?: TestrayCaseResult[];
 	subtaskToSubtasksCasesResults: TestraySubtaskCaseResult[];
 	task: TestrayTask;
+	testrayTaskId: number;
 	user: UserAccount;
+	userId: number;
 };
 
 export type TestraySubtaskCaseResult = {
@@ -403,6 +412,7 @@ export type TestrayTask = {
 	r_buildToTasks_c_build?: TestrayBuild;
 	subtaskScore: string;
 	subtaskScoreCompleted: string;
+	subtaskScoreSelfCompleted: string;
 	subtaskScoreSelfIncomplete: string;
 	taskToTasksUsers: any;
 };

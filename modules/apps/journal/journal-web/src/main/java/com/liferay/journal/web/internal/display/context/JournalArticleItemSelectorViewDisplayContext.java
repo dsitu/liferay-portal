@@ -252,12 +252,6 @@ public class JournalArticleItemSelectorViewDisplayContext {
 					PortletURLBuilder.create(
 						getPortletURL()
 					).setParameter(
-						"groupType", "site"
-					).setParameter(
-						"scopeGroupType",
-						ParamUtil.getBoolean(
-							_httpServletRequest, "scopeGroupType")
-					).setParameter(
 						"showGroupSelector", true
 					).buildString());
 			}
@@ -312,6 +306,11 @@ public class JournalArticleItemSelectorViewDisplayContext {
 				_portal.getLiferayPortletResponse(_portletResponse))
 		).setParameter(
 			"displayStyle", getDisplayStyle()
+		).setParameter(
+			"groupType", "site"
+		).setParameter(
+			"scopeGroupType",
+			ParamUtil.getBoolean(_httpServletRequest, "scopeGroupType")
 		).setParameter(
 			"selectedTab", _getTitle(_httpServletRequest.getLocale())
 		).buildPortletURL();
@@ -400,15 +399,17 @@ public class JournalArticleItemSelectorViewDisplayContext {
 
 				if (Objects.equals(_getOrderByCol(), "id")) {
 					folderOrderByComparator =
-						new FolderArticleArticleIdComparator(orderByAsc);
+						FolderArticleArticleIdComparator.getInstance(
+							orderByAsc);
 				}
 				else if (Objects.equals(_getOrderByCol(), "modified-date")) {
 					folderOrderByComparator =
-						new FolderArticleModifiedDateComparator(orderByAsc);
+						FolderArticleModifiedDateComparator.getInstance(
+							orderByAsc);
 				}
 				else if (Objects.equals(_getOrderByCol(), "title")) {
-					folderOrderByComparator = new FolderArticleTitleComparator(
-						orderByAsc);
+					folderOrderByComparator =
+						FolderArticleTitleComparator.getInstance(orderByAsc);
 				}
 
 				return JournalFolderServiceUtil.getFoldersAndArticles(

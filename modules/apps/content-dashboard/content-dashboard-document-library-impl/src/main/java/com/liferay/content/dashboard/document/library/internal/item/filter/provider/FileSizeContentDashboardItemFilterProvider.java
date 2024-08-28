@@ -9,7 +9,6 @@ import com.liferay.content.dashboard.document.library.internal.item.filter.FileS
 import com.liferay.content.dashboard.item.action.exception.ContentDashboardItemActionException;
 import com.liferay.content.dashboard.item.filter.ContentDashboardItemFilter;
 import com.liferay.content.dashboard.item.filter.provider.ContentDashboardItemFilterProvider;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.Portal;
 
@@ -22,7 +21,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Jürgen Kappler
  */
 @Component(
-	property = "service.ranking:Integer=100",
+	property = "service.ranking:Integer=200",
 	service = ContentDashboardItemFilterProvider.class
 )
 public class FileSizeContentDashboardItemFilterProvider
@@ -49,11 +48,7 @@ public class FileSizeContentDashboardItemFilterProvider
 
 	@Override
 	public boolean isShow(HttpServletRequest httpServletRequest) {
-		if (FeatureFlagManagerUtil.isEnabled("LPD-25680")) {
-			return true;
-		}
-
-		return false;
+		return true;
 	}
 
 	@Reference

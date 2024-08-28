@@ -26,6 +26,7 @@ import com.liferay.layout.converter.JustifyConverter;
 import com.liferay.layout.util.constants.StyledLayoutStructureConstants;
 import com.liferay.layout.util.structure.FormStyledLayoutStructureItem;
 import com.liferay.layout.util.structure.LayoutStructureItem;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -83,6 +84,18 @@ public class FormLayoutStructureItemMapper
 													saveInlineContent,
 													saveMappingConfiguration,
 													formStyledLayoutStructureItem));
+
+										if (FeatureFlagManagerUtil.isEnabled(
+												"LPD-10727")) {
+
+											setFormType(
+												() -> _toFormType(
+													formStyledLayoutStructureItem));
+											setNumberOfSteps(
+												() ->
+													formStyledLayoutStructureItem.
+														getNumberOfSteps());
+										}
 									}
 								});
 							setFragmentStyle(
@@ -219,6 +232,18 @@ public class FormLayoutStructureItemMapper
 		}
 
 		return null;
+	}
+
+	private FormConfig.FormType _toFormType(
+		FormStyledLayoutStructureItem formStyledLayoutStructureItem) {
+
+		if (Objects.equals(
+				formStyledLayoutStructureItem.getFormType(), "multistep")) {
+
+			return FormConfig.FormType.MULTISTEP;
+		}
+
+		return FormConfig.FormType.SIMPLE;
 	}
 
 	private FragmentInlineValue _toFragmentInlineValue(JSONObject jsonObject) {

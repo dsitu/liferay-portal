@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.testray.rest.dto.v1_0.TestrayCache;
+import com.liferay.testray.rest.internal.util.TestrayUtil;
 import com.liferay.testray.rest.manager.TestrayManager;
 
 import java.io.File;
@@ -37,6 +38,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.sql.Timestamp;
+
+import java.time.OffsetDateTime;
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +66,39 @@ import org.w3c.dom.NodeList;
 @Component(service = TestrayManager.class)
 public class TestrayManagerImpl implements TestrayManager {
 
+	@Override
+	public Map<String, Object> fetchTestrayCaseFlakyParameters(
+			long companyId, OffsetDateTime offsetDateTime, long testrayCaseId)
+		throws Exception {
+
+		StringBundler sb = new StringBundler(11);
+
+		sb.append("select cr.r_caseToCaseResult_c_caseId, sum(case when ");
+		sb.append("cr.previousStatus != cr.dueStatus_ then 1 else 0 end) as ");
+		sb.append("totalChanges, count(c_caseResultId_) as totalCases from ");
+		sb.append("(select c_caseResultId_, r_caseToCaseResult_c_caseId, ");
+		sb.append("@previousStatus previousStatus, @previousStatus := ");
+		sb.append("dueStatus_ as dueStatus_ from ");
+		sb.append("lportal.O_[%COMPANY_ID%]_CaseResult where ");
+		sb.append("r_caseToCaseResult_c_caseId = ? and (dueStatus_ = ");
+		sb.append("'passed' or dueStatus_ ='failed') and startDate_ is not ");
+		sb.append("null and startDate_ >= ? order by c_caseResultId_) as cr ");
+		sb.append("group by r_caseToCaseResult_c_caseId");
+
+		List<Map<String, Object>> values = TestrayUtil.executeQuery(
+			StringUtil.replace(
+				sb.toString(), "[%COMPANY_ID%]", String.valueOf(companyId)),
+			ListUtil.fromArray(
+				GetterUtil.getLong(testrayCaseId), offsetDateTime));
+
+		if (values.isEmpty()) {
+			return null;
+		}
+
+		return values.get(0);
+	}
+
+	@Override
 	public void loadTestrayCache(
 			long companyId, TestrayCache testrayCache, long userId)
 		throws Exception {
@@ -778,19 +814,57 @@ public class TestrayManagerImpl implements TestrayManager {
 			"Component#", testrayComponentName, "#ProjectId#",
 			testrayProjectId);
 
-		long testrayComponentId = _getObjectEntryId(
-			companyId,
-			StringBundler.concat(
-				"projectId eq '", testrayProjectId, "' and name eq '",
-				testrayComponentName, "'"),
-			objectEntryIdsKey, "Component", testrayCache, userId);
+		Long objectEntryId = testrayCache.getObjectEntryId(objectEntryIdsKey);
 
-		if (testrayComponentId != 0) {
-			return testrayComponentId;
+		Map<String, Serializable> values = null;
+
+		if (objectEntryId == null) {
+			List<Map<String, Serializable>> valuesList = _getValuesList(
+				companyId,
+				StringBundler.concat(
+					"projectId eq '", testrayProjectId, "' and name eq '",
+					testrayComponentName, "'"),
+				"Component", testrayCache, userId);
+
+			if (ListUtil.isNotEmpty(valuesList)) {
+				values = valuesList.get(0);
+
+				objectEntryId = GetterUtil.getLong(values.get("objectEntryId"));
+			}
+			else {
+				ObjectEntry objectEntry = _addObjectEntry(
+					"Component", serviceContext, testrayCache, userId,
+					HashMapBuilder.<String, Serializable>put(
+						"name", testrayComponentName
+					).put(
+						"r_projectToComponents_c_projectId", testrayProjectId
+					).put(
+						"r_teamToComponents_c_teamId", testrayTeamId
+					).build());
+
+				long testrayComponentId = objectEntry.getObjectEntryId();
+
+				testrayCache.addObjectEntryId(
+					objectEntryIdsKey, testrayComponentId);
+
+				return testrayComponentId;
+			}
 		}
 
-		ObjectEntry objectEntry = _addObjectEntry(
-			"Component", serviceContext, testrayCache, userId,
+		if (values == null) {
+			values = _objectEntryLocalService.getValues(objectEntryId);
+		}
+
+		long currentTestrayTeamId = GetterUtil.getLong(
+			values.get("r_teamToComponents_c_teamId"));
+
+		if (testrayTeamId == currentTestrayTeamId) {
+			return objectEntryId;
+		}
+
+		_updateObjectEntry(
+			GetterUtil.getLong(values.get("objectEntryId")), serviceContext,
+			userId,
 			HashMapBuilder.<String, Serializable>put(
 				"name", testrayComponentName
 			).put(
@@ -799,11 +873,7 @@ public class TestrayManagerImpl implements TestrayManager {
 				"r_teamToComponents_c_teamId", testrayTeamId
 			).build());
 
-		testrayComponentId = objectEntry.getObjectEntryId();
-
-		testrayCache.addObjectEntryId(objectEntryIdsKey, testrayComponentId);
-
-		return testrayComponentId;
+		return objectEntryId;
 	}
 
 	private long _getTestrayFactorCategoryId(

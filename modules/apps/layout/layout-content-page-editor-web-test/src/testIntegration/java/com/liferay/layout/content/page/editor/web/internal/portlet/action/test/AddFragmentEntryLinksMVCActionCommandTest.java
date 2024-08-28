@@ -153,7 +153,7 @@ public class AddFragmentEntryLinksMVCActionCommandTest {
 
 		FragmentEntry fragmentEntry =
 			_fragmentEntryLocalService.addFragmentEntry(
-				TestPropsValues.getUserId(), _group.getGroupId(),
+				null, TestPropsValues.getUserId(), _group.getGroupId(),
 				fragmentCollection.getFragmentCollectionId(),
 				RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 				StringPool.BLANK, html, StringPool.BLANK, false,
@@ -179,7 +179,7 @@ public class AddFragmentEntryLinksMVCActionCommandTest {
 		for (int i = 0; i < numberOfFragmentEntryLinks; i++) {
 			FragmentEntryLink fragmentEntryLink =
 				_fragmentEntryLinkLocalService.addFragmentEntryLink(
-					TestPropsValues.getUserId(), _group.getGroupId(), 0,
+					null, TestPropsValues.getUserId(), _group.getGroupId(), 0,
 					fragmentEntry.getFragmentEntryId(),
 					defaultSegmentsExperienceId, layout.getPlid(),
 					fragmentEntry.getCss(), fragmentEntry.getHtml(),
@@ -203,7 +203,7 @@ public class AddFragmentEntryLinksMVCActionCommandTest {
 				false, defaultSegmentsExperienceId);
 
 		return _fragmentCompositionLocalService.addFragmentComposition(
-			TestPropsValues.getUserId(), _group.getGroupId(),
+			null, TestPropsValues.getUserId(), _group.getGroupId(),
 			fragmentCollection.getFragmentCollectionId(),
 			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 			RandomTestUtil.randomString(), layoutStructureItemJSON, 0,

@@ -5,19 +5,23 @@
 
 import {Locator, Page} from '@playwright/test';
 
+import {PORTLET_URLS} from '../../utils/portletUrls';
+
 export class ProductMenuPage {
+	readonly closeProductMenuButton: Locator;
 	readonly configurationButton: Locator;
 	readonly contentAndDataButton: Locator;
 	readonly exportButton: Locator;
 	readonly formsButton: Locator;
 	readonly importButton: Locator;
+	readonly openProductMenuButton: Locator;
 	readonly page: Page;
 	readonly pagesButton: Locator;
-	readonly productMenuButton: Locator;
 	readonly productMenuHeader: Locator;
 	readonly publishingButton: Locator;
 	readonly siteBuilderButton: Locator;
 	readonly siteSettingsButton: Locator;
+	readonly stagingMenuItem: Locator;
 	readonly webContentButton: Locator;
 
 	constructor(page: Page) {
@@ -40,7 +44,8 @@ export class ProductMenuPage {
 		});
 		this.page = page;
 		this.pagesButton = page.getByRole('menuitem', {name: 'Pages'});
-		this.productMenuButton = page.getByLabel('Open Product Menu');
+		this.openProductMenuButton = page.getByLabel('Open Product Menu');
+		this.closeProductMenuButton = page.getByLabel('Close Product Menu');
 		this.productMenuHeader = page.locator(
 			'[id="_com_liferay_product_navigation_product_menu_web_portlet_ProductMenuPortlet_site_administrationHeading"] div'
 		);
@@ -53,6 +58,9 @@ export class ProductMenuPage {
 		this.siteSettingsButton = page.getByRole('menuitem', {
 			exact: true,
 			name: 'Site Settings',
+		});
+		this.stagingMenuItem = page.getByRole('menuitem', {
+			name: 'Staging',
 		});
 		this.webContentButton = page.getByRole('menuitem', {
 			name: 'Web Content',
@@ -100,6 +108,12 @@ export class ProductMenuPage {
 		await this.siteSettingsButton.click();
 	}
 
+	async goToTeams(siteUrl?: string) {
+		await this.page.goto(
+			`/group${siteUrl || '/guest'}${PORTLET_URLS.teams}`
+		);
+	}
+
 	async goToWebContent() {
 		await this.contentAndDataButton.click();
 		await this.webContentButton.click();
@@ -107,7 +121,7 @@ export class ProductMenuPage {
 
 	async openProductMenuIfClosed() {
 		if (!(await this.contentAndDataButton.isVisible())) {
-			await this.productMenuButton.click();
+			await this.openProductMenuButton.click();
 			await this.contentAndDataButton.isVisible();
 		}
 	}

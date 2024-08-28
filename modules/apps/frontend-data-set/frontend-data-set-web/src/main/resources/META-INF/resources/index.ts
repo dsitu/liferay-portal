@@ -22,7 +22,6 @@ export declare function FrontendDataSet({
 	formName,
 	header,
 	id,
-	initialSelectedItemsValues,
 	inlineAddingSettings,
 	inlineEditingSettings,
 	items,
@@ -36,6 +35,7 @@ export declare function FrontendDataSet({
 	overrideEmptyResultView,
 	pagination,
 	portletId,
+	selectedItems,
 	selectedItemsKey,
 	selectionType,
 	showManagementBar,
@@ -79,9 +79,9 @@ export interface IInlineEditingSettings {
 
 export interface IActionsDropdown extends IBaseActions {
 	loading: boolean;
-	menuActive: boolean;
+	menuActive?: boolean;
 	onClick: Function;
-	onMenuActiveChange: Function;
+	onMenuActiveChange?: Function;
 	setLoading: Function;
 }
 
@@ -180,7 +180,6 @@ export interface IFrontendDataSetProps {
 		title?: string;
 	};
 	id: string;
-	initialSelectedItemsValues?: any[];
 	inlineAddingSettings?: {
 		apiURL: string;
 		defaultBodyContent: object;
@@ -201,6 +200,7 @@ export interface IFrontendDataSetProps {
 		initialPageNumber?: number;
 	};
 	portletId?: string;
+	selectedItems?: any[];
 	selectedItemsKey?: string;
 	selectionType?: 'single' | 'multiple';
 	showManagementBar?: boolean;

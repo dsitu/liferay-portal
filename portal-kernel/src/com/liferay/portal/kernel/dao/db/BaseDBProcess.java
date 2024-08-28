@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.framework.ThrowableCollector;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.upgrade.recorder.UpgradeSQLRecorder;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.NotificationThreadLocal;
@@ -117,33 +118,18 @@ public abstract class BaseDBProcess implements DBProcess {
 	}
 
 	@Override
-	public void runSQLTemplate(String path)
+	public void runSQLFile(String path)
 		throws IOException, NamingException, SQLException {
 
-		runSQLTemplate(path, true);
+		runSQLFile(path, true);
 	}
 
 	@Override
-	public void runSQLTemplate(String path, boolean failOnError)
+	public void runSQLFile(String path, boolean failOnError)
 		throws IOException, NamingException, SQLException {
 
 		try (LoggingTimer loggingTimer = new LoggingTimer(path)) {
-			ClassLoader classLoader = PortalClassLoaderUtil.getClassLoader();
-
-			InputStream inputStream = classLoader.getResourceAsStream(
-				"com/liferay/portal/tools/sql/dependencies/" + path);
-
-			if (inputStream == null) {
-				inputStream = classLoader.getResourceAsStream(path);
-			}
-
-			if (inputStream == null) {
-				Thread currentThread = Thread.currentThread();
-
-				classLoader = currentThread.getContextClassLoader();
-
-				inputStream = classLoader.getResourceAsStream(path);
-			}
+			InputStream inputStream = _getInputStream(path);
 
 			if (inputStream == null) {
 				_log.error("Invalid path " + path);
@@ -157,22 +143,30 @@ public abstract class BaseDBProcess implements DBProcess {
 
 			String template = StringUtil.read(inputStream);
 
-			runSQLTemplateString(template, failOnError);
+			runSQLTemplate(template, failOnError);
 		}
 	}
 
 	@Override
-	public void runSQLTemplateString(String template, boolean failOnError)
+	public void runSQLTemplate(String template, boolean failOnError)
 		throws IOException, NamingException, SQLException {
 
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
+			if (template.endsWith(".sql") ||
+				(_getInputStream(template) != null)) {
+
+				runSQLFile(template, failOnError);
+
+				return;
+			}
+
 			DB db = DBManagerUtil.getDB();
 
 			if (connection == null) {
-				db.runSQLTemplateString(template, failOnError);
+				db.runSQLTemplate(template, failOnError);
 			}
 			else {
-				db.runSQLTemplateString(connection, template, failOnError);
+				db.runSQLTemplate(connection, template, failOnError);
 			}
 		}
 	}
@@ -314,10 +308,11 @@ public abstract class BaseDBProcess implements DBProcess {
 	}
 
 	protected Connection getConnection() throws Exception {
-		return (Connection)ProxyUtil.newProxyInstance(
-			ClassLoader.getSystemClassLoader(),
-			new Class<?>[] {Connection.class},
-			new ConnectionThreadProxyInvocationHandler());
+		return UpgradeSQLRecorder.getConnectionWrapper(
+			(Connection)ProxyUtil.newProxyInstance(
+				ClassLoader.getSystemClassLoader(),
+				new Class<?>[] {Connection.class},
+				new ConnectionThreadProxyInvocationHandler()));
 	}
 
 	protected String[] getPrimaryKeyColumnNames(
@@ -548,6 +543,27 @@ public abstract class BaseDBProcess implements DBProcess {
 		catch (Exception exception) {
 			return ReflectionUtil.throwException(exception);
 		}
+	}
+
+	private InputStream _getInputStream(String path) {
+		ClassLoader classLoader = PortalClassLoaderUtil.getClassLoader();
+
+		InputStream inputStream = classLoader.getResourceAsStream(
+			"com/liferay/portal/tools/sql/dependencies/" + path);
+
+		if (inputStream == null) {
+			inputStream = classLoader.getResourceAsStream(path);
+		}
+
+		if (inputStream == null) {
+			Thread currentThread = Thread.currentThread();
+
+			classLoader = currentThread.getContextClassLoader();
+
+			inputStream = classLoader.getResourceAsStream(path);
+		}
+
+		return inputStream;
 	}
 
 	private <T> void _processConcurrently(

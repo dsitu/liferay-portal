@@ -15,11 +15,11 @@ exports[`SegmentOverview should render 1`] = `
         <div
           class="card-header"
         >
-          <h5
+          <div
             class="card-title"
           >
             Segment Membership
-          </h5>
+          </div>
         </div>
         <div
           class="card-body"
@@ -60,11 +60,11 @@ exports[`SegmentOverview should render 1`] = `
         <div
           class="card-header"
         >
-          <h5
+          <div
             class="card-title"
           >
             Top Interests
-          </h5>
+          </div>
         </div>
         <div
           class="error-display-root flex-grow-1 error-spacer no-results-root flex-grow-1"
@@ -233,11 +233,11 @@ exports[`SegmentOverview should render 1`] = `
         <div
           class="card-header"
         >
-          <h5
+          <div
             class="card-title"
           >
             Segment Composition
-          </h5>
+          </div>
         </div>
         <div
           class="card-body"
@@ -301,13 +301,16 @@ exports[`SegmentOverview should render 1`] = `
                 </div>
                 <div
                   class="legend-template-column justify-content-end"
+                  data-testid="active-count"
                 >
                   0
                 </div>
                 <div
                   class="legend-template-column justify-content-end"
                 >
-                  <b>
+                  <b
+                    data-testid="active-porcentage"
+                  >
                     0%
                   </b>
                 </div>
@@ -332,13 +335,16 @@ exports[`SegmentOverview should render 1`] = `
                 </div>
                 <div
                   class="legend-template-column justify-content-end"
+                  data-testid="active-count"
                 >
                   0
                 </div>
                 <div
                   class="legend-template-column justify-content-end"
                 >
-                  <b>
+                  <b
+                    data-testid="active-porcentage"
+                  >
                     0%
                   </b>
                 </div>

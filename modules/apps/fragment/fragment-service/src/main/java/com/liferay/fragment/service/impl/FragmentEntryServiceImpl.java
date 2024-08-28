@@ -57,25 +57,6 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 	@Override
 	public FragmentEntry addFragmentEntry(
 			long groupId, long fragmentCollectionId, String fragmentEntryKey,
-			String name, String css, String html, String js, boolean cacheable,
-			String configuration, String icon, long previewFileEntryId,
-			boolean readOnly, int type, String typeOptions, int status,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		_portletResourcePermission.check(
-			getPermissionChecker(), groupId,
-			FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
-
-		return fragmentEntryLocalService.addFragmentEntry(
-			getUserId(), groupId, fragmentCollectionId, fragmentEntryKey, name,
-			css, html, js, cacheable, configuration, icon, previewFileEntryId,
-			readOnly, type, typeOptions, status, serviceContext);
-	}
-
-	@Override
-	public FragmentEntry addFragmentEntry(
-			long groupId, long fragmentCollectionId, String fragmentEntryKey,
 			String name, String css, String html, String js,
 			String configuration, long previewFileEntryId, int type, int status,
 			ServiceContext serviceContext)
@@ -89,9 +70,30 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 			FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
 
 		return fragmentEntryLocalService.addFragmentEntry(
-			getUserId(), groupId, fragmentCollectionId, fragmentEntryKey, name,
-			css, html, js, false, configuration, null, previewFileEntryId,
+			null, getUserId(), groupId, fragmentCollectionId, fragmentEntryKey,
+			name, css, html, js, false, configuration, null, previewFileEntryId,
 			false, type, null, status, serviceContext);
+	}
+
+	@Override
+	public FragmentEntry addFragmentEntry(
+			String externalReferenceCode, long groupId,
+			long fragmentCollectionId, String fragmentEntryKey, String name,
+			String css, String html, String js, boolean cacheable,
+			String configuration, String icon, long previewFileEntryId,
+			boolean readOnly, int type, String typeOptions, int status,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), groupId,
+			FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
+
+		return fragmentEntryLocalService.addFragmentEntry(
+			externalReferenceCode, getUserId(), groupId, fragmentCollectionId,
+			fragmentEntryKey, name, css, html, js, cacheable, configuration,
+			icon, previewFileEntryId, readOnly, type, typeOptions, status,
+			serviceContext);
 	}
 
 	@Override
@@ -140,6 +142,19 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 	}
 
 	@Override
+	public FragmentEntry deleteFragmentEntry(
+			String externalReferenceCode, long groupId)
+		throws PortalException {
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), groupId,
+			FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
+
+		return fragmentEntryLocalService.deleteFragmentEntry(
+			externalReferenceCode, groupId);
+	}
+
+	@Override
 	public FragmentEntry fetchDraft(long primaryKey) {
 		return fragmentEntryLocalService.fetchDraft(primaryKey);
 	}
@@ -180,7 +195,7 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 				_getFragmentEntryGroupByStep(
 					groupId, fragmentCollectionId, name, status)
 			).as(
-				"fragmentCompositionsAndFragmentEntriesTable",
+				"TEMP_TABLE",
 				FragmentCompositionsAndFragmentEntriesTable.INSTANCE
 			);
 
@@ -245,7 +260,7 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 						groupId, fragmentCollectionId, name, status)
 				)
 			).as(
-				"fragmentCompositionsAndFragmentEntriesTable"
+				"TEMP_TABLE"
 			);
 
 		DSLQuery dslQuery = DSLQueryFactoryUtil.select(
@@ -443,6 +458,19 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 
 		return fragmentEntryPersistence.countByG_FCI_T_S(
 			groupId, fragmentCollectionId, type, status);
+	}
+
+	@Override
+	public FragmentEntry getFragmentEntryByExternalReferenceCode(
+			String externalReferenceCode, long groupId)
+		throws PortalException {
+
+		_portletResourcePermission.check(
+			getPermissionChecker(), groupId,
+			FragmentActionKeys.MANAGE_FRAGMENT_ENTRIES);
+
+		return fragmentEntryPersistence.findByERC_G_Head(
+			externalReferenceCode, groupId, true);
 	}
 
 	@Override
@@ -714,8 +742,7 @@ public class FragmentEntryServiceImpl extends FragmentEntryServiceBaseImpl {
 
 		private FragmentCompositionsAndFragmentEntriesTable() {
 			super(
-				"FragmentCompositionsAndFragmentEntriesTable",
-				FragmentCompositionsAndFragmentEntriesTable::new);
+				"TEMP_TABLE", FragmentCompositionsAndFragmentEntriesTable::new);
 		}
 
 	}

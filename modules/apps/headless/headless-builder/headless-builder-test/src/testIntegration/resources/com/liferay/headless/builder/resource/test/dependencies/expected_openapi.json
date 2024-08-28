@@ -29,6 +29,10 @@
 			},
 			"FileEntry": {
 				"properties": {
+					"externalReferenceCode": {
+						"readOnly": true,
+						"type": "string"
+					},
 					"fileBase64": {
 						"description": "optional field with the content of the document in Base64, can be embedded with nestedFields (the format of the nested field must be `<attachment field name>.fileBase64`)",
 						"type": "string"
@@ -45,6 +49,9 @@
 					},
 					"name": {
 						"type": "string"
+					},
+					"scope": {
+						"$ref": "#/components/schemas/Scope"
 					},
 					"x-class-name": {
 						"default": "com.liferay.object.rest.dto.v1_0.FileEntry",
@@ -317,6 +324,30 @@
 					}
 				},
 				"type": "object"
+			},
+			"Scope": {
+				"properties": {
+					"externalReferenceCode": {
+						"type": "string"
+					},
+					"type": {
+						"enum": [
+							"AssetLibrary",
+							"Site"
+						],
+						"type": "string"
+					},
+					"x-class-name": {
+						"default": "com.liferay.object.rest.dto.v1_0.Scope",
+						"readOnly": true,
+						"type": "string"
+					}
+				},
+				"readOnly": true,
+				"type": "object",
+				"xml": {
+					"name": "Scope"
+				}
 			},
 			"SingleElementSchemaName": {
 				"description": "description",

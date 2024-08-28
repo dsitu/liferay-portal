@@ -3,32 +3,39 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {$} from 'execa';
 import {constants, mkdirSync, renameSync} from 'fs';
 import * as fs from 'fs/promises';
 import path from 'path';
-import resolve from 'resolve';
 
 import {WORK_PATH} from '../../util/constants.mjs';
-import forkModule from '../../util/forkModule.mjs';
 import onExit from '../../util/onExit.mjs';
 
-const DISABLE_BUILD_CONFIGS = ['babel', 'bundler', 'exports', 'main', 'tsc'];
+const DISABLE_BUILD_CONFIGS = [
+	'babel',
+	'bundler',
+	'exports',
+	'main',
+	'sass',
+	'tsc',
+];
 
 export default async function runNpmScripts(projectNpmScriptsConfig) {
 	if (!projectNpmScriptsConfig) {
 		return;
 	}
 
+	const start = performance.now();
+
 	await writeNpmScriptsConfig(projectNpmScriptsConfig);
 
-	const npmScriptsPath = resolve.sync(
-		'@liferay/npm-scripts/bin/liferay-npm-scripts.js',
-		{basedir: '.'}
-	);
+	const {stdout} = await $`liferay-npm-scripts build`;
 
-	await forkModule(npmScriptsPath, ['build'], {
-		stdio: 'inherit',
-	});
+	const lapse = performance.now() - start;
+
+	console.log(
+		`⌛ Legacy build (liferay-npm-scripts) took: ${(lapse / 1000).toFixed(3)} s\n\n${stdout}`
+	);
 }
 
 async function writeNpmScriptsConfig(projectNpmScriptsConfig) {

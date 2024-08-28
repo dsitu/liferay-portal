@@ -356,6 +356,7 @@ create table DLFileEntryType (
 	mvccVersion LONG default 0 not null,
 	ctCollectionId LONG default 0 not null,
 	uuid_ VARCHAR(75) null,
+	externalReferenceCode VARCHAR(75) null,
 	fileEntryTypeId LONG not null,
 	groupId LONG,
 	companyId LONG,
@@ -632,6 +633,7 @@ create table Layout (
 	mvccVersion LONG default 0 not null,
 	ctCollectionId LONG default 0 not null,
 	uuid_ VARCHAR(75) null,
+	externalReferenceCode VARCHAR(75) null,
 	plid LONG not null,
 	groupId LONG,
 	companyId LONG,
@@ -1149,6 +1151,16 @@ create table Release_ (
 	testString VARCHAR(1024) null
 );
 
+create table RememberMeToken (
+	mvccVersion LONG default 0 not null,
+	rememberMeTokenId LONG not null primary key,
+	companyId LONG,
+	userId LONG,
+	createDate DATE null,
+	expirationDate DATE null,
+	value VARCHAR(255) null
+);
+
 create table Repository (
 	mvccVersion LONG default 0 not null,
 	ctCollectionId LONG default 0 not null,
@@ -1216,6 +1228,7 @@ create table Role_ (
 	mvccVersion LONG default 0 not null,
 	ctCollectionId LONG default 0 not null,
 	uuid_ VARCHAR(75) null,
+	externalReferenceCode VARCHAR(75) null,
 	roleId LONG not null,
 	companyId LONG,
 	userId LONG,

@@ -6,6 +6,7 @@
 package com.liferay.object.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectValidationRuleConstants;
 import com.liferay.object.constants.ObjectValidationRuleSettingConstants;
 import com.liferay.object.exception.NoSuchObjectValidationRuleException;
@@ -23,11 +24,13 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectValidationRule;
 import com.liferay.object.model.ObjectValidationRuleSetting;
+import com.liferay.object.scripting.executor.ObjectScriptingExecutor;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectValidationRuleLocalService;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
+import com.liferay.object.validation.rule.ObjectValidationRuleEngineRegistry;
 import com.liferay.object.validation.rule.ObjectValidationRuleResult;
 import com.liferay.object.validation.rule.setting.builder.ObjectValidationRuleSettingBuilder;
 import com.liferay.petra.string.StringPool;
@@ -39,16 +42,18 @@ import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUti
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.AssertUtils;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.security.script.management.test.rule.ScriptManagementConfigurationTestRule;
 import com.liferay.portal.security.script.management.test.util.ScriptManagementConfigurationTestUtil;
 import com.liferay.portal.test.rule.FeatureFlags;
@@ -62,10 +67,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Queue;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -76,7 +86,7 @@ import org.junit.runner.RunWith;
 /**
  * @author Marcela Cunha
  */
-@FeatureFlags("LPS-187854")
+@FeatureFlags("LPD-29637")
 @RunWith(Arquillian.class)
 public class ObjectValidationRuleLocalServiceTest {
 
@@ -89,8 +99,17 @@ public class ObjectValidationRuleLocalServiceTest {
 
 	@Before
 	public void setUp() throws Exception {
+		_modifiableSystemObjectDefinition =
+			ObjectDefinitionTestUtil.addModifiableSystemObjectDefinition(
+				TestPropsValues.getUserId(), null, false,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				"Test", null, null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				ObjectDefinitionConstants.SCOPE_SITE, null, 1,
+				Collections.emptyList());
+
 		_objectDefinition = ObjectDefinitionTestUtil.addCustomObjectDefinition(
-			false, _objectDefinitionLocalService,
+			false,
 			Arrays.asList(
 				new DateObjectFieldBuilder(
 				).labelMap(
@@ -110,6 +129,13 @@ public class ObjectValidationRuleLocalServiceTest {
 				).objectFieldSettings(
 					Collections.emptyList()
 				).build()));
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		_objectDefinitionLocalService.deleteObjectDefinition(
+			_modifiableSystemObjectDefinition);
+		_objectDefinitionLocalService.deleteObjectDefinition(_objectDefinition);
 	}
 
 	@Test
@@ -136,18 +162,17 @@ public class ObjectValidationRuleLocalServiceTest {
 			ObjectValidationRuleNameException.class,
 			"Name is null for locale " + LocaleUtil.US.getDisplayName(),
 			() -> _addObjectValidationRule(
-				ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+				StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				StringPool.BLANK,
 				LocalizedMapUtil.getLocalizedMap(StringPool.BLANK),
 				_VALID_DDM_SCRIPT));
 		AssertUtils.assertFailure(
 			ObjectValidationRuleNameException.class,
 			"Name is null for locale " + LocaleUtil.US.getDisplayName(),
 			() -> _addObjectValidationRule(
-				ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+				StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				StringPool.BLANK, null, _VALID_DDM_SCRIPT));
+				null, _VALID_DDM_SCRIPT));
 
 		Map<Locale, String> errorLabelMap = LocalizedMapUtil.getLocalizedMap(
 			RandomTestUtil.randomString());
@@ -160,8 +185,8 @@ public class ObjectValidationRuleLocalServiceTest {
 			ObjectValidationRuleOutputTypeException.class,
 			"Invalid output type " + outputType,
 			() -> _addObjectValidationRule(
-				ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
-				StringPool.BLANK, nameLabelMap, outputType, _VALID_DDM_SCRIPT,
+				StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+				errorLabelMap, nameLabelMap, outputType, _VALID_DDM_SCRIPT,
 				false, Collections.emptyList()));
 
 		AssertUtils.assertFailure(
@@ -183,8 +208,8 @@ public class ObjectValidationRuleLocalServiceTest {
 				ObjectValidationRuleSettingConstants.
 					NAME_OUTPUT_OBJECT_FIELD_ID),
 			() -> _addObjectValidationRule(
-				ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
-				StringPool.BLANK, nameLabelMap,
+				StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+				errorLabelMap, nameLabelMap,
 				ObjectValidationRuleConstants.OUTPUT_TYPE_PARTIAL_VALIDATION,
 				_VALID_DDM_SCRIPT, false, Collections.emptyList()));
 		AssertUtils.assertFailure(
@@ -192,10 +217,29 @@ public class ObjectValidationRuleLocalServiceTest {
 			String.format(
 				"The object validation rule setting \"%s\" is not allowed",
 				ObjectValidationRuleSettingConstants.
+					NAME_ALLOW_ACTIVE_STATUS_UPDATE),
+			() -> _addObjectValidationRule(
+				StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+				errorLabelMap, nameLabelMap,
+				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
+				_VALID_DDM_SCRIPT, false,
+				Collections.singletonList(
+					new ObjectValidationRuleSettingBuilder(
+					).name(
+						ObjectValidationRuleSettingConstants.
+							NAME_ALLOW_ACTIVE_STATUS_UPDATE
+					).value(
+						"true"
+					).build())));
+		AssertUtils.assertFailure(
+			ObjectValidationRuleSettingNameException.NotAllowedName.class,
+			String.format(
+				"The object validation rule setting \"%s\" is not allowed",
+				ObjectValidationRuleSettingConstants.
 					NAME_OUTPUT_OBJECT_FIELD_ID),
 			() -> _addObjectValidationRule(
-				ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
-				StringPool.BLANK, nameLabelMap,
+				StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+				errorLabelMap, nameLabelMap,
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 				_VALID_DDM_SCRIPT, false,
 				Collections.singletonList(
@@ -243,8 +287,9 @@ public class ObjectValidationRuleLocalServiceTest {
 			"Add a maximum of five object fields to create unique composite " +
 				"keys",
 			() -> _addObjectValidationRule(
+				StringPool.BLANK,
 				ObjectValidationRuleConstants.ENGINE_TYPE_COMPOSITE_KEY,
-				errorLabelMap, StringPool.BLANK, nameLabelMap,
+				errorLabelMap, nameLabelMap,
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 				StringPool.BLANK, false, objectValidationRuleSettings));
 
@@ -257,8 +302,9 @@ public class ObjectValidationRuleLocalServiceTest {
 			"Add a minimum of two object fields to create unique composite " +
 				"keys",
 			() -> _addObjectValidationRule(
+				StringPool.BLANK,
 				ObjectValidationRuleConstants.ENGINE_TYPE_COMPOSITE_KEY,
-				errorLabelMap, StringPool.BLANK, nameLabelMap,
+				errorLabelMap, nameLabelMap,
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 				StringPool.BLANK, false,
 				Collections.singletonList(
@@ -282,8 +328,9 @@ public class ObjectValidationRuleLocalServiceTest {
 				ObjectValidationRuleSettingConstants.
 					NAME_COMPOSITE_KEY_OBJECT_FIELD_ID),
 			() -> _addObjectValidationRule(
+				StringPool.BLANK,
 				ObjectValidationRuleConstants.ENGINE_TYPE_COMPOSITE_KEY,
-				errorLabelMap, StringPool.BLANK, nameLabelMap,
+				errorLabelMap, nameLabelMap,
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 				StringPool.BLANK, false,
 				Arrays.asList(
@@ -313,8 +360,8 @@ public class ObjectValidationRuleLocalServiceTest {
 				ObjectValidationRuleSettingConstants.
 					NAME_OUTPUT_OBJECT_FIELD_ID),
 			() -> _addObjectValidationRule(
-				ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
-				StringPool.BLANK, nameLabelMap,
+				StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+				errorLabelMap, nameLabelMap,
 				ObjectValidationRuleConstants.OUTPUT_TYPE_PARTIAL_VALIDATION,
 				_VALID_DDM_SCRIPT, false,
 				Collections.singletonList(
@@ -347,8 +394,9 @@ public class ObjectValidationRuleLocalServiceTest {
 				ObjectValidationRuleSettingConstants.
 					NAME_COMPOSITE_KEY_OBJECT_FIELD_ID),
 			() -> _addObjectValidationRule(
+				StringPool.BLANK,
 				ObjectValidationRuleConstants.ENGINE_TYPE_COMPOSITE_KEY,
-				errorLabelMap, StringPool.BLANK, nameLabelMap,
+				errorLabelMap, nameLabelMap,
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 				StringPool.BLANK, false,
 				Arrays.asList(
@@ -389,23 +437,27 @@ public class ObjectValidationRuleLocalServiceTest {
 			ObjectValidationRuleSystemException.class, false,
 			"Only allowed bundles can add system object validation rules",
 			() -> _addObjectValidationRule(
-				ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+				StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				StringPool.BLANK,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 				_VALID_DDM_SCRIPT, true, Collections.emptyList()));
 
 		String externalReferenceCode = RandomTestUtil.randomString();
 
+		ObjectValidationRule objectValidationRule = _addObjectValidationRule(
+			externalReferenceCode,
+			ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
+			nameLabelMap, _VALID_DDM_SCRIPT);
+
 		_assertObjectValidationRule(
-			true, ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
-			externalReferenceCode, nameLabelMap, null,
+			true, null, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+			errorLabelMap, externalReferenceCode, nameLabelMap, null,
 			ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
-			_VALID_DDM_SCRIPT,
-			_addObjectValidationRule(
-				ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
-				externalReferenceCode, nameLabelMap, _VALID_DDM_SCRIPT));
+			_VALID_DDM_SCRIPT, objectValidationRule);
+
+		_objectValidationRuleLocalService.deleteObjectValidationRule(
+			objectValidationRule.getObjectValidationRuleId());
 
 		externalReferenceCode = RandomTestUtil.randomString();
 
@@ -414,30 +466,66 @@ public class ObjectValidationRuleLocalServiceTest {
 				"invalidFields = false;";
 
 		_assertObjectValidationRule(
-			true, ObjectValidationRuleConstants.ENGINE_TYPE_GROOVY,
+			true, null, ObjectValidationRuleConstants.ENGINE_TYPE_GROOVY,
 			errorLabelMap, externalReferenceCode, nameLabelMap, null,
 			ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION, script,
 			_addObjectValidationRule(
+				externalReferenceCode,
 				ObjectValidationRuleConstants.ENGINE_TYPE_GROOVY, errorLabelMap,
-				externalReferenceCode, nameLabelMap, script));
+				nameLabelMap, script));
+
+		ObjectScriptingExecutor originalObjectScriptingExecutor =
+			(ObjectScriptingExecutor)_getAndSetFieldValue(
+				ObjectScriptingExecutor.class, "_objectScriptingExecutor",
+				ObjectValidationRuleConstants.ENGINE_TYPE_GROOVY);
+
+		try {
+			Assert.assertEquals(0, _argumentsList.size());
+
+			_objectEntryLocalService.addObjectEntry(
+				TestPropsValues.getUserId(), 0,
+				_objectDefinition.getObjectDefinitionId(),
+				HashMapBuilder.<String, Serializable>put(
+					"textObjectField", RandomTestUtil.randomString()
+				).build(),
+				ServiceContextTestUtil.getServiceContext());
+
+			Assert.assertEquals(1, _argumentsList.size());
+
+			Object[] arguments = _argumentsList.poll();
+
+			Assert.assertEquals(
+				TestPropsValues.getUserId(),
+				MapUtil.getLong(
+					(Map<String, Object>)arguments[0], "currentUserId"));
+		}
+		finally {
+			ReflectionTestUtil.setFieldValue(
+				_objectValidationRuleEngineRegistry.
+					getObjectValidationRuleEngine(
+						0, ObjectValidationRuleConstants.ENGINE_TYPE_GROOVY),
+				"_objectScriptingExecutor", originalObjectScriptingExecutor);
+		}
 
 		externalReferenceCode = RandomTestUtil.randomString();
 
 		String engine = RandomTestUtil.randomString();
 
 		_assertObjectValidationRule(
-			true, engine, errorLabelMap, externalReferenceCode, nameLabelMap,
-			null, ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
+			true, null, engine, errorLabelMap, externalReferenceCode,
+			nameLabelMap, null,
+			ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 			StringPool.BLANK,
 			_addObjectValidationRule(
-				engine, errorLabelMap, externalReferenceCode, nameLabelMap,
+				externalReferenceCode, engine, errorLabelMap, nameLabelMap,
 				StringPool.BLANK));
 
 		externalReferenceCode = RandomTestUtil.randomString();
 
-		ObjectValidationRule objectValidationRule = _addObjectValidationRule(
+		objectValidationRule = _addObjectValidationRule(
+			externalReferenceCode,
 			ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
-			externalReferenceCode, nameLabelMap,
+			nameLabelMap,
 			ObjectValidationRuleConstants.OUTPUT_TYPE_PARTIAL_VALIDATION,
 			_VALID_DDM_SCRIPT, false,
 			Collections.singletonList(
@@ -450,8 +538,8 @@ public class ObjectValidationRuleLocalServiceTest {
 				).build()));
 
 		_assertObjectValidationRule(
-			true, ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
-			externalReferenceCode, nameLabelMap,
+			true, null, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+			errorLabelMap, externalReferenceCode, nameLabelMap,
 			String.valueOf(textObjectField.getObjectFieldId()),
 			ObjectValidationRuleConstants.OUTPUT_TYPE_PARTIAL_VALIDATION,
 			_VALID_DDM_SCRIPT, objectValidationRule);
@@ -469,30 +557,68 @@ public class ObjectValidationRuleLocalServiceTest {
 	}
 
 	@Test
+	public void testAddSystemObjectValidationRule() {
+		Map<Locale, String> errorLabelMap = LocalizedMapUtil.getLocalizedMap(
+			RandomTestUtil.randomString());
+		Map<Locale, String> nameLabelMap = LocalizedMapUtil.getLocalizedMap(
+			RandomTestUtil.randomString());
+
+		AssertUtils.assertFailure(
+			ObjectValidationRuleSettingNameException.NotAllowedName.class,
+			String.format(
+				"The object validation rule setting \"%s\" is not allowed",
+				ObjectValidationRuleSettingConstants.
+					NAME_ALLOW_ACTIVE_STATUS_UPDATE),
+			() -> _addObjectValidationRule(
+				StringPool.BLANK,
+				_modifiableSystemObjectDefinition.getObjectDefinitionId(),
+				ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
+				nameLabelMap,
+				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
+				_VALID_DDM_SCRIPT, false,
+				Collections.singletonList(
+					new ObjectValidationRuleSettingBuilder(
+					).name(
+						ObjectValidationRuleSettingConstants.
+							NAME_ALLOW_ACTIVE_STATUS_UPDATE
+					).value(
+						"true"
+					).build())));
+
+		String objectValidationRuleSettingValue = RandomTestUtil.randomString();
+
+		AssertUtils.assertFailure(
+			ObjectValidationRuleSettingValueException.InvalidValue.class,
+			String.format(
+				"The value \"%s\" of the object validation rule setting " +
+					"\"%s\" is invalid",
+				objectValidationRuleSettingValue,
+				ObjectValidationRuleSettingConstants.
+					NAME_ALLOW_ACTIVE_STATUS_UPDATE),
+			() -> _addObjectValidationRule(
+				StringPool.BLANK,
+				_modifiableSystemObjectDefinition.getObjectDefinitionId(),
+				ObjectValidationRuleConstants.ENGINE_TYPE_DDM, errorLabelMap,
+				nameLabelMap,
+				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
+				_VALID_DDM_SCRIPT, true,
+				Collections.singletonList(
+					new ObjectValidationRuleSettingBuilder(
+					).name(
+						ObjectValidationRuleSettingConstants.
+							NAME_ALLOW_ACTIVE_STATUS_UPDATE
+					).value(
+						objectValidationRuleSettingValue
+					).build())));
+	}
+
+	@Test
 	public void testDeleteObjectValidationRule() throws Exception {
 		ObjectValidationRule objectValidationRule = _addObjectValidationRule(
 			ObjectValidationRuleConstants.ENGINE_TYPE_DDM, _VALID_DDM_SCRIPT);
 
 		_testDeleteObjectValidationRule(
 			objectValidationRule.getObjectValidationRuleId());
-
-		ObjectValidationRule systemObjectValidationRule =
-			_addObjectValidationRule(
-				ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
-				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				StringPool.BLANK,
-				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
-				_VALID_DDM_SCRIPT, true, Collections.emptyList());
-
-		AssertUtils.assertFailure(
-			ObjectValidationRuleSystemException.class, false,
-			"Only allowed bundles can delete system object validation rules",
-			() -> _objectValidationRuleLocalService.deleteObjectValidationRule(
-				systemObjectValidationRule.getObjectValidationRuleId()));
-
-		_testDeleteObjectValidationRule(
-			systemObjectValidationRule.getObjectValidationRuleId());
 
 		ObjectField textObjectField1 =
 			_objectFieldLocalService.fetchObjectField(
@@ -510,9 +636,9 @@ public class ObjectValidationRuleLocalServiceTest {
 			).build());
 
 		objectValidationRule = _addObjectValidationRule(
+			StringPool.BLANK,
 			ObjectValidationRuleConstants.ENGINE_TYPE_COMPOSITE_KEY,
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-			StringPool.BLANK,
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 			ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 			StringPool.BLANK, false,
@@ -540,9 +666,9 @@ public class ObjectValidationRuleLocalServiceTest {
 			_objectDefinition.getObjectDefinitionId());
 
 		objectValidationRule = _addObjectValidationRule(
+			StringPool.BLANK,
 			ObjectValidationRuleConstants.ENGINE_TYPE_COMPOSITE_KEY,
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-			StringPool.BLANK,
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 			ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 			StringPool.BLANK, false,
@@ -567,15 +693,34 @@ public class ObjectValidationRuleLocalServiceTest {
 	}
 
 	@Test
+	public void testDeleteSystemObjectValidationRule() throws Exception {
+		ObjectValidationRule systemObjectValidationRule =
+			_addObjectValidationRule(
+				StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
+				_VALID_DDM_SCRIPT, true, Collections.emptyList());
+
+		AssertUtils.assertFailure(
+			ObjectValidationRuleSystemException.class, false,
+			"Only allowed bundles can delete system object validation rules",
+			() -> _objectValidationRuleLocalService.deleteObjectValidationRule(
+				systemObjectValidationRule.getObjectValidationRuleId()));
+
+		_testDeleteObjectValidationRule(
+			systemObjectValidationRule.getObjectValidationRuleId());
+	}
+
+	@Test
 	public void testGetErrorLabel() throws Exception {
 		ObjectValidationRule objectValidationRule = _addObjectValidationRule(
-			ObjectValidationRuleConstants.ENGINE_TYPE_GROOVY,
+			StringPool.BLANK, ObjectValidationRuleConstants.ENGINE_TYPE_GROOVY,
 			HashMapBuilder.put(
 				LocaleUtil.BRAZIL, RandomTestUtil.randomString()
 			).put(
 				LocaleUtil.US, RandomTestUtil.randomString()
 			).build(),
-			StringPool.BLANK,
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 			"invalidFields = true;");
 
@@ -645,6 +790,31 @@ public class ObjectValidationRuleLocalServiceTest {
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 				_VALID_DDM_SCRIPT, Collections.emptyList()));
 
+		ObjectValidationRule finalObjectValidationRule = objectValidationRule;
+
+		AssertUtils.assertFailure(
+			ObjectValidationRuleSettingNameException.NotAllowedName.class,
+			String.format(
+				"The object validation rule setting \"%s\" is not allowed",
+				ObjectValidationRuleSettingConstants.
+					NAME_ALLOW_ACTIVE_STATUS_UPDATE),
+			() -> _objectValidationRuleLocalService.updateObjectValidationRule(
+				finalObjectValidationRule.getExternalReferenceCode(),
+				finalObjectValidationRule.getObjectValidationRuleId(), false,
+				finalObjectValidationRule.getEngine(),
+				finalObjectValidationRule.getErrorLabelMap(),
+				finalObjectValidationRule.getNameMap(),
+				finalObjectValidationRule.getOutputType(),
+				finalObjectValidationRule.getScript(),
+				Collections.singletonList(
+					new ObjectValidationRuleSettingBuilder(
+					).name(
+						ObjectValidationRuleSettingConstants.
+							NAME_ALLOW_ACTIVE_STATUS_UPDATE
+					).value(
+						"true"
+					).build())));
+
 		ObjectField textObjectField = _objectFieldLocalService.fetchObjectField(
 			_objectDefinition.getObjectDefinitionId(), "textObjectField");
 
@@ -667,7 +837,7 @@ public class ObjectValidationRuleLocalServiceTest {
 					).build()));
 
 		_assertObjectValidationRule(
-			true, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+			true, null, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
 			LocalizedMapUtil.getLocalizedMap("Field must be an URL"),
 			"externalReferenceCode",
 			LocalizedMapUtil.getLocalizedMap("URL Validation"),
@@ -697,7 +867,7 @@ public class ObjectValidationRuleLocalServiceTest {
 					).build()));
 
 		_assertObjectValidationRule(
-			false, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
+			false, null, ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
 			LocalizedMapUtil.getLocalizedMap("Field must be an URL"),
 			"externalReferenceCode",
 			LocalizedMapUtil.getLocalizedMap("URL Validation"),
@@ -709,8 +879,9 @@ public class ObjectValidationRuleLocalServiceTest {
 			RandomTestUtil.randomString());
 
 		_assertObjectValidationRule(
-			objectValidationRule.isActive(), objectValidationRule.getEngine(),
-			errorLabelMap, objectValidationRule.getExternalReferenceCode(),
+			objectValidationRule.isActive(), null,
+			objectValidationRule.getEngine(), errorLabelMap,
+			objectValidationRule.getExternalReferenceCode(),
 			objectValidationRule.getNameMap(),
 			String.valueOf(dateObjectField.getObjectFieldId()),
 			objectValidationRule.getOutputType(),
@@ -724,12 +895,16 @@ public class ObjectValidationRuleLocalServiceTest {
 				objectValidationRule.getOutputType(),
 				objectValidationRule.getScript(),
 				objectValidationRule.getObjectValidationRuleSettings()));
+	}
 
+	@Test
+	public void testUpdateSystemObjectValidationRule() throws Exception {
 		ObjectValidationRule systemObjectValidationRule =
 			_addObjectValidationRule(
+				StringPool.BLANK,
+				_modifiableSystemObjectDefinition.getObjectDefinitionId(),
 				ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				StringPool.BLANK,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 				_VALID_DDM_SCRIPT, true, Collections.emptyList());
@@ -745,23 +920,105 @@ public class ObjectValidationRuleLocalServiceTest {
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION,
 				_VALID_DDM_SCRIPT, Collections.emptyList()));
+
+		systemObjectValidationRule.setObjectValidationRuleSettings(
+			Collections.singletonList(
+				new ObjectValidationRuleSettingBuilder(
+				).name(
+					ObjectValidationRuleSettingConstants.
+						NAME_ALLOW_ACTIVE_STATUS_UPDATE
+				).value(
+					"true"
+				).build()));
+
+		_assertObjectValidationRule(
+			systemObjectValidationRule.isActive(), "true",
+			systemObjectValidationRule.getEngine(),
+			systemObjectValidationRule.getErrorLabelMap(),
+			systemObjectValidationRule.getExternalReferenceCode(),
+			systemObjectValidationRule.getNameMap(), null,
+			systemObjectValidationRule.getOutputType(),
+			systemObjectValidationRule.getScript(),
+			_objectValidationRuleLocalService.updateObjectValidationRule(
+				systemObjectValidationRule.getExternalReferenceCode(),
+				systemObjectValidationRule.getObjectValidationRuleId(),
+				systemObjectValidationRule.isActive(),
+				systemObjectValidationRule.getEngine(),
+				systemObjectValidationRule.getErrorLabelMap(),
+				systemObjectValidationRule.getNameMap(),
+				systemObjectValidationRule.getOutputType(),
+				systemObjectValidationRule.getScript(),
+				systemObjectValidationRule.getObjectValidationRuleSettings()));
+
+		String liferayMode = SystemProperties.get("liferay.mode");
+
+		SystemProperties.clear("liferay.mode");
+
+		try {
+			_assertObjectValidationRule(
+				false, "true", systemObjectValidationRule.getEngine(),
+				systemObjectValidationRule.getErrorLabelMap(),
+				systemObjectValidationRule.getExternalReferenceCode(),
+				systemObjectValidationRule.getNameMap(), null,
+				systemObjectValidationRule.getOutputType(),
+				systemObjectValidationRule.getScript(),
+				_objectValidationRuleLocalService.updateObjectValidationRule(
+					systemObjectValidationRule.getExternalReferenceCode(),
+					systemObjectValidationRule.getObjectValidationRuleId(),
+					false, systemObjectValidationRule.getEngine(),
+					LocalizedMapUtil.getLocalizedMap(
+						RandomTestUtil.randomString()),
+					LocalizedMapUtil.getLocalizedMap(
+						RandomTestUtil.randomString()),
+					systemObjectValidationRule.getOutputType(),
+					systemObjectValidationRule.getScript(),
+					Collections.emptyList()));
+		}
+		finally {
+			SystemProperties.set("liferay.mode", liferayMode);
+		}
 	}
 
 	private ObjectValidationRule _addObjectValidationRule(
+			String externalReferenceCode, long objectDefinitionId,
 			String engine, Map<Locale, String> errorLabelMap,
-			String externalReferenceCode, Map<Locale, String> nameLabelMap,
+			Map<Locale, String> nameLabelMap, String outputType, String script,
+			boolean system,
+			List<ObjectValidationRuleSetting> objectValidationRuleSettings)
+		throws Exception {
+
+		return _objectValidationRuleLocalService.addObjectValidationRule(
+			externalReferenceCode, TestPropsValues.getUserId(),
+			objectDefinitionId, true, engine, errorLabelMap, nameLabelMap,
+			outputType, script, system, objectValidationRuleSettings);
+	}
+
+	private ObjectValidationRule _addObjectValidationRule(
+			String engine, String script)
+		throws Exception {
+
+		return _addObjectValidationRule(
+			StringPool.BLANK, engine,
+			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+			script);
+	}
+
+	private ObjectValidationRule _addObjectValidationRule(
+			String externalReferenceCode, String engine,
+			Map<Locale, String> errorLabelMap, Map<Locale, String> nameLabelMap,
 			String script)
 		throws Exception {
 
 		return _addObjectValidationRule(
-			engine, errorLabelMap, externalReferenceCode, nameLabelMap,
+			externalReferenceCode, engine, errorLabelMap, nameLabelMap,
 			ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION, script,
 			false, Collections.emptyList());
 	}
 
 	private ObjectValidationRule _addObjectValidationRule(
-			String engine, Map<Locale, String> errorLabelMap,
-			String externalReferenceCode, Map<Locale, String> nameLabelMap,
+			String externalReferenceCode, String engine,
+			Map<Locale, String> errorLabelMap, Map<Locale, String> nameLabelMap,
 			String outputType, String script, boolean system,
 			List<ObjectValidationRuleSetting> objectValidationRuleSettings)
 		throws Exception {
@@ -773,21 +1030,9 @@ public class ObjectValidationRuleLocalServiceTest {
 			objectValidationRuleSettings);
 	}
 
-	private ObjectValidationRule _addObjectValidationRule(
-			String engine, String script)
-		throws Exception {
-
-		return _addObjectValidationRule(
-			engine,
-			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-			StringPool.BLANK,
-			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-			script);
-	}
-
 	private void _assertObjectValidationRule(
-		boolean expectedActive, String expectedEngine,
-		Map<Locale, String> expectedErrorLabelMap,
+		boolean expectedActive, String expectedAllowActiveStatusUpdate,
+		String expectedEngine, Map<Locale, String> expectedErrorLabelMap,
 		String expectedExternalReferenceCode,
 		Map<Locale, String> expectedNameLabelMap, String expectedObjectFieldId,
 		String expectedOutputType, String expectedScript,
@@ -806,37 +1051,71 @@ public class ObjectValidationRuleLocalServiceTest {
 			expectedOutputType, objectValidationRule.getOutputType());
 		Assert.assertEquals(expectedScript, objectValidationRule.getScript());
 
+		Map<String, Object> objectValidationRuleSettings = new HashMap<>();
+
+		for (ObjectValidationRuleSetting objectValidationRuleSetting :
+				objectValidationRule.getObjectValidationRuleSettings()) {
+
+			objectValidationRuleSettings.put(
+				objectValidationRuleSetting.getName(),
+				objectValidationRuleSetting.getValue());
+		}
+
+		Assert.assertEquals(
+			expectedAllowActiveStatusUpdate,
+			objectValidationRuleSettings.getOrDefault(
+				ObjectValidationRuleSettingConstants.
+					NAME_ALLOW_ACTIVE_STATUS_UPDATE,
+				null));
+
 		if (StringUtil.equals(
 				objectValidationRule.getOutputType(),
 				ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION)) {
 
-			Assert.assertTrue(
-				ListUtil.isEmpty(
-					objectValidationRule.getObjectValidationRuleSettings()));
+			Assert.assertNull(
+				objectValidationRuleSettings.get(
+					ObjectValidationRuleSettingConstants.
+						NAME_OUTPUT_OBJECT_FIELD_ID));
 		}
 		else if (StringUtil.equals(
 					objectValidationRule.getOutputType(),
 					ObjectValidationRuleConstants.
 						OUTPUT_TYPE_PARTIAL_VALIDATION)) {
 
-			Assert.assertTrue(
-				ListUtil.isNotEmpty(
-					objectValidationRule.getObjectValidationRuleSettings()));
-
-			for (ObjectValidationRuleSetting objectValidationRuleSetting :
-					objectValidationRule.getObjectValidationRuleSettings()) {
-
-				if (StringUtil.equals(
-						objectValidationRuleSetting.getName(),
-						ObjectValidationRuleSettingConstants.
-							NAME_OUTPUT_OBJECT_FIELD_ID)) {
-
-					Assert.assertEquals(
-						expectedObjectFieldId,
-						objectValidationRuleSetting.getValue());
-				}
-			}
+			Assert.assertEquals(
+				expectedObjectFieldId,
+				objectValidationRuleSettings.get(
+					ObjectValidationRuleSettingConstants.
+						NAME_OUTPUT_OBJECT_FIELD_ID));
 		}
+	}
+
+	private Object _getAndSetFieldValue(
+			Class<?> clazz, String fieldName,
+			String objectValidationRuleEngineKey)
+		throws Exception {
+
+		return ReflectionTestUtil.getAndSetFieldValue(
+			_objectValidationRuleEngineRegistry.getObjectValidationRuleEngine(
+				0, objectValidationRuleEngineKey),
+			fieldName,
+			ProxyUtil.newProxyInstance(
+				clazz.getClassLoader(), new Class<?>[] {clazz},
+				(proxy, method, arguments) -> {
+					_argumentsList.add(arguments);
+
+					if (Objects.equals(
+							method.getDeclaringClass(),
+							ObjectScriptingExecutor.class) &&
+						Objects.equals(method.getName(), "execute")) {
+
+						return HashMapBuilder.<String, Object>put(
+							"validationCriteriaMet", true
+						).build();
+					}
+
+					return null;
+				}));
 	}
 
 	private void _testDeleteObjectValidationRule(long objectValidationRuleId)
@@ -857,7 +1136,8 @@ public class ObjectValidationRuleLocalServiceTest {
 	private static final String _VALID_DDM_SCRIPT =
 		"isEmailAddress(textObjectField)";
 
-	@DeleteAfterTestRun
+	private final Queue<Object[]> _argumentsList = new LinkedList<>();
+	private ObjectDefinition _modifiableSystemObjectDefinition;
 	private ObjectDefinition _objectDefinition;
 
 	@Inject
@@ -868,6 +1148,10 @@ public class ObjectValidationRuleLocalServiceTest {
 
 	@Inject
 	private ObjectFieldLocalService _objectFieldLocalService;
+
+	@Inject
+	private ObjectValidationRuleEngineRegistry
+		_objectValidationRuleEngineRegistry;
 
 	@Inject
 	private ObjectValidationRuleLocalService _objectValidationRuleLocalService;

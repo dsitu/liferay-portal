@@ -587,7 +587,7 @@ public class DefaultCommerceCheckoutStepHttpHelper
 			_commerceShippingMethodLocalService.getCommerceShippingMethods(
 				commerceOrder.getGroupId(), true, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS,
-				new CommerceShippingMethodPriorityComparator());
+				CommerceShippingMethodPriorityComparator.getInstance(false));
 
 		CommerceShippingOption singleCommerceShippingOption =
 			_getSingleCommerceShippingOption(
@@ -867,7 +867,7 @@ public class DefaultCommerceCheckoutStepHttpHelper
 						commerceOrder.getDeliveryCommerceTermEntryDescription(),
 						commerceOrder.getDeliveryCommerceTermEntryName(),
 						commerceOrder.getLastPriceUpdateDate(),
-						commerceOrder.isManuallyAdjusted(),
+						commerceOrder.isManuallyAdjusted(), null,
 						commerceOrder.getOrderDate(),
 						commerceOrder.getOrderStatus(),
 						commerceOrder.getPaymentCommerceTermEntryDescription(),

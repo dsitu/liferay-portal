@@ -17,7 +17,11 @@ import {
 } from 'frontend-js-components-web';
 import React, {useEffect, useState} from 'react';
 
-import {getCheckedChildren} from './rolesUtils';
+import {
+	getCheckedChildren,
+	handleMultiSelectRoleItemsChange,
+	uncheckMultiSelectItemChildrens,
+} from './rolesUtil';
 
 interface SecondaryRecipientsProps {
 	emailNotificationRoles: MultiSelectItem[];
@@ -25,6 +29,14 @@ interface SecondaryRecipientsProps {
 	recipientOptions: LabelValueObject[];
 	setValues: (values: Partial<NotificationTemplate>) => void;
 	values: NotificationTemplate;
+}
+
+export function resetRecipientTypeValue(newRecipientTypeValue: string) {
+	if (newRecipientTypeValue === 'email') {
+		return '';
+	}
+
+	return [];
 }
 
 export function SecondaryRecipient({
@@ -38,20 +50,49 @@ export function SecondaryRecipient({
 	const [ccRolesList, setCCRolesList] = useState<MultiSelectItem[]>([]);
 	const [recipient] = values.recipients as EmailRecipients[];
 
-	const handleMultiSelectItemsChange = (itemsGroup: MultiSelectItem[]) => {
-		const newRecipients: EmailNotificationRecipients[] = [];
+	const handleRecipientRoleChange = (
+		items: MultiSelectItem[],
+		recipientKey: 'cc' | 'bcc',
+		setRoleList: (value: MultiSelectItem[]) => void
+	) => {
+		const newRecipients = handleMultiSelectRoleItemsChange(items);
 
-		if (itemsGroup.length) {
-			itemsGroup.forEach((itemGroup) => {
-				itemGroup.children.forEach((child) => {
-					if (child.checked) {
-						newRecipients.push({['roleName']: child.value});
-					}
-				});
-			});
+		setValues({
+			...values,
+			recipients: [
+				{
+					...(values.recipients[0] as EmailRecipients),
+					[recipientKey]: newRecipients,
+				},
+			],
+		});
+
+		setRoleList(items);
+	};
+
+	const handleRecipientTypeChange = (
+		newRecipientTypeValue: string,
+		recipientKey: 'cc' | 'bcc',
+		roleList: MultiSelectItem[],
+		recipientTypeKey: 'ccType' | 'bccType',
+		setRoleList: (value: MultiSelectItem[]) => void
+	) => {
+		if (newRecipientTypeValue === 'email') {
+			const newRoleList = uncheckMultiSelectItemChildrens(roleList);
+			setRoleList(newRoleList);
 		}
-
-		return newRecipients;
+		setValues({
+			...values,
+			recipients: [
+				{
+					...recipient,
+					[recipientKey]: resetRecipientTypeValue(
+						newRecipientTypeValue
+					),
+					[recipientTypeKey]: newRecipientTypeValue as string,
+				},
+			],
+		});
 	};
 
 	useEffect(() => {
@@ -135,16 +176,13 @@ export function SecondaryRecipient({
 								items={recipientOptions}
 								label={Liferay.Language.get('type')}
 								onSelectionChange={(value) => {
-									setValues({
-										...values,
-										recipients: [
-											{
-												...recipient,
-												cc: [],
-												ccType: value as string,
-											},
-										],
-									});
+									handleRecipientTypeChange(
+										value as string,
+										'cc',
+										ccRolesList,
+										'ccType',
+										setCCRolesList
+									);
 								}}
 								selectedKey={recipient.ccType}
 							/>
@@ -199,20 +237,11 @@ export function SecondaryRecipient({
 										)}
 										selectAllOption
 										setOptions={(items) => {
-											const newRecipients =
-												handleMultiSelectItemsChange(
-													items
-												);
-											setValues({
-												...values,
-												recipients: [
-													{
-														...values.recipients[0],
-														cc: newRecipients,
-													},
-												],
-											});
-											setCCRolesList(items);
+											handleRecipientRoleChange(
+												items,
+												'cc',
+												setCCRolesList
+											);
 										}}
 									/>
 
@@ -253,16 +282,13 @@ export function SecondaryRecipient({
 								items={recipientOptions}
 								label={Liferay.Language.get('type')}
 								onSelectionChange={(value) => {
-									setValues({
-										...values,
-										recipients: [
-											{
-												...recipient,
-												bcc: [],
-												bccType: value as string,
-											},
-										],
-									});
+									handleRecipientTypeChange(
+										value as string,
+										'bcc',
+										bccRolesList,
+										'bccType',
+										setBCCRolesList
+									);
 								}}
 								selectedKey={recipient.bccType}
 							/>
@@ -317,20 +343,11 @@ export function SecondaryRecipient({
 										)}
 										selectAllOption
 										setOptions={(items) => {
-											const newRecipients =
-												handleMultiSelectItemsChange(
-													items
-												);
-											setValues({
-												...values,
-												recipients: [
-													{
-														...values.recipients[0],
-														bcc: newRecipients,
-													},
-												],
-											});
-											setBCCRolesList(items);
+											handleRecipientRoleChange(
+												items,
+												'bcc',
+												setBCCRolesList
+											);
 										}}
 									/>
 

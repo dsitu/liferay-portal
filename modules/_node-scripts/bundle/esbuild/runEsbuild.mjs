@@ -18,7 +18,10 @@ async function doRunEsbuild(esbuildesbuildConfig, configName) {
 	const start = performance.now();
 
 	try {
-		await esbuild.build(esbuildesbuildConfig);
+		await esbuild.build({
+			minify: process.env.NODE_ENV === 'production',
+			...esbuildesbuildConfig,
+		});
 	}
 	catch (error) {
 		throw new Error(`Esbuild command failed: ${error}`);
@@ -27,7 +30,7 @@ async function doRunEsbuild(esbuildesbuildConfig, configName) {
 	const lapse = performance.now() - start;
 
 	console.log(
-		`Esbuild for ${configName} took: ${(lapse / 1000).toFixed(3)} s`
+		`⌛ Esbuild for ${configName} took: ${(lapse / 1000).toFixed(3)} s`
 	);
 }
 

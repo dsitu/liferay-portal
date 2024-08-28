@@ -1,6 +1,7 @@
 {
 	"author": "",
 	"dependencies": {
+		"form-data": "^4.0.0",
 		"moment": "2.29.4",
 		"uuid": "9.0.0",
 		"yauzl": "^3.0.0"
@@ -8,18 +9,10 @@
 	"description": "",
 	"devDependencies": {
 		"@axe-core/playwright": "^4.9.1",
-		"@liferay/eslint-plugin": "1.5.0",
-		"@liferay/prettier-plugin": "1.1.5",
-		"@playwright/test": "1.39.0",
+		"@playwright/test": "1.45.2",
 		"@types/node": "^20.9.0",
 		"@types/yauzl": "^2.10.3",
-		"@typescript-eslint/eslint-plugin": "4.30.0",
-		"babel-eslint": "^10.0.3",
-		"eslint": "7.23.0",
-		"execa": "^9.2.0",
-		"prettier": "3.3.2",
 		"ts-node": "^10.9.2",
-		"typescript": "4.4.2",
 		"zip-a-folder": "^3.1.6"
 	},
 	"keywords": [
@@ -29,8 +22,8 @@
 	"name": "@liferay/playwright",
 	"private": true,
 	"scripts": {
-		"checkFormat": "tsc && node scripts.mjs checkFormat",
-		"format": "tsc && node scripts.mjs format",
+		"checkFormat": "tsc",
+		"format": "tsc",
 		"local:setup": "ts-node ./scripts/localSetup.ts",
 		"local:teardown": "ts-node ./scripts/localTeardown.ts",
 		"playwright": "playwright",

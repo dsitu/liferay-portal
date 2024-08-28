@@ -5,13 +5,12 @@
 
 import {Page, expect, mergeTests} from '@playwright/test';
 
-import {styleBookPageTest} from '../../fixtures/StyleBookPageTest';
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
 import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
-import {fragmentsPagesTest} from '../../fixtures/fragmentPagesTest';
 import {isolatedSiteTest} from '../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../fixtures/loginTest';
 import {pageEditorPagesTest} from '../../fixtures/pageEditorPagesTest';
+import {styleBookPageTest} from '../../fixtures/styleBookPageTest';
 import getRandomString from '../../utils/getRandomString';
 import {journalPagesTest} from '../journal-web/fixtures/journalPagesTest';
 import {navigationMenusPagesTest} from '../site-navigation-admin-web/fixtures/navigationMenusPagesTest';
@@ -22,7 +21,6 @@ export const test = mergeTests(
 		'LPS-178052': true,
 	}),
 	isolatedSiteTest,
-	fragmentsPagesTest,
 	journalPagesTest,
 	navigationMenusPagesTest,
 	pageEditorPagesTest,
@@ -36,8 +34,7 @@ async function checkBackButtonTitle(page: Page, title: string) {
 	).toBeVisible();
 }
 
-test('back buttons have correct title in different sections', async ({
-	fragmentsPage,
+test('Back buttons have correct title in different sections', async ({
 	journalEditTemplatePage,
 	navigationMenusPage,
 	page,
@@ -49,11 +46,13 @@ test('back buttons have correct title in different sections', async ({
 
 	const styleBookName = getRandomString();
 
-	await styleBooksPage.createStyleBook(styleBookName, site.friendlyUrlPath);
+	await styleBooksPage.goto(site.friendlyUrlPath);
+
+	await styleBooksPage.createStyleBook(styleBookName);
 
 	await checkBackButtonTitle(page, 'Go to Style Books');
 
-	// Check also other places
+	// Check also other places:
 	// Journal template
 
 	await journalEditTemplatePage.goto(site.friendlyUrlPath);
@@ -67,18 +66,4 @@ test('back buttons have correct title in different sections', async ({
 	await navigationMenusPage.createNavigationMenu(getRandomString());
 
 	await checkBackButtonTitle(page, 'Go to Navigation Menus');
-
-	// Fragment Administration
-
-	await fragmentsPage.goto(site.friendlyUrlPath);
-
-	const setName = getRandomString();
-
-	await fragmentsPage.createFragmentSet(setName);
-
-	await fragmentsPage.goto(site.friendlyUrlPath);
-
-	await fragmentsPage.createFragment(setName, 'My Fragment');
-
-	await checkBackButtonTitle(page, 'Go to Fragments');
 });

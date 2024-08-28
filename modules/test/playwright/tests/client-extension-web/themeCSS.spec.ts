@@ -5,9 +5,9 @@
 
 import {expect, mergeTests} from '@playwright/test';
 
-import {pagesAdminPageTest} from '../../fixtures/PagesAdminPageTest';
-import {styleBookPageTest} from '../../fixtures/StyleBookPageTest';
 import {loginTest} from '../../fixtures/loginTest';
+import {pagesAdminPagesTest} from '../../fixtures/pagesAdminPagesTest';
+import {styleBookPageTest} from '../../fixtures/styleBookPageTest';
 import getRandomString from '../../utils/getRandomString';
 import {clientExtensionsPageTest} from './fixtures/clientExtensionsPageTest';
 import {editThemeCSSClientExtensionsPageTest} from './fixtures/editThemeCSSClientExtensionsPageTest';
@@ -17,7 +17,7 @@ import uploadAndValidateFile from './utils/uploadAndValidateFile';
 export const test = mergeTests(
 	clientExtensionsPageTest,
 	loginTest(),
-	pagesAdminPageTest,
+	pagesAdminPagesTest,
 	styleBookPageTest,
 	editThemeCSSClientExtensionsPageTest
 );
@@ -99,43 +99,50 @@ test('ThemeCSS client extension frontend token definition tokens appears stylebo
 	pagesAdminPage,
 	styleBooksPage,
 }) => {
-
-	// Create Theme CSS client extension.
-
-	await editThemeCSSClientExtensionsPage.goto();
-
 	const clientExtensionName = getRandomString();
 
-	await editThemeCSSClientExtensionsPage.nameInput.fill(clientExtensionName);
+	await test.step('Create Theme CSS client extension', async () => {
+		await editThemeCSSClientExtensionsPage.goto();
 
-	await uploadAndValidateFile(
-		'frontend-token-definition.json',
-		'The frontend token definition JSON file was uploaded and contributed 1 token categories, 1 token sets, and 2 tokens.',
-		page,
-		editThemeCSSClientExtensionsPage
-	);
+		await editThemeCSSClientExtensionsPage.nameInput.fill(
+			clientExtensionName
+		);
 
-	await editThemeCSSClientExtensionsPage.publish();
+		await uploadAndValidateFile(
+			'frontend-token-definition.json',
+			'The frontend token definition JSON file was uploaded and contributed 1 token categories, 1 token sets, and 2 tokens.',
+			page,
+			editThemeCSSClientExtensionsPage
+		);
 
-	// Apply Theme CSS client extension to all pages.
+		await editThemeCSSClientExtensionsPage.publish();
+	});
 
-	await pagesAdminPage.selectThemeCSSClientExtension(clientExtensionName);
+	await test.step('Apply Theme CSS client extension to all pages', async () => {
+		await pagesAdminPage.selectThemeCSSClientExtension(clientExtensionName);
+	});
 
 	const styleBookName = getRandomString();
 
-	await styleBooksPage.createStyleBook(styleBookName);
+	await test.step('Create style book', async () => {
+		await styleBooksPage.goto();
 
-	// Assert that the frontend token set defined in the frontendTokenDefinition.json file is available in the style book.
+		await styleBooksPage.createStyleBook(styleBookName);
+	});
 
-	const frontendTokenSetLabel = page.getByText('primary-buttons');
+	await test.step('Assert that the frontend token set defined in the frontendTokenDefinition.json file is available in the style book', async () => {
+		const frontendTokenSetLabel = page.getByText('primary-buttons');
 
-	await expect(frontendTokenSetLabel).toBeVisible();
+		await expect(frontendTokenSetLabel).toBeVisible();
+	});
 
-	// Clean up
+	await test.step('Clean up', async () => {
+		await styleBooksPage.goto();
 
-	await styleBooksPage.deleteStyleBook(styleBookName);
+		await styleBooksPage.deleteStyleBook(styleBookName);
 
-	await clientExtensionsPage.goto();
+		await clientExtensionsPage.goto();
 
-	await clientExtensionsPage.deleteClientExtension(clientExtensionName);
+		await clientExtensionsPage.deleteClientExtension(clientExtensionName);
+	});
 });

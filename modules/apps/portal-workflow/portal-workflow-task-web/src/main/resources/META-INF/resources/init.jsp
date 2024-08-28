@@ -16,6 +16,7 @@ taglib uri="http://liferay.com/tld/comment" prefix="liferay-comment" %><%@
 taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/layout" prefix="liferay-layout" %><%@
 taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
+taglib uri="http://liferay.com/tld/site-navigation" prefix="liferay-site-navigation" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/user" prefix="liferay-user" %><%@
@@ -51,8 +52,7 @@ page import="com.liferay.portal.workflow.task.web.internal.display.context.Workf
 page import="com.liferay.portal.workflow.task.web.internal.display.context.WorkflowTaskManagementToolbarDisplayContext" %><%@
 page import="com.liferay.taglib.search.DateSearchEntry" %>
 
-<%@ page import="java.util.Collections" %><%@
-page import="java.util.Objects" %>
+<%@ page import="java.util.Objects" %>
 
 <%@ page import="javax.portlet.PortletURL" %>
 

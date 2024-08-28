@@ -112,6 +112,22 @@ public class SearchRequestExecutorFixture {
 			FacetProcessor<?> facetProcessor, StatsTranslator statsTranslator,
 			ComplexQueryBuilderFactory complexQueryBuilderFactory) {
 
+		CommonSearchSourceBuilderAssembler commonSearchSourceBuilderAssembler =
+			new CommonSearchSourceBuilderAssemblerImpl();
+
+		ElasticsearchAggregationTranslatorFixture
+			elasticsearchAggregationTranslatorFixture =
+				new ElasticsearchAggregationTranslatorFixture();
+
+		ReflectionTestUtil.setFieldValue(
+			commonSearchSourceBuilderAssembler, "_aggregationTranslator",
+			elasticsearchAggregationTranslatorFixture.
+				getElasticsearchAggregationTranslator());
+
+		ReflectionTestUtil.setFieldValue(
+			commonSearchSourceBuilderAssembler, "_complexQueryBuilderFactory",
+			complexQueryBuilderFactory);
+
 		com.liferay.portal.search.elasticsearch7.internal.legacy.query.
 			ElasticsearchQueryTranslatorFixture
 				legacyElasticsearchQueryTranslatorFixture =
@@ -123,45 +139,35 @@ public class SearchRequestExecutorFixture {
 				legacyElasticsearchQueryTranslatorFixture.
 					getElasticsearchQueryTranslator();
 
-		ElasticsearchAggregationTranslatorFixture
-			elasticsearchAggregationTranslatorFixture =
-				new ElasticsearchAggregationTranslatorFixture();
+		ReflectionTestUtil.setFieldValue(
+			commonSearchSourceBuilderAssembler, "_facetTranslator",
+			_createFacetTranslator(
+				facetProcessor, legacyElasticsearchQueryTranslator));
 
 		ElasticsearchFilterTranslatorFixture
 			elasticsearchFilterTranslatorFixture =
 				new ElasticsearchFilterTranslatorFixture(
 					legacyElasticsearchQueryTranslator);
 
-		ElasticsearchPipelineAggregationTranslatorFixture
-			elasticsearchPipelineAggregationTranslatorFixture =
-				new ElasticsearchPipelineAggregationTranslatorFixture();
-
-		CommonSearchSourceBuilderAssembler commonSearchSourceBuilderAssembler =
-			new CommonSearchSourceBuilderAssemblerImpl();
-
-		ReflectionTestUtil.setFieldValue(
-			commonSearchSourceBuilderAssembler, "_aggregationTranslator",
-			elasticsearchAggregationTranslatorFixture.
-				getElasticsearchAggregationTranslator());
-		ReflectionTestUtil.setFieldValue(
-			commonSearchSourceBuilderAssembler, "_complexQueryBuilderFactory",
-			complexQueryBuilderFactory);
-		ReflectionTestUtil.setFieldValue(
-			commonSearchSourceBuilderAssembler, "_facetTranslator",
-			_createFacetTranslator(
-				facetProcessor, legacyElasticsearchQueryTranslator));
 		ReflectionTestUtil.setFieldValue(
 			commonSearchSourceBuilderAssembler, "_filterTranslator",
 			elasticsearchFilterTranslatorFixture.
 				getElasticsearchFilterTranslator());
+
 		ReflectionTestUtil.setFieldValue(
 			commonSearchSourceBuilderAssembler, "_legacyQueryTranslator",
 			legacyElasticsearchQueryTranslator);
+
+		ElasticsearchPipelineAggregationTranslatorFixture
+			elasticsearchPipelineAggregationTranslatorFixture =
+				new ElasticsearchPipelineAggregationTranslatorFixture();
+
 		ReflectionTestUtil.setFieldValue(
 			commonSearchSourceBuilderAssembler,
 			"_pipelineAggregationTranslator",
 			elasticsearchPipelineAggregationTranslatorFixture.
 				getElasticsearchPipelineAggregationTranslator());
+
 		ReflectionTestUtil.setFieldValue(
 			commonSearchSourceBuilderAssembler, "_queryTranslator",
 			elasticsearchQueryTranslator);
@@ -326,10 +332,24 @@ public class SearchRequestExecutorFixture {
 		StatsRequestBuilderFactory statsRequestBuilderFactory,
 		StatsTranslator statsTranslator) {
 
+		SearchRequestExecutor searchRequestExecutor =
+			new ElasticsearchSearchRequestExecutor();
+
+		ReflectionTestUtil.setFieldValue(
+			searchRequestExecutor, "_closePointInTimeRequestExecutor",
+			_createClosePointInTimeRequestExecutor(
+				elasticsearchClientResolver));
+
 		CommonSearchSourceBuilderAssembler commonSearchSourceBuilderAssembler =
 			createCommonSearchSourceBuilderAssembler(
 				elasticsearchQueryTranslator, facetProcessor, statsTranslator,
 				complexQueryBuilderFactory);
+
+		ReflectionTestUtil.setFieldValue(
+			searchRequestExecutor, "_countSearchRequestExecutor",
+			_createCountSearchRequestExecutor(
+				elasticsearchClientResolver, commonSearchSourceBuilderAssembler,
+				statsTranslator));
 
 		SearchSearchRequestAssembler searchSearchRequestAssembler =
 			_createSearchSearchRequestAssembler(
@@ -341,23 +361,12 @@ public class SearchRequestExecutorFixture {
 			_createSearchSearchResponseAssembler(
 				statsRequestBuilderFactory, statsTranslator);
 
-		SearchRequestExecutor searchRequestExecutor =
-			new ElasticsearchSearchRequestExecutor();
-
-		ReflectionTestUtil.setFieldValue(
-			searchRequestExecutor, "_closePointInTimeRequestExecutor",
-			_createClosePointInTimeRequestExecutor(
-				elasticsearchClientResolver));
-		ReflectionTestUtil.setFieldValue(
-			searchRequestExecutor, "_countSearchRequestExecutor",
-			_createCountSearchRequestExecutor(
-				elasticsearchClientResolver, commonSearchSourceBuilderAssembler,
-				statsTranslator));
 		ReflectionTestUtil.setFieldValue(
 			searchRequestExecutor, "_multisearchSearchRequestExecutor",
 			_createMultisearchSearchRequestExecutor(
 				elasticsearchClientResolver, searchSearchRequestAssembler,
 				searchSearchResponseAssembler));
+
 		ReflectionTestUtil.setFieldValue(
 			searchRequestExecutor, "_openPointInTimeRequestExecutor",
 			_createOpenPointInTimeRequestExecutor(elasticsearchClientResolver));

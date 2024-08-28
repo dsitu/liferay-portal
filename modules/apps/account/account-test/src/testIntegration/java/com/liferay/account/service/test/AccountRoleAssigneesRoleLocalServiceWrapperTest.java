@@ -63,8 +63,7 @@ public class AccountRoleAssigneesRoleLocalServiceWrapperTest {
 			1, _roleLocalService.getAssigneesTotal(accountRole.getRoleId()));
 
 		_userLocalService.updateStatus(
-			user.getUserId(), WorkflowConstants.STATUS_INACTIVE,
-			new ServiceContext());
+			user, WorkflowConstants.STATUS_INACTIVE, new ServiceContext());
 
 		Assert.assertEquals(
 			0, _roleLocalService.getAssigneesTotal(accountRole.getRoleId()));
@@ -106,7 +105,8 @@ public class AccountRoleAssigneesRoleLocalServiceWrapperTest {
 		throws Exception {
 
 		return _accountRoleLocalService.addAccountRole(
-			TestPropsValues.getUserId(), accountEntryId, name, null, null);
+			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
+			accountEntryId, name, null, null);
 	}
 
 	@Inject

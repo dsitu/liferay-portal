@@ -52,6 +52,7 @@ import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.notification.rest.resource.v1_0.NotificationTemplateResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectFieldResource;
+import com.liferay.object.admin.rest.resource.v1_0.ObjectFolderResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectRelationshipResource;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.service.ObjectActionLocalService;
@@ -61,6 +62,7 @@ import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
@@ -117,6 +119,7 @@ public class SiteInitializerExtension {
 		BlogPostingResource.Factory blogPostingResourceFactory, Bundle bundle,
 		CETManager cetManager,
 		ClientExtensionEntryLocalService clientExtensionEntryLocalService,
+		CompanyLocalService companyLocalService,
 		ConfigurationProvider configurationProvider,
 		DataDefinitionResource.Factory dataDefinitionResourceFactory,
 		DDMStructureLocalService ddmStructureLocalService,
@@ -160,6 +163,7 @@ public class SiteInitializerExtension {
 		ObjectEntryManager objectEntryManager,
 		ObjectFieldLocalService objectFieldLocalService,
 		ObjectFieldResource.Factory objectFieldResourceFactory,
+		ObjectFolderResource.Factory objectFolderResourceFactory,
 		ObjectRelationshipLocalService objectRelationshipLocalService,
 		ObjectRelationshipResource.Factory objectRelationshipResourceFactory,
 		OrganizationLocalService organizationLocalService,
@@ -202,11 +206,11 @@ public class SiteInitializerExtension {
 			accountRoleResourceFactory, assetCategoryLocalService,
 			assetEntryLocalService, assetLinkLocalService,
 			assetListEntryLocalService, blogPostingResourceFactory, bundle,
-			cetManager, clientExtensionEntryLocalService, configurationProvider,
-			dataDefinitionResourceFactory, ddmStructureLocalService,
-			ddmTemplateLocalService, defaultDDMStructureHelper,
-			depotEntryGroupRelLocalService, depotEntryLocalService,
-			dlFileEntryTypeLocalService, dlURLHelper,
+			cetManager, clientExtensionEntryLocalService, companyLocalService,
+			configurationProvider, dataDefinitionResourceFactory,
+			ddmStructureLocalService, ddmTemplateLocalService,
+			defaultDDMStructureHelper, depotEntryGroupRelLocalService,
+			depotEntryLocalService, dlFileEntryTypeLocalService, dlURLHelper,
 			documentFolderResourceFactory, documentResourceFactory,
 			expandoValueLocalService, fragmentsImporter, groupLocalService,
 			journalArticleLocalService, jsonFactory, keywordResourceFactory,
@@ -222,11 +226,12 @@ public class SiteInitializerExtension {
 			objectDefinitionLocalService, objectDefinitionResourceFactory,
 			objectEntryLocalService, objectEntryManager,
 			objectFieldLocalService, objectFieldResourceFactory,
-			objectRelationshipLocalService, objectRelationshipResourceFactory,
-			organizationLocalService, organizationResourceFactory,
-			ploEntryLocalService, portal, portletPreferencesLocalService,
-			resourceActionLocalService, resourcePermissionLocalService,
-			roleLocalService, sapEntryLocalService, segmentsEntryLocalService,
+			objectFolderResourceFactory, objectRelationshipLocalService,
+			objectRelationshipResourceFactory, organizationLocalService,
+			organizationResourceFactory, ploEntryLocalService, portal,
+			portletPreferencesLocalService, resourceActionLocalService,
+			resourcePermissionLocalService, roleLocalService,
+			sapEntryLocalService, segmentsEntryLocalService,
 			segmentsExperienceLocalService, archivedSettingsFactory,
 			siteNavigationMenuItemLocalService,
 			siteNavigationMenuItemTypeRegistry, siteNavigationMenuLocalService,

@@ -15,6 +15,8 @@ import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeRequest
 import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeResponse;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
+import com.liferay.dynamic.data.mapping.model.DDMTemplateLink;
+import com.liferay.dynamic.data.mapping.service.DDMTemplateLinkLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
 import com.liferay.dynamic.data.mapping.test.util.DDMTemplateTestUtil;
@@ -45,6 +47,8 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.PortalPreferencesLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -250,6 +254,44 @@ public class JournalArticleServiceTest {
 			_article.isIndexable(), journalArticle.isIndexable());
 		Assert.assertEquals(
 			_article.isSmallImage(), journalArticle.isSmallImage());
+	}
+
+	@Test
+	public void testDeleteDDMTemplateSpecifiedByDeletedArticle()
+		throws Exception {
+
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			_group.getGroupId(), JournalArticle.class.getName());
+
+		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
+			_group.getGroupId(), ddmStructure.getStructureId(),
+			PortalUtil.getClassNameId(JournalArticle.class));
+
+		JournalArticle journalArticle =
+			JournalTestUtil.addArticleWithXMLContent(
+				_group.getGroupId(), "<title>Test Article</title>",
+				ddmStructure.getStructureKey(), ddmTemplate.getTemplateKey());
+
+		DDMTemplateLink ddmTemplateLink =
+			_ddmTemplateLinkLocalService.addTemplateLink(
+				_classNameLocalService.getClassNameId(
+					ResourceActionsUtil.getCompositeModelName(
+						JournalArticle.class.getName(),
+						DDMTemplate.class.getName())),
+				journalArticle.getId(), ddmTemplate.getTemplateId());
+
+		_journalArticleLocalService.deleteArticle(
+			_group.getGroupId(), journalArticle.getArticleId(),
+			new ServiceContext());
+
+		_ddmTemplateLocalService.deleteTemplate(ddmTemplate.getTemplateId());
+
+		Assert.assertNull(
+			_ddmTemplateLocalService.fetchDDMTemplate(
+				ddmTemplate.getTemplateId()));
+		Assert.assertNull(
+			_ddmTemplateLinkLocalService.fetchDDMTemplateLink(
+				ddmTemplateLink.getTemplateLinkId()));
 	}
 
 	@Test
@@ -484,7 +526,7 @@ public class JournalArticleServiceTest {
 		journalArticles = _journalArticleService.getArticles(
 			_group.getGroupId(), journalFolder.getFolderId(),
 			LocaleUtil.getDefault(), QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-			new ArticleTitleComparator(true));
+			ArticleTitleComparator.getInstance(true));
 
 		Assert.assertEquals(
 			Arrays.asList(expiredJournalArticle, approvedJournalArticle),
@@ -493,7 +535,7 @@ public class JournalArticleServiceTest {
 		journalArticles = _journalArticleService.getArticles(
 			_group.getGroupId(), journalFolder.getFolderId(),
 			LocaleUtil.getDefault(), QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-			new ArticleTitleComparator(false));
+			ArticleTitleComparator.getInstance(false));
 
 		Assert.assertEquals(
 			Arrays.asList(approvedJournalArticle, expiredJournalArticle),
@@ -528,7 +570,7 @@ public class JournalArticleServiceTest {
 		List<JournalArticle> articles =
 			_journalArticleService.getArticlesByArticleId(
 				_group.getGroupId(), article.getArticleId(), QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, new ArticleVersionComparator(true));
+				QueryUtil.ALL_POS, ArticleVersionComparator.getInstance(true));
 
 		Assert.assertEquals(
 			articles.toString(), expectedArticles.size(), articles.size());
@@ -564,7 +606,7 @@ public class JournalArticleServiceTest {
 			_journalArticleService.getArticlesByArticleId(
 				_group.getGroupId(), article.getArticleId(),
 				WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
-				QueryUtil.ALL_POS, new ArticleVersionComparator(true));
+				QueryUtil.ALL_POS, ArticleVersionComparator.getInstance(true));
 
 		Assert.assertEquals(
 			articles.toString(), expectedArticles.size(), articles.size());
@@ -643,7 +685,7 @@ public class JournalArticleServiceTest {
 			_group.getGroupId(), JournalArticleConstants.CLASS_NAME_ID_DEFAULT,
 			ddmStructure.getStructureId(), WorkflowConstants.STATUS_ANY,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-			new ArticleIDComparator(true));
+			ArticleIDComparator.getInstance(true));
 
 		Assert.assertEquals(
 			Arrays.asList(approvedJournalArticle, expiredJournalArticle),
@@ -653,7 +695,7 @@ public class JournalArticleServiceTest {
 			_group.getGroupId(), JournalArticleConstants.CLASS_NAME_ID_DEFAULT,
 			ddmStructure.getStructureId(), WorkflowConstants.STATUS_ANY,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-			new ArticleIDComparator(false));
+			ArticleIDComparator.getInstance(false));
 
 		Assert.assertEquals(
 			Arrays.asList(expiredJournalArticle, approvedJournalArticle),
@@ -1282,8 +1324,14 @@ public class JournalArticleServiceTest {
 	@Inject
 	private AssetEntryLocalService _assetEntryLocalService;
 
+	@Inject
+	private ClassNameLocalService _classNameLocalService;
+
 	@Inject(filter = "ddm.form.deserializer.type=xsd")
 	private DDMFormDeserializer _ddmFormDeserializer;
+
+	@Inject
+	private DDMTemplateLinkLocalService _ddmTemplateLinkLocalService;
 
 	@Inject
 	private DDMTemplateLocalService _ddmTemplateLocalService;

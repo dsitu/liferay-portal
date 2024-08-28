@@ -6,19 +6,11 @@
 import {expect, mergeTests} from '@playwright/test';
 
 import {apiHelpersTest} from '../../fixtures/apiHelpersTest';
-import {featureFlagsTest} from '../../fixtures/featureFlagsTest';
 import {loginTest} from '../../fixtures/loginTest';
 import {objectPagesTest} from '../../fixtures/objectPagesTest';
 import {getRandomInt} from '../../utils/getRandomInt';
 
-export const test = mergeTests(
-	apiHelpersTest,
-	featureFlagsTest({
-		'LPS-187854': true,
-	}),
-	loginTest(),
-	objectPagesTest
-);
+export const test = mergeTests(apiHelpersTest, loginTest(), objectPagesTest);
 
 let objectDefinition1: ObjectDefinition;
 let objectDefinition2: ObjectDefinition;
@@ -173,15 +165,17 @@ test.describe('Object Unique Composite Key Validation', () => {
 
 		await viewObjectEntriesPage.goto(objectDefinition1.id);
 
-		await viewObjectEntriesPage.addObjectEntryButton.click();
+		await viewObjectEntriesPage.clickAddObjectEntry(
+			objectDefinition1.label['en_US']
+		);
 
 		await viewObjectEntriesPage.fillObjectEntry({
-			objectFieldName: integerFieldName,
+			objectFieldLabel: integerFieldName,
 			objectFieldValue: '0',
 		});
 
 		await viewObjectEntriesPage.fillObjectEntry({
-			objectFieldName: 'textField',
+			objectFieldLabel: 'textField',
 			objectFieldValue: 'entry',
 		});
 
@@ -190,15 +184,17 @@ test.describe('Object Unique Composite Key Validation', () => {
 
 		await viewObjectEntriesPage.backButton.click();
 
-		await viewObjectEntriesPage.addObjectEntryButton.click();
+		await viewObjectEntriesPage.clickAddObjectEntry(
+			objectDefinition1.label['en_US']
+		);
 
 		await viewObjectEntriesPage.fillObjectEntry({
-			objectFieldName: integerFieldName,
+			objectFieldLabel: integerFieldName,
 			objectFieldValue: '123',
 		});
 
 		await viewObjectEntriesPage.fillObjectEntry({
-			objectFieldName: 'textField',
+			objectFieldLabel: 'textField',
 			objectFieldValue: 'entry 2',
 		});
 

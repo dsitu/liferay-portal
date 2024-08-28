@@ -61,6 +61,17 @@ public class PullRequestPortalTopLevelBuild
 	}
 
 	@Override
+	public String getBranchName() {
+		String branchName = getParameterValue("GITHUB_UPSTREAM_BRANCH_NAME");
+
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(branchName)) {
+			return branchName;
+		}
+
+		return super.getBranchName();
+	}
+
+	@Override
 	public PortalWorkspace getPortalWorkspace() {
 		Workspace workspace = getWorkspace();
 
@@ -81,14 +92,8 @@ public class PullRequestPortalTopLevelBuild
 
 		sb.append("https://github.com/");
 		sb.append(getParameterValue("GITHUB_RECEIVER_USERNAME"));
-		sb.append("/liferay-portal");
-
-		String branchName = getBranchName();
-
-		if (!branchName.equals("master")) {
-			sb.append("-ee");
-		}
-
+		sb.append("/");
+		sb.append(getBaseGitRepositoryName());
 		sb.append("/pull/");
 		sb.append(getParameterValue("GITHUB_PULL_REQUEST_NUMBER"));
 
@@ -231,6 +236,7 @@ public class PullRequestPortalTopLevelBuild
 
 			portalWorkspace.setBuildProfile(getBuildProfile());
 			portalWorkspace.setOSBAsahGitHubURL(_getOSBAsahGitHubURL());
+			portalWorkspace.setOSBFaroGitHubURL(_getOSBFaroGitHubURL());
 		}
 
 		WorkspaceGitRepository workspaceGitRepository =
@@ -466,6 +472,27 @@ public class PullRequestPortalTopLevelBuild
 		}
 
 		return null;
+	}
+
+	private String _getOSBFaroGitHubURL() {
+		String osbFaroGitHubURL = getParameterValue("OSB_FARO_GITHUB_URL");
+
+		if (!JenkinsResultsParserUtil.isNullOrEmpty(osbFaroGitHubURL)) {
+			return osbFaroGitHubURL;
+		}
+
+		Build controllerBuild = getControllerBuild();
+
+		if (controllerBuild != null) {
+			osbFaroGitHubURL = controllerBuild.getParameterValue(
+				"OSB_FARO_GITHUB_URL");
+
+			if (!JenkinsResultsParserUtil.isNullOrEmpty(osbFaroGitHubURL)) {
+				return osbFaroGitHubURL;
+			}
+		}
+
+		return "https://github.com/liferay/liferay-portal/tree/master";
 	}
 
 	private String _getSenderBranchSHA() {

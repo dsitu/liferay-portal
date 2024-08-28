@@ -1589,6 +1589,8 @@
 						"Column",
 						"DropZone",
 						"Form",
+						"FormStep",
+						"FormStepContainer",
 						"Fragment",
 						"FragmentDropZone",
 						"Root",
@@ -1642,6 +1644,14 @@
 					},
 					"title": "The formConfig Schema",
 					"type": "object"
+				},
+				"formType": {
+					"enum": [
+						"simple",
+						"multistep"
+					],
+					"title": "The multistep Schema",
+					"type": "string"
 				},
 				"fragmentStyle": {
 					"$ref": "#/definitions/FragmentStyle"
@@ -1717,9 +1727,55 @@
 				"name": {
 					"title": "The name Schema",
 					"type": "string"
+				},
+				"numberOfSteps": {
+					"title": "The number of steps Schema",
+					"type": "integer"
 				}
 			},
 			"title": "The PageFormDefinition Schema",
+			"type": "object"
+		},
+		"PageFormStepContainerDefinition": {
+			"additionalProperties": false,
+			"properties": {
+				"cssClasses": {
+					"items": {
+						"type": "string"
+					},
+					"title": "The CSS Classes Schema",
+					"type": "array"
+				},
+				"customCSS": {
+					"title": "The Custom CSS Schema",
+					"type": "string"
+				},
+				"customCSSViewports": {
+					"items": {
+						"$ref": "#/definitions/CustomCSSViewport"
+					},
+					"title": "The customCSSViewports Schema",
+					"type": "array"
+				},
+				"fragmentStyle": {
+					"$ref": "#/definitions/FragmentStyle"
+				},
+				"fragmentViewports": {
+					"items": {
+						"$ref": "#/definitions/FragmentViewport"
+					},
+					"title": "The fragmentViewports Schema",
+					"type": "array"
+				}
+			},
+			"title": "The PageFormStepContainerDefinition Schema",
+			"type": "object"
+		},
+		"PageFormStepDefinition": {
+			"additionalProperties": false,
+			"properties": {
+			},
+			"title": "The PageFormStepDefinition Schema",
 			"type": "object"
 		},
 		"PageFragmentDropZoneDefinition": {

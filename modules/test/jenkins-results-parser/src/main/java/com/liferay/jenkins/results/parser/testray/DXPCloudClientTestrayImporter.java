@@ -139,9 +139,9 @@ public class DXPCloudClientTestrayImporter {
 				htmlFileContent.replaceAll(
 					"(screenshots/(?:after|before|screenshot)\\d+)\\.jpg",
 					JenkinsResultsParserUtil.combine(
-						_testrayServerURL, "/reports/", _testrayReleaseName,
-						"/logs/", _getRelativeURLPath(), "/",
-						parentFile.getName(), "/$1.jpg.gz")));
+						_testrayS3Bucket.getTestrayS3BaseURL(), "/",
+						_getRelativeURLPath(), "/", parentFile.getName(),
+						"/$1.jpg.gz")));
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
@@ -457,6 +457,15 @@ public class DXPCloudClientTestrayImporter {
 
 		Properties properties = new Properties();
 
+		String duration = testCaseResultElement.attributeValue("duration");
+
+		if (duration == null) {
+			duration = "0";
+		}
+		else {
+			duration = duration.replaceAll("[\\.,]", "");
+		}
+
 		Matcher matcher = _pattern.matcher(
 			testCaseResultElement.attributeValue("name"));
 
@@ -485,6 +494,7 @@ public class DXPCloudClientTestrayImporter {
 		properties.setProperty(
 			"testray.main.component.name", _testrayComponentName);
 		properties.setProperty("testray.team.name", _testrayTeamName);
+		properties.setProperty("testray.testcase.duration", duration);
 		properties.setProperty("testray.testcase.name", className);
 		properties.setProperty(
 			"testray.testcase.priority", String.valueOf(_testrayCasePriority));
@@ -668,6 +678,10 @@ public class DXPCloudClientTestrayImporter {
 
 		Properties properties = new Properties();
 
+		properties.setProperty(
+			"testray.build.date",
+			JenkinsResultsParserUtil.toDateString(
+				new Date(), "yyy-MM-dd HH:mm:ss", "America/Los_Angeles"));
 		properties.setProperty("testray.build.name", testrayBuild.getName());
 		properties.setProperty("testray.build.type", testrayRoutine.getName());
 		properties.setProperty(
@@ -770,12 +784,6 @@ public class DXPCloudClientTestrayImporter {
 
 		if (!JenkinsResultsParserUtil.isNullOrEmpty(testrayProjectName)) {
 			_testrayProjectName = testrayProjectName;
-		}
-
-		String testrayReleaseName = _getEnvVarValue("testrayReleaseName");
-
-		if (!JenkinsResultsParserUtil.isNullOrEmpty(testrayReleaseName)) {
-			_testrayReleaseName = testrayReleaseName;
 		}
 
 		String testrayRoutineName = _getEnvVarValue("testrayRoutineName");
@@ -930,7 +938,6 @@ public class DXPCloudClientTestrayImporter {
 	private static String _testrayOAuth2ClientSecret;
 	private static String _testrayProductVersion = "1.x";
 	private static String _testrayProjectName = "DXP Cloud Client";
-	private static String _testrayReleaseName = "production";
 	private static String _testrayRoutineName = "DXP Cloud Client Routine";
 	private static TestrayS3Bucket _testrayS3Bucket;
 	private static String _testrayServerURL = "https://testray.liferay.com";

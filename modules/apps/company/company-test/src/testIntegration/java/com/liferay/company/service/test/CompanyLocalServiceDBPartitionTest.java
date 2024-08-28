@@ -7,22 +7,19 @@ package com.liferay.company.service.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.counter.kernel.service.CounterLocalService;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.test.util.ConfigurationTestUtil;
 import com.liferay.portal.db.partition.db.DBPartitionDB;
 import com.liferay.portal.db.partition.test.util.BaseDBPartitionTestCase;
 import com.liferay.portal.db.partition.util.DBPartitionUtil;
+import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.instance.PortalInstancePool;
-import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.VirtualHost;
-import com.liferay.portal.kernel.scheduler.SchedulerEngine;
-import com.liferay.portal.kernel.scheduler.StorageType;
-import com.liferay.portal.kernel.scheduler.TimeUnit;
-import com.liferay.portal.kernel.scheduler.Trigger;
-import com.liferay.portal.kernel.scheduler.TriggerFactory;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.VirtualHostLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
@@ -33,6 +30,7 @@ import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.service.impl.CompanyLocalServiceImpl;
@@ -42,6 +40,7 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.test.rule.TransactionalTestRule;
+import com.liferay.portal.util.PortalInstances;
 
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -53,15 +52,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.junit.After;
+import org.apache.felix.cm.PersistenceManager;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.framework.BundleListener;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
  * @author Mariano Álvaro Sáiz
@@ -96,20 +99,10 @@ public class CompanyLocalServiceDBPartitionTest
 		_regenerateResourceActions();
 	}
 
-	@Before
-	public void setUp() throws Exception {
-		_scheduleJob(_defaultCompanyId, _JOB_NAME);
-		_scheduleJob(_defaultCompanyId, _JOB_NAME + "test");
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		_schedulerEngine.delete(_JOB_GROUP_NAME, StorageType.PERSISTED);
-	}
-
 	@Test
 	public void testAddCompany() throws Exception {
 		int dbPartitionsCount = _getDBPartitionsCount();
+		int rulesCount = _getRulesCount(defaultPartitionName);
 
 		_company1 = CompanyTestUtil.addCompany();
 
@@ -118,6 +111,9 @@ public class CompanyLocalServiceDBPartitionTest
 				_getCompanyIdsBySQL(), _company1.getCompanyId()));
 
 		Assert.assertEquals(dbPartitionsCount + 1, _getDBPartitionsCount());
+		Assert.assertEquals(
+			rulesCount,
+			_getRulesCount(getPartitionName(_company1.getCompanyId())));
 	}
 
 	@Test
@@ -157,7 +153,7 @@ public class CompanyLocalServiceDBPartitionTest
 
 			company = companyLocalService.addCompany(
 				RandomTestUtil.randomLong(), "test.com", "test.com", "test.com",
-				0, true, null, null, null, null, null, null);
+				0, true, true, null, null, null, null, null, null);
 
 			Assert.fail();
 		}
@@ -214,14 +210,7 @@ public class CompanyLocalServiceDBPartitionTest
 	public void testAddDBPartitionCompany() throws Exception {
 		Company company = CompanyTestUtil.addCompany();
 
-		_scheduleJob(company.getCompanyId(), _JOB_NAME);
-
-		Assert.assertEquals(_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
-
 		companyLocalService.extractDBPartitionCompany(company.getCompanyId());
-
-		Assert.assertEquals(_JOBS_COUNT, _getJobsCount(_defaultCompanyId));
-		Assert.assertEquals(1, _getJobsCount(company.getCompanyId()));
 
 		String name = "new" + company.getName();
 		String virtualHostName = "new" + company.getVirtualHostname();
@@ -242,9 +231,6 @@ public class CompanyLocalServiceDBPartitionTest
 			Assert.assertEquals(name, company.getName());
 			Assert.assertEquals(virtualHostName, company.getVirtualHostname());
 			Assert.assertEquals(webId, company.getWebId());
-
-			Assert.assertEquals(
-				_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
 		}
 		finally {
 			if (standaloneDBPartition) {
@@ -262,10 +248,6 @@ public class CompanyLocalServiceDBPartitionTest
 
 		Company company = CompanyTestUtil.addCompany();
 
-		_scheduleJob(company.getCompanyId(), _JOB_NAME);
-
-		Assert.assertEquals(_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
-
 		boolean standaloneDBPartition = false;
 
 		try {
@@ -273,9 +255,6 @@ public class CompanyLocalServiceDBPartitionTest
 				company.getCompanyId());
 
 			standaloneDBPartition = true;
-
-			Assert.assertEquals(_JOBS_COUNT, _getJobsCount(_defaultCompanyId));
-			Assert.assertEquals(1, _getJobsCount(company.getCompanyId()));
 
 			Company defaultCompany = companyLocalService.getCompany(
 				_defaultCompanyId);
@@ -293,10 +272,6 @@ public class CompanyLocalServiceDBPartitionTest
 				Assert.assertFalse(
 					ArrayUtil.contains(
 						_getCompanyIdsBySQL(), company.getCompanyId()));
-
-				Assert.assertEquals(
-					_JOBS_COUNT, _getJobsCount(_defaultCompanyId));
-				Assert.assertEquals(1, _getJobsCount(company.getCompanyId()));
 
 				_checkStandaloneDBPartitionTables(
 					company.getCompanyId(), "Company", "VirtualHost");
@@ -318,10 +293,6 @@ public class CompanyLocalServiceDBPartitionTest
 
 		Company company = CompanyTestUtil.addCompany();
 
-		_scheduleJob(company.getCompanyId(), _JOB_NAME);
-
-		Assert.assertEquals(_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
-
 		boolean standaloneDBPartition = false;
 
 		try {
@@ -329,9 +300,6 @@ public class CompanyLocalServiceDBPartitionTest
 				company.getCompanyId());
 
 			standaloneDBPartition = true;
-
-			Assert.assertEquals(_JOBS_COUNT, _getJobsCount(_defaultCompanyId));
-			Assert.assertEquals(1, _getJobsCount(company.getCompanyId()));
 
 			try (AutoCloseable autoCloseable =
 					ReflectionTestUtil.setFieldValueWithAutoCloseable(
@@ -363,10 +331,6 @@ public class CompanyLocalServiceDBPartitionTest
 					ArrayUtil.contains(
 						_getCompanyIdsBySQL(), company.getCompanyId()));
 
-				Assert.assertEquals(
-					_JOBS_COUNT, _getJobsCount(_defaultCompanyId));
-				Assert.assertEquals(1, _getJobsCount(company.getCompanyId()));
-
 				_checkStandaloneDBPartitionTables(
 					company.getCompanyId(), "Company", "VirtualHost");
 			}
@@ -382,12 +346,151 @@ public class CompanyLocalServiceDBPartitionTest
 	}
 
 	@Test
+	public void testCopyDBPartitionCompany() throws Exception {
+		int rulesCount = _getRulesCount(defaultPartitionName);
+
+		Company company = CompanyTestUtil.addCompany();
+
+		Configuration configuration = _createFactoryConfiguration(
+			company.getCompanyId());
+
+		String name = RandomTestUtil.randomString();
+		String virtualHostname = StringUtil.toLowerCase(
+			RandomTestUtil.randomString());
+		String webId = RandomTestUtil.randomString();
+
+		Company copiedCompany = null;
+
+		try {
+			copiedCompany = companyLocalService.copyDBPartitionCompany(
+				company.getCompanyId(), null, name, virtualHostname, webId);
+
+			_assertCopyDBPartitionCompany(
+				copiedCompany, name, virtualHostname, webId);
+
+			long copiedCompanyId = copiedCompany.getCompanyId();
+
+			_assertConfiguration(copiedCompanyId, configuration);
+
+			companyLocalService.deleteCompany(copiedCompany);
+
+			copiedCompany = companyLocalService.copyDBPartitionCompany(
+				company.getCompanyId(), copiedCompanyId, name, virtualHostname,
+				webId);
+
+			Assert.assertEquals(copiedCompanyId, copiedCompany.getCompanyId());
+
+			_assertCopyDBPartitionCompany(
+				copiedCompany, name, virtualHostname, webId);
+
+			Assert.assertEquals(
+				rulesCount,
+				_getRulesCount(getPartitionName(copiedCompany.getCompanyId())));
+
+			SafeCloseable safeCloseable =
+				PortalInstances.setCopyInProcessCompanyId(copiedCompanyId);
+
+			safeCloseable.close();
+		}
+		finally {
+			companyLocalService.deleteCompany(company.getCompanyId());
+
+			if (copiedCompany != null) {
+				companyLocalService.deleteCompany(copiedCompany.getCompanyId());
+			}
+		}
+	}
+
+	@Test
+	public void testCopyDBPartitionCompanyWhenCompanyLocalServiceFails()
+		throws Exception {
+
+		Company company = CompanyTestUtil.addCompany();
+
+		long toCompanyId = RandomTestUtil.nextLong();
+
+		try {
+			companyLocalService.copyDBPartitionCompany(
+				company.getCompanyId(), toCompanyId, company.getName(),
+				company.getVirtualHostname(), company.getWebId());
+
+			Assert.fail();
+		}
+		catch (PortalException portalException) {
+			Assert.assertFalse(
+				ArrayUtil.contains(_getCompanyIdsBySQL(), toCompanyId));
+
+			_checkPartitionDoesNotExist(toCompanyId);
+
+			SafeCloseable safeCloseable =
+				PortalInstances.setCopyInProcessCompanyId(toCompanyId);
+
+			safeCloseable.close();
+		}
+		finally {
+			companyLocalService.deleteCompany(company);
+		}
+	}
+
+	@Test
+	public void testCopyDBPartitionCompanyWhenDBPartitionUtilFails()
+		throws Exception {
+
+		Company company = CompanyTestUtil.addCompany();
+
+		String name = RandomTestUtil.randomString();
+		long toCompanyId = RandomTestUtil.nextLong();
+		String virtualHostname = StringUtil.toLowerCase(
+			RandomTestUtil.randomString());
+		String webId = RandomTestUtil.randomString();
+
+		try (AutoCloseable autoCloseable =
+				ReflectionTestUtil.setFieldValueWithAutoCloseable(
+					DBPartitionUtil.class, "_dbPartitionDB",
+					ProxyUtil.newProxyInstance(
+						DBPartitionDB.class.getClassLoader(),
+						new Class<?>[] {DBPartitionDB.class},
+						(proxy, method, args) -> {
+							if (Objects.equals(
+									method.getName(), "getCreateViewSQL") &&
+								StringUtil.equalsIgnoreCase(
+									(String)args[2], "VirtualHost")) {
+
+								throw new Exception();
+							}
+
+							return method.invoke(dbPartitionDB, args);
+						}))) {
+
+			companyLocalService.copyDBPartitionCompany(
+				company.getCompanyId(), toCompanyId, name, virtualHostname,
+				webId);
+
+			Assert.fail();
+		}
+		catch (PortalException portalException) {
+			Assert.assertFalse(
+				ArrayUtil.contains(_getCompanyIdsBySQL(), toCompanyId));
+
+			_checkPartitionDoesNotExist(toCompanyId);
+
+			SafeCloseable safeCloseable =
+				PortalInstances.setCopyInProcessCompanyId(toCompanyId);
+
+			safeCloseable.close();
+		}
+		finally {
+			companyLocalService.deleteCompany(company);
+		}
+	}
+
+	@Test
 	public void testDeleteCompany() throws Exception {
 		Company company = CompanyTestUtil.addCompany();
 
-		_scheduleJob(company.getCompanyId(), _JOB_NAME);
-
-		Assert.assertEquals(_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
+		String pid = _createFactoryConfiguration(
+			company.getCompanyId()
+		).getPid();
 
 		int dbPartitionsCount = _getDBPartitionsCount();
 
@@ -396,16 +499,22 @@ public class CompanyLocalServiceDBPartitionTest
 		Assert.assertFalse(
 			ArrayUtil.contains(_getCompanyIdsBySQL(), company.getCompanyId()));
 		Assert.assertEquals(dbPartitionsCount - 1, _getDBPartitionsCount());
-		Assert.assertEquals(_JOBS_COUNT, _getJobsCount(_defaultCompanyId));
+
+		BundleListener configurationManager = ReflectionTestUtil.invoke(
+			_configurationAdmin, "getConfigurationManager", new Class<?>[0],
+			null);
+
+		Assert.assertNull(
+			ReflectionTestUtil.invoke(
+				configurationManager, "getConfiguration",
+				new Class<?>[] {String.class}, pid));
+
+		Assert.assertFalse(_persistenceManager.exists(pid));
 	}
 
 	@Test
 	public void testDeleteCompanyWhenDBPartitionUtilFails() throws Exception {
 		_company1 = CompanyTestUtil.addCompany();
-
-		_scheduleJob(_company1.getCompanyId(), _JOB_NAME);
-
-		Assert.assertEquals(_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
 
 		try (AutoCloseable autoCloseable =
 				ReflectionTestUtil.setFieldValueWithAutoCloseable(
@@ -431,18 +540,12 @@ public class CompanyLocalServiceDBPartitionTest
 			Assert.assertTrue(
 				ArrayUtil.contains(
 					_getCompanyIdsBySQL(), _company1.getCompanyId()));
-			Assert.assertEquals(
-				_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
 		}
 	}
 
 	@Test
 	public void testExtractDBPartitionCompany() throws Exception {
 		Company company = CompanyTestUtil.addCompany();
-
-		_scheduleJob(company.getCompanyId(), _JOB_NAME);
-
-		Assert.assertEquals(_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
 
 		boolean standaloneDBPartition = false;
 
@@ -455,9 +558,6 @@ public class CompanyLocalServiceDBPartitionTest
 					_getCompanyIdsBySQL(), company.getCompanyId()));
 
 			standaloneDBPartition = true;
-
-			Assert.assertEquals(_JOBS_COUNT, _getJobsCount(_defaultCompanyId));
-			Assert.assertEquals(1, _getJobsCount(company.getCompanyId()));
 
 			_checkStandaloneDBPartitionTables(
 				company.getCompanyId(), "Company", "VirtualHost");
@@ -477,10 +577,6 @@ public class CompanyLocalServiceDBPartitionTest
 		throws Exception {
 
 		Company company = CompanyTestUtil.addCompany();
-
-		_scheduleJob(company.getCompanyId(), _JOB_NAME);
-
-		Assert.assertEquals(_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
 
 		int tablesCount = _getTablesCount(company.getCompanyId());
 		int viewsCount = _getViewsCount(company.getCompanyId());
@@ -520,8 +616,6 @@ public class CompanyLocalServiceDBPartitionTest
 			Assert.assertTrue(
 				ArrayUtil.contains(
 					_getCompanyIdsBySQL(), company.getCompanyId()));
-			Assert.assertEquals(
-				_JOBS_COUNT + 1, _getJobsCount(_defaultCompanyId));
 		}
 		finally {
 			if (standaloneDBPartition) {
@@ -538,6 +632,70 @@ public class CompanyLocalServiceDBPartitionTest
 
 		DBPartitionUtil.forEachCompanyId(
 			companyId -> _resourceActionLocalService.checkResourceActions());
+	}
+
+	private void _assertConfiguration(
+			long companyId, Configuration configuration)
+		throws SQLException {
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				StringBundler.concat(
+					"select configurationId, dictionary from ",
+					getPartitionName(companyId),
+					".Configuration_ where configurationId like '",
+					configuration.getFactoryPid(), "%'"));
+			ResultSet resultSet = preparedStatement.executeQuery()) {
+
+			Assert.assertTrue(resultSet.next());
+
+			String configurationId = resultSet.getString("configurationId");
+
+			Assert.assertTrue(_persistenceManager.exists(configurationId));
+
+			String dictionary = resultSet.getString("dictionary");
+
+			Assert.assertTrue(dictionary.contains(String.valueOf(companyId)));
+			Assert.assertFalse(dictionary.contains(configuration.getPid()));
+		}
+	}
+
+	private void _assertCopyDBPartitionCompany(
+			Company company, String name, String virtualHostname, String webId)
+		throws Exception {
+
+		Assert.assertTrue(
+			ArrayUtil.contains(_getCompanyIdsBySQL(), company.getCompanyId()));
+		Assert.assertEquals(name, company.getName());
+		Assert.assertEquals(virtualHostname, company.getVirtualHostname());
+		Assert.assertEquals(webId, company.getWebId());
+
+		_virtualHostLocalService.getVirtualHost(virtualHostname);
+	}
+
+	private void _checkPartitionDoesNotExist(long companyId)
+		throws SQLException {
+
+		List<String> partitionNames = new ArrayList<>();
+
+		DatabaseMetaData databaseMetaData = connection.getMetaData();
+
+		if (db.getDBType() == DBType.MYSQL) {
+			try (ResultSet resultSet = databaseMetaData.getSchemas()) {
+				while (resultSet.next()) {
+					partitionNames.add(resultSet.getString("TABLE_SCHEM"));
+				}
+			}
+		}
+		else {
+			try (ResultSet resultSet = databaseMetaData.getCatalogs()) {
+				while (resultSet.next()) {
+					partitionNames.add(resultSet.getString("TABLE_CAT"));
+				}
+			}
+		}
+
+		Assert.assertFalse(
+			partitionNames.contains(getPartitionName(companyId)));
 	}
 
 	private void _checkStandaloneDBPartitionTables(
@@ -567,6 +725,26 @@ public class CompanyLocalServiceDBPartitionTest
 		}
 	}
 
+	private Configuration _createFactoryConfiguration(long companyId)
+		throws Exception {
+
+		String pid = null;
+
+		try (SafeCloseable safeCloseable =
+				CompanyThreadLocal.setWithSafeCloseable(companyId)) {
+
+			pid = ConfigurationTestUtil.createFactoryConfiguration(
+				CompanyLocalServiceDBPartitionTest.class.getName(),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"companyId", companyId
+				).put(
+					"test", RandomTestUtil.randomString()
+				).build());
+		}
+
+		return _configurationAdmin.getConfiguration(pid);
+	}
+
 	private long[] _getCompanyIdsBySQL() {
 		return ReflectionTestUtil.invoke(
 			PortalInstancePool.class, "_getCompanyIdsBySQL", null, null);
@@ -590,30 +768,12 @@ public class CompanyLocalServiceDBPartitionTest
 		throw new SQLException("At least one database partition is required");
 	}
 
-	private int _getJobsCount(long companyId) throws Exception {
-		String partitionName = getPartitionName(companyId);
-
-		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				StringBundler.concat(
-					"select count(1) from ", partitionName,
-					".QUARTZ_JOB_DETAILS where JOB_GROUP = '", _JOB_GROUP_NAME,
-					"'"));
-			ResultSet resultSet = preparedStatement.executeQuery()) {
-
-			if (resultSet.next()) {
-				return resultSet.getInt(1);
-			}
-		}
-
-		throw new Exception("Table does not exist");
-	}
-
 	private List<String> _getObjectNames(String objectType, long companyId)
 		throws Exception {
 
-		DatabaseMetaData databaseMetaData = connection.getMetaData();
-
 		List<String> objectNames = new ArrayList<>();
+
+		DatabaseMetaData databaseMetaData = connection.getMetaData();
 
 		String partitionName = getPartitionName(companyId);
 
@@ -630,6 +790,28 @@ public class CompanyLocalServiceDBPartitionTest
 		return objectNames;
 	}
 
+	private int _getRulesCount(String partitionName) throws SQLException {
+		if (db.getDBType() != DBType.POSTGRESQL) {
+			return 0;
+		}
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+				StringBundler.concat(
+					"select count(pg_catalog.pg_rewrite.rulename) from ",
+					"pg_catalog.pg_rewrite join pg_catalog.pg_class on ",
+					"pg_catalog.pg_rewrite.ev_class = pg_catalog.pg_class.oid ",
+					"where pg_catalog.pg_class.relnamespace = '", partitionName,
+					"'::regnamespace and (pg_catalog.pg_rewrite.rulename like ",
+					"'update_%' or pg_catalog.pg_rewrite.rulename like ",
+					"'delete_%')"));
+			ResultSet resultSet = preparedStatement.executeQuery()) {
+
+			resultSet.next();
+
+			return resultSet.getInt(1);
+		}
+	}
+
 	private int _getTablesCount(long companyId) throws Exception {
 		List<String> tableNames = _getObjectNames("TABLE", companyId);
 
@@ -642,22 +824,6 @@ public class CompanyLocalServiceDBPartitionTest
 		return viewNames.size();
 	}
 
-	private void _scheduleJob(long companyId, String jobName) throws Exception {
-		Trigger trigger = _triggerFactory.createTrigger(
-			StringBundler.concat(jobName, StringPool.AT, companyId),
-			_JOB_GROUP_NAME, null, null, 1, TimeUnit.DAY);
-
-		_schedulerEngine.schedule(
-			trigger, StringPool.BLANK, _JOB_GROUP_NAME, new Message(),
-			StorageType.PERSISTED);
-	}
-
-	private static final String _JOB_GROUP_NAME = "liferay/test";
-
-	private static final String _JOB_NAME = "test";
-
-	private static final int _JOBS_COUNT = 2;
-
 	@Inject
 	private static CounterLocalService _counterLocalService;
 
@@ -668,16 +834,6 @@ public class CompanyLocalServiceDBPartitionTest
 
 	private static Map<String, ResourceAction> _resourceActions;
 
-	@Inject(
-		filter = "component.name=com.liferay.portal.scheduler.quartz.internal.QuartzSchedulerEngine"
-	)
-	private static SchedulerEngine _schedulerEngine;
-
-	@Inject(
-		filter = "component.name=com.liferay.portal.scheduler.quartz.internal.QuartzTriggerFactory"
-	)
-	private static TriggerFactory _triggerFactory;
-
 	@Inject
 	private static VirtualHostLocalService _virtualHostLocalService;
 
@@ -686,5 +842,11 @@ public class CompanyLocalServiceDBPartitionTest
 
 	@DeleteAfterTestRun
 	private Company _company2;
+
+	@Inject
+	private ConfigurationAdmin _configurationAdmin;
+
+	@Inject
+	private PersistenceManager _persistenceManager;
 
 }
