@@ -506,6 +506,31 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 	}
 
 	@Override
+	public boolean isMultishippingEnabled(
+		HttpServletRequest httpServletRequest) {
+
+		try {
+			CommerceOrderCheckoutConfiguration
+				commerceOrderCheckoutConfiguration =
+					_configurationProvider.getConfiguration(
+						CommerceOrderCheckoutConfiguration.class,
+						new GroupServiceSettingsLocator(
+							_commerceChannelLocalService.
+								getCommerceChannelGroupIdBySiteGroupId(
+									_portal.getScopeGroupId(
+										httpServletRequest)),
+							CommerceConstants.SERVICE_NAME_COMMERCE_ORDER));
+
+			return commerceOrderCheckoutConfiguration.multishippingEnabled();
+		}
+		catch (Exception exception) {
+			_log.error(exception);
+		}
+
+		return false;
+	}
+
+	@Override
 	public void setCurrentCommerceOrder(
 			HttpServletRequest httpServletRequest, CommerceOrder commerceOrder)
 		throws PortalException {

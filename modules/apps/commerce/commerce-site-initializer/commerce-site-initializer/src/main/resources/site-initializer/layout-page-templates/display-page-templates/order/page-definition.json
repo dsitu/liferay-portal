@@ -1086,15 +1086,39 @@
 																	{
 																		"definition": {
 																			"fragment": {
-																				"key": "com.liferay.commerce.order.content.web.internal.fragment.renderer.OrderItemsDataSetFragmentRenderer"
+																				"key": "order-items-tab",
+																				"siteKey": "[$GROUP_KEY$]"
 																			},
 																			"fragmentConfig": {
-																				"displayStyle": "fluid"
 																			},
 																			"fragmentFields": [
 																			],
 																			"indexed": true
 																		},
+																		"pageElements": [
+																			{
+																				"pageElements": [
+																					{
+																						"definition": {
+																							"fragment": {
+																								"key": "com.liferay.commerce.order.content.web.internal.fragment.renderer.OrderItemsDataSetFragmentRenderer"
+																							},
+																							"fragmentConfig": {
+																								"displayStyle": "fluid"
+																							},
+																							"fragmentFields": [
+																							],
+																							"indexed": true
+																						},
+																						"type": "Fragment"
+																					}
+																				],
+																				"type": "FragmentDropZone"
+																			},
+																			{
+																				"type": "FragmentDropZone"
+																			}
+																		],
 																		"type": "Fragment"
 																	}
 																],
