@@ -27,7 +27,7 @@ public class CommerceOrderInfoItemCapabilitiesProvider
 
 	@Override
 	public List<InfoItemCapability> getInfoItemCapabilities() {
-		if (FeatureFlagManagerUtil.isEnabled("COMMERCE-9410")) {
+		if (FeatureFlagManagerUtil.isEnabled("LPD-20379")) {
 			return ListUtil.fromArray(
 				_displayPageInfoItemCapability, _templateInfoItemCapability);
 		}
