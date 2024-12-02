@@ -28,6 +28,8 @@ create index IX_85ED285B on CPConfigurationList (parentCPConfigurationListId);
 create index IX_DD7144ED on CPConfigurationList (status, displayDate);
 create index IX_20625D47 on CPConfigurationList (uuid_[$COLUMN_LENGTH:75$]);
 
+create unique index IX_5B3D330D on CPConfigurationListRel (CPConfigurationListId, classNameId, classPK, ctCollectionId);
+
 create index IX_95975FB4 on CPDSpecificationOptionValue (CPDefinitionId, CPOptionCategoryId);
 create index IX_173E8E91 on CPDSpecificationOptionValue (CPDefinitionId, CPSpecificationOptionId);
 create unique index IX_CFB2B6D7 on CPDSpecificationOptionValue (CPDefinitionId, ctCollectionId, key_[$COLUMN_LENGTH:75$]);

@@ -173,6 +173,19 @@
 		<field name="statusByUserName" type="String" />
 		<field name="statusDate" type="Date" />
 	</model>
+	<model name="com.liferay.commerce.product.model.CPConfigurationListRel">
+		<field name="mvccVersion" type="long" />
+		<field name="ctCollectionId" type="long" />
+		<field name="CPConfigurationListRelId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
+		<field name="classNameId" type="long" />
+		<field name="classPK" type="long" />
+		<field name="CPConfigurationListId" type="long" />
+	</model>
 	<model name="com.liferay.commerce.product.model.CPDefinition">
 		<field name="mvccVersion" type="long" />
 		<field name="ctCollectionId" type="long" />
