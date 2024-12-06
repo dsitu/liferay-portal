@@ -93,6 +93,19 @@ public class CPConfigurationListQualifiersDisplayContext
 		return "all";
 	}
 
+	public String getActiveChannelEligibility() throws PortalException {
+		long commerceChannelRelsCount =
+			_commerceChannelRelService.getCommerceChannelRelsCount(
+				CPConfigurationList.class.getName(),
+				getCPConfigurationListId());
+
+		if (commerceChannelRelsCount > 0) {
+			return "channels";
+		}
+
+		return "all";
+	}
+
 	public CPConfigurationList getCPConfigurationList() throws PortalException {
 		if (_cpConfigurationList != null) {
 			return _cpConfigurationList;
@@ -166,6 +179,34 @@ public class CPConfigurationListQualifiersDisplayContext
 			"/o/headless-commerce-admin-catalog/v1.0",
 			"/product-configuration-lists/", getCPConfigurationListId(),
 			"/product-configuration-list-accounts?nestedFields=account");
+	}
+
+	public List<FDSActionDropdownItem>
+			getCPConfigurationListChannelFDSActionDropdownItems()
+		throws PortalException {
+
+		return getFDSActionDropdownItems(
+			PortletURLBuilder.create(
+				PortletProviderUtil.getPortletURL(
+					httpServletRequest, CommerceChannel.class.getName(),
+					PortletProvider.Action.MANAGE)
+			).setMVCRenderCommandName(
+				"/commerce_channels/edit_commerce_channel"
+			).setRedirect(
+				cpRequestHelper.getCurrentURL()
+			).setParameter(
+				"commerceChannelId", "{channel.id}"
+			).buildString(),
+			false);
+	}
+
+	public String getCPConfigurationListChannelsAPIURL()
+		throws PortalException {
+
+		return StringBundler.concat(
+			"/o/headless-commerce-admin-catalog/v1.0",
+			"/product-configuration-lists/", getCPConfigurationListId(),
+			"/product-configuration-list-channels?nestedFields=channel");
 	}
 
 	public PortletURL getPortletCPConfigurationListURL() {
