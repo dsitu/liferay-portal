@@ -180,8 +180,7 @@ public class CPConfigurationListQualifiersDisplayContext
 		return StringBundler.concat(
 			"/o/headless-commerce-admin-catalog/v1.0",
 			"/product-configuration-lists/", getCPConfigurationListId(),
-			"/product-configuration-list-account-groups?nestedFields=",
-			"accountGroup");
+			"/product-configuration-list-account-groups");
 	}
 
 	public String getCPConfigurationListAccountsAPIURL()
@@ -190,7 +189,7 @@ public class CPConfigurationListQualifiersDisplayContext
 		return StringBundler.concat(
 			"/o/headless-commerce-admin-catalog/v1.0",
 			"/product-configuration-lists/", getCPConfigurationListId(),
-			"/product-configuration-list-accounts?nestedFields=account");
+			"/product-configuration-list-accounts");
 	}
 
 	public List<FDSActionDropdownItem>
@@ -218,7 +217,7 @@ public class CPConfigurationListQualifiersDisplayContext
 		return StringBundler.concat(
 			"/o/headless-commerce-admin-catalog/v1.0",
 			"/product-configuration-lists/", getCPConfigurationListId(),
-			"/product-configuration-list-channels?nestedFields=channel");
+			"/product-configuration-list-channels");
 	}
 
 	public List<FDSActionDropdownItem>
@@ -246,8 +245,7 @@ public class CPConfigurationListQualifiersDisplayContext
 		return StringBundler.concat(
 			"/o/headless-commerce-admin-catalog/v1.0",
 			"/product-configuration-lists/", getCPConfigurationListId(),
-			"/product-configuration-list-order-types?nestedFields=",
-			"orderType");
+			"/product-configuration-list-order-types");
 	}
 
 	public PortletURL getPortletCPConfigurationListURL() {
