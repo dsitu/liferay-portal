@@ -15,6 +15,7 @@ import com.liferay.commerce.product.service.CommerceCatalogService;
 import com.liferay.commerce.product.service.CommerceChannelRelService;
 import com.liferay.frontend.taglib.servlet.taglib.ScreenNavigationEntry;
 import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -41,6 +42,13 @@ public class CPConfigurationListQualifiersScreenNavigationEntry
 	@Override
 	public String getEntryKey() {
 		return getCategoryKey();
+	}
+
+	@Override
+	public boolean isVisible(
+		User user, CPConfigurationList cpConfigurationList) {
+
+		return !cpConfigurationList.isMasterCPConfigurationList();
 	}
 
 	@Override

@@ -8,6 +8,7 @@ package com.liferay.commerce.product.definitions.web.internal.display.context;
 import com.liferay.account.constants.AccountPortletKeys;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountGroup;
+import com.liferay.commerce.inventory.CPDefinitionInventoryEngineRegistry;
 import com.liferay.commerce.model.CommerceOrderType;
 import com.liferay.commerce.product.display.context.helper.CPRequestHelper;
 import com.liferay.commerce.product.model.CPConfigurationList;
@@ -16,8 +17,12 @@ import com.liferay.commerce.product.service.CPConfigurationEntryService;
 import com.liferay.commerce.product.service.CPConfigurationListRelService;
 import com.liferay.commerce.product.service.CPConfigurationListService;
 import com.liferay.commerce.product.service.CPDefinitionService;
+import com.liferay.commerce.product.service.CPMeasurementUnitLocalService;
+import com.liferay.commerce.product.service.CPTaxCategoryLocalService;
 import com.liferay.commerce.product.service.CommerceCatalogService;
 import com.liferay.commerce.product.service.CommerceChannelRelService;
+import com.liferay.commerce.service.CommerceAvailabilityEstimateService;
+import com.liferay.commerce.stock.activity.CommerceLowStockActivityRegistry;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -47,20 +52,27 @@ public class CPConfigurationListQualifiersDisplayContext
 	extends CPConfigurationListDisplayContext {
 
 	public CPConfigurationListQualifiersDisplayContext(
+		CommerceAvailabilityEstimateService commerceAvailabilityEstimateService,
 		CommerceCatalogService commerceCatalogService,
 		CommerceChannelRelService commerceChannelRelService,
+		CommerceLowStockActivityRegistry commerceLowStockActivityRegistry,
 		CPConfigurationEntryService cpConfigurationEntryService,
 		ModelResourcePermission<CPConfigurationList>
 			cpConfigurationListModelResourcePermission,
 		CPConfigurationListRelService cpConfigurationListRelService,
 		CPConfigurationListService cpConfigurationListService,
-		CPDefinitionService cpDefinitionService, Portal portal,
+		CPDefinitionInventoryEngineRegistry cpDefinitionInventoryEngineRegistry,
+		CPDefinitionService cpDefinitionService,
+		CPMeasurementUnitLocalService cpMeasurementUnitLocalService,
+		CPTaxCategoryLocalService cpTaxCategoryLocalService, Portal portal,
 		HttpServletRequest httpServletRequest) {
 
 		super(
-			commerceCatalogService, cpConfigurationEntryService,
-			cpConfigurationListService, cpDefinitionService,
-			httpServletRequest);
+			commerceAvailabilityEstimateService, commerceCatalogService,
+			commerceLowStockActivityRegistry, cpConfigurationEntryService,
+			cpConfigurationListService, cpDefinitionInventoryEngineRegistry,
+			cpDefinitionService, cpMeasurementUnitLocalService,
+			cpTaxCategoryLocalService, httpServletRequest);
 
 		cpRequestHelper = new CPRequestHelper(httpServletRequest);
 
