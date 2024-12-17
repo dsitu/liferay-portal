@@ -6628,6 +6628,7 @@ paths:
             tags: ["ProductConfigurationListChannel"]
     "/product-configuration-list-order-types/{productConfigurationListOrderTypeId}":
         delete:
+            operationId: deleteProductConfigurationListOrderType
             parameters:
                 - in: path
                   explode: false
@@ -7483,6 +7484,7 @@ paths:
             tags: ["ProductConfigurationListChannel"]
     "/product-configuration-lists/by-externalReferenceCode/{externalReferenceCode}/product-configuration-list-order-types":
         get:
+            operationId: getProductConfigurationListByExternalReferenceCodeProductConfigurationListOrderTypesPage
             parameters:
                 - in: path
                   explode: false
@@ -7562,6 +7564,7 @@ paths:
             summary: Gets a list of product configuration list order types.
             tags: ["ProductConfigurationListOrderType"]
         post:
+            operationId: postProductConfigurationListByExternalReferenceCodeProductConfigurationListOrderType
             parameters:
                 - in: path
                   explode: false
@@ -8516,6 +8519,7 @@ paths:
             tags: ["ProductConfigurationListChannel"]
     "/product-configuration-lists/{id}/product-configuration-list-order-types":
         get:
+            operationId: getProductConfigurationListIdProductConfigurationListOrderTypesPage
             parameters:
                 - in: path
                   explode: false
@@ -8607,6 +8611,7 @@ paths:
             summary: Gets a list of product configuration list order types.
             tags: ["ProductConfigurationListOrderType"]
         post:
+            operationId: postProductConfigurationListIdProductConfigurationListOrderType
             parameters:
                 - in: path
                   explode: false
