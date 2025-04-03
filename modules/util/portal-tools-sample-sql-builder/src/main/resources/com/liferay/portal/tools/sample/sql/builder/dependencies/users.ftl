@@ -1,9 +1,10 @@
 <#assign
 	groupIds = dataFactory.getNewUserGroupIds(groupModel.groupId, guestGroupModel)
 	roleIds = [dataFactory.administratorRoleModel.roleId, dataFactory.powerUserRoleModel.roleId, dataFactory.userRoleModel.roleId]
+	userModels = dataFactory.newUserModels()
 />
 
-<#list dataFactory.newUserModels() as userModel>
+<#list userModels as userModel>
 	<#assign userGroupModel = dataFactory.newGroupModel(userModel) />
 
 	${csvFileWriter.write("user", virtualHostModel.hostname + "," + userModel.screenName + "\n")}

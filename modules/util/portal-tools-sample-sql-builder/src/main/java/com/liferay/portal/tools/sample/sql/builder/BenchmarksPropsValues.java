@@ -227,6 +227,12 @@ public class BenchmarksPropsValues {
 	public static final int MAX_OBJECT_ENTRY_PAGE_COUNT = GetterUtil.getInteger(
 		PropertiesHolder._get(BenchmarksPropsKeys.MAX_OBJECT_ENTRY_PAGE_COUNT));
 
+	public static final int MAX_ORGANIZATION_COUNT = GetterUtil.getInteger(
+		PropertiesHolder._get(BenchmarksPropsKeys.MAX_ORGANIZATION_COUNT));
+
+	public static final int MAX_ORGANIZATION_SITE_COUNT = GetterUtil.getInteger(
+		PropertiesHolder._get(BenchmarksPropsKeys.MAX_ORGANIZATION_SITE_COUNT));
+
 	public static final int MAX_SEGMENTS_ENTRY_COUNT = GetterUtil.getInteger(
 		PropertiesHolder._get(BenchmarksPropsKeys.MAX_SEGMENTS_ENTRY_COUNT));
 

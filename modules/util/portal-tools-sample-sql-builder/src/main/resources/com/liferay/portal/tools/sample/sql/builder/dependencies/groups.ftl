@@ -27,6 +27,8 @@
 
 	<#include "users.ftl">
 
+	<#include "organizations.ftl">
+
 	<@insertDLFolder
 		_ddmStructureId = dataFactory.defaultDLDDMStructureId
 		_dlFolderDepth = 1
