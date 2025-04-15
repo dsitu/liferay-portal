@@ -1,5 +1,3 @@
-<#assign organizationName = "" />
-
 <#list dataFactory.newOrganizationModels() as organizationModel>
 	<#if (dataFactory.maxOrganizationSiteCount > organizationModel?index)>
 		<#assign
