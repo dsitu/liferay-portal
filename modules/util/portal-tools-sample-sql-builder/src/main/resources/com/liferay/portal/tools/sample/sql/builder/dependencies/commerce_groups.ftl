@@ -140,6 +140,8 @@
 			<#list cpDefinitionModels as cpDefinitionModel>
 				${dataFactory.toInsertSQL(cpDefinitionModel)}
 
+				${dataFactory.toInsertSQL(dataFactory.newCPDefinitionInventoryModel(cpDefinitionModel.groupId, cpDefinitionModel.CPDefinitionId))}
+
 				<#list commerceChannelModels as commerceChannelModel>
 					${dataFactory.toInsertSQL(dataFactory.newCommerceChannelRelModel(dataFactory.CPDefinitionClassNameId, cpDefinitionModel.CPDefinitionId, commerceChannelModel.commerceChannelId))}
 				</#list>
@@ -255,6 +257,15 @@
 
 			${csvFileWriter.write("commerceOrder", virtualHostModel.hostname + "," + pendingCommerceOrderModel.commerceOrderId + ", " + pendingCommerceOrderItemModel.commerceOrderItemId + ", " + pendingCommerceOrderItemModel.quantity + ", " + dataFactory.getCPInstanceId(randomCProductModel.publishedCPDefinitionId) + ", " + countryModel.countryId + ", " + pendingCommerceOrderModel.uuid + ", " + commerceInventoryWarehouseModels[0].commerceInventoryWarehouseId + ", " + commerceGroupModels[0].groupId + "\n")}
 		</#list>
+
+		<#assign
+			repositoryDLFolderModel = dataFactory.newDLFolderModel(commerceChannelGroupModel.groupId, 0, "Order Local Repository")
+
+			repositoryModel = dataFactory.newRepositoryModel(commerceChannelGroupModel.groupId, dataFactory.portletRepositoryClassNameId, "com.liferay.commerce.order", "com.liferay.commerce.order", repositoryDLFolderModel.folderId)
+		/>
+
+		${dataFactory.toInsertSQL(repositoryDLFolderModel)}
+		${dataFactory.toInsertSQL(repositoryModel)}
 	</#list>
 
 	<#list dataFactory.newCommerceOrderModels(commerceChannelGroupModels[0].groupId, accountEntryModels[0].accountEntryId, 0, commerceCurrencyModel.code, 2, 0, 0, "") as openCommerceOrderModel>
