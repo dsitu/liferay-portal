@@ -2,7 +2,6 @@
 	<#if (dataFactory.maxOrganizationSiteCount > organizationModel?index)>
 		<#assign
 			organizationGroupModel = dataFactory.newOrganizationGroupModel(organizationModel, true)
-			organizationName = organizationModel.name
 			userModel = userModels[organizationModel?index]
 
 			homePageContentLayoutModels = dataFactory.newContentPageLayoutModels(organizationGroupModel.groupId, "home")
@@ -25,12 +24,10 @@
 
 		${dataFactory.toInsertSQL("Users_Groups", userModel.companyId, organizationGroupModel.groupId, userModel.userId)}
 	<#else>
-		<#assign organizationGroupModel = dataFactory.newOrganizationGroupModel(organizationModel, false) />
-
-		<@insertGroup _groupModel = organizationGroupModel />
+		<@insertGroup _groupModel = dataFactory.newOrganizationGroupModel(organizationModel, false) />
 	</#if>
 
-	${csvFileWriter.write("organization", virtualHostModel.hostname + "," + organizationName + "\n")}
+	${csvFileWriter.write("organization", virtualHostModel.hostname + "," + organizationModel.name + "\n")}
 
 	${dataFactory.toInsertSQL(organizationModel)}
 </#list>
