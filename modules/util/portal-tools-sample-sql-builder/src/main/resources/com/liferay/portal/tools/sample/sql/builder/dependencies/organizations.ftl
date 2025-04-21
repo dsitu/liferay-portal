@@ -23,11 +23,11 @@
 		<@insertGroup _groupModel = organizationGroupModel />
 
 		${dataFactory.toInsertSQL("Users_Groups", userModel.companyId, organizationGroupModel.groupId, userModel.userId)}
+
+		${csvFileWriter.write("organization", virtualHostModel.hostname + "," + organizationModel.name + "\n")}
 	<#else>
 		<@insertGroup _groupModel = dataFactory.newOrganizationGroupModel(organizationModel, false) />
 	</#if>
-
-	${csvFileWriter.write("organization", virtualHostModel.hostname + "," + organizationModel.name + "\n")}
 
 	${dataFactory.toInsertSQL(organizationModel)}
 </#list>
