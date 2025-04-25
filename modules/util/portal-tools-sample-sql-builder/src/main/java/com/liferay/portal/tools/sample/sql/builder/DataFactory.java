@@ -5689,20 +5689,36 @@ public class DataFactory {
 	public List<ObjectDefinitionModel> newObjectDefinitionModels(
 		long objectFolderId) {
 
-		return ListUtil.fromArray(
-			newObjectDefinitionModel(
-				_counter.get(), objectFolderId, _counter.get(),
-				CommerceOrder.class.getName(), "CommerceOrder", false, true,
-				false, _getObjectLabel("Commerce Order"), false,
-				"CommerceOrder", null, "commerceOrderId", "commerceOrderId",
-				_getObjectPluralLabel("Commerce Orders"), false, true,
-				"L_COMMERCE_ORDER", SequentialUUID.generate()),
-			newObjectDefinitionModel(
-				_counter.get(), objectFolderId, _counter.get(),
-				User.class.getName(), "User_", false, true, false,
-				_getObjectLabel("User"), false, "User", null, "userId",
-				"userId", _getObjectPluralLabel("Users"), false, true, "L_USER",
-				SequentialUUID.generate()));
+		List<ObjectDefinitionModel> objectDefinitionModels = new ArrayList<>();
+
+		if (!ArrayUtil.contains(
+				BenchmarksPropsValues.EXCLUDED_SYSTEM_OBJECT_DEFINITIONS,
+				"CommerceOrder")) {
+
+			objectDefinitionModels.add(
+				newObjectDefinitionModel(
+					_counter.get(), objectFolderId, _counter.get(),
+					CommerceOrder.class.getName(), "CommerceOrder", false, true,
+					false, _getObjectLabel("Commerce Order"), false,
+					"CommerceOrder", null, "commerceOrderId", "commerceOrderId",
+					_getObjectPluralLabel("Commerce Orders"), false, true,
+					"L_COMMERCE_ORDER", SequentialUUID.generate()));
+		}
+
+		if (!ArrayUtil.contains(
+				BenchmarksPropsValues.EXCLUDED_SYSTEM_OBJECT_DEFINITIONS,
+				"User")) {
+
+			objectDefinitionModels.add(
+				newObjectDefinitionModel(
+					_counter.get(), objectFolderId, _counter.get(),
+					User.class.getName(), "User_", false, true, false,
+					_getObjectLabel("User"), false, "User", null, "userId",
+					"userId", _getObjectPluralLabel("Users"), false, true,
+					"L_USER", SequentialUUID.generate()));
+		}
+
+		return objectDefinitionModels;
 	}
 
 	public List<ObjectEntryModel> newObjectEntryModels(
