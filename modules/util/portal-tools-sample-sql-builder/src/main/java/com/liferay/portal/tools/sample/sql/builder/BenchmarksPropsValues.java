@@ -31,6 +31,11 @@ public class BenchmarksPropsValues {
 		StringUtil.toUpperCase(
 			PropertiesHolder._get(BenchmarksPropsKeys.DB_TYPE)));
 
+	public static final String[] EXCLUDED_SYSTEM_OBJECT_DEFINITIONS =
+		StringUtil.split(
+			PropertiesHolder._get(
+				BenchmarksPropsKeys.EXCLUDED_SYSTEM_OBJECT_DEFINITIONS));
+
 	public static final int MAX_ACCOUNT_ENTRY_COMMERCE_ORDER_COUNT =
 		GetterUtil.getInteger(
 			PropertiesHolder._get(

@@ -99,6 +99,9 @@ public class SampleSQLBuilderTest {
 			StringPool.BLANK);
 		properties.put(BenchmarksPropsKeys.DB_TYPE, "hypersonic");
 		properties.put(
+			BenchmarksPropsKeys.EXCLUDED_SYSTEM_OBJECT_DEFINITIONS,
+			StringPool.BLANK);
+		properties.put(
 			BenchmarksPropsKeys.MAX_ACCOUNT_ENTRY_COMMERCE_ORDER_COUNT, "1");
 		properties.put(BenchmarksPropsKeys.MAX_ACCOUNT_ENTRY_COUNT, "1");
 		properties.put(BenchmarksPropsKeys.MAX_ASSET_CATEGORY_COUNT, "1");

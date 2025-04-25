@@ -15,6 +15,9 @@ public interface BenchmarksPropsKeys {
 
 	public static final String DB_TYPE = "sample.sql.db.type";
 
+	public static final String EXCLUDED_SYSTEM_OBJECT_DEFINITIONS =
+		"sample.sql.excluded.system.object.definitions";
+
 	public static final String MAX_ACCOUNT_ENTRY_COMMERCE_ORDER_COUNT =
 		"sample.sql.max.account.entry.commerce.order.count";
 
