@@ -112,7 +112,11 @@
 			cpDefinitionDLFolderModel = dataFactory.newDLFolderModel(commerceCatalogGroupModel.groupId, commerceProductDLFolderModel.folderId, "Commerce Product Definition")
 
 			cProductModels = dataFactory.newCProductModels(commerceCatalogGroupModel.groupId)
+
+			cpConfigurationListModel = dataFactory.newCPConfigurationListModel(commerceCatalogGroupModel.groupId)
 		/>
+
+		${dataFactory.toInsertSQL(cpConfigurationListModel)}
 
 		${dataFactory.toInsertSQL(commerceCatalogGroupModel)}
 
@@ -165,13 +169,13 @@
 				<#list dataFactory.newCPInstanceModels(cpDefinitionModel) as cpInstanceModel>
 					${dataFactory.toInsertSQL(cpInstanceModel)}
 
-					<#list commerceInventoryWarehouseModels as commerceInventoryWarehouseModel>
-						<#assign commerceInventoryWarehouseItemModel = dataFactory.newCommerceInventoryWarehouseItemModel(commerceInventoryWarehouseModel, cpInstanceModel) />
+					<#if dataFactory.maxCommerceInventoryWarehouseCount != 0>
+						<#assign commerceInventoryWarehouseItemModel = dataFactory.newCommerceInventoryWarehouseItemModel(commerceInventoryWarehouseModels[0], cpInstanceModel) />
 
 						${dataFactory.toInsertSQL(commerceInventoryWarehouseItemModel)}
 
 						${csvFileWriter.write("commerceInventoryWarehouseItem", virtualHostModel.hostname + "," + commerceInventoryWarehouseItemModel.commerceInventoryWarehouseItemId + ", " + commerceInventoryWarehouseItemModel.commerceInventoryWarehouseId + ", " + cpInstanceModel.CPInstanceId + "\n")}
-					</#list>
+					</#if>
 
 					<#list commercePriceListModels as commercePriceListModel>
 						${dataFactory.toInsertSQL(dataFactory.newCommercePriceEntryModel(commercePriceListModel.commercePriceListId, cpInstanceModel.CPInstanceUuid, cpDefinitionModel.CProductId))}
