@@ -19,7 +19,6 @@ import com.liferay.commerce.product.service.CommerceChannelRelLocalService;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 
 import java.util.List;
@@ -57,6 +56,26 @@ public class CommercePriceListHierarchyDiscoveryImpl
 			long commerceOrderTypeId, String currencyCode, String type)
 		throws PortalException {
 
+		String[] currencyCodes = TransformUtil.transformToArray(
+			_commerceChannelRelLocalService.
+				getCommerceCurrencyCommerceChannelRels(
+					commerceChannelId, null, QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS),
+			commerceChannelRel -> {
+				CommerceCurrency commerceCurrency =
+					_commerceCurrencyLocalService.fetchCommerceCurrency(
+						commerceChannelRel.getClassPK());
+
+				return commerceCurrency.getCode();
+			},
+			String.class);
+
+		if ((currencyCodes.length > 0) &&
+			!ArrayUtil.contains(currencyCodes, currencyCode)) {
+
+			return null;
+		}
+
 		CommercePriceList firstEligibleCommercePriceList = null;
 
 		CommerceChannelAccountEntryRel commerceChannelAccountEntryRel =
@@ -83,253 +102,219 @@ public class CommercePriceListHierarchyDiscoveryImpl
 			firstEligibleCommercePriceList = commercePriceLists.get(0);
 		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.
-				getCommercePriceListsByAccountAndOrderTypeId(
-					groupId, commerceAccountId, commerceOrderTypeId,
-					currencyCode, type);
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.
+					getCommercePriceListsByAccountAndOrderTypeId(
+						groupId, commerceAccountId, commerceOrderTypeId,
+						currencyCode, type);
 
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
 
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
-				CommercePriceList eligibleCommercePriceList =
-					_getEligibleCommercePriceList(
-						commerceChannelId, commercePriceLists);
-
-				if (eligibleCommercePriceList != null) {
-					firstEligibleCommercePriceList = eligibleCommercePriceList;
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
 				}
-			}
-		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.
-				getCommercePriceListsByAccountAndChannelId(
-					groupId, commerceAccountId, commerceChannelId, currencyCode,
-					type);
-
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
-
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
 				firstEligibleCommercePriceList = commercePriceLists.get(0);
 			}
 		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.getCommercePriceListsByAccountId(
-				groupId, commerceAccountId, currencyCode, type);
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.
+					getCommercePriceListsByAccountAndChannelId(
+						groupId, commerceAccountId, commerceChannelId,
+						currencyCode, type);
 
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
 
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
-				CommercePriceList eligibleCommercePriceList =
-					_getEligibleCommercePriceList(
-						commerceChannelId, commercePriceLists);
-
-				if (eligibleCommercePriceList != null) {
-					firstEligibleCommercePriceList = eligibleCommercePriceList;
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
 				}
+
+				firstEligibleCommercePriceList = commercePriceLists.get(0);
+			}
+		}
+
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.getCommercePriceListsByAccountId(
+					groupId, commerceAccountId, currencyCode, type);
+
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
+
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
+				}
+
+				firstEligibleCommercePriceList = commercePriceLists.get(0);
 			}
 		}
 
 		long[] commerceAccountGroupIds =
 			_accountGroupLocalService.getAccountGroupIds(commerceAccountId);
 
-		commercePriceLists =
-			_commercePriceListLocalService.
-				getCommercePriceListsByAccountGroupsAndChannelAndOrderTypeId(
-					groupId, commerceAccountGroupIds, commerceChannelId,
-					commerceOrderTypeId, currencyCode, type);
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.
+					getCommercePriceListsByAccountGroupsAndChannelAndOrderTypeId(
+						groupId, commerceAccountGroupIds, commerceChannelId,
+						commerceOrderTypeId, currencyCode, type);
 
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
 
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
+				}
 
-			if (firstEligibleCommercePriceList == null) {
 				firstEligibleCommercePriceList = commercePriceLists.get(0);
 			}
 		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.
-				getCommercePriceListsByAccountGroupsAndOrderTypeId(
-					groupId, commerceAccountGroupIds, commerceOrderTypeId,
-					currencyCode, type);
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.
+					getCommercePriceListsByAccountGroupsAndOrderTypeId(
+						groupId, commerceAccountGroupIds, commerceOrderTypeId,
+						currencyCode, type);
 
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
 
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
-				CommercePriceList eligibleCommercePriceList =
-					_getEligibleCommercePriceList(
-						commerceChannelId, commercePriceLists);
-
-				if (eligibleCommercePriceList != null) {
-					firstEligibleCommercePriceList = eligibleCommercePriceList;
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
 				}
-			}
-		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.
-				getCommercePriceListsByAccountGroupsAndChannelId(
-					groupId, commerceAccountGroupIds, commerceChannelId,
-					currencyCode, type);
-
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
-
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
 				firstEligibleCommercePriceList = commercePriceLists.get(0);
 			}
 		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.
-				getCommercePriceListsByAccountGroupIds(
-					groupId, commerceAccountGroupIds, currencyCode, type);
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.
+					getCommercePriceListsByAccountGroupsAndChannelId(
+						groupId, commerceAccountGroupIds, commerceChannelId,
+						currencyCode, type);
 
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
 
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
-				CommercePriceList eligibleCommercePriceList =
-					_getEligibleCommercePriceList(
-						commerceChannelId, commercePriceLists);
-
-				if (eligibleCommercePriceList != null) {
-					firstEligibleCommercePriceList = eligibleCommercePriceList;
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
 				}
-			}
-		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.
-				getCommercePriceListsByChannelAndOrderTypeId(
-					groupId, commerceChannelId, commerceOrderTypeId,
-					currencyCode, type);
-
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
-
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
 				firstEligibleCommercePriceList = commercePriceLists.get(0);
 			}
 		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.getCommercePriceListsByOrderTypeId(
-				groupId, commerceOrderTypeId, currencyCode, type);
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.
+					getCommercePriceListsByAccountGroupIds(
+						groupId, commerceAccountGroupIds, currencyCode, type);
 
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
 
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
-				CommercePriceList eligibleCommercePriceList =
-					_getEligibleCommercePriceList(
-						commerceChannelId, commercePriceLists);
-
-				if (eligibleCommercePriceList != null) {
-					firstEligibleCommercePriceList = eligibleCommercePriceList;
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
 				}
-			}
-		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.getCommercePriceListsByChannelId(
-				groupId, commerceChannelId, currencyCode, type);
-
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
-
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
 				firstEligibleCommercePriceList = commercePriceLists.get(0);
 			}
 		}
 
-		commercePriceLists =
-			_commercePriceListLocalService.getCommercePriceListsByUnqualified(
-				groupId, currencyCode, type);
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.
+					getCommercePriceListsByChannelAndOrderTypeId(
+						groupId, commerceChannelId, commerceOrderTypeId,
+						currencyCode, type);
 
-		if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
-			CommercePriceList defaultCommercePriceList =
-				_getDefaultCommercePriceList(
-					commerceChannelAccountEntryRel, commercePriceLists);
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
 
-			if (defaultCommercePriceList != null) {
-				return defaultCommercePriceList;
-			}
-
-			if (firstEligibleCommercePriceList == null) {
-				CommercePriceList eligibleCommercePriceList =
-					_getEligibleCommercePriceList(
-						commerceChannelId, commercePriceLists);
-
-				if (eligibleCommercePriceList != null) {
-					firstEligibleCommercePriceList = eligibleCommercePriceList;
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
 				}
+
+				firstEligibleCommercePriceList = commercePriceLists.get(0);
+			}
+		}
+
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.
+					getCommercePriceListsByOrderTypeId(
+						groupId, commerceOrderTypeId, currencyCode, type);
+
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
+
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
+				}
+
+				firstEligibleCommercePriceList = commercePriceLists.get(0);
+			}
+		}
+
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.getCommercePriceListsByChannelId(
+					groupId, commerceChannelId, currencyCode, type);
+
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
+
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
+				}
+
+				firstEligibleCommercePriceList = commercePriceLists.get(0);
+			}
+		}
+
+		if (firstEligibleCommercePriceList == null) {
+			commercePriceLists =
+				_commercePriceListLocalService.
+					getCommercePriceListsByUnqualified(
+						groupId, currencyCode, type);
+
+			if ((commercePriceLists != null) && !commercePriceLists.isEmpty()) {
+				CommercePriceList defaultCommercePriceList =
+					_getDefaultCommercePriceList(
+						commerceChannelAccountEntryRel, commercePriceLists);
+
+				if (defaultCommercePriceList != null) {
+					return defaultCommercePriceList;
+				}
+
+				firstEligibleCommercePriceList = commercePriceLists.get(0);
 			}
 		}
 
@@ -359,48 +344,8 @@ public class CommercePriceListHierarchyDiscoveryImpl
 		return null;
 	}
 
-	private CommercePriceList _getEligibleCommercePriceList(
-		long commerceChannelId, List<CommercePriceList> commercePriceLists) {
-
-		String[] currencyCodes = TransformUtil.transformToArray(
-			_commerceChannelRelLocalService.getCommerceChannelRels(
-				commerceChannelId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null),
-			commerceChannelRel -> {
-				if (commerceChannelRel.getClassNameId() !=
-						_classNameLocalService.getClassNameId(
-							CommerceCurrency.class.getName())) {
-
-					return null;
-				}
-
-				CommerceCurrency commerceCurrency =
-					_commerceCurrencyLocalService.fetchCommerceCurrency(
-						commerceChannelRel.getClassPK());
-
-				return commerceCurrency.getCode();
-			},
-			String.class);
-
-		for (CommercePriceList commercePriceList : commercePriceLists) {
-			if ((currencyCodes.length > 0) &&
-				!ArrayUtil.contains(
-					currencyCodes,
-					commercePriceList.getCommerceCurrencyCode())) {
-
-				continue;
-			}
-
-			return commercePriceList;
-		}
-
-		return null;
-	}
-
 	@Reference
 	private AccountGroupLocalService _accountGroupLocalService;
-
-	@Reference
-	private ClassNameLocalService _classNameLocalService;
 
 	@Reference
 	private CommerceChannelAccountEntryRelLocalService
