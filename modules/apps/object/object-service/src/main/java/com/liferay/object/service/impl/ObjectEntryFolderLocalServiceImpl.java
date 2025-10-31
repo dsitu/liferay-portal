@@ -944,6 +944,10 @@ public class ObjectEntryFolderLocalServiceImpl
 			}
 		}
 
+		objectEntryFolder.setLabel(
+			uniqueName,
+			LocaleUtil.fromLanguageId(
+				objectEntryFolder.getDefaultLanguageId()));
 		objectEntryFolder.setName(uniqueName);
 	}
 
