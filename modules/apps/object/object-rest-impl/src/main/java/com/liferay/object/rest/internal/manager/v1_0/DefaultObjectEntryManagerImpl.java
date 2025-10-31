@@ -3702,13 +3702,30 @@ public class DefaultObjectEntryManagerImpl
 			return;
 		}
 
-		values.put(
-			titleObjectField.getName(),
-			UniqueUtil.getCopyValue(
-				copyValue -> _isUniqueName(
-					objectDefinition, objectEntryFolder, objectFieldColumn,
-					copyValue),
-				titleValue));
+		if (titleObjectField.isLocalized()) {
+			Map<String, Object> i18nValues = (Map<String, Object>)values.get(
+				titleObjectField.getI18nObjectFieldName());
+
+			String languageId = LocaleUtil.toLanguageId(
+				LocaleUtil.getSiteDefault());
+
+			i18nValues.put(
+				languageId,
+				UniqueUtil.getCopyValue(
+					copyValue -> _isUniqueName(
+						objectDefinition, objectEntryFolder, objectFieldColumn,
+						copyValue),
+					titleValue));
+		}
+		else {
+			values.put(
+				titleObjectField.getName(),
+				UniqueUtil.getCopyValue(
+					copyValue -> _isUniqueName(
+						objectDefinition, objectEntryFolder, objectFieldColumn,
+						copyValue),
+					titleValue));
+		}
 	}
 
 	private ObjectEntry _updateObjectEntry(

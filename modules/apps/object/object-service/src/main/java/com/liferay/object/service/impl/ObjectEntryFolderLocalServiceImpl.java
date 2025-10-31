@@ -944,6 +944,7 @@ public class ObjectEntryFolderLocalServiceImpl
 			}
 		}
 
+		objectEntryFolder.setLabel(uniqueName);
 		objectEntryFolder.setName(uniqueName);
 	}
 
