@@ -3733,21 +3733,19 @@ public class DefaultObjectEntryManagerImpl
 
 			i18nValues.put(
 				languageId,
-				UniqueUtil.getUniqueValue(
-					"copy",
-					uniqueValue -> _isUniqueName(
+				UniqueUtil.getCopyValue(
+					copyValue -> _isUniqueName(
 						objectDefinition, objectEntryFolder, objectFieldColumn,
-						uniqueValue),
+						copyValue),
 					titleValue));
 		}
 		else {
 			values.put(
 				titleObjectField.getName(),
-				UniqueUtil.getUniqueValue(
-					"copy",
-					uniqueValue -> _isUniqueName(
+				UniqueUtil.getCopyValue(
+					copyValue -> _isUniqueName(
 						objectDefinition, objectEntryFolder, objectFieldColumn,
-						uniqueValue),
+						copyValue),
 					titleValue));
 		}
 	}
