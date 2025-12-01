@@ -6333,7 +6333,9 @@ public class ObjectEntryResourceTest {
 	@Test
 	@TestInfo("LPD-62553")
 	public void testGetObjectEntryActions() throws Exception {
-		Assume.assumeFalse(FeatureFlagManagerUtil.isEnabled("LPD-17564"));
+		Assume.assumeFalse(
+			FeatureFlagManagerUtil.isEnabled(
+				_group.getCompanyId(), "LPD-17564"));
 
 		_testGetObjectEntryActions(false);
 	}
@@ -15896,11 +15898,45 @@ public class ObjectEntryResourceTest {
 			StringPool.SLASH, objectEntryId);
 
 		return HashMapBuilder.<String, Map<String, String>>put(
+			"copy",
+			() -> {
+				if (FeatureFlagManagerUtil.isEnabled(
+						_group.getCompanyId(), "LPD-17564")) {
+
+					return _getActionValue(
+						StringBundler.concat(
+							href,
+							"/by-object-entry-folder-id/{objectEntryFolderId}",
+							"/copy"),
+						"POST");
+				}
+
+				return null;
+			}
+		).put(
+			"copy-replace",
+			() -> {
+				if (FeatureFlagManagerUtil.isEnabled(
+						_group.getCompanyId(), "LPD-17564")) {
+
+					return _getActionValue(
+						StringBundler.concat(
+							href,
+							"/by-object-entry-folder-id/{objectEntryFolderId}",
+							"/copy-replace"),
+						"POST");
+				}
+
+				return null;
+			}
+		).put(
 			"delete", _getActionValue(href, "DELETE")
 		).put(
 			"expire",
 			() -> {
-				if (FeatureFlagManagerUtil.isEnabled("LPD-17564")) {
+				if (FeatureFlagManagerUtil.isEnabled(
+						_group.getCompanyId(), "LPD-17564")) {
+
 					return _getActionValue(href + "/expire", "POST");
 				}
 
@@ -15909,13 +15945,62 @@ public class ObjectEntryResourceTest {
 		).put(
 			"get", _getActionValue(href, "GET")
 		).put(
+			"get-by-scope",
+			() -> {
+				if (FeatureFlagManagerUtil.isEnabled(
+						_group.getCompanyId(), "LPD-17564")) {
+
+					return _getActionValue(
+						StringBundler.concat(
+							"http://localhost:8080/o",
+							objectDefinition.getRESTContextPath(), "/scopes/",
+							_group.getGroupId()),
+						"GET");
+				}
+
+				return null;
+			}
+		).put(
+			"move",
+			() -> {
+				if (FeatureFlagManagerUtil.isEnabled(
+						_group.getCompanyId(), "LPD-17564")) {
+
+					return _getActionValue(
+						StringBundler.concat(
+							href,
+							"/by-object-entry-folder-id/{objectEntryFolderId}",
+							"/move"),
+						"POST");
+				}
+
+				return null;
+			}
+		).put(
+			"move-replace",
+			() -> {
+				if (FeatureFlagManagerUtil.isEnabled(
+						_group.getCompanyId(), "LPD-17564")) {
+
+					return _getActionValue(
+						StringBundler.concat(
+							href,
+							"/by-object-entry-folder-id/{objectEntryFolderId}",
+							"/move-replace"),
+						"POST");
+				}
+
+				return null;
+			}
+		).put(
 			"permissions", _getActionValue(href + "/permissions", "GET")
 		).put(
 			"replace", _getActionValue(href, "PUT")
 		).put(
 			"share",
 			() -> {
-				if (FeatureFlagManagerUtil.isEnabled("LPD-17564") &&
+				if (FeatureFlagManagerUtil.isEnabled(
+						_group.getCompanyId(), "LPD-17564") &&
 					sharingEnabled) {
 
 					return _getActionValue(href, "GET");
