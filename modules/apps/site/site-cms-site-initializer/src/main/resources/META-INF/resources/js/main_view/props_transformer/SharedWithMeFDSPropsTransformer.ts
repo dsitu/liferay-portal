@@ -158,6 +158,7 @@ export default function SharedWithMeFDSPropsTransformer({
 						id: item.classPK,
 						title: item.title,
 					},
+					entryClassName: item.className,
 				}));
 
 				openCMSModal({
