@@ -50,6 +50,10 @@ public abstract class BaseSectionDisplayContext {
 			new FDSActionDropdownItem(
 				"#", "trash", "delete",
 				LanguageUtil.get(httpServletRequest, "delete"), null, null,
+				null),
+			new FDSActionDropdownItem(
+				"#", "user", "assign-task",
+				LanguageUtil.get(httpServletRequest, "assign-task"), null, null,
 				null));
 	}
 
