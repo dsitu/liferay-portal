@@ -117,6 +117,9 @@ export interface IBulkActionTaskType {
 		taxonomyCategoryIdsToAdd?: number[];
 		taxonomyCategoryIdsToRemove?: number[];
 	};
+	UpdateTaskStateBulkAction: {
+		state?: string;
+	};
 }
 
 export type TBulkActionTaskDTO = {
