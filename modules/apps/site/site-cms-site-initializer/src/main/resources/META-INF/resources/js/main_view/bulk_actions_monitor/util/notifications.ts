@@ -15,8 +15,8 @@ import {
 	BULK_ACTION_MOVE,
 	BULK_ACTION_PERMISSIONS,
 	BULK_ACTION_RESET_PERMISSIONS,
+	BULK_ACTION_STATUS,
 	BULK_ACTION_TAGS,
-	BULK_ACTION_UPDATE_TASK_STATE,
 } from './constants';
 
 type BulkActionMessage = {
@@ -109,6 +109,19 @@ const BULK_ACTION_MESSAGES: BulkActionMessage = {
 			),
 		},
 	},
+	[BULK_ACTION_STATUS]: {
+		info: {
+			all: Liferay.Language.get(
+				'state-update-action-started-for-all-task'
+			),
+			plural: Liferay.Language.get(
+				'state-update-action-started-for-x-task'
+			),
+			singular: Liferay.Language.get(
+				'state-update-action-started-for-one-task'
+			),
+		},
+	},
 	[BULK_ACTION_TAGS]: {
 		info: {
 			all: Liferay.Language.get(
@@ -119,19 +132,6 @@ const BULK_ACTION_MESSAGES: BulkActionMessage = {
 			),
 			singular: Liferay.Language.get(
 				'tags-update-action-started-for-one-asset'
-			),
-		},
-	},
-	[BULK_ACTION_UPDATE_TASK_STATE]: {
-		info: {
-			all: Liferay.Language.get(
-				'state-update-action-started-for-all-task'
-			),
-			plural: Liferay.Language.get(
-				'state-update-action-started-for-x-task'
-			),
-			singular: Liferay.Language.get(
-				'state-update-action-started-for-one-task'
 			),
 		},
 	},
