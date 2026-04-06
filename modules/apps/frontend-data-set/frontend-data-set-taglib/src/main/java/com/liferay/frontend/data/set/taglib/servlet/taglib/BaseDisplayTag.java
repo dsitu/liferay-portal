@@ -304,7 +304,7 @@ public class BaseDisplayTag extends AttributesTagSupport {
 
 			fdsRenderer.render(
 				prepareProps(new HashMap<>()), getId(), getId(), getRequest(),
-				(HttpServletResponse)pageContext.getResponse(), true,
+				(HttpServletResponse)pageContext.getResponse(), false,
 				propsTransformer, jspWriter);
 		}
 		else {
