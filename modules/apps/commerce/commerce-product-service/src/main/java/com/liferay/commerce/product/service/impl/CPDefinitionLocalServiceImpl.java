@@ -883,14 +883,9 @@ public class CPDefinitionLocalServiceImpl
 		CProduct sourceCProduct = sourceCPDefinition.getCProduct();
 
 		if (!cpDefinitionLocalService.isVersionable(
-				sourceCProduct.getPublishedCPDefinitionId())) {
-
-			return sourceCPDefinition;
-		}
-
-		if (sourceCPDefinition.isDraft() &&
-			(status ==
-			 WorkflowConstants.ACTION_SAVE_DRAFT)) {
+				sourceCProduct.getPublishedCPDefinitionId()) ||
+			(sourceCPDefinition.isDraft() &&
+			 (status == WorkflowConstants.ACTION_SAVE_DRAFT))) {
 
 			return sourceCPDefinition;
 		}
@@ -901,13 +896,13 @@ public class CPDefinitionLocalServiceImpl
 		User user = _userLocalService.getUser(serviceContext.getUserId());
 
 		if (!sourceCPDefinition.isDraft() &&
-			(status ==
-			 WorkflowConstants.ACTION_SAVE_DRAFT)) {
+			(status == WorkflowConstants.ACTION_SAVE_DRAFT)) {
+
 			for (CPDefinition cProductCPDefinition :
-				cpDefinitionLocalService.getCProductCPDefinitions(
-					sourceCPDefinition.getCProductId(),
-					WorkflowConstants.STATUS_DRAFT, QueryUtil.ALL_POS,
-					QueryUtil.ALL_POS)) {
+					cpDefinitionLocalService.getCProductCPDefinitions(
+						sourceCPDefinition.getCProductId(),
+						WorkflowConstants.STATUS_DRAFT, QueryUtil.ALL_POS,
+						QueryUtil.ALL_POS)) {
 
 				cpDefinitionLocalService.updateStatus(
 					user.getUserId(), cProductCPDefinition.getCPDefinitionId(),
@@ -1513,6 +1508,21 @@ public class CPDefinitionLocalServiceImpl
 	}
 
 	@Override
+	public CPDefinition fetchCPDefinitionByCProductExternalReferenceCode(
+		String externalReferenceCode, long companyId, int status) {
+
+		CProduct cProduct =
+			_cProductLocalService.fetchCProductByExternalReferenceCode(
+				externalReferenceCode, companyId);
+
+		if (cProduct == null) {
+			return null;
+		}
+
+		return fetchCPDefinitionByCProductId(cProduct.getCProductId(), status);
+	}
+
+	@Override
 	public CPDefinition fetchCPDefinitionByCProductId(
 		long cProductId, boolean excludeDraft) {
 
@@ -1537,6 +1547,14 @@ public class CPDefinitionLocalServiceImpl
 
 		return cpDefinitionPersistence.fetchByC_V(
 			cProduct.getCProductId(), cProduct.getLatestVersion());
+	}
+
+	@Override
+	public CPDefinition fetchCPDefinitionByCProductId(
+		long cProductId, int status) {
+
+		return cpDefinitionPersistence.fetchByC_S_First(
+			cProductId, status, null);
 	}
 
 	@Override
