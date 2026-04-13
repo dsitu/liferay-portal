@@ -14247,6 +14247,89 @@ paths:
             summary: Gets a product by External Reference Code.
             tags:
                 -   Product
+        patch:
+            description:
+                Updates a specific historical version of the product identified by external reference code. Calls
+                CProductLocalService.fetchCProductByExternalReferenceCode + CPDefinitionService.getCProductCPDefinition.
+                Validation -- NoSuchCPDefinitionException -> 404 when ERC or version not found.
+            operationId: patchProductByExternalReferenceCodeByVersion
+            parameters:
+                -   $ref: "#/components/parameters/externalReferenceCodePathParam"
+                -   $ref: "#/components/parameters/versionPathParam"
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Product"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Product"
+                required: true
+            responses:
+                202:
+                    description:
+                        Async
+                204:
+                    description:
+                        Updated
+                400:
+                    description:
+                        Invalid input
+                401:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        Authentication information is missing or invalid
+                403:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        The authenticated user lacks permission for the requested action on this product.
+                404:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        The specified resource was not found
+                422:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        A domain validation error prevented the product from being created or updated (for example, a
+                        referenced entity is missing, a required cross-reference is unresolved, or a value is out of
+                        range).
+                500:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        Unexpected error
+            summary: Updates a product by External Reference Code and version.
+            tags:
+                -   Product
     /products/by-externalReferenceCode/{externalReferenceCode}/catalog:
         get:
             description:
@@ -17712,6 +17795,89 @@ paths:
                     description:
                         Unexpected error
             summary: Gets a product by ID.
+            tags:
+                -   Product
+        patch:
+            description:
+                Updates a specific historical version of the product identified by product id. Calls
+                CPDefinitionService.getCProductCPDefinition. Validation -- NoSuchCPDefinitionException -> 404 when
+                product id or version not found.
+            operationId: patchProductByVersion
+            parameters:
+                -   $ref: "#/components/parameters/idPathParam"
+                -   $ref: "#/components/parameters/versionPathParam"
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Product"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Product"
+                required: true
+            responses:
+                202:
+                    description:
+                        Async
+                204:
+                    description:
+                        Updated
+                400:
+                    description:
+                        Invalid input
+                401:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        Authentication information is missing or invalid
+                403:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        The authenticated user lacks permission for the requested action on this product.
+                404:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        The specified resource was not found
+                422:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        A domain validation error prevented the product from being created or updated (for example, a
+                        referenced entity is missing, a required cross-reference is unresolved, or a value is out of
+                        range).
+                500:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                    description:
+                        Unexpected error
+            summary: Updates a product by ID and version.
             tags:
                 -   Product
     /products/{id}/catalog:
