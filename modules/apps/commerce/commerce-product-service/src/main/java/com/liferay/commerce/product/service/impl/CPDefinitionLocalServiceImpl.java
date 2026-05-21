@@ -1519,7 +1519,8 @@ public class CPDefinitionLocalServiceImpl
 			return null;
 		}
 
-		return fetchCPDefinitionByCProductId(cProduct.getCProductId(), status);
+		return cpDefinitionLocalService.fetchCPDefinitionByCProductId(
+			cProduct.getCProductId(), status);
 	}
 
 	@Override
