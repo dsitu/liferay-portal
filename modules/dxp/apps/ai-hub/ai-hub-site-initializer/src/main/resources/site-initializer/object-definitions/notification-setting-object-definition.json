@@ -1,0 +1,95 @@
+{
+	"accountEntryRestricted": true,
+	"accountEntryRestrictedObjectFieldName": "r_accountToNotificationSettings_accountEntryId",
+	"className": "com.liferay.object.model.ObjectDefinition#N4S1",
+	"enableFormContainer": false,
+	"enableIndexSearch": true,
+	"externalReferenceCode": "L_AI_HUB_NOTIFICATION_SETTING",
+	"friendlyURLSeparator": "l",
+	"label": {
+		"en_US": "Notification Setting"
+	},
+	"modifiable": true,
+	"name": "AIHubNotificationSetting",
+	"objectFields": [
+		{
+			"DBType": "String",
+			"businessType": "MultiselectPicklist",
+			"externalReferenceCode": "NOTIFICATION_SEVERITIES",
+			"indexed": true,
+			"indexedAsKeyword": true,
+			"label": {
+				"en_US": "Notification Severities"
+			},
+			"listTypeDefinitionExternalReferenceCode": "L_AI_HUB_NOTIFICATION_SEVERITIES",
+			"name": "notificationSeverities",
+			"required": true,
+			"system": true,
+			"type": "String"
+		},
+		{
+			"DBType": "String",
+			"businessType": "MultiselectPicklist",
+			"externalReferenceCode": "NOTIFICATION_TYPES",
+			"indexed": true,
+			"indexedAsKeyword": true,
+			"label": {
+				"en_US": "Notification Types"
+			},
+			"listTypeDefinitionExternalReferenceCode": "L_AI_HUB_NOTIFICATION_TYPES",
+			"name": "notificationTypes",
+			"required": true,
+			"system": true,
+			"type": "String"
+		},
+		{
+			"DBType": "String",
+			"businessType": "Text",
+			"externalReferenceCode": "ADDITIONAL_EMAIL_ADDRESSES",
+			"indexed": true,
+			"indexedLanguageId": "en_US",
+			"label": {
+				"en_US": "Additional Email Addresses"
+			},
+			"name": "additionalEmailAddresses",
+			"required": false,
+			"system": true,
+			"type": "String"
+		},
+		{
+			"DBType": "Long",
+			"businessType": "Relationship",
+			"externalReferenceCode": "ACCOUNT_TO_AI_HUB_NOTIFICATION_SETTINGS",
+			"indexed": true,
+			"label": {
+				"en_US": "Account to Notification Settings"
+			},
+			"name": "r_accountToNotificationSettings_accountEntryId",
+			"objectDefinitionExternalReferenceCode1": "L_ACCOUNT",
+			"objectFieldSettings": [
+				{
+					"name": "objectDefinition1ShortName",
+					"value": "AccountEntry"
+				},
+				{
+					"name": "objectRelationshipERCObjectFieldName",
+					"value": "r_accountToNotificationSettings_accountEntryERC"
+				}
+			],
+			"objectRelationshipExternalReferenceCode": "L_ACCOUNT_TO_L_AI_HUB_NOTIFICATION_SETTINGS",
+			"readOnly": false,
+			"relationshipType": "oneToMany",
+			"required": true,
+			"system": true,
+			"type": "Long"
+		}
+	],
+	"objectFolderExternalReferenceCode": "default",
+	"panelCategoryKey": "control_panel.object",
+	"pluralLabel": {
+		"en_US": "Notification Settings"
+	},
+	"portlet": true,
+	"scope": "company",
+	"system": true
+}

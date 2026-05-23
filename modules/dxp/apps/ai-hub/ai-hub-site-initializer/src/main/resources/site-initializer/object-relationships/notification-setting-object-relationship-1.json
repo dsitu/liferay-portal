@@ -1,0 +1,13 @@
+{
+	"deletionType": "cascade",
+	"externalReferenceCode": "L_ACCOUNT_TO_L_AI_HUB_NOTIFICATION_SETTINGS",
+	"label": {
+		"en_US": "Account to AI Hub Notification Settings"
+	},
+	"name": "accountToNotificationSettings",
+	"objectDefinitionId1": "[$OBJECT_DEFINITION_ID:AccountEntry$]",
+	"objectDefinitionId2": "[$OBJECT_DEFINITION_ID:AIHubNotificationSetting$]",
+	"objectDefinitionName2": "AIHubNotificationSetting",
+	"system": true,
+	"type": "oneToMany"
+}

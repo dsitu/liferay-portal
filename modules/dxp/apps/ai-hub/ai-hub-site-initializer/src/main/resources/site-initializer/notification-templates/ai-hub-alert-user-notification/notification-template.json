@@ -1,0 +1,15 @@
+{
+	"editorType": "richText",
+	"externalReferenceCode": "L_AI_HUB_ALERT_USER_NOTIFICATION_TEMPLATE",
+	"name": "AI Hub Alert User Notification",
+	"recipientType": "term",
+	"recipients": [
+		{
+			"term": "[%RECIPIENT_USER_ID%]"
+		}
+	],
+	"subject": {
+		"en_US": "[%INCIDENT_SEVERITY%] alert - [%ALERT_TRIGGER%]"
+	},
+	"type": "userNotification"
+}

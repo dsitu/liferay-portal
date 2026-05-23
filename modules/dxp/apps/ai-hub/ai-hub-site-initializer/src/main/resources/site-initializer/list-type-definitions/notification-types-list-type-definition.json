@@ -1,0 +1,19 @@
+{
+	"externalReferenceCode": "L_AI_HUB_NOTIFICATION_TYPES",
+	"listTypeEntries": [
+		{
+			"externalReferenceCode": "EMAIL",
+			"key": "email",
+			"name": "Email",
+			"system": true
+		},
+		{
+			"externalReferenceCode": "USER_NOTIFICATION",
+			"key": "userNotification",
+			"name": "User Notification",
+			"system": true
+		}
+	],
+	"name": "AI Hub Notification Types",
+	"system": true
+}

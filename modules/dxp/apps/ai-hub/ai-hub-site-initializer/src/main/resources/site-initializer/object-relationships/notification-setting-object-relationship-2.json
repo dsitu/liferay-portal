@@ -1,0 +1,13 @@
+{
+	"deletionType": "disassociate",
+	"externalReferenceCode": "L_AI_HUB_NOTIFICATION_SETTINGS_TO_L_AI_HUB_AGENT_DEFINITIONS",
+	"label": {
+		"en_US": "AI Hub Notification Settings to Agent Definitions"
+	},
+	"name": "notificationSettingsToAgentDefinitions",
+	"objectDefinitionId1": "[$OBJECT_DEFINITION_ID:AIHubNotificationSetting$]",
+	"objectDefinitionId2": "[$OBJECT_DEFINITION_ID:AIHubAgentDefinition$]",
+	"objectDefinitionName2": "AIHubAgentDefinition",
+	"system": true,
+	"type": "manyToMany"
+}

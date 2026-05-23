@@ -1,0 +1,24 @@
+{
+	"editorType": "richText",
+	"externalReferenceCode": "L_AI_HUB_ALERT_EMAIL_TEMPLATE",
+	"name": "AI Hub Alert Email",
+	"recipientType": "email",
+	"recipients": [
+		{
+			"bcc": "",
+			"cc": "",
+			"from": "[%FROM_ADDRESS%]",
+			"fromName": {
+				"en_US": "[%FROM_NAME%]"
+			},
+			"singleRecipient": false,
+			"to": {
+				"en_US": "[%TO%]"
+			}
+		}
+	],
+	"subject": {
+		"en_US": "[Liferay AI Hub] [%INCIDENT_SEVERITY%] alert - [%ALERT_TRIGGER%]"
+	},
+	"type": "email"
+}
