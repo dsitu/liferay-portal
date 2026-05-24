@@ -989,12 +989,6 @@ public class RoleLocalServiceTest {
 	private static Role _arbitraryRole;
 
 	@Inject
-	private static GroupLocalService _groupLocalService;
-
-	@Inject
-	private static OrganizationLocalService _organizationLocalService;
-
-	@Inject
 	private static ResourceActionLocalService _resourceActionLocalService;
 
 	private static ResourcePermission _resourcePermission;
@@ -1006,24 +1000,17 @@ public class RoleLocalServiceTest {
 	@Inject
 	private static RoleLocalService _roleLocalService;
 
-	@Inject
-	private static TeamLocalService _teamLocalService;
-
-	@Inject
-	private static UserGroupGroupRoleLocalService
-		_userGroupGroupRoleLocalService;
-
-	@Inject
-	private static UserGroupRoleLocalService _userGroupRoleLocalService;
-
-	@Inject
-	private static UserLocalService _userLocalService;
-
 	@DeleteAfterTestRun
 	private Group _group;
 
+	@Inject
+	private GroupLocalService _groupLocalService;
+
 	@DeleteAfterTestRun
 	private Organization _organization;
+
+	@Inject
+	private OrganizationLocalService _organizationLocalService;
 
 	@Inject
 	private Portal _portal;
@@ -1036,10 +1023,22 @@ public class RoleLocalServiceTest {
 
 	private Team _team;
 
+	@Inject
+	private TeamLocalService _teamLocalService;
+
 	@DeleteAfterTestRun
 	private User _user;
 
 	@DeleteAfterTestRun
 	private UserGroup _userGroup;
+
+	@Inject
+	private UserGroupGroupRoleLocalService _userGroupGroupRoleLocalService;
+
+	@Inject
+	private UserGroupRoleLocalService _userGroupRoleLocalService;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 }
