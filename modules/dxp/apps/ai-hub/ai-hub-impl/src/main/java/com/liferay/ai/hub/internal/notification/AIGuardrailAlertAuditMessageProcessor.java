@@ -8,6 +8,7 @@ package com.liferay.ai.hub.internal.notification;
 import com.liferay.ai.hub.internal.constants.AIHubDestinationNames;
 import com.liferay.ai.hub.notification.AIHubAlertEventBuffer;
 import com.liferay.portal.kernel.audit.AuditMessage;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.Message;
@@ -30,7 +31,12 @@ public class AIGuardrailAlertAuditMessageProcessor
 	@Override
 	public void process(AuditMessage auditMessage) {
 		try {
+			JSONObject additionalInfoJSONObject =
+				auditMessage.getAdditionalInfo();
+
 			if (!_aiHubAlertEventBuffer.shouldDispatch(
+					additionalInfoJSONObject.getString(
+						"agentDefinitionExternalReferenceCode"),
 					auditMessage.getEventType())) {
 
 				return;

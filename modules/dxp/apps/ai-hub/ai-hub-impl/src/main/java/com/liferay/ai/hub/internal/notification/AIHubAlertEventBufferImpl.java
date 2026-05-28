@@ -6,6 +6,7 @@
 package com.liferay.ai.hub.internal.notification;
 
 import com.liferay.ai.hub.notification.AIHubAlertEventBuffer;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.Time;
 
 import java.util.HashMap;
@@ -21,14 +22,18 @@ import org.osgi.service.component.annotations.Component;
 public class AIHubAlertEventBufferImpl implements AIHubAlertEventBuffer {
 
 	@Override
-	public synchronized boolean shouldDispatch(String eventType) {
+	public synchronized boolean shouldDispatch(
+		String agentExternalReferenceCode, String eventType) {
+
+		String key = agentExternalReferenceCode + StringPool.POUND + eventType;
+
 		AIHubAlertEventBucket aiHubAlertEventBucket =
-			_aiHubAlertEventBucketMap.get(eventType);
+			_aiHubAlertEventBucketMap.get(key);
 
 		if (aiHubAlertEventBucket == null) {
 			aiHubAlertEventBucket = new AIHubAlertEventBucket();
 
-			_aiHubAlertEventBucketMap.put(eventType, aiHubAlertEventBucket);
+			_aiHubAlertEventBucketMap.put(key, aiHubAlertEventBucket);
 		}
 
 		long now = System.currentTimeMillis();

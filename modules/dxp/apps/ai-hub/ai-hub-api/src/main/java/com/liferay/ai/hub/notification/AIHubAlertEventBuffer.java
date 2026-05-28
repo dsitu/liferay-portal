@@ -10,6 +10,7 @@ package com.liferay.ai.hub.notification;
  */
 public interface AIHubAlertEventBuffer {
 
-	public boolean shouldDispatch(String eventType);
+	public boolean shouldDispatch(
+		String agentExternalReferenceCode, String eventType);
 
 }
