@@ -35,6 +35,7 @@ public class AIGuardrailAlertAuditMessageProcessor
 				auditMessage.getAdditionalInfo();
 
 			if (!_aiHubAlertEventBuffer.shouldDispatch(
+					auditMessage.getCompanyId(),
 					additionalInfoJSONObject.getString(
 						"agentDefinitionExternalReferenceCode"),
 					auditMessage.getEventType())) {

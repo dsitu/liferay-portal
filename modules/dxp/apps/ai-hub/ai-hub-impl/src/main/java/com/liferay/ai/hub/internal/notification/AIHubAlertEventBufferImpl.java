@@ -6,6 +6,7 @@
 package com.liferay.ai.hub.internal.notification;
 
 import com.liferay.ai.hub.notification.AIHubAlertEventBuffer;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.Time;
 
@@ -23,9 +24,11 @@ public class AIHubAlertEventBufferImpl implements AIHubAlertEventBuffer {
 
 	@Override
 	public synchronized boolean shouldDispatch(
-		String agentExternalReferenceCode, String eventType) {
+		long companyId, String agentExternalReferenceCode, String eventType) {
 
-		String key = agentExternalReferenceCode + StringPool.POUND + eventType;
+		String key = StringBundler.concat(
+			companyId, StringPool.POUND, agentExternalReferenceCode,
+			StringPool.POUND, eventType);
 
 		AIHubAlertEventBucket aiHubAlertEventBucket =
 			_aiHubAlertEventBucketMap.get(key);

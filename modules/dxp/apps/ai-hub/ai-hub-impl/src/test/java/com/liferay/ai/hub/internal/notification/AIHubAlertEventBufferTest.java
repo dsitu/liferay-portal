@@ -6,8 +6,10 @@
 package com.liferay.ai.hub.internal.notification;
 
 import com.liferay.ai.hub.notification.AIHubAlertEventBuffer;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.util.Map;
@@ -39,16 +41,16 @@ public class AIHubAlertEventBufferTest {
 		for (int i = 0; i < 4; i++) {
 			Assert.assertFalse(
 				_aiHubAlertEventBuffer.shouldDispatch(
-					_AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+					_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 		}
 
 		Assert.assertTrue(
 			_aiHubAlertEventBuffer.shouldDispatch(
-				_AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 
 		Assert.assertFalse(
 			_aiHubAlertEventBuffer.shouldDispatch(
-				_AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 
 		Map<String, AIHubAlertEventBucket> aiHubAlertEventBucketMap =
 			ReflectionTestUtil.getFieldValue(
@@ -56,8 +58,10 @@ public class AIHubAlertEventBufferTest {
 
 		AIHubAlertEventBucket aiHubAlertEventBucket =
 			aiHubAlertEventBucketMap.get(
-				_AGENT_EXTERNAL_REFERENCE_CODE + StringPool.POUND +
-					_EVENT_TYPE);
+				StringBundler.concat(
+					_COMPANY_ID, StringPool.POUND,
+					_AGENT_EXTERNAL_REFERENCE_CODE, StringPool.POUND,
+					_EVENT_TYPE));
 
 		aiHubAlertEventBucket.setLastDispatchTime(
 			System.currentTimeMillis() - (31 * 60 * 1000));
@@ -65,12 +69,12 @@ public class AIHubAlertEventBufferTest {
 		for (int i = 0; i < 4; i++) {
 			Assert.assertFalse(
 				_aiHubAlertEventBuffer.shouldDispatch(
-					_AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+					_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 		}
 
 		Assert.assertTrue(
 			_aiHubAlertEventBuffer.shouldDispatch(
-				_AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 	}
 
 	@Test
@@ -78,16 +82,33 @@ public class AIHubAlertEventBufferTest {
 		for (int i = 0; i < 4; i++) {
 			Assert.assertFalse(
 				_aiHubAlertEventBuffer.shouldDispatch(
-					"L_CHANGE_TONE", _EVENT_TYPE));
+					_COMPANY_ID, "L_CHANGE_TONE", _EVENT_TYPE));
 		}
 
 		Assert.assertFalse(
 			_aiHubAlertEventBuffer.shouldDispatch(
-				"L_IMPROVE_WRITING", _EVENT_TYPE));
+				_COMPANY_ID, "L_IMPROVE_WRITING", _EVENT_TYPE));
 
 		Assert.assertTrue(
 			_aiHubAlertEventBuffer.shouldDispatch(
-				"L_CHANGE_TONE", _EVENT_TYPE));
+				_COMPANY_ID, "L_CHANGE_TONE", _EVENT_TYPE));
+	}
+
+	@Test
+	public void testShouldDispatchPerCompany() {
+		for (int i = 0; i < 4; i++) {
+			Assert.assertFalse(
+				_aiHubAlertEventBuffer.shouldDispatch(
+					_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+		}
+
+		Assert.assertFalse(
+			_aiHubAlertEventBuffer.shouldDispatch(
+				_COMPANY_ID + 1, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+
+		Assert.assertTrue(
+			_aiHubAlertEventBuffer.shouldDispatch(
+				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 	}
 
 	@Test
@@ -95,16 +116,16 @@ public class AIHubAlertEventBufferTest {
 		for (int i = 0; i < 4; i++) {
 			Assert.assertFalse(
 				_aiHubAlertEventBuffer.shouldDispatch(
-					_AGENT_EXTERNAL_REFERENCE_CODE, "TYPE_A"));
+					_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, "TYPE_A"));
 		}
 
 		Assert.assertFalse(
 			_aiHubAlertEventBuffer.shouldDispatch(
-				_AGENT_EXTERNAL_REFERENCE_CODE, "TYPE_B"));
+				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, "TYPE_B"));
 
 		Assert.assertTrue(
 			_aiHubAlertEventBuffer.shouldDispatch(
-				_AGENT_EXTERNAL_REFERENCE_CODE, "TYPE_A"));
+				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, "TYPE_A"));
 	}
 
 	@Test
@@ -112,12 +133,12 @@ public class AIHubAlertEventBufferTest {
 		for (int i = 0; i < 4; i++) {
 			Assert.assertFalse(
 				_aiHubAlertEventBuffer.shouldDispatch(
-					_AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+					_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 		}
 
 		Assert.assertTrue(
 			_aiHubAlertEventBuffer.shouldDispatch(
-				_AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 	}
 
 	@Test
@@ -136,18 +157,22 @@ public class AIHubAlertEventBufferTest {
 		}
 
 		aiHubAlertEventBucketMap.put(
-			_AGENT_EXTERNAL_REFERENCE_CODE + StringPool.POUND + _EVENT_TYPE,
+			StringBundler.concat(
+				_COMPANY_ID, StringPool.POUND, _AGENT_EXTERNAL_REFERENCE_CODE,
+				StringPool.POUND, _EVENT_TYPE),
 			aiHubAlertEventBucket);
 
 		Assert.assertFalse(
 			_aiHubAlertEventBuffer.shouldDispatch(
-				_AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
+				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 
 		Assert.assertEquals(1, timestamps.size());
 	}
 
 	private static final String _AGENT_EXTERNAL_REFERENCE_CODE =
 		"L_LIFERAY_SEARCH";
+
+	private static final long _COMPANY_ID = RandomTestUtil.randomLong();
 
 	private static final String _EVENT_TYPE = "AI_HUB_GUARDRAIL_ALERT";
 
