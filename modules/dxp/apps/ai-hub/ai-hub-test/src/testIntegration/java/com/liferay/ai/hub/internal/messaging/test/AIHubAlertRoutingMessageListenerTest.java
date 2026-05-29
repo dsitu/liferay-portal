@@ -95,6 +95,11 @@ public class AIHubAlertRoutingMessageListenerTest {
 		_accountEntryUserRelLocalService.addAccountEntryUserRel(
 			_accountEntry.getAccountEntryId(), _user2.getUserId());
 
+		_user3 = UserTestUtil.addUser();
+
+		_accountEntryUserRelLocalService.addAccountEntryUserRel(
+			_accountEntry.getAccountEntryId(), _user3.getUserId());
+
 		Role role = _roleLocalService.getRole(
 			TestPropsValues.getCompanyId(),
 			AccountRoleConstants.REQUIRED_ROLE_NAME_ACCOUNT_ADMINISTRATOR);
@@ -105,6 +110,9 @@ public class AIHubAlertRoutingMessageListenerTest {
 		_accountRoleLocalService.associateUser(
 			_accountEntry.getAccountEntryId(), accountRole.getAccountRoleId(),
 			_user1.getUserId());
+		_accountRoleLocalService.associateUser(
+			_accountEntry.getAccountEntryId(), accountRole.getAccountRoleId(),
+			_user2.getUserId());
 	}
 
 	@After
@@ -159,6 +167,10 @@ public class AIHubAlertRoutingMessageListenerTest {
 					1,
 					_userNotificationEventLocalService.
 						getUserNotificationEventsCount(_user1.getUserId()));
+				Assert.assertEquals(
+					1,
+					_userNotificationEventLocalService.
+						getUserNotificationEventsCount(_user2.getUserId()));
 
 				return null;
 			});
@@ -166,7 +178,7 @@ public class AIHubAlertRoutingMessageListenerTest {
 		Assert.assertEquals(
 			0,
 			_userNotificationEventLocalService.getUserNotificationEventsCount(
-				_user2.getUserId()));
+				_user3.getUserId()));
 	}
 
 	private static final String _EVENT_TYPE = "AI_HUB_GUARDRAIL_ALERT";
@@ -196,6 +208,9 @@ public class AIHubAlertRoutingMessageListenerTest {
 
 	@DeleteAfterTestRun
 	private User _user2;
+
+	@DeleteAfterTestRun
+	private User _user3;
 
 	@Inject
 	private UserNotificationEventLocalService

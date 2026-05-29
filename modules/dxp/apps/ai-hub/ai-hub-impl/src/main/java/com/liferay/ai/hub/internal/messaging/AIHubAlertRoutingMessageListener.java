@@ -22,13 +22,11 @@ import com.liferay.portal.kernel.messaging.DestinationFactory;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.model.UserNotificationDeliveryConstants;
 import com.liferay.portal.kernel.notifications.NotificationEvent;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
-import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -98,16 +96,12 @@ public class AIHubAlertRoutingMessageListener extends BaseMessageListener {
 				accountEntry.getAccountEntryGroupId(), role.getRoleId());
 
 		for (UserGroupRole userGroupRole : userGroupRoles) {
-			User user = _userLocalService.fetchUser(userGroupRole.getUserId());
-
-			if (user != null) {
-				_sendUserNotificationEvent(auditMessage, user);
-			}
+			_sendUserNotificationEvent(auditMessage, userGroupRole.getUserId());
 		}
 	}
 
 	private void _sendUserNotificationEvent(
-			AuditMessage auditMessage, User user)
+			AuditMessage auditMessage, long userId)
 		throws Exception {
 
 		JSONObject additionalInfoJSONObject = auditMessage.getAdditionalInfo();
@@ -132,7 +126,7 @@ public class AIHubAlertRoutingMessageListener extends BaseMessageListener {
 			UserNotificationDeliveryConstants.TYPE_WEBSITE);
 
 		_userNotificationEventLocalService.addUserNotificationEvent(
-			user.getUserId(), true, false, notificationEvent);
+			userId, true, false, notificationEvent);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -151,9 +145,6 @@ public class AIHubAlertRoutingMessageListener extends BaseMessageListener {
 
 	@Reference
 	private UserGroupRoleLocalService _userGroupRoleLocalService;
-
-	@Reference
-	private UserLocalService _userLocalService;
 
 	@Reference
 	private UserNotificationEventLocalService
