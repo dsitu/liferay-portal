@@ -10,9 +10,9 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.Time;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -23,51 +23,49 @@ import org.osgi.service.component.annotations.Component;
 public class AIHubAlertEventBufferImpl implements AIHubAlertEventBuffer {
 
 	@Override
-	public synchronized boolean shouldDispatch(
+	public boolean shouldDispatch(
 		long companyId, String agentExternalReferenceCode, String eventType) {
 
-		String key = StringBundler.concat(
-			companyId, StringPool.POUND, agentExternalReferenceCode,
-			StringPool.POUND, eventType);
-
 		AIHubAlertEventBucket aiHubAlertEventBucket =
-			_aiHubAlertEventBucketMap.get(key);
+			_aiHubAlertEventBucketMap.computeIfAbsent(
+				StringBundler.concat(
+					companyId, StringPool.POUND, agentExternalReferenceCode,
+					StringPool.POUND, eventType),
+				key -> new AIHubAlertEventBucket());
 
-		if (aiHubAlertEventBucket == null) {
-			aiHubAlertEventBucket = new AIHubAlertEventBucket();
+		synchronized (aiHubAlertEventBucket) {
+			long now = System.currentTimeMillis();
 
-			_aiHubAlertEventBucketMap.put(key, aiHubAlertEventBucket);
+			if ((now - aiHubAlertEventBucket.getLastDispatchTime()) <
+					_COOLDOWN_MILLIS) {
+
+				return false;
+			}
+
+			Queue<Long> timestamps = aiHubAlertEventBucket.getTimestamps();
+
+			Long timestamp = timestamps.peek();
+
+			while ((timestamp != null) &&
+				   ((now - timestamp) > _WINDOW_MILLIS)) {
+
+				timestamps.poll();
+
+				timestamp = timestamps.peek();
+			}
+
+			timestamps.offer(now);
+
+			if (timestamps.size() < _THRESHOLD) {
+				return false;
+			}
+
+			timestamps.clear();
+
+			aiHubAlertEventBucket.setLastDispatchTime(now);
+
+			return true;
 		}
-
-		long now = System.currentTimeMillis();
-
-		if ((now - aiHubAlertEventBucket.getLastDispatchTime()) <
-				_COOLDOWN_MILLIS) {
-
-			return false;
-		}
-
-		Queue<Long> timestamps = aiHubAlertEventBucket.getTimestamps();
-
-		Long timestamp = timestamps.peek();
-
-		while ((timestamp != null) && ((now - timestamp) > _WINDOW_MILLIS)) {
-			timestamps.poll();
-
-			timestamp = timestamps.peek();
-		}
-
-		timestamps.offer(now);
-
-		if (timestamps.size() < _THRESHOLD) {
-			return false;
-		}
-
-		timestamps.clear();
-
-		aiHubAlertEventBucket.setLastDispatchTime(now);
-
-		return true;
 	}
 
 	private static final long _COOLDOWN_MILLIS = Time.MINUTE * 30;
@@ -77,6 +75,6 @@ public class AIHubAlertEventBufferImpl implements AIHubAlertEventBuffer {
 	private static final long _WINDOW_MILLIS = Time.MINUTE * 5;
 
 	private final Map<String, AIHubAlertEventBucket> _aiHubAlertEventBucketMap =
-		new HashMap<>();
+		new ConcurrentHashMap<>();
 
 }

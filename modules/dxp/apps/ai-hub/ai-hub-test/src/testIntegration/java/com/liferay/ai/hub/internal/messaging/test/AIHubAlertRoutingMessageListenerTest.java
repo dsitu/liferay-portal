@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -36,9 +35,7 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -81,8 +78,6 @@ public class AIHubAlertRoutingMessageListenerTest {
 				AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS,
 				WorkflowConstants.STATUS_APPROVED,
 				ServiceContextTestUtil.getServiceContext());
-
-			_accountEntries.add(_accountEntry);
 		}
 
 		_user1 = UserTestUtil.addUser();
@@ -183,9 +178,6 @@ public class AIHubAlertRoutingMessageListenerTest {
 
 	private static final String _EVENT_TYPE = "AI_HUB_GUARDRAIL_ALERT";
 
-	@DeleteAfterTestRun
-	private final List<AccountEntry> _accountEntries = new ArrayList<>();
-
 	private AccountEntry _accountEntry;
 
 	@Inject
@@ -203,13 +195,8 @@ public class AIHubAlertRoutingMessageListenerTest {
 	@Inject
 	private RoleLocalService _roleLocalService;
 
-	@DeleteAfterTestRun
 	private User _user1;
-
-	@DeleteAfterTestRun
 	private User _user2;
-
-	@DeleteAfterTestRun
 	private User _user3;
 
 	@Inject

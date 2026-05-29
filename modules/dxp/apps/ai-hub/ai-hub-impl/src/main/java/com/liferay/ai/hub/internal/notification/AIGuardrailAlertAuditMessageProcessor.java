@@ -45,9 +45,9 @@ public class AIGuardrailAlertAuditMessageProcessor
 
 			Message message = new Message();
 
-			message.setPayload(
-				auditMessage.toJSONObject(
-				).toString());
+			JSONObject jsonObject = auditMessage.toJSONObject();
+
+			message.setPayload(jsonObject.toString());
 
 			_messageBus.sendMessage(
 				AIHubDestinationNames.AI_HUB_ALERT_ROUTING, message);

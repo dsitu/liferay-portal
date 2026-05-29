@@ -10,6 +10,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.util.Map;
@@ -47,7 +48,6 @@ public class AIHubAlertEventBufferTest {
 		Assert.assertTrue(
 			_aiHubAlertEventBuffer.shouldDispatch(
 				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
-
 		Assert.assertFalse(
 			_aiHubAlertEventBuffer.shouldDispatch(
 				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
@@ -88,7 +88,6 @@ public class AIHubAlertEventBufferTest {
 		Assert.assertFalse(
 			_aiHubAlertEventBuffer.shouldDispatch(
 				_COMPANY_ID, "L_IMPROVE_WRITING", _EVENT_TYPE));
-
 		Assert.assertTrue(
 			_aiHubAlertEventBuffer.shouldDispatch(
 				_COMPANY_ID, "L_CHANGE_TONE", _EVENT_TYPE));
@@ -105,7 +104,6 @@ public class AIHubAlertEventBufferTest {
 		Assert.assertFalse(
 			_aiHubAlertEventBuffer.shouldDispatch(
 				_COMPANY_ID + 1, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
-
 		Assert.assertTrue(
 			_aiHubAlertEventBuffer.shouldDispatch(
 				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
@@ -122,23 +120,9 @@ public class AIHubAlertEventBufferTest {
 		Assert.assertFalse(
 			_aiHubAlertEventBuffer.shouldDispatch(
 				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, "TYPE_B"));
-
 		Assert.assertTrue(
 			_aiHubAlertEventBuffer.shouldDispatch(
 				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, "TYPE_A"));
-	}
-
-	@Test
-	public void testShouldDispatchThreshold() {
-		for (int i = 0; i < 4; i++) {
-			Assert.assertFalse(
-				_aiHubAlertEventBuffer.shouldDispatch(
-					_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
-		}
-
-		Assert.assertTrue(
-			_aiHubAlertEventBuffer.shouldDispatch(
-				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 	}
 
 	@Test
@@ -152,8 +136,10 @@ public class AIHubAlertEventBufferTest {
 
 		Queue<Long> timestamps = aiHubAlertEventBucket.getTimestamps();
 
+		long timestamp = System.currentTimeMillis() - (Time.MINUTE * 6);
+
 		for (int i = 0; i < 4; i++) {
-			timestamps.offer(System.currentTimeMillis() - (6 * 60 * 1000));
+			timestamps.offer(timestamp);
 		}
 
 		aiHubAlertEventBucketMap.put(
@@ -167,6 +153,7 @@ public class AIHubAlertEventBufferTest {
 				_COMPANY_ID, _AGENT_EXTERNAL_REFERENCE_CODE, _EVENT_TYPE));
 
 		Assert.assertEquals(1, timestamps.size());
+		Assert.assertTrue(timestamps.peek() > timestamp);
 	}
 
 	private static final String _AGENT_EXTERNAL_REFERENCE_CODE =
