@@ -6,16 +6,27 @@
 package com.liferay.headless.commerce.admin.catalog.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.commerce.product.configuration.CProductVersionConfiguration;
 import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.product.model.CPOptionCategory;
 import com.liferay.commerce.product.model.CPSpecificationOption;
 import com.liferay.commerce.product.model.CProduct;
 import com.liferay.commerce.product.model.CommerceCatalog;
+import com.liferay.commerce.product.service.CPDefinitionLocalService;
+import com.liferay.commerce.product.service.CPDefinitionSpecificationOptionValueLocalService;
 import com.liferay.commerce.product.test.util.CPTestUtil;
 import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.ProductSpecification;
 import com.liferay.headless.commerce.core.util.LanguageUtils;
+import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.test.rule.Inject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -88,6 +99,14 @@ public class ProductSpecificationResourceTest
 			randomProductSpecificationWithExternalReferenceCode,
 			postProductSpecification);
 		assertValid(postProductSpecification);
+	}
+
+	@Override
+	@Test
+	public void testPostProductIdProductSpecification() throws Exception {
+		super.testPostProductIdProductSpecification();
+
+		_testPostProductIdProductSpecificationProductVersioning();
 	}
 
 	@Override
@@ -270,8 +289,121 @@ public class ProductSpecificationResourceTest
 			_cpDefinition.getCProductId(), productSpecification);
 	}
 
+	private void _assertCProductCPDefinitionsCount(
+		long cProductId, int status, int expectedCount) {
+
+		List<CPDefinition> cpDefinitions =
+			_cpDefinitionLocalService.getCProductCPDefinitions(
+				cProductId, status, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+
+		Assert.assertEquals(
+			cpDefinitions.toString(), expectedCount, cpDefinitions.size());
+	}
+
+	private void _testPostProductIdProductSpecificationProductVersioning()
+		throws Exception {
+
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						testCompany.getCompanyId(),
+						CProductVersionConfiguration.class.getName(),
+						HashMapDictionaryBuilder.<String, Object>put(
+							"enabled", true
+						).build())) {
+
+			CommerceCatalog commerceCatalog =
+				CPTestUtil.getSystemCommerceCatalog(testCompany.getCompanyId());
+
+			CPDefinition cpDefinition1 = CPTestUtil.addCPDefinitionFromCatalog(
+				commerceCatalog.getGroupId(), "simple", null, null, true, true,
+				WorkflowConstants.STATUS_APPROVED);
+
+			_cpDefinitions.add(cpDefinition1);
+
+			_assertCProductCPDefinitionsCount(
+				cpDefinition1.getCProductId(),
+				WorkflowConstants.STATUS_APPROVED, 1);
+
+			Assert.assertEquals(
+				0,
+				_cpDefinitionSpecificationOptionValueLocalService.
+					getCPDefinitionSpecificationOptionValuesCount(
+						cpDefinition1.getCPDefinitionId(), null));
+
+			ProductSpecification productSpecification1 =
+				randomProductSpecification();
+
+			productSpecificationResource.postProductIdProductSpecification(
+				cpDefinition1.getCProductId(), productSpecification1);
+
+			_assertCProductCPDefinitionsCount(
+				cpDefinition1.getCProductId(),
+				WorkflowConstants.STATUS_APPROVED, 1);
+			_assertCProductCPDefinitionsCount(
+				cpDefinition1.getCProductId(), WorkflowConstants.STATUS_DRAFT,
+				1);
+
+			CPDefinition cpDefinition2 =
+				_cpDefinitionLocalService.fetchCPDefinitionByCProductId(
+					cpDefinition1.getCProductId(),
+					WorkflowConstants.STATUS_DRAFT);
+
+			_cpDefinitions.add(cpDefinition2);
+
+			Assert.assertEquals(
+				0,
+				_cpDefinitionSpecificationOptionValueLocalService.
+					getCPDefinitionSpecificationOptionValuesCount(
+						cpDefinition1.getCPDefinitionId(), null));
+
+			Assert.assertEquals(
+				1,
+				_cpDefinitionSpecificationOptionValueLocalService.
+					getCPDefinitionSpecificationOptionValuesCount(
+						cpDefinition2.getCPDefinitionId(), null));
+
+			ProductSpecification productSpecification2 =
+				randomProductSpecification();
+
+			productSpecificationResource.postProductIdProductSpecification(
+				cpDefinition1.getCProductId(), productSpecification2);
+
+			_assertCProductCPDefinitionsCount(
+				cpDefinition1.getCProductId(),
+				WorkflowConstants.STATUS_APPROVED, 1);
+			_assertCProductCPDefinitionsCount(
+				cpDefinition1.getCProductId(), WorkflowConstants.STATUS_DRAFT,
+				1);
+
+			CPDefinition cpDefinition3 =
+				_cpDefinitionLocalService.fetchCPDefinitionByCProductId(
+					cpDefinition1.getCProductId(),
+					WorkflowConstants.STATUS_DRAFT);
+
+			Assert.assertEquals(
+				cpDefinition2.getCPDefinitionId(),
+				cpDefinition3.getCPDefinitionId());
+			Assert.assertEquals(
+				2,
+				_cpDefinitionSpecificationOptionValueLocalService.
+					getCPDefinitionSpecificationOptionValuesCount(
+						cpDefinition3.getCPDefinitionId(), null));
+		}
+	}
+
 	@DeleteAfterTestRun
 	private CPDefinition _cpDefinition;
+
+	@Inject
+	private CPDefinitionLocalService _cpDefinitionLocalService;
+
+	@DeleteAfterTestRun
+	private List<CPDefinition> _cpDefinitions = new ArrayList<>();
+
+	@Inject
+	private CPDefinitionSpecificationOptionValueLocalService
+		_cpDefinitionSpecificationOptionValueLocalService;
 
 	@DeleteAfterTestRun
 	private CPOptionCategory _cpOptionCategory;
