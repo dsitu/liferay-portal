@@ -8,13 +8,106 @@ package com.liferay.headless.commerce.admin.catalog.resource.v1_0.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * @author Zoltán Takács
  */
-@Ignore
 @RunWith(Arquillian.class)
 public class ProductSubscriptionConfigurationResourceTest
 	extends BaseProductSubscriptionConfigurationResourceTestCase {
+
+	@Ignore
+	@Override
+	@Test
+	public void testClientSerDesToDTO() throws Exception {
+		super.testClientSerDesToDTO();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testClientSerDesToJSON() throws Exception {
+		super.testClientSerDesToJSON();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testEscapeRegexInStringFields() throws Exception {
+		super.testEscapeRegexInStringFields();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGetProductByExternalReferenceCodeSubscriptionConfiguration()
+		throws Exception {
+
+		super.testGetProductByExternalReferenceCodeSubscriptionConfiguration();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGetProductIdSubscriptionConfiguration() throws Exception {
+		super.testGetProductIdSubscriptionConfiguration();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLGetProductByExternalReferenceCodeSubscriptionConfiguration()
+		throws Exception {
+
+		super.
+			testGraphQLGetProductByExternalReferenceCodeSubscriptionConfiguration();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLGetProductByExternalReferenceCodeSubscriptionConfigurationNotFound()
+		throws Exception {
+
+		super.
+			testGraphQLGetProductByExternalReferenceCodeSubscriptionConfigurationNotFound();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLGetProductIdSubscriptionConfiguration()
+		throws Exception {
+
+		super.testGraphQLGetProductIdSubscriptionConfiguration();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLGetProductIdSubscriptionConfigurationNotFound()
+		throws Exception {
+
+		super.testGraphQLGetProductIdSubscriptionConfigurationNotFound();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testPatchProductByExternalReferenceCodeSubscriptionConfiguration()
+		throws Exception {
+
+		super.
+			testPatchProductByExternalReferenceCodeSubscriptionConfiguration();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testPatchProductIdSubscriptionConfiguration() throws Exception {
+		super.testPatchProductIdSubscriptionConfiguration();
+	}
+
 }

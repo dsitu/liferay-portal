@@ -1851,6 +1851,34 @@ public class Mutation {
 					externalReferenceCode, product));
 	}
 
+	@GraphQLField
+	public Response patchProductByExternalReferenceCodeByVersion(
+			@GraphQLName("externalReferenceCode") String externalReferenceCode,
+			@GraphQLName("version") Integer version,
+			@GraphQLName("product") Product product)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_productResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			productResource ->
+				productResource.patchProductByExternalReferenceCodeByVersion(
+					externalReferenceCode, version, product));
+	}
+
+	@GraphQLField
+	public Response patchProductByVersion(
+			@GraphQLName("id") Long id, @GraphQLName("version") Integer version,
+			@GraphQLName("product") Product product)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_productResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			productResource -> productResource.patchProductByVersion(
+				id, version, product));
+	}
+
 	@GraphQLField(
 		description = "Creates or updates a product using the supplied external reference code. Calls Internal _addOrUpdateProduct (CPDefinitionService.addOrUpdate). POST is upsert by external reference code -- creates a new entity when the ERC is unknown, otherwise updates the existing one. Validation -- NoSuchCatalogException -> 404 when supplied catalog cannot be resolved; workflow exceptions propagate. Side effects -- Creates the product version chain, asset entry, default SKU when productType has one; triggers workflow on add."
 	)
@@ -4829,4 +4857,4 @@ public class Mutation {
 		_vulcanBatchEngineImportTaskResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:253130593
+// LIFERAY-REST-BUILDER-HASH:-2057168144
