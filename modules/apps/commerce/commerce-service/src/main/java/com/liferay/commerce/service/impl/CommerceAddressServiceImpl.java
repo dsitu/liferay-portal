@@ -404,7 +404,12 @@ public class CommerceAddressServiceImpl extends CommerceAddressServiceBaseImpl {
 				_accountEntryLocalService.fetchAccountEntry(classPK);
 			}
 			else {
-				_accountEntryLocalService.getAccountEntry(classPK);
+				AccountEntry accountEntry =
+					_accountEntryLocalService.getAccountEntry(classPK);
+
+				if (accountEntry.isGuestAccount()) {
+					return;
+				}
 
 				if (!Objects.equals(
 						actionId, AccountActionKeys.VIEW_ADDRESSES) ||
