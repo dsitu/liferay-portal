@@ -32,6 +32,8 @@ public interface DigitalSignatureConfiguration {
 
 	public String apiUsername();
 
+	public boolean enableEmbeddedView();
+
 	public boolean enabled();
 
 	public String environment();
