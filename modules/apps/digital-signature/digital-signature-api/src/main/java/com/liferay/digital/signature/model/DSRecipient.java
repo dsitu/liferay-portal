@@ -31,6 +31,10 @@ public class DSRecipient {
 		return name;
 	}
 
+	public int getRoutingOrder() {
+		return routingOrder;
+	}
+
 	public LocalDateTime getSentLocalDateTime() {
 		return sentLocalDateTime;
 	}
@@ -63,6 +67,10 @@ public class DSRecipient {
 		this.name = name;
 	}
 
+	public void setRoutingOrder(int routingOrder) {
+		this.routingOrder = routingOrder;
+	}
+
 	public void setSentLocalDateTime(LocalDateTime sentLocalDateTime) {
 		this.sentLocalDateTime = sentLocalDateTime;
 	}
@@ -80,7 +88,7 @@ public class DSRecipient {
 	}
 
 	public JSONObject toJSONObject() {
-		return JSONUtil.put(
+		JSONObject jsonObject = JSONUtil.put(
 			"clientUserId", dsClientUserId
 		).put(
 			"email", emailAddress
@@ -93,12 +101,19 @@ public class DSRecipient {
 		).put(
 			"tabs", tabsJSONObject
 		);
+
+		if (routingOrder > 0) {
+			jsonObject.put("routingOrder", String.valueOf(routingOrder));
+		}
+
+		return jsonObject;
 	}
 
 	protected String dsClientUserId;
 	protected String dsRecipientId;
 	protected String emailAddress;
 	protected String name;
+	protected int routingOrder;
 	protected LocalDateTime sentLocalDateTime;
 	protected String status;
 	protected LocalDateTime statusLocalDateTime;
