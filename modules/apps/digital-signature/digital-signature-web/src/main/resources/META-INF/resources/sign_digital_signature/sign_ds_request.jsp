@@ -1,0 +1,40 @@
+<%--
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+--%>
+
+<%@ include file="/init.jsp" %>
+
+<%
+JSONObject signingConfigJSONObject = (JSONObject)request.getAttribute(DigitalSignatureWebKeys.DIGITAL_SIGNATURE_SIGNING_CONFIG);
+
+String backURL = signingConfigJSONObject.getString("backURL");
+
+portletDisplay.setShowBackIcon(true);
+portletDisplay.setURLBack(backURL);
+%>
+
+<div class="digital-signature-sign-container <%= themeDisplay.isStatePopUp() ? "digital-signature-sign-container-pop-up" : "" %>" id="<portlet:namespace />signingContainer">
+	<liferay-ui:message key="loading-your-document-for-signing" />
+</div>
+
+<liferay-frontend:component
+	context='<%=
+		HashMapBuilder.<String, Object>put(
+			"backURL", backURL
+		).put(
+			"completeURL", signingConfigJSONObject.getString("completeURL")
+		).put(
+			"containerId", liferayPortletResponse.getNamespace() + "signingContainer"
+		).put(
+			"integrationKey", signingConfigJSONObject.getString("integrationKey")
+		).put(
+			"jsURL", signingConfigJSONObject.getString("jsURL")
+		).put(
+			"signingURL", signingConfigJSONObject.getString("signingURL")
+		).build()
+	%>'
+	module="{mountSigning} from digital-signature-web"
+/>

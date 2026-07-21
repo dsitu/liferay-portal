@@ -40,6 +40,9 @@ public class DigitalSignatureWebKeys {
 	public static final String DIGITAL_SIGNATURE_RSA_PRIVATE_KEY =
 		"DIGITAL_SIGNATURE_RSA_PRIVATE_KEY";
 
+	public static final String DIGITAL_SIGNATURE_SIGNING_CONFIG =
+		"DIGITAL_SIGNATURE_SIGNING_CONFIG";
+
 	public static final String DIGITAL_SIGNATURE_TITLE =
 		"DIGITAL_SIGNATURE_TITLE";
 
