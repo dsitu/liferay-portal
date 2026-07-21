@@ -551,11 +551,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return false;
 		}
 
-		if (digitalSignatureConfiguration.enabled()) {
-			return true;
-		}
-
-		return false;
+		return digitalSignatureConfiguration.enabled();
 	}
 
 	private boolean _isServiceAccount(User user) {
