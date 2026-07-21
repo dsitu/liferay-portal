@@ -13,6 +13,9 @@ import com.liferay.digital.signature.model.DSRecipient;
 import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.digital.signature.model.DSRequestRecipient;
 import com.liferay.digital.signature.request.DSRequestManager;
+import com.liferay.digital.signature.url.SignDSURLProvider;
+import com.liferay.mail.kernel.model.MailMessage;
+import com.liferay.mail.kernel.service.MailService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
@@ -27,9 +30,11 @@ import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
 import com.liferay.portal.kernel.search.Indexer;
@@ -38,6 +43,7 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.transaction.Propagation;
@@ -46,11 +52,16 @@ import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HtmlUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+
+import jakarta.mail.internet.InternetAddress;
 
 import java.io.Serializable;
 
@@ -63,6 +74,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -103,7 +115,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		try {
-			TransactionInvokerUtil.invoke(
+			Long requestId = TransactionInvokerUtil.invoke(
 				_transactionConfig,
 				() -> {
 					String documentFieldName = _getRelationshipFieldName(
@@ -131,6 +143,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 							requestObjectDefinition.getObjectDefinitionId(), 0,
 							languageId,
 							HashMapBuilder.<String, Serializable>put(
+								"emailBody", dsEnvelope.getEmailBlurb()
+							).put(
 								"emailSubject", dsEnvelope.getEmailSubject()
 							).put(
 								"providerKey", "docusign"
@@ -142,6 +156,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 								_toDate(dsEnvelope.getExpireLocalDateTime())
 							).put(
 								"requestStatus", _toRequestStatus(dsEnvelope)
+							).put(
+								"siteId", _getSiteId(groupId)
 							).build(),
 							serviceContext);
 
@@ -194,8 +210,13 @@ public class DSRequestManagerImpl implements DSRequestManager {
 						_reindexFileEntry(fileEntryId);
 					}
 
-					return null;
+					return requestObjectEntry.getObjectEntryId();
 				});
+
+			if (requestId != null) {
+				_sendDSRequestNotifications(
+					companyId, groupId, requestId, dsEnvelope);
+			}
 		}
 		catch (Throwable throwable) {
 			throw new PortalException(
@@ -417,6 +438,23 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		return dsRequestsByRequestId;
 	}
 
+	private String _getEmailBody(
+		String emailMessage, Locale locale, String url) {
+
+		String message = emailMessage;
+
+		if (Validator.isNull(message)) {
+			message = _language.get(locale, "you-have-a-document-to-sign");
+		}
+		else {
+			message = HtmlUtil.escape(message);
+		}
+
+		return StringBundler.concat(
+			"<p>", message, "</p><p><a href=\"", url, "\">",
+			_language.get(locale, "review-and-sign"), "</a></p>");
+	}
+
 	private Map<Long, List<Long>> _getFileEntryIdsByRequestId(
 			long companyId, ObjectDefinition requestObjectDefinition,
 			Set<Long> requestIds)
@@ -450,6 +488,29 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		return fileEntryIdsByRequestId;
+	}
+
+	private Locale _getLocale(long companyId, String emailAddress, long groupId)
+		throws Exception {
+
+		User user = _userLocalService.fetchUserByEmailAddress(
+			companyId, emailAddress);
+
+		if (user != null) {
+			return user.getLocale();
+		}
+
+		return _portal.getSiteDefaultLocale(groupId);
+	}
+
+	private String _getLoginURL(String url) {
+		String path = HttpComponentsUtil.getPath(url);
+
+		return HttpComponentsUtil.addParameter(
+			StringBundler.concat(
+				url.substring(0, url.length() - path.length()),
+				_portal.getPathMain(), "/portal/login"),
+			"redirect", path);
 	}
 
 	private long _getRecipientUserId(long companyId, String emailAddress) {
@@ -518,6 +579,16 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		return user.getFullName();
+	}
+
+	private long _getSiteId(long groupId) {
+		Group group = _groupLocalService.fetchGroup(groupId);
+
+		if ((group == null) || !group.isSite()) {
+			return 0;
+		}
+
+		return groupId;
 	}
 
 	private List<Map<String, Serializable>> _getValuesList(
@@ -608,6 +679,73 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 			_reindexFileEntry(
 				GetterUtil.getLong(documentValues.get("fileEntryId")));
+		}
+	}
+
+	private void _sendDSRequestNotification(
+		long companyId, long groupId, long requestId, DSRecipient dsRecipient,
+		String emailSubject, String emailMessage) {
+
+		String emailAddress = dsRecipient.getEmailAddress();
+
+		if (!Validator.isEmailAddress(emailAddress)) {
+			return;
+		}
+
+		try {
+			String url = _getLoginURL(
+				_signDSURLProvider.getURL(
+					companyId, _getSiteId(groupId), requestId));
+
+			String fromAddress = PrefsPropsUtil.getString(
+				companyId, PropsKeys.ADMIN_EMAIL_FROM_ADDRESS);
+			String fromName = PrefsPropsUtil.getString(
+				companyId, PropsKeys.ADMIN_EMAIL_FROM_NAME);
+
+			Locale locale = _getLocale(companyId, emailAddress, groupId);
+
+			String subject = emailSubject;
+
+			if (Validator.isNull(subject)) {
+				subject = _language.get(locale, "you-have-a-document-to-sign");
+			}
+
+			MailMessage mailMessage = new MailMessage(
+				new InternetAddress(fromAddress, fromName),
+				new InternetAddress(emailAddress), subject,
+				_getEmailBody(emailMessage, locale, url), true);
+
+			_mailService.sendEmail(mailMessage);
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to send sign email for signature request " + requestId,
+				exception);
+		}
+	}
+
+	private void _sendDSRequestNotifications(
+		long companyId, long groupId, long requestId, DSEnvelope dsEnvelope) {
+
+		DigitalSignatureConfiguration digitalSignatureConfiguration =
+			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
+				companyId, groupId);
+
+		if (!digitalSignatureConfiguration.enableEmbeddedView() ||
+			!Objects.equals(dsEnvelope.getStatus(), "sent")) {
+
+			return;
+		}
+
+		for (DSRecipient dsRecipient : dsEnvelope.getDSRecipients()) {
+			if (Validator.isNotNull(dsRecipient.getDSClientUserId()) &&
+				Objects.equals(
+					StringUtil.toLowerCase(dsRecipient.getStatus()), "sent")) {
+
+				_sendDSRequestNotification(
+					companyId, groupId, requestId, dsRecipient,
+					dsEnvelope.getEmailSubject(), dsEnvelope.getEmailBlurb());
+			}
 		}
 	}
 
@@ -767,6 +905,15 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	private FilterFactory<Predicate> _filterFactory;
 
 	@Reference
+	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private Language _language;
+
+	@Reference
+	private MailService _mailService;
+
+	@Reference
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	@Reference
@@ -777,6 +924,12 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 	@Reference
 	private ObjectRelationshipLocalService _objectRelationshipLocalService;
+
+	@Reference
+	private Portal _portal;
+
+	@Reference
+	private SignDSURLProvider _signDSURLProvider;
 
 	@Reference
 	private UserLocalService _userLocalService;
