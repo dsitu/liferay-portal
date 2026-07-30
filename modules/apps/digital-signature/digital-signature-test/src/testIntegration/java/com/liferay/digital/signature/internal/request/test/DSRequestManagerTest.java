@@ -36,12 +36,15 @@ import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.URLCodec;
@@ -400,6 +403,52 @@ public class DSRequestManagerTest {
 			0,
 			_dsRequestManager.getRecipientDSRequestsCount(
 				companyId, _user.getUserId(), RandomTestUtil.randomString()));
+	}
+
+	@Test
+	public void testGetRequestStatuses() throws Exception {
+		long companyId = TestPropsValues.getCompanyId();
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST", companyId);
+
+		long fileEntryId = RandomTestUtil.randomInt();
+
+		_objectEntryLocalService.addObjectEntry(
+			0, TestPropsValues.getUserId(),
+			objectDefinition.getObjectDefinitionId(), 0,
+			LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault()),
+			HashMapBuilder.<String, Serializable>put(
+				"fileEntryId", fileEntryId
+			).put(
+				"providerKey", "docusign"
+			).put(
+				"providerRequestId", "test-" + fileEntryId
+			).put(
+				"requestStatus", "completed"
+			).build(),
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId()));
+
+		Map<Long, String> requestStatuses =
+			_dsRequestManager.getRequestStatusesByFileEntryId(
+				companyId, Collections.singletonList(fileEntryId));
+
+		Assert.assertEquals("completed", requestStatuses.get(fileEntryId));
+	}
+
+	@Test
+	public void testGetRequestStatusesReturnsEmptyForMissingRequest()
+		throws Exception {
+
+		Map<Long, String> requestStatuses =
+			_dsRequestManager.getRequestStatusesByFileEntryId(
+				TestPropsValues.getCompanyId(),
+				Collections.singletonList(RandomTestUtil.randomLong()));
+
+		Assert.assertTrue(requestStatuses.isEmpty());
 	}
 
 	@Test
