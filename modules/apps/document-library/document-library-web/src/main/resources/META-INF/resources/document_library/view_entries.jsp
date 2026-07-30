@@ -210,6 +210,15 @@ DLViewEntriesDisplayContext dlViewEntriesDisplayContext = new DLViewEntriesDispl
 															/>
 														</c:if>
 													</div>
+
+													<c:if test="<%= dlViewEntriesDisplayContext.isSignatureRequired(fileEntry) %>">
+														<div class="c-mt-1">
+															<clay:label
+																displayType="warning"
+																label='<%= LanguageUtil.get(request, "action-required") %>'
+															/>
+														</div>
+													</c:if>
 												</div>
 
 												<c:if test="<%= dlPortletInstanceSettingsHelper.isShowActions() %>">
@@ -366,6 +375,24 @@ DLViewEntriesDisplayContext dlViewEntriesDisplayContext = new DLViewEntriesDispl
 														symbol="question-circle-full"
 													/>
 												</span>
+											</c:if>
+										</liferay-ui:search-container-column-text>
+									</c:when>
+									<c:when test='<%= curEntryColumn.equals("signature-status") %>'>
+										<liferay-ui:search-container-column-text
+											cssClass="table-cell-expand-smallest"
+											name="signature-status"
+										>
+
+											<%
+											String signatureStatus = dlViewEntriesDisplayContext.getSignatureStatus(fileEntry);
+											%>
+
+											<c:if test="<%= Validator.isNotNull(signatureStatus) %>">
+												<clay:label
+													displayType="<%= dlViewEntriesDisplayContext.getSignatureStatusDisplayType(signatureStatus) %>"
+													label="<%= LanguageUtil.get(request, signatureStatus) %>"
+												/>
 											</c:if>
 										</liferay-ui:search-container-column-text>
 									</c:when>
@@ -543,6 +570,13 @@ DLViewEntriesDisplayContext dlViewEntriesDisplayContext = new DLViewEntriesDispl
 											value="--"
 										/>
 									</c:when>
+									<c:when test='<%= curEntryColumn.equals("signature-status") %>'>
+										<liferay-ui:search-container-column-text
+											cssClass="table-cell-expand-smallest"
+											name="signature-status"
+											value="--"
+										/>
+									</c:when>
 									<c:when test='<%= curEntryColumn.equals("downloads") %>'>
 										<liferay-ui:search-container-column-text
 											cssClass="table-cell-expand-smallest"
@@ -598,3 +632,4 @@ request.setAttribute("edit_file_entry.jsp-checkedOut", true);
 <c:if test="<%= dlViewEntriesDisplayContext.isVersioningStrategyOverridable() %>">
 	<liferay-util:include page="/document_library/version_details.jsp" servletContext="<%= application %>" />
 </c:if>
+

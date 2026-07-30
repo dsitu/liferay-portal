@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.Sort;
@@ -42,6 +43,7 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -161,6 +163,64 @@ public class DSRequestManagerImpl implements DSRequestManager {
 					dsEnvelope.getDSEnvelopeId(),
 				exception);
 		}
+	}
+
+	@Override
+	public Map<Long, String> getRequestStatusesByFileEntryId(
+		long companyId, Collection<Long> fileEntryIds) {
+
+		Map<Long, String> requestStatusesByFileEntryId = new HashMap<>();
+
+		if (!_isEnabled(companyId, 0) || (fileEntryIds == null) ||
+			fileEntryIds.isEmpty()) {
+
+			return requestStatusesByFileEntryId;
+		}
+
+		ObjectDefinition documentObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST_DOCUMENT");
+		ObjectDefinition requestObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST");
+
+		if ((documentObjectDefinition == null) ||
+			(requestObjectDefinition == null)) {
+
+			return requestStatusesByFileEntryId;
+		}
+
+		try {
+			Map<Long, Long> requestIdsByFileEntryId =
+				_getRequestIdsByFileEntryId(
+					companyId, documentObjectDefinition,
+					requestObjectDefinition, fileEntryIds);
+
+			for (Map.Entry<Long, Long> entry :
+					requestIdsByFileEntryId.entrySet()) {
+
+				ObjectEntry requestObjectEntry =
+					_objectEntryLocalService.fetchObjectEntry(entry.getValue());
+
+				if (requestObjectEntry == null) {
+					continue;
+				}
+
+				requestStatusesByFileEntryId.put(
+					entry.getKey(),
+					GetterUtil.getString(
+						requestObjectEntry.getValues(
+						).get(
+							"requestStatus"
+						)));
+			}
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to load signature request statuses for company " +
+					companyId,
+				exception);
+		}
+
+		return requestStatusesByFileEntryId;
 	}
 
 	@Override
@@ -295,6 +355,39 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			objectRelationship.getObjectFieldId2());
 
 		return objectField.getName();
+	}
+
+	private Map<Long, Long> _getRequestIdsByFileEntryId(
+			long companyId, ObjectDefinition documentObjectDefinition,
+			ObjectDefinition requestObjectDefinition,
+			Collection<Long> fileEntryIds)
+		throws Exception {
+
+		Map<Long, Long> requestIdsByFileEntryId = new HashMap<>();
+
+		String documentFieldName = _getRelationshipFieldName(
+			requestObjectDefinition, "dsRequestToDSRequestDocuments");
+
+		if (documentFieldName == null) {
+			return requestIdsByFileEntryId;
+		}
+
+		for (Map<String, Serializable> documentValues :
+				_getValuesList(
+					companyId, documentObjectDefinition,
+					StringBundler.concat(
+						"(fileEntryId in (",
+						StringUtil.merge(fileEntryIds, ", "), "))"),
+					new Sort[] {
+						new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, true)
+					})) {
+
+			requestIdsByFileEntryId.putIfAbsent(
+				GetterUtil.getLong(documentValues.get("fileEntryId")),
+				GetterUtil.getLong(documentValues.get(documentFieldName)));
+		}
+
+		return requestIdsByFileEntryId;
 	}
 
 	private List<Map<String, Serializable>> _getValuesList(
