@@ -77,21 +77,6 @@
 					"type": "String"
 				},
 				{
-					"DBType": "Long",
-					"businessType": "LongInteger",
-					"externalReferenceCode": "RECIPIENT_USER_ID",
-					"indexed": true,
-					"indexedAsKeyword": false,
-					"label": {
-						"en_US": "Recipient User ID"
-					},
-					"name": "recipientUserId",
-					"required": false,
-					"state": false,
-					"system": true,
-					"type": "Long"
-				},
-				{
 					"DBType": "String",
 					"businessType": "Picklist",
 					"defaultValue": "sent",
@@ -107,6 +92,33 @@
 					"state": true,
 					"system": true,
 					"type": "String"
+				},
+				{
+					"DBType": "Long",
+					"businessType": "Relationship",
+					"externalReferenceCode": "USER_TO_DS_REQUEST_RECIPIENT",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"label": {
+						"en_US": "User to DS Request Recipient"
+					},
+					"name": "r_userToDSRequestRecipient_userId",
+					"objectDefinitionExternalReferenceCode1": "L_USER",
+					"objectFieldSettings": [
+						{
+							"name": "objectDefinition1ShortName",
+							"value": "User"
+						},
+						{
+							"name": "objectRelationshipERCObjectFieldName",
+							"value": "r_userToDSRequestRecipient_userERC"
+						}
+					],
+					"objectRelationshipExternalReferenceCode": "L_USER_TO_L_DS_REQUEST_RECIPIENT",
+					"relationshipType": "oneToMany",
+					"required": false,
+					"system": true,
+					"type": "Long"
 				}
 			],
 			"panelCategoryKey": "",

@@ -146,7 +146,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 					).put(
 						"providerRecipientId", dsRecipient.getDSRecipientId()
 					).put(
-						"recipientUserId",
+						"r_userToDSRequestRecipient_userId",
 						_getRecipientUserId(
 							companyId, dsRecipient.getEmailAddress())
 					).put(
@@ -243,7 +243,9 @@ public class DSRequestManagerImpl implements DSRequestManager {
 						fileEntryId, key -> new HashMap<>());
 
 				statusesByUserId.put(
-					GetterUtil.getLong(recipientValues.get("recipientUserId")),
+					GetterUtil.getLong(
+						recipientValues.get(
+							"r_userToDSRequestRecipient_userId")),
 					GetterUtil.getString(
 						recipientValues.get("requestRecipientStatus")));
 			}
@@ -351,8 +353,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 					_getValuesList(
 						companyId, recipientObjectDefinition,
 						StringBundler.concat(
-							"(recipientUserId eq ", userId,
-							") and (requestRecipientStatus in ('",
+							"(r_userToDSRequestRecipient_userId eq '", userId,
+							"') and (requestRecipientStatus in ('",
 							StringUtil.merge(
 								_PENDING_RECIPIENT_STATUSES, "', '"),
 							"'))"),
