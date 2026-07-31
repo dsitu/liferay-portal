@@ -198,7 +198,7 @@ public class DSRequestManagerTest {
 			HashMapBuilder.<String, Serializable>put(
 				objectField.getName(), requestObjectEntry.getObjectEntryId()
 			).put(
-				"recipientUserId", userId
+				"r_userToDSRequestRecipient_userId", userId
 			).put(
 				"requestRecipientStatus", "sent"
 			).build(),
@@ -318,7 +318,7 @@ public class DSRequestManagerTest {
 			HashMapBuilder.<String, Serializable>put(
 				objectField.getName(), requestObjectEntry.getObjectEntryId()
 			).put(
-				"recipientUserId", userId
+				"r_userToDSRequestRecipient_userId", userId
 			).put(
 				"requestRecipientStatus", "sent"
 			).build(),
