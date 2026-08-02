@@ -59,8 +59,13 @@ public class CompleteDSRecipientViewMVCActionCommand
 			actionRequest, "dsEnvelopeId");
 
 		if (Validator.isNotNull(dsEnvelopeId)) {
-			_processSignedDSEnvelope(actionRequest, dsEnvelopeId, themeDisplay);
+			_processDSEnvelope(actionRequest, dsEnvelopeId, themeDisplay);
 		}
+
+		SessionMessages.add(
+			actionRequest,
+			_portal.getPortletId(actionRequest) +
+				SessionMessages.KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
 
 		String backURL = ParamUtil.getString(actionRequest, "backURL");
 
@@ -95,7 +100,7 @@ public class CompleteDSRecipientViewMVCActionCommand
 		return null;
 	}
 
-	private void _processSignedDSEnvelope(
+	private void _processDSEnvelope(
 		ActionRequest actionRequest, String dsEnvelopeId,
 		ThemeDisplay themeDisplay) {
 
