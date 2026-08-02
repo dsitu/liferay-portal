@@ -641,4 +641,3 @@ request.setAttribute("edit_file_entry.jsp-checkedOut", true);
 <c:if test="<%= dlViewEntriesDisplayContext.isVersioningStrategyOverridable() %>">
 	<liferay-util:include page="/document_library/version_details.jsp" servletContext="<%= application %>" />
 </c:if>
-

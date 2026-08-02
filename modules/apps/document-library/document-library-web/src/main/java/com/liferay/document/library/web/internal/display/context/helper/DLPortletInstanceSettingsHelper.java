@@ -107,8 +107,19 @@ public class DLPortletInstanceSettingsHelper {
 
 		if (_isSignatureStatusColumnEnabled()) {
 			if (!ArrayUtil.contains(entryColumns, "signature-status")) {
-				entryColumns = ArrayUtil.append(
-					entryColumns, "signature-status");
+				List<String> entryColumnsList = ListUtil.fromArray(
+					entryColumns);
+
+				int index = entryColumnsList.indexOf("status");
+
+				if (index < 0) {
+					entryColumnsList.add("signature-status");
+				}
+				else {
+					entryColumnsList.add(index + 1, "signature-status");
+				}
+
+				entryColumns = ArrayUtil.toStringArray(entryColumnsList);
 			}
 		}
 		else {
