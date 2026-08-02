@@ -52,6 +52,8 @@ public interface DSRequestManager {
 	public void sendDSRequestNotifications(
 		long companyId, long groupId, DSRequest dsRequest);
 
+	public int sendSignatureReminders(long companyId);
+
 	public void updateDSRequest(
 		long companyId, long groupId, String providerRequestId);
 
