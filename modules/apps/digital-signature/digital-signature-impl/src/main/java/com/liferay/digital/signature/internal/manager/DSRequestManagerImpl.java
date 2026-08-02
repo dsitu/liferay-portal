@@ -390,6 +390,78 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	@Override
+	public int sendSignatureReminders(long companyId) {
+		if (!_isEnabled(companyId, 0)) {
+			return 0;
+		}
+
+		DigitalSignatureConfiguration digitalSignatureConfiguration =
+			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
+				companyId, 0);
+
+		if (!digitalSignatureConfiguration.signatureReminderEnabled()) {
+			return 0;
+		}
+
+		ObjectDefinition dsRequestObjectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST", companyId);
+		ObjectDefinition dsRequestRecipientObjectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST_RECIPIENT", companyId);
+
+		if ((dsRequestObjectDefinition == null) ||
+			(dsRequestRecipientObjectDefinition == null)) {
+
+			return 0;
+		}
+
+		int count = 0;
+
+		try {
+			Set<Long> requestIds = new HashSet<>();
+
+			for (Map<String, Serializable> recipientValues :
+					_getValuesList(
+						companyId,
+						StringBundler.concat(
+							"(requestRecipientStatus eq '",
+							DSRequestRecipientConstants.STATUS_SENT, "')"),
+						dsRequestRecipientObjectDefinition, null)) {
+
+				requestIds.add(
+					GetterUtil.getLong(
+						recipientValues.get(
+							"r_dsRequestToDSRequestRecipients_l_dsRequestId")));
+			}
+
+			if (requestIds.isEmpty()) {
+				return 0;
+			}
+
+			Map<Long, DSRequest> dsRequestsByRequestId =
+				_getDSRequestsByRequestId(
+					companyId, dsRequestRecipientObjectDefinition, requestIds);
+
+			for (DSRequest dsRequest : dsRequestsByRequestId.values()) {
+				if (!dsRequest.isTerminal()) {
+					count += _sendDSRequestNotifications(
+						companyId, dsRequest.getSiteGroupId(), dsRequest);
+				}
+			}
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to send signature reminders for company " + companyId,
+				exception);
+		}
+
+		return count;
+	}
+
+	@Override
 	public void updateDSRequest(
 		long companyId, long groupId, String providerRequestId) {
 
@@ -443,9 +515,15 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				_updateRequestStatus(
 					companyId, groupId, dsEnvelope, dsRequestId);
 
-				_updateRecipientStatuses(
-					companyId, groupId, dsRecipientsMap, dsRequestId,
-					dsRequestRecipientObjectDefinition);
+				List<DSRequestRecipient> sentDSRequestRecipients =
+					_updateRecipientStatuses(
+						companyId, groupId, dsRecipientsMap, dsRequestId,
+						dsRequestRecipientObjectDefinition);
+
+				if (!sentDSRequestRecipients.isEmpty()) {
+					_sendDSRequestNotifications(
+						fetchDSRequest(dsRequestId), sentDSRequestRecipients);
+				}
 
 				if (Objects.equals(
 						_getRequestStatus(dsEnvelope),
@@ -1245,11 +1323,13 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
 	}
 
-	private void _updateRecipientStatuses(
+	private List<DSRequestRecipient> _updateRecipientStatuses(
 			long companyId, long groupId,
 			Map<String, DSRecipient> dsRecipientsMap, long dsRequestId,
 			ObjectDefinition objectDefinition)
 		throws Exception {
+
+		List<DSRequestRecipient> sentDSRequestRecipients = new ArrayList<>();
 
 		for (Map<String, Serializable> recipientValues :
 				_getValuesList(
@@ -1275,12 +1355,14 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				continue;
 			}
 
+			String requestRecipientStatus = _getRequestRecipientStatus(
+				dsRecipient);
+
 			Map<String, Serializable> values =
 				HashMapBuilder.<String, Serializable>putAll(
 					objectEntry.getValues()
 				).put(
-					"requestRecipientStatus",
-					_getRequestRecipientStatus(dsRecipient)
+					"requestRecipientStatus", requestRecipientStatus
 				).put(
 					"requestRecipientStatusDate",
 					() -> _toDate(dsRecipient.getStatusLocalDateTime())
@@ -1296,7 +1378,20 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				values,
 				_getServiceContext(
 					companyId, groupId, objectEntry.getUserId()));
+
+			if (Objects.equals(
+					GetterUtil.getString(
+						recipientValues.get("requestRecipientStatus")),
+					DSRequestRecipientConstants.STATUS_CREATED) &&
+				Objects.equals(
+					requestRecipientStatus,
+					DSRequestRecipientConstants.STATUS_SENT)) {
+
+				sentDSRequestRecipients.add(new DSRequestRecipient(values));
+			}
 		}
+
+		return sentDSRequestRecipients;
 	}
 
 	private void _updateRequestStatus(
