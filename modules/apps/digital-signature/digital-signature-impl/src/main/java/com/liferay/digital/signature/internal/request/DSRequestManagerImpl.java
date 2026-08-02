@@ -54,6 +54,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -129,8 +130,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 								"requestExpirationDate",
 								_toDate(dsEnvelope.getExpireLocalDateTime())
 							).put(
-								"requestStatus",
-								_toRequestStatus(dsEnvelope.getStatus())
+								"requestStatus", _toRequestStatus(dsEnvelope)
 							).build(),
 							serviceContext);
 
@@ -239,7 +239,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				dsRecipients.put(dsRecipient.getDSRecipientId(), dsRecipient);
 			}
 
-			String requestStatus = _toRequestStatus(dsEnvelope.getStatus());
+			String requestStatus = _toRequestStatus(dsEnvelope);
 
 			for (Map<String, Serializable> requestValues :
 					_getValuesList(
@@ -429,8 +429,23 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		return "sent";
 	}
 
-	private String _toRequestStatus(String status) {
-		status = StringUtil.toLowerCase(GetterUtil.getString(status));
+	private String _toRequestStatus(DSEnvelope dsEnvelope) {
+		String status = StringUtil.toLowerCase(
+			GetterUtil.getString(dsEnvelope.getStatus()));
+
+		if (Objects.equals(status, "voided")) {
+			LocalDateTime expireLocalDateTime =
+				dsEnvelope.getExpireLocalDateTime();
+			LocalDateTime statusChangedLocalDateTime =
+				dsEnvelope.getStatusChangedLocalDateTime();
+
+			if ((expireLocalDateTime != null) &&
+				(statusChangedLocalDateTime != null) &&
+				!statusChangedLocalDateTime.isBefore(expireLocalDateTime)) {
+
+				return "expired";
+			}
+		}
 
 		if (ArrayUtil.contains(_DS_ENVELOPE_STATUSES, status)) {
 			return status;
@@ -526,7 +541,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	private static final String[] _DS_ENVELOPE_STATUSES = {
-		"completed", "created", "declined", "sent", "voided"
+		"completed", "created", "declined", "expired", "sent", "voided"
 	};
 
 	private static final String[] _DS_RECIPIENT_STATUSES = {
