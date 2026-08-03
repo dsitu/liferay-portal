@@ -14,6 +14,8 @@ import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.digital.signature.model.DSRequestRecipient;
 import com.liferay.digital.signature.request.DSRequestManager;
 import com.liferay.digital.signature.url.SignDSURLProvider;
+import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
+import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.mail.kernel.model.MailMessage;
 import com.liferay.mail.kernel.service.MailService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
@@ -37,6 +39,7 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.Sort;
@@ -50,6 +53,7 @@ import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlUtil;
@@ -340,6 +344,17 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				_reindexRequestDocuments(
 					companyId, documentObjectDefinition,
 					requestObjectDefinition, requestId);
+
+				if (Objects.equals(requestStatus, "completed") &&
+					!Objects.equals(
+						GetterUtil.getString(
+							requestValues.get("requestStatus")),
+						"completed")) {
+
+					_archiveSignedDocument(
+						companyId, groupId, documentObjectDefinition,
+						dsEnvelope, requestObjectDefinition, requestId);
+				}
 			}
 		}
 		catch (Exception exception) {
@@ -348,6 +363,45 @@ public class DSRequestManagerImpl implements DSRequestManager {
 					providerRequestId,
 				exception);
 		}
+	}
+
+	private void _archiveSignedDocument(
+			long companyId, long groupId,
+			ObjectDefinition documentObjectDefinition, DSEnvelope dsEnvelope,
+			ObjectDefinition requestObjectDefinition, long requestId)
+		throws Exception {
+
+		long fileEntryId = _getRequestFileEntryId(
+			companyId, documentObjectDefinition, requestObjectDefinition,
+			requestId);
+
+		if (fileEntryId <= 0) {
+			return;
+		}
+
+		byte[] bytes = _dsEnvelopeManager.getSignedDocument(
+			companyId, groupId, dsEnvelope.getDSEnvelopeId());
+
+		if (ArrayUtil.isEmpty(bytes)) {
+			return;
+		}
+
+		ObjectEntry requestObjectEntry =
+			_objectEntryLocalService.fetchObjectEntry(requestId);
+
+		if (requestObjectEntry == null) {
+			return;
+		}
+
+		long userId = requestObjectEntry.getUserId();
+
+		FileEntry fileEntry = _dlAppLocalService.getFileEntry(fileEntryId);
+
+		_dlAppLocalService.updateFileEntry(
+			userId, fileEntryId, fileEntry.getFileName(),
+			ContentTypes.APPLICATION_PDF, fileEntry.getTitle(), null, null,
+			null, DLVersionNumberIncrease.MAJOR, bytes, null, null, null,
+			_createServiceContext(companyId, fileEntry.getGroupId(), userId));
 	}
 
 	private ServiceContext _createServiceContext(
@@ -547,6 +601,36 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			objectRelationship.getObjectFieldId2());
 
 		return objectField.getName();
+	}
+
+	private long _getRequestFileEntryId(
+			long companyId, ObjectDefinition documentObjectDefinition,
+			ObjectDefinition requestObjectDefinition, long requestId)
+		throws Exception {
+
+		String documentFieldName = _getRelationshipFieldName(
+			requestObjectDefinition, "dsRequestToDSRequestDocuments");
+
+		if (documentFieldName == null) {
+			return 0;
+		}
+
+		List<Map<String, Serializable>> documentValuesList = _getValuesList(
+			companyId, documentObjectDefinition,
+			StringBundler.concat(
+				"(", documentFieldName, " eq '", requestId, "')"),
+			null);
+
+		if (documentValuesList.isEmpty()) {
+			return 0;
+		}
+
+		return GetterUtil.getLong(
+			documentValuesList.get(
+				0
+			).get(
+				"fileEntryId"
+			));
 	}
 
 	private String _getRequesterEmailAddress(ObjectEntry requestObjectEntry) {
@@ -903,6 +987,9 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private DLAppLocalService _dlAppLocalService;
 
 	@Reference
 	private DSEnvelopeManager _dsEnvelopeManager;
