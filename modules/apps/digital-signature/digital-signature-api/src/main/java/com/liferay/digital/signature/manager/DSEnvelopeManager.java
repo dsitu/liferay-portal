@@ -38,4 +38,7 @@ public interface DSEnvelopeManager {
 	public byte[] getSignedDocument(
 		long companyId, long groupId, String dsEnvelopeId, String dsDocumentId);
 
+	public void voidDSEnvelope(
+		long companyId, long groupId, String dsEnvelopeId, String reason);
+
 }

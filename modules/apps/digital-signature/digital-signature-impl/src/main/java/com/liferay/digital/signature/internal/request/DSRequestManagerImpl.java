@@ -356,6 +356,22 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 	}
 
+	@Override
+	public void voidDSRequest(
+		long companyId, long groupId, String providerRequestId, String reason) {
+
+		if (!_isEnabled(companyId, groupId) ||
+			Validator.isNull(providerRequestId)) {
+
+			return;
+		}
+
+		_dsEnvelopeManager.voidDSEnvelope(
+			companyId, groupId, providerRequestId, reason);
+
+		updateDSRequest(companyId, groupId, providerRequestId);
+	}
+
 	private DSRequest _addDSRequest(
 			long companyId, long groupId, long userId, DSEnvelope dsEnvelope,
 			long[] fileEntryIds)
@@ -504,6 +520,15 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				});
 		}
 		catch (Throwable throwable) {
+			try {
+				_dsEnvelopeManager.voidDSEnvelope(
+					companyId, groupId, dsEnvelope.getDSEnvelopeId(),
+					"Unable to record the signature request");
+			}
+			catch (Exception exception) {
+				throwable.addSuppressed(exception);
+			}
+
 			throw new PortalException(
 				"Unable to record the signature request for envelope " +
 					dsEnvelope.getDSEnvelopeId(),
