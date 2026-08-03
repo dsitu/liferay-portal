@@ -179,6 +179,16 @@ public class DSEnvelopeManagerImpl implements DSEnvelopeManager {
 			pagination, jsonObject.getInt("totalSetSize"));
 	}
 
+	@Override
+	public byte[] getSignedDocument(
+		long companyId, long groupId, String dsEnvelopeId) {
+
+		return _dsHttp.getAsBytes(
+			companyId, groupId,
+			StringBundler.concat(
+				"envelopes/", dsEnvelopeId, "/documents/combined"));
+	}
+
 	private List<DSDocument> _getDSDocuments(JSONArray jsonArray) {
 		return JSONUtil.toList(
 			jsonArray,
