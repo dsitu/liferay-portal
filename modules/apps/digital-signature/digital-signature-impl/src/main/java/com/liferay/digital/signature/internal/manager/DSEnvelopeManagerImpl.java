@@ -190,6 +190,19 @@ public class DSEnvelopeManagerImpl implements DSEnvelopeManager {
 				"envelopes/", dsEnvelopeId, "/documents/", dsDocumentId));
 	}
 
+	@Override
+	public void voidDSEnvelope(
+		long companyId, long groupId, String dsEnvelopeId, String reason) {
+
+		_dsHttp.put(
+			companyId, groupId, "envelopes/" + dsEnvelopeId,
+			JSONUtil.put(
+				"status", "voided"
+			).put(
+				"voidedReason", reason
+			));
+	}
+
 	private List<DSDocument> _getDSDocuments(JSONArray jsonArray) {
 		return JSONUtil.toList(
 			jsonArray,

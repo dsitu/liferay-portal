@@ -35,4 +35,7 @@ public interface DSRequestManager {
 	public void updateDSRequest(
 		long companyId, long groupId, String providerRequestId);
 
+	public void voidDSRequest(
+		long companyId, long groupId, String providerRequestId, String reason);
+
 }
