@@ -349,6 +349,22 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 	}
 
+	@Override
+	public void voidDSRequest(
+		long companyId, long groupId, String providerRequestId, String reason) {
+
+		if (!_isEnabled(companyId, groupId) ||
+			Validator.isNull(providerRequestId)) {
+
+			return;
+		}
+
+		_dsEnvelopeManager.voidDSEnvelope(
+			companyId, groupId, providerRequestId, reason);
+
+		updateDSRequest(companyId, groupId, providerRequestId);
+	}
+
 	private DSRequest _addDSRequest(
 			long companyId, long groupId, long userId, DSEnvelope dsEnvelope,
 			long[] fileEntryIds)
@@ -377,8 +393,11 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		ServiceContext serviceContext = _getServiceContext(
 			companyId, groupId, userId);
 
-		ObjectEntry dsRequestObjectEntry =
-			_objectEntryLocalService.addObjectEntry(
+		ObjectEntry dsRequestObjectEntry = null;
+		List<DSRequestRecipient> dsRequestRecipients = new ArrayList<>();
+
+		try {
+			dsRequestObjectEntry = _objectEntryLocalService.addObjectEntry(
 				0, userId, dsRequestObjectDefinition.getObjectDefinitionId(),
 				ObjectEntryFolderConstants.
 					PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
@@ -401,9 +420,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				).build(),
 				serviceContext);
 
-		List<DSRequestRecipient> dsRequestRecipients = new ArrayList<>();
-
-		try {
 			for (long fileEntryId : fileEntryIds) {
 				_objectEntryLocalService.addObjectEntry(
 					0, userId,
@@ -460,10 +476,22 @@ public class DSRequestManagerImpl implements DSRequestManager {
 						dsRequestRecipientObjectEntry.getValues()));
 			}
 		}
-		catch (Exception exception) {
-			_objectEntryLocalService.deleteObjectEntry(dsRequestObjectEntry);
+		catch (Exception exception1) {
+			if (dsRequestObjectEntry != null) {
+				_objectEntryLocalService.deleteObjectEntry(
+					dsRequestObjectEntry);
+			}
 
-			throw exception;
+			try {
+				_dsEnvelopeManager.voidDSEnvelope(
+					companyId, groupId, dsEnvelope.getDSEnvelopeId(),
+					"Unable to record the signature request");
+			}
+			catch (Exception exception2) {
+				exception1.addSuppressed(exception2);
+			}
+
+			throw exception1;
 		}
 
 		return new DSRequest(
