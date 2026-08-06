@@ -27,6 +27,7 @@ import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.rest.filter.factory.FilterFactory;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -337,17 +338,10 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			long dsRequestId)
 		throws Exception {
 
-		long fileEntryId = _getRequestFileEntryId(
+		List<Long> fileEntryIds = _getRequestFileEntryIds(
 			companyId, dsRequestDocumentObjectDefinition, dsRequestId);
 
-		if (fileEntryId <= 0) {
-			return;
-		}
-
-		byte[] bytes = _dsEnvelopeManager.getSignedDocument(
-			companyId, groupId, dsEnvelope.getDSEnvelopeId());
-
-		if (ArrayUtil.isEmpty(bytes)) {
+		if (fileEntryIds.isEmpty()) {
 			return;
 		}
 
@@ -360,13 +354,23 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 		long userId = dsRequestObjectEntry.getUserId();
 
-		FileEntry fileEntry = _dlAppLocalService.getFileEntry(fileEntryId);
+		for (long fileEntryId : fileEntryIds) {
+			byte[] bytes = _dsEnvelopeManager.getSignedDocument(
+				companyId, groupId, dsEnvelope.getDSEnvelopeId(),
+				String.valueOf(fileEntryId));
 
-		_dlAppLocalService.updateFileEntry(
-			userId, fileEntryId, fileEntry.getFileName(),
-			ContentTypes.APPLICATION_PDF, fileEntry.getTitle(), null, null,
-			null, DLVersionNumberIncrease.MAJOR, bytes, null, null, null,
-			_getServiceContext(companyId, fileEntry.getGroupId(), userId));
+			if (ArrayUtil.isEmpty(bytes)) {
+				continue;
+			}
+
+			FileEntry fileEntry = _dlAppLocalService.getFileEntry(fileEntryId);
+
+			_dlAppLocalService.updateFileEntry(
+				userId, fileEntryId, fileEntry.getFileName(),
+				ContentTypes.APPLICATION_PDF, fileEntry.getTitle(), null, null,
+				null, DLVersionNumberIncrease.MAJOR, bytes, null, null, null,
+				_getServiceContext(companyId, fileEntry.getGroupId(), userId));
+		}
 	}
 
 	private Map<Long, DSRequest> _getDSRequestsByRequestId(
@@ -523,27 +527,19 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		return user.getUserId();
 	}
 
-	private long _getRequestFileEntryId(
+	private List<Long> _getRequestFileEntryIds(
 			long companyId, ObjectDefinition dsRequestDocumentObjectDefinition,
 			long dsRequestId)
 		throws Exception {
 
-		List<Map<String, Serializable>> documentValuesList = _getValuesList(
-			companyId,
-			"(r_dsRequestToDSRequestDocuments_l_dsRequestId eq '" +
-				dsRequestId + "')",
-			dsRequestDocumentObjectDefinition);
-
-		if (documentValuesList.isEmpty()) {
-			return 0;
-		}
-
-		return GetterUtil.getLong(
-			documentValuesList.get(
-				0
-			).get(
-				"fileEntryId"
-			));
+		return TransformUtil.transform(
+			_getValuesList(
+				companyId,
+				"(r_dsRequestToDSRequestDocuments_l_dsRequestId eq '" +
+					dsRequestId + "')",
+				dsRequestDocumentObjectDefinition),
+			documentValues -> GetterUtil.getLong(
+				documentValues.get("fileEntryId")));
 	}
 
 	private String _getRequestRecipientStatus(DSRecipient dsRecipient) {
