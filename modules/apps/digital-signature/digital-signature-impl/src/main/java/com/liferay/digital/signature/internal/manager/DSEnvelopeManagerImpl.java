@@ -181,12 +181,13 @@ public class DSEnvelopeManagerImpl implements DSEnvelopeManager {
 
 	@Override
 	public byte[] getSignedDocument(
-		long companyId, long groupId, String dsEnvelopeId) {
+		long companyId, long groupId, String dsEnvelopeId,
+		String dsDocumentId) {
 
 		return _dsHttp.getAsBytes(
 			companyId, groupId,
 			StringBundler.concat(
-				"envelopes/", dsEnvelopeId, "/documents/combined"));
+				"envelopes/", dsEnvelopeId, "/documents/", dsDocumentId));
 	}
 
 	private List<DSDocument> _getDSDocuments(JSONArray jsonArray) {
