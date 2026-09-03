@@ -152,7 +152,7 @@ public class SignatureRequestResourceImpl
 
 		_dsRequestManager.voidDSRequest(
 			contextCompany.getCompanyId(), dsRequest.getSiteGroupId(),
-			dsRequest.getProviderRequestId(), voidReason);
+			dsRequest, voidReason);
 
 		return _toSignatureRequest(
 			_dsRequestManager.fetchDSRequest(signatureRequestId));
