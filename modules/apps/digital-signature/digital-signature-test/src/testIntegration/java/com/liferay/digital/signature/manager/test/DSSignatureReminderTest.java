@@ -59,11 +59,25 @@ public class DSSignatureReminderTest {
 		_configurationProvider.saveCompanyConfiguration(
 			DigitalSignatureConfiguration.class, TestPropsValues.getCompanyId(),
 			HashMapDictionaryBuilder.<String, Object>put(
+				"accountBaseURI", "https://demo.docusign.net/restapi"
+			).put(
+				"apiAccountId", RandomTestUtil.randomString()
+			).put(
+				"apiUsername", RandomTestUtil.randomString()
+			).put(
 				"enabled", true
 			).put(
 				"enableEmbeddedView", true
 			).put(
+				"environment", "sandbox"
+			).put(
+				"integrationKey", RandomTestUtil.randomString()
+			).put(
+				"rsaPrivateKey", RandomTestUtil.randomString()
+			).put(
 				"signatureReminderEnabled", true
+			).put(
+				"siteSettingsStrategy", "always-inherit"
 			).build());
 
 		_group = GroupTestUtil.addGroup();
@@ -82,14 +96,18 @@ public class DSSignatureReminderTest {
 
 		int count = _dsRequestManager.sendSignatureReminders(companyId);
 
-		_addSignatureRequest("sent");
-		_addSignatureRequest("voided");
+		_addSignatureRequest("sent", 0);
+		_addSignatureRequest("sent", TestPropsValues.getUserId());
+		_addSignatureRequest("voided", TestPropsValues.getUserId());
 
 		Assert.assertEquals(
 			count + 1, _dsRequestManager.sendSignatureReminders(companyId));
 	}
 
-	private void _addSignatureRequest(String requestStatus) throws Exception {
+	private void _addSignatureRequest(
+			String requestStatus, long recipientUserId)
+		throws Exception {
+
 		long companyId = TestPropsValues.getCompanyId();
 		long userId = TestPropsValues.getUserId();
 
@@ -138,6 +156,10 @@ public class DSSignatureReminderTest {
 				objectField.getName(), requestObjectEntry.getObjectEntryId()
 			).put(
 				"emailAddress", RandomTestUtil.randomString() + "@liferay.com"
+			).put(
+				"providerRecipientId", RandomTestUtil.randomString()
+			).put(
+				"r_userToDSRequestRecipients_userId", recipientUserId
 			).put(
 				"requestRecipientStatus", "sent"
 			).build(),
