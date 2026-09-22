@@ -13,6 +13,7 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -43,8 +44,16 @@ public interface DSRequestManager {
 	public int getRecipientDSRequestsCount(
 		long companyId, long userId, String search);
 
+	public Map<Long, Map<Long, String>> getRecipientStatusesByFileEntryId(
+		long companyId, Collection<Long> fileEntryIds);
+
 	public Map<Long, String> getRequestStatusesByFileEntryId(
 		long companyId, Collection<Long> fileEntryIds);
+
+	public int getSignatureRequiredCount(long companyId, long userId);
+
+	public Set<Long> getSignatureRequiredFileEntryIds(
+		long companyId, long userId, Collection<Long> fileEntryIds);
 
 	public List<DSRequest> getSiteDSRequests(
 		long companyId, long siteGroupId, String search, int start, int end);
