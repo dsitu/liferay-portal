@@ -343,6 +343,63 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	@Override
+	public Map<Long, String> getRequestStatusesByFileEntryId(
+		long companyId, Collection<Long> fileEntryIds) {
+
+		Map<Long, String> requestStatusesByFileEntryId = new HashMap<>();
+
+		if (!_isEnabled(companyId, 0) || (fileEntryIds == null) ||
+			fileEntryIds.isEmpty()) {
+
+			return requestStatusesByFileEntryId;
+		}
+
+		ObjectDefinition documentObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST_DOCUMENT");
+		ObjectDefinition requestObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST");
+
+		if ((documentObjectDefinition == null) ||
+			(requestObjectDefinition == null)) {
+
+			return requestStatusesByFileEntryId;
+		}
+
+		try {
+			Map<Long, Long> requestIdsByFileEntryId =
+				_getRequestIdsByFileEntryId(
+					companyId, documentObjectDefinition,
+					requestObjectDefinition, fileEntryIds);
+
+			for (Map.Entry<Long, Long> entry :
+					requestIdsByFileEntryId.entrySet()) {
+
+				ObjectEntry requestObjectEntry =
+					_objectEntryLocalService.fetchObjectEntry(entry.getValue());
+
+				if (requestObjectEntry == null) {
+					continue;
+				}
+
+				Map<String, Serializable> requestValues =
+					requestObjectEntry.getValues();
+
+				requestStatusesByFileEntryId.put(
+					entry.getKey(),
+					GetterUtil.getString(requestValues.get("requestStatus")));
+			}
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to load signature request statuses for company " +
+					companyId,
+				exception);
+		}
+
+		return requestStatusesByFileEntryId;
+	}
+
+	@Override
 	public List<DSRequest> getSiteDSRequests(
 		long companyId, long siteId, String search, int start, int end) {
 

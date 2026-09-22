@@ -43,6 +43,9 @@ public interface DSRequestManager {
 	public int getRecipientDSRequestsCount(
 		long companyId, long userId, String search);
 
+	public Map<Long, String> getRequestStatusesByFileEntryId(
+		long companyId, Collection<Long> fileEntryIds);
+
 	public List<DSRequest> getSiteDSRequests(
 		long companyId, long siteId, String search, int start, int end);
 
