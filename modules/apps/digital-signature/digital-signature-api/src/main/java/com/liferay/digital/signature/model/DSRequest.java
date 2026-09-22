@@ -8,6 +8,7 @@ package com.liferay.digital.signature.model;
 import com.liferay.digital.signature.constants.DigitalSignatureConstants;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -150,13 +151,14 @@ public class DSRequest implements Serializable {
 		return false;
 	}
 
-	public boolean isSignatureRequired(long userId) {
-		if ((userId <= 0) || isTerminal()) {
+	public boolean isSignatureRequired(String emailAddress) {
+		if (Validator.isNull(emailAddress) || isTerminal()) {
 			return false;
 		}
 
 		for (DSRequestRecipient dsRequestRecipient : getDSRequestRecipients()) {
-			if ((dsRequestRecipient.getUserId() != userId) ||
+			if (!StringUtil.equalsIgnoreCase(
+					emailAddress, dsRequestRecipient.getEmailAddress()) ||
 				!ArrayUtil.contains(
 					DigitalSignatureConstants.
 						REQUEST_RECIPIENT_STATUSES_PENDING,
