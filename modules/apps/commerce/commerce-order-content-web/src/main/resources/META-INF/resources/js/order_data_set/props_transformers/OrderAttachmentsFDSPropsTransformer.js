@@ -3,9 +3,15 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {formatActionUrl, openSignatureDetailsModal} from 'commerce-frontend-js';
+import {
+	SignatureStatusDataRenderer,
+	formatActionUrl,
+	openSignatureDetailsModal,
+	removeSignatureStatusColumn,
+} from 'commerce-frontend-js';
 import {openModal, openToast} from 'frontend-js-components-web';
 import {sub} from 'frontend-js-web';
+import React from 'react';
 
 const openDeleteConfirmationModal = ({itemName, loadData, url}) => {
 	openModal({
@@ -77,8 +83,17 @@ const OrderAttachmentsFDSPropsTransformer = (props) => {
 	const signableIds = props.additionalProps?.signableIds ?? [];
 	const signatureStatuses = props.additionalProps?.signatureStatuses ?? {};
 
+	const signable = !!Object.keys(signatureStatuses).length;
+
 	return {
 		...props,
+		customDataRenderers: {
+			signatureStatusDataRenderer: (rendererProps) =>
+				React.createElement(SignatureStatusDataRenderer, {
+					...rendererProps,
+					signatureStatuses,
+				}),
+		},
 		itemsActions: props.itemsActions?.map((action) => {
 			const actionId = action?.data?.id;
 
@@ -148,6 +163,9 @@ const OrderAttachmentsFDSPropsTransformer = (props) => {
 				window.location.href = fileURL;
 			}
 		},
+		views: signable
+			? props.views
+			: removeSignatureStatusColumn(props.views),
 	};
 };
 
