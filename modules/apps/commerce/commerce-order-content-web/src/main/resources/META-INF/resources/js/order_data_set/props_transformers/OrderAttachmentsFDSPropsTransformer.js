@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {formatActionUrl} from 'commerce-frontend-js';
+import {formatActionUrl, openSignatureDetailsModal} from 'commerce-frontend-js';
 import {openModal, openToast} from 'frontend-js-components-web';
 import {sub} from 'frontend-js-web';
 
@@ -75,6 +75,7 @@ const openDeleteConfirmationModal = ({itemName, loadData, url}) => {
 
 const OrderAttachmentsFDSPropsTransformer = (props) => {
 	const signableIds = props.additionalProps?.signableIds ?? [];
+	const signatureStatuses = props.additionalProps?.signatureStatuses ?? {};
 
 	return {
 		...props,
@@ -95,6 +96,13 @@ const OrderAttachmentsFDSPropsTransformer = (props) => {
 				};
 			}
 
+			if (actionId === 'view-signature-status') {
+				return {
+					...action,
+					isVisible: (item) => !!signatureStatuses[item?.id],
+				};
+			}
+
 			return action;
 		}),
 		onActionDropdownItemClick: ({action, event, itemData, loadData}) => {
@@ -107,6 +115,16 @@ const OrderAttachmentsFDSPropsTransformer = (props) => {
 					size: 'full-screen',
 					title: itemData?.title,
 					url: formatActionUrl(action.data.signURL, itemData),
+				});
+			}
+			else if (actionId === 'view-signature-status') {
+				event?.preventDefault();
+
+				openSignatureDetailsModal({
+					url: formatActionUrl(
+						action.data.signatureStatusURL,
+						itemData
+					),
 				});
 			}
 			else if (actionId === 'delete') {

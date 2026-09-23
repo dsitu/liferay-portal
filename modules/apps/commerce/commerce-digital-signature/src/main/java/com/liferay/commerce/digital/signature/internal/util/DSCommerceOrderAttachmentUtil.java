@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.util.Portal;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +104,21 @@ public class DSCommerceOrderAttachmentUtil {
 		httpServletRequest.setAttribute(key, dsRequests);
 
 		return dsRequests;
+	}
+
+	public static Map<String, String> getSignatureStatuses(
+		Map<Long, DSRequest> dsRequests) {
+
+		Map<String, String> signatureStatuses = new HashMap<>();
+
+		for (Map.Entry<Long, DSRequest> entry : dsRequests.entrySet()) {
+			DSRequest dsRequest = entry.getValue();
+
+			signatureStatuses.put(
+				String.valueOf(entry.getKey()), dsRequest.getStatus());
+		}
+
+		return signatureStatuses;
 	}
 
 	public static boolean isEnabled(CommerceOrder commerceOrder) {
