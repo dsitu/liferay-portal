@@ -65,6 +65,9 @@ public class CommerceOrderAttachmentFDSActionContributorImpl
 
 		return HashMapBuilder.<String, Object>put(
 			"signableIds", signableIds
+		).put(
+			"signatureStatuses",
+			DSCommerceOrderAttachmentUtil.getSignatureStatuses(dsRequests)
 		).build();
 	}
 
@@ -114,6 +117,22 @@ public class CommerceOrderAttachmentFDSActionContributorImpl
 					"sign"
 				));
 		}
+
+		fdsActionDropdownItems.add(
+			FDSActionDropdownItemBuilder.putData(
+				"signatureStatusURL",
+				DSCommerceOrderAttachmentUtil.getActionURL(
+					"/commerce-digital-signature/signature-status",
+					themeDisplay)
+			).setHref(
+				StringPool.POUND
+			).setIcon(
+				"list-ul"
+			).setLabel(
+				_language.get(httpServletRequest, "view-signature-status")
+			).build(
+				"view-signature-status"
+			));
 
 		return fdsActionDropdownItems;
 	}
