@@ -447,6 +447,31 @@ public class DSRequestManagerTest {
 	}
 
 	@Test
+	public void testGetFileEntryDSRequests() throws Exception {
+		long companyId = TestPropsValues.getCompanyId();
+		long userId = TestPropsValues.getUserId();
+
+		String emailAddress = RandomTestUtil.randomString() + "@liferay.com";
+		long fileEntryId = RandomTestUtil.randomInt();
+
+		_addDSRequestObjectEntries(
+			companyId, userId, emailAddress, fileEntryId, "sent", "voided");
+		_addDSRequestObjectEntries(
+			companyId, userId, emailAddress, fileEntryId, "sent", "sent");
+
+		List<DSRequest> dsRequests = _dsRequestManager.getFileEntryDSRequests(
+			companyId, fileEntryId);
+
+		Assert.assertEquals(dsRequests.toString(), 2, dsRequests.size());
+
+		DSRequest dsRequest1 = dsRequests.get(0);
+		DSRequest dsRequest2 = dsRequests.get(1);
+
+		Assert.assertEquals("sent", dsRequest1.getStatus());
+		Assert.assertEquals("voided", dsRequest2.getStatus());
+	}
+
+	@Test
 	public void testGetLoginURL() throws Exception {
 		String path = StringBundler.concat(
 			"/web/", RandomTestUtil.randomString(),
