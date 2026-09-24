@@ -306,10 +306,10 @@ public class DSRequestManagerTest {
 		Assert.assertEquals(
 			dsRequestRecipients.toString(), 1, dsRequestRecipients.size());
 
-		DSRequestRecipient dsRequestRecipient = dsRequestRecipients.get(0);
+		DSRequestRecipient dsRequestRecipient1 = dsRequestRecipients.get(0);
 
-		Assert.assertEquals("sent", dsRequestRecipient.getStatus());
-		Assert.assertEquals(userId, dsRequestRecipient.getUserId());
+		Assert.assertEquals("sent", dsRequestRecipient1.getStatus());
+		Assert.assertEquals(userId, dsRequestRecipient1.getUserId());
 
 		fileEntryId = RandomTestUtil.randomInt();
 
@@ -321,6 +321,43 @@ public class DSRequestManagerTest {
 
 		Assert.assertEquals("completed", dsRequest.getStatus());
 		Assert.assertTrue(dsRequest.isTerminal());
+
+		fileEntryId = RandomTestUtil.randomInt();
+
+		DSEnvelope dsEnvelope = _createDSEnvelope(fileEntryId);
+
+		List<DSRecipient> dsRecipients = dsEnvelope.getDSRecipients();
+
+		DSRecipient dsRecipient1 = dsRecipients.get(0);
+		DSRecipient dsRecipient2 = dsRecipients.get(1);
+
+		dsRecipient1.setRoutingOrder(2);
+		dsRecipient2.setRoutingOrder(1);
+
+		ReflectionTestUtil.invoke(
+			_dsRequestManager, "_addDSRequest",
+			new Class<?>[] {
+				long.class, long.class, long.class, DSEnvelope.class,
+				long[].class
+			},
+			companyId, _group.getGroupId(), userId, dsEnvelope,
+			new long[] {fileEntryId});
+
+		dsRequest = _dsRequestManager.fetchDSRequest(companyId, fileEntryId);
+
+		dsRequestRecipients = dsRequest.getDSRequestRecipients();
+
+		DSRequestRecipient dsRequestRecipient2 = dsRequestRecipients.get(0);
+		DSRequestRecipient dsRequestRecipient3 = dsRequestRecipients.get(1);
+
+		Assert.assertEquals(
+			dsRecipient2.getEmailAddress(),
+			dsRequestRecipient2.getEmailAddress());
+		Assert.assertEquals(1, dsRequestRecipient2.getSigningOrder());
+		Assert.assertEquals(
+			dsRecipient1.getEmailAddress(),
+			dsRequestRecipient3.getEmailAddress());
+		Assert.assertEquals(2, dsRequestRecipient3.getSigningOrder());
 	}
 
 	@Test
@@ -509,6 +546,15 @@ public class DSRequestManagerTest {
 		Assert.assertTrue(dsRequest.isSignatureRequired(emailAddress));
 		Assert.assertFalse(
 			dsRequest.isSignatureRequired(RandomTestUtil.randomString()));
+
+		fileEntryId = RandomTestUtil.randomInt();
+
+		_addDSRequestObjectEntries(
+			companyId, userId, emailAddress, fileEntryId, "created", "sent");
+
+		dsRequest = _dsRequestManager.fetchDSRequest(companyId, fileEntryId);
+
+		Assert.assertFalse(dsRequest.isSignatureRequired(emailAddress));
 
 		fileEntryId = RandomTestUtil.randomInt();
 
