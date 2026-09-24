@@ -319,6 +319,79 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	@Override
+	public List<DSRequest> getFileEntryDSRequests(
+		long companyId, long fileEntryId) {
+
+		List<DSRequest> dsRequests = new ArrayList<>();
+
+		if (!_isEnabled(companyId, 0)) {
+			return dsRequests;
+		}
+
+		ObjectDefinition dsRequestDocumentObjectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST_DOCUMENT", companyId);
+		ObjectDefinition dsRequestObjectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST", companyId);
+		ObjectDefinition dsRequestRecipientObjectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST_RECIPIENT", companyId);
+
+		if ((dsRequestDocumentObjectDefinition == null) ||
+			(dsRequestObjectDefinition == null) ||
+			(dsRequestRecipientObjectDefinition == null)) {
+
+			return dsRequests;
+		}
+
+		try {
+			Set<Long> requestIds = new LinkedHashSet<>();
+
+			for (Map<String, Serializable> documentValues :
+					_getValuesList(
+						companyId, "(fileEntryId eq " + fileEntryId + ")",
+						dsRequestDocumentObjectDefinition,
+						new Sort[] {
+							new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, true)
+						})) {
+
+				requestIds.add(
+					GetterUtil.getLong(
+						documentValues.get(
+							"r_dsRequestToDSRequestDocuments_l_dsRequestId")));
+			}
+
+			if (requestIds.isEmpty()) {
+				return dsRequests;
+			}
+
+			Map<Long, DSRequest> dsRequestsByRequestId =
+				_getDSRequestsByRequestId(
+					companyId, dsRequestRecipientObjectDefinition, requestIds);
+
+			for (long requestId : requestIds) {
+				DSRequest dsRequest = dsRequestsByRequestId.get(requestId);
+
+				if (dsRequest != null) {
+					dsRequests.add(dsRequest);
+				}
+			}
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to load the signature requests for file entry " +
+					fileEntryId,
+				exception);
+		}
+
+		return dsRequests;
+	}
+
+	@Override
 	public List<DSRequest> getRecipientDSRequests(
 		long companyId, long userId, String search, int start, int end) {
 
