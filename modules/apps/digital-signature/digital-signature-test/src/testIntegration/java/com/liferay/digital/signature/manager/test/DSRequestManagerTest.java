@@ -336,13 +336,13 @@ public class DSRequestManagerTest {
 		Assert.assertEquals(
 			dsRequestRecipients.toString(), 1, dsRequestRecipients.size());
 
-		DSRequestRecipient dsRequestRecipient = dsRequestRecipients.get(0);
+		DSRequestRecipient dsRequestRecipient1 = dsRequestRecipients.get(0);
 
 		Assert.assertEquals(
 			DSRequestRecipientConstants.STATUS_SENT,
-			dsRequestRecipient.getStatus());
+			dsRequestRecipient1.getStatus());
 		Assert.assertEquals(
-			TestPropsValues.getUserId(), dsRequestRecipient.getUserId());
+			TestPropsValues.getUserId(), dsRequestRecipient1.getUserId());
 
 		long fileEntryId2 = RandomTestUtil.randomInt();
 
@@ -357,6 +357,41 @@ public class DSRequestManagerTest {
 		Assert.assertEquals(
 			DSRequestConstants.STATUS_COMPLETED, dsRequest.getStatus());
 		Assert.assertTrue(dsRequest.isTerminal());
+
+		DSEnvelope dsEnvelope = _getDSEnvelope();
+
+		List<DSRecipient> dsRecipients = dsEnvelope.getDSRecipients();
+
+		DSRecipient dsRecipient1 = dsRecipients.get(0);
+
+		dsRecipient1.setRoutingOrder(2);
+
+		DSRecipient dsRecipient2 = dsRecipients.get(1);
+
+		dsRecipient2.setRoutingOrder(1);
+
+		long fileEntryId3 = RandomTestUtil.randomInt();
+
+		_addDSRequest(dsEnvelope, fileEntryId3);
+
+		dsRequest = _dsRequestManager.fetchDSRequest(
+			TestPropsValues.getCompanyId(), fileEntryId3);
+
+		dsRequestRecipients = dsRequest.getDSRequestRecipients();
+
+		DSRequestRecipient dsRequestRecipient2 = dsRequestRecipients.get(0);
+
+		Assert.assertEquals(
+			dsRecipient2.getEmailAddress(),
+			dsRequestRecipient2.getEmailAddress());
+		Assert.assertEquals(1, dsRequestRecipient2.getSigningOrder());
+
+		DSRequestRecipient dsRequestRecipient3 = dsRequestRecipients.get(1);
+
+		Assert.assertEquals(
+			dsRecipient1.getEmailAddress(),
+			dsRequestRecipient3.getEmailAddress());
+		Assert.assertEquals(2, dsRequestRecipient3.getSigningOrder());
 	}
 
 	@Test
@@ -528,11 +563,23 @@ public class DSRequestManagerTest {
 
 		_addDSRequestObjectEntries(
 			emailAddress, fileEntryId2,
+			DSRequestRecipientConstants.STATUS_CREATED,
+			DSRequestConstants.STATUS_SENT, TestPropsValues.getUserId());
+
+		dsRequest = _dsRequestManager.fetchDSRequest(
+			TestPropsValues.getCompanyId(), fileEntryId2);
+
+		Assert.assertFalse(dsRequest.isSignatureRequired(emailAddress));
+
+		long fileEntryId3 = RandomTestUtil.randomInt();
+
+		_addDSRequestObjectEntries(
+			emailAddress, fileEntryId3,
 			DSRequestRecipientConstants.STATUS_COMPLETED,
 			DSRequestConstants.STATUS_COMPLETED, TestPropsValues.getUserId());
 
 		dsRequest = _dsRequestManager.fetchDSRequest(
-			TestPropsValues.getCompanyId(), fileEntryId2);
+			TestPropsValues.getCompanyId(), fileEntryId3);
 
 		Assert.assertFalse(dsRequest.isSignatureRequired(emailAddress));
 	}
