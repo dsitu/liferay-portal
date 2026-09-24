@@ -315,6 +315,79 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	@Override
+	public List<DSRequest> getFileEntryDSRequests(
+		long companyId, long fileEntryId) {
+
+		List<DSRequest> dsRequests = new ArrayList<>();
+
+		if (!_isEnabled(companyId, 0)) {
+			return dsRequests;
+		}
+
+		ObjectDefinition documentObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST_DOCUMENT");
+		ObjectDefinition recipientObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST_RECIPIENT");
+		ObjectDefinition requestObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST");
+
+		if ((documentObjectDefinition == null) ||
+			(recipientObjectDefinition == null) ||
+			(requestObjectDefinition == null)) {
+
+			return dsRequests;
+		}
+
+		try {
+			String documentFieldName = _getRelationshipFieldName(
+				requestObjectDefinition, "dsRequestToDSRequestDocuments");
+
+			if (documentFieldName == null) {
+				return dsRequests;
+			}
+
+			Set<Long> requestIds = new LinkedHashSet<>();
+
+			for (Map<String, Serializable> documentValues :
+					_getValuesList(
+						companyId, documentObjectDefinition,
+						"(fileEntryId eq " + fileEntryId + ")",
+						new Sort[] {
+							new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, true)
+						})) {
+
+				requestIds.add(
+					GetterUtil.getLong(documentValues.get(documentFieldName)));
+			}
+
+			if (requestIds.isEmpty()) {
+				return dsRequests;
+			}
+
+			Map<Long, DSRequest> dsRequestsByRequestId =
+				_getDSRequestsByRequestId(
+					companyId, recipientObjectDefinition,
+					requestObjectDefinition, requestIds);
+
+			for (long requestId : requestIds) {
+				DSRequest dsRequest = dsRequestsByRequestId.get(requestId);
+
+				if (dsRequest != null) {
+					dsRequests.add(dsRequest);
+				}
+			}
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to load the signature requests for file entry " +
+					fileEntryId,
+				exception);
+		}
+
+		return dsRequests;
+	}
+
+	@Override
 	public List<DSRequest> getRecipientDSRequests(
 		long companyId, long userId, String search, int start, int end) {
 

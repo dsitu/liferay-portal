@@ -194,6 +194,48 @@ function SignatureDetailsContent({detail}) {
 					</li>
 				))}
 			</ul>
+
+			{detail.history?.length ? (
+				<>
+					<h5>{Liferay.Language.get('history')}</h5>
+
+					<table className="table table-list">
+						<thead>
+							<tr>
+								<th>{Liferay.Language.get('envelope-id')}</th>
+
+								<th>{Liferay.Language.get('status')}</th>
+
+								<th>{Liferay.Language.get('create-date')}</th>
+
+								<th>{Liferay.Language.get('date')}</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							{detail.history.map((historyEntry) => (
+								<tr key={historyEntry.providerRequestId}>
+									<td>{historyEntry.providerRequestId}</td>
+
+									<td>
+										<StatusLabel
+											status={historyEntry.requestStatus}
+										/>
+									</td>
+
+									<td>
+										{formatDate(historyEntry.createDate)}
+									</td>
+
+									<td>
+										{formatDate(historyEntry.statusDate)}
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</>
+			) : null}
 		</div>
 	);
 }
