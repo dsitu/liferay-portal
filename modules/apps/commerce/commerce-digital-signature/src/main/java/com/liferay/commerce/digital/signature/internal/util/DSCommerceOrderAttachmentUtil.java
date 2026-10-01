@@ -5,6 +5,8 @@
 
 package com.liferay.commerce.digital.signature.internal.util;
 
+import com.liferay.account.model.AccountEntryUserRel;
+import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.commerce.model.CommerceOrder;
 import com.liferay.commerce.model.CommerceOrderAttachment;
 import com.liferay.commerce.service.CommerceOrderAttachmentLocalService;
@@ -14,13 +16,18 @@ import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.digital.signature.request.DSRequestManager;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.service.Snapshot;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.Portal;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,6 +38,30 @@ import java.util.Map;
  * @author Brian I. Kim
  */
 public class DSCommerceOrderAttachmentUtil {
+
+	public static List<User> getAccountUsers(CommerceOrder commerceOrder) {
+		List<User> users = new ArrayList<>();
+
+		AccountEntryUserRelLocalService accountEntryUserRelLocalService =
+			_accountEntryUserRelLocalServiceSnapshot.get();
+
+		UserLocalService userLocalService = _userLocalServiceSnapshot.get();
+
+		for (AccountEntryUserRel accountEntryUserRel :
+				accountEntryUserRelLocalService.
+					getAccountEntryUserRelsByAccountEntryId(
+						commerceOrder.getCommerceAccountId())) {
+
+			User user = userLocalService.fetchUser(
+				accountEntryUserRel.getAccountUserId());
+
+			if ((user != null) && user.isActive()) {
+				users.add(user);
+			}
+		}
+
+		return users;
+	}
 
 	public static String getActionURL(String path, ThemeDisplay themeDisplay) {
 		String url = HttpComponentsUtil.addParameter(
@@ -121,6 +152,16 @@ public class DSCommerceOrderAttachmentUtil {
 		return signatureStatuses;
 	}
 
+	public static JSONObject getUserJSONObject(User user) {
+		return JSONUtil.put(
+			"emailAddress", user.getEmailAddress()
+		).put(
+			"name", user.getFullName()
+		).put(
+			"userId", user.getUserId()
+		);
+	}
+
 	public static boolean isEnabled(CommerceOrder commerceOrder) {
 		DigitalSignatureConfiguration digitalSignatureConfiguration =
 			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
@@ -135,6 +176,10 @@ public class DSCommerceOrderAttachmentUtil {
 		return false;
 	}
 
+	private static final Snapshot<AccountEntryUserRelLocalService>
+		_accountEntryUserRelLocalServiceSnapshot = new Snapshot<>(
+			DSCommerceOrderAttachmentUtil.class,
+			AccountEntryUserRelLocalService.class);
 	private static final Snapshot<CommerceOrderAttachmentLocalService>
 		_commerceOrderAttachmentLocalServiceSnapshot = new Snapshot<>(
 			DSCommerceOrderAttachmentUtil.class,
@@ -142,5 +187,8 @@ public class DSCommerceOrderAttachmentUtil {
 	private static final Snapshot<DSRequestManager> _dsRequestManagerSnapshot =
 		new Snapshot<>(
 			DSCommerceOrderAttachmentUtil.class, DSRequestManager.class);
+	private static final Snapshot<UserLocalService> _userLocalServiceSnapshot =
+		new Snapshot<>(
+			DSCommerceOrderAttachmentUtil.class, UserLocalService.class);
 
 }
