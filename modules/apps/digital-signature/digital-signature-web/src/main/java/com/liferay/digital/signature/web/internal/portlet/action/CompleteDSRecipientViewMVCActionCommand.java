@@ -113,6 +113,8 @@ public class CompleteDSRecipientViewMVCActionCommand
 		String dsEnvelopeId = dsRequest.getProviderRequestId();
 
 		try {
+			_dsRequestManager.updateDSRequest(companyId, groupId, dsEnvelopeId);
+
 			DSRecipient dsRecipient = _getSignedDSRecipient(
 				_dsEnvelopeManager.getDSEnvelope(
 					companyId, groupId, dsEnvelopeId,
