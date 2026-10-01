@@ -76,6 +76,10 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 			return "/sign_digital_signature/error.jsp";
 		}
 
+		_dsRequestManager.updateDSRequest(
+			themeDisplay.getCompanyId(), dsRequest.getSiteGroupId(),
+			dsRequest.getProviderRequestId());
+
 		SignDigitalSignatureDisplayContext signDigitalSignatureDisplayContext =
 			new SignDigitalSignatureDisplayContext(
 				_dsRequestManager, renderRequest, renderResponse);
