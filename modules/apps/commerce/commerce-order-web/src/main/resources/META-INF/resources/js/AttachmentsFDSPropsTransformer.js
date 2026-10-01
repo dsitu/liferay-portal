@@ -15,6 +15,7 @@ import React from 'react';
 
 import CommerceOrderAttachmentRestrictedDataRenderer from './CommerceOrderAttachmentRestrictedDataRenderer';
 import CommerceOrderAttachmentTitleDataRenderer from './CommerceOrderAttachmentTitleDataRenderer';
+import RequestSignatureModal from './RequestSignatureModal';
 
 const openDeleteConfirmationModal = ({itemName, loadData, url}) => {
 	openModal({
@@ -82,8 +83,30 @@ const openDeleteConfirmationModal = ({itemName, loadData, url}) => {
 	});
 };
 
+const openRequestSignatureModal = ({
+	addDSRequestURL,
+	attachment,
+	signatureRequest,
+}) => {
+	openModal({
+		contentComponent: ({closeModal}) =>
+			React.createElement(RequestSignatureModal, {
+				addDSRequestURL,
+				attachment,
+				closeModal,
+				signatureRequest,
+			}),
+		size: 'lg',
+	});
+};
+
 const AttachmentsFDSPropsTransformer = (props) => {
+	const signatureRequest = props.additionalProps?.signatureRequest;
 	const signatureStatuses = props.additionalProps?.signatureStatuses ?? {};
+
+	const isRequestable = (item) =>
+		!!signatureRequest &&
+		!signatureRequest.nonrequestableIds.includes(String(item?.id));
 
 	return {
 		...props,
@@ -105,6 +128,13 @@ const AttachmentsFDSPropsTransformer = (props) => {
 				return {
 					...action,
 					className: 'text-danger',
+				};
+			}
+
+			if (actionId === 'request-signature') {
+				return {
+					...action,
+					isVisible: isRequestable,
 				};
 			}
 
@@ -139,6 +169,18 @@ const AttachmentsFDSPropsTransformer = (props) => {
 				}
 
 				window.location.href = fileURL;
+			}
+			else if (actionId === 'request-signature') {
+				event?.preventDefault();
+
+				openRequestSignatureModal({
+					addDSRequestURL: formatActionUrl(
+						action.data.addDSRequestURL,
+						itemData
+					),
+					attachment: itemData,
+					signatureRequest,
+				});
 			}
 			else if (actionId === 'view-signature-status') {
 				event?.preventDefault();
