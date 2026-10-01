@@ -152,6 +152,36 @@ public class CommerceOrderAttachmentAdminFDSActionContributorImpl
 				_language.get(httpServletRequest, "view-signature-status")
 			).build(
 				"view-signature-status"
+			),
+			FDSActionDropdownItemBuilder.putData(
+				"resendURL",
+				_getResourceURL(
+					httpServletRequest, "/commerce_order/resend_ds_request")
+			).setHref(
+				StringPool.POUND
+			).setIcon(
+				"envelope-closed"
+			).setLabel(
+				_language.get(httpServletRequest, "resend")
+			).setPermissionKey(
+				"update"
+			).build(
+				"resend-signature-request"
+			),
+			FDSActionDropdownItemBuilder.putData(
+				"voidURL",
+				_getResourceURL(
+					httpServletRequest, "/commerce_order/void_ds_request")
+			).setHref(
+				StringPool.POUND
+			).setIcon(
+				"times-circle"
+			).setLabel(
+				_language.get(httpServletRequest, "void")
+			).setPermissionKey(
+				"update"
+			).build(
+				"void-signature-request"
 			));
 	}
 

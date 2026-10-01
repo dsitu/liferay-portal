@@ -83,6 +83,27 @@ const openDeleteConfirmationModal = ({itemName, loadData, url}) => {
 	});
 };
 
+const openErrorToast = () => {
+	openToast({
+		message: Liferay.Language.get('an-unexpected-error-occurred'),
+		type: 'danger',
+	});
+};
+
+const postSignatureRequestAction = (url) =>
+	Liferay.Util.fetch(url, {method: 'POST'}).then((response) => {
+		if (!response.ok) {
+			throw new Error(response.statusText);
+		}
+
+		openToast({
+			message: Liferay.Language.get(
+				'your-request-completed-successfully'
+			),
+			type: 'success',
+		});
+	});
+
 const openRequestSignatureModal = ({
 	addDSRequestURL,
 	attachment,
@@ -97,6 +118,37 @@ const openRequestSignatureModal = ({
 				signatureRequest,
 			}),
 		size: 'lg',
+	});
+};
+
+const openVoidConfirmationModal = ({url}) => {
+	openModal({
+		bodyHTML: Liferay.Language.get(
+			'are-you-sure-you-want-to-void-this-document'
+		),
+		buttons: [
+			{
+				autoFocus: true,
+				displayType: 'secondary',
+				label: Liferay.Language.get('cancel'),
+				type: 'cancel',
+			},
+			{
+				displayType: 'danger',
+				label: Liferay.Language.get('void'),
+				onClick: ({processClose}) => {
+					postSignatureRequestAction(url)
+						.then(() => {
+							processClose();
+
+							window.location.reload();
+						})
+						.catch(openErrorToast);
+				},
+			},
+		],
+		status: 'danger',
+		title: Liferay.Language.get('void'),
 	});
 };
 
@@ -135,6 +187,16 @@ const AttachmentsFDSPropsTransformer = (props) => {
 				return {
 					...action,
 					isVisible: isRequestable,
+				};
+			}
+
+			if (
+				actionId === 'resend-signature-request' ||
+				actionId === 'void-signature-request'
+			) {
+				return {
+					...action,
+					isVisible: (item) => signatureStatuses[item?.id] === 'sent',
 				};
 			}
 
@@ -182,6 +244,13 @@ const AttachmentsFDSPropsTransformer = (props) => {
 					signatureRequest,
 				});
 			}
+			else if (actionId === 'resend-signature-request') {
+				event?.preventDefault();
+
+				postSignatureRequestAction(
+					formatActionUrl(action.data.resendURL, itemData)
+				).catch(openErrorToast);
+			}
 			else if (actionId === 'view-signature-status') {
 				event?.preventDefault();
 
@@ -190,6 +259,13 @@ const AttachmentsFDSPropsTransformer = (props) => {
 						action.data.signatureStatusURL,
 						itemData
 					),
+				});
+			}
+			else if (actionId === 'void-signature-request') {
+				event?.preventDefault();
+
+				openVoidConfirmationModal({
+					url: formatActionUrl(action.data.voidURL, itemData),
 				});
 			}
 		},
