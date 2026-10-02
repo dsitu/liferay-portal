@@ -79,7 +79,8 @@ public class ResendDSRequestMVCResourceCommand extends BaseMVCResourceCommand {
 
 		if (dsRequest != null) {
 			_dsRequestManager.sendDSRequestNotifications(
-				commerceOrder.getCompanyId(), commerceOrder.getGroupId(),
+				commerceOrder.getCompanyId(),
+				DSCommerceOrderAttachmentUtil.getSiteGroupId(commerceOrder),
 				dsRequest);
 		}
 

@@ -110,9 +110,11 @@ public class AddDSRequestMVCResourceCommand extends BaseMVCResourceCommand {
 					" already has an active or completed signature request"));
 		}
 
+		long siteGroupId = DSCommerceOrderAttachmentUtil.getSiteGroupId(
+			commerceOrder);
+
 		dsRequest = _dsRequestManager.addDSRequest(
-			commerceOrder.getCompanyId(), commerceOrder.getGroupId(),
-			themeDisplay.getUserId(),
+			commerceOrder.getCompanyId(), siteGroupId, themeDisplay.getUserId(),
 			new DSEnvelope() {
 				{
 					dsRecipients = _getDSRecipients(
@@ -129,8 +131,7 @@ public class AddDSRequestMVCResourceCommand extends BaseMVCResourceCommand {
 			new long[] {commerceOrderAttachment.getFileEntryId()});
 
 		_dsRequestManager.sendDSRequestNotifications(
-			commerceOrder.getCompanyId(), commerceOrder.getGroupId(),
-			dsRequest);
+			commerceOrder.getCompanyId(), siteGroupId, dsRequest);
 
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse, _jsonFactory.createJSONObject());

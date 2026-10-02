@@ -79,7 +79,8 @@ public class VoidDSRequestMVCResourceCommand extends BaseMVCResourceCommand {
 
 		if (dsRequest != null) {
 			_dsRequestManager.voidDSRequest(
-				commerceOrder.getCompanyId(), commerceOrder.getGroupId(),
+				commerceOrder.getCompanyId(),
+				DSCommerceOrderAttachmentUtil.getSiteGroupId(commerceOrder),
 				dsRequest, "Voided by sender");
 		}
 
