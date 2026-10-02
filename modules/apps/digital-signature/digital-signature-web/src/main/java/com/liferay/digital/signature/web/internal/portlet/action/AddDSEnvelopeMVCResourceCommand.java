@@ -6,13 +6,10 @@
 package com.liferay.digital.signature.web.internal.portlet.action;
 
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
-import com.liferay.digital.signature.manager.DSEnvelopeManager;
-import com.liferay.digital.signature.model.DSDocument;
 import com.liferay.digital.signature.model.DSEnvelope;
 import com.liferay.digital.signature.model.DSRecipient;
+import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.digital.signature.request.DSRequestManager;
-import com.liferay.document.library.kernel.service.DLAppLocalService;
-import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -21,10 +18,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
-import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.Base64;
-import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -76,11 +70,11 @@ public class AddDSEnvelopeMVCResourceCommand extends BaseMVCResourceCommand {
 
 		User user = themeDisplay.getUser();
 
-		DSEnvelope dsEnvelope = _dsEnvelopeManager.addDSEnvelope(
+		DSRequest dsRequest = _dsRequestManager.addDSRequest(
 			themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId(),
+			user.getUserId(),
 			new DSEnvelope() {
 				{
-					dsDocuments = _getDSDocuments(fileEntryIds);
 					dsRecipients = _getDSRecipients(resourceRequest);
 					emailBlurb = ParamUtil.getString(
 						resourceRequest, "emailMessage");
@@ -89,25 +83,17 @@ public class AddDSEnvelopeMVCResourceCommand extends BaseMVCResourceCommand {
 					expireAfter = expireAfterDays;
 					expireWarn = expireWarnDays;
 					name = ParamUtil.getString(resourceRequest, "envelopeName");
-					senderEmailAddress = user.getEmailAddress();
-					status = "sent";
 				}
-			});
+			},
+			fileEntryIds);
 
-		_dsRequestManager.addDSRequest(
+		_dsRequestManager.sendDSRequestNotifications(
 			themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId(),
-			user.getUserId(), dsEnvelope, fileEntryIds);
+			dsRequest);
 
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse,
-			JSONUtil.put("dsEnvelopeId", dsEnvelope.getDSEnvelopeId()));
-	}
-
-	private List<DSDocument> _getDSDocuments(long[] fileEntryIds)
-		throws Exception {
-
-		return TransformUtil.transformToList(
-			fileEntryIds, fileEntryId -> _toDSDocument(fileEntryId));
+			JSONUtil.put("dsEnvelopeId", dsRequest.getProviderRequestId()));
 	}
 
 	private List<DSRecipient> _getDSRecipients(ResourceRequest resourceRequest)
@@ -126,26 +112,6 @@ public class AddDSEnvelopeMVCResourceCommand extends BaseMVCResourceCommand {
 				}
 			});
 	}
-
-	private DSDocument _toDSDocument(long fileEntryId) throws Exception {
-		FileEntry fileEntry = _dlAppLocalService.getFileEntry(fileEntryId);
-
-		return new DSDocument() {
-			{
-				data = Base64.encode(
-					FileUtil.getBytes(fileEntry.getContentStream()));
-				dsDocumentId = String.valueOf(fileEntryId);
-				fileExtension = fileEntry.getExtension();
-				name = fileEntry.getFileName();
-			}
-		};
-	}
-
-	@Reference
-	private DLAppLocalService _dlAppLocalService;
-
-	@Reference
-	private DSEnvelopeManager _dsEnvelopeManager;
 
 	@Reference
 	private DSRequestManager _dsRequestManager;
