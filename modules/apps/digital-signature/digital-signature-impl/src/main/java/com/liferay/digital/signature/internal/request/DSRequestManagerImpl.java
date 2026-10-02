@@ -34,6 +34,7 @@ import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
@@ -43,12 +44,15 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.Sort;
-import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionRegistryUtil;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -86,6 +90,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -151,6 +156,47 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 		return _addDSRequest(
 			companyId, groupId, userId, sentDSEnvelope, fileEntryIds);
+	}
+
+	@Override
+	public boolean containsPermission(
+			PermissionChecker permissionChecker, DSRequest dsRequest,
+			String actionId)
+		throws PortalException {
+
+		User user = permissionChecker.getUser();
+
+		if (dsRequest.getRequesterUserId() == user.getUserId()) {
+			return true;
+		}
+
+		if (Objects.equals(actionId, ActionKeys.VIEW)) {
+			for (DSRequestRecipient dsRequestRecipient :
+					dsRequest.getDSRequestRecipients()) {
+
+				if ((dsRequestRecipient.getUserId() == user.getUserId()) ||
+					StringUtil.equalsIgnoreCase(
+						dsRequestRecipient.getEmailAddress(),
+						user.getEmailAddress())) {
+
+					return true;
+				}
+			}
+		}
+
+		ObjectDefinition requestObjectDefinition = _fetchObjectDefinition(
+			dsRequest.getCompanyId(), "L_DS_REQUEST");
+
+		if (requestObjectDefinition == null) {
+			return false;
+		}
+
+		ModelResourcePermission<?> modelResourcePermission =
+			ModelResourcePermissionRegistryUtil.getModelResourcePermission(
+				requestObjectDefinition.getClassName());
+
+		return modelResourcePermission.contains(
+			permissionChecker, dsRequest.getDSRequestId(), actionId);
 	}
 
 	@Override
@@ -258,6 +304,76 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		return dsRequests;
+	}
+
+	@Override
+	public List<DSRequest> getRecipientDSRequests(
+		long companyId, long userId, String search, int start, int end) {
+
+		try {
+			return _getDSRequests(
+				companyId, _getRecipientFilterString(companyId, userId), search,
+				start, end, false);
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to load the signature requests for user " + userId,
+				exception);
+
+			return new ArrayList<>();
+		}
+	}
+
+	@Override
+	public int getRecipientDSRequestsCount(
+		long companyId, long userId, String search) {
+
+		try {
+			return _getDSRequestsCount(
+				companyId, _getRecipientFilterString(companyId, userId), search,
+				false);
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to count the signature requests for user " + userId,
+				exception);
+
+			return 0;
+		}
+	}
+
+	@Override
+	public List<DSRequest> getSiteDSRequests(
+		long companyId, long siteId, String search, int start, int end) {
+
+		try {
+			return _getDSRequests(
+				companyId, "siteId eq " + siteId, search, start, end, true);
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to load the signature requests for site " + siteId,
+				exception);
+
+			return new ArrayList<>();
+		}
+	}
+
+	@Override
+	public int getSiteDSRequestsCount(
+		long companyId, long siteId, String search) {
+
+		try {
+			return _getDSRequestsCount(
+				companyId, "siteId eq " + siteId, search, true);
+		}
+		catch (Exception exception) {
+			_log.error(
+				"Unable to count the signature requests for site " + siteId,
+				exception);
+
+			return 0;
+		}
 	}
 
 	@Override
@@ -606,6 +722,64 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			fileEntryIds, fileEntryId -> _toDSDocument(fileEntryId));
 	}
 
+	private List<DSRequest> _getDSRequests(
+			long companyId, String filterString, String search, int start,
+			int end, boolean checkPermissions)
+		throws Exception {
+
+		List<DSRequest> dsRequests = new ArrayList<>();
+
+		if (!_isEnabled(companyId, 0)) {
+			return dsRequests;
+		}
+
+		ObjectDefinition recipientObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST_RECIPIENT");
+		ObjectDefinition requestObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST");
+
+		if ((recipientObjectDefinition == null) ||
+			(requestObjectDefinition == null)) {
+
+			return dsRequests;
+		}
+
+		Set<Long> requestIds = new LinkedHashSet<>();
+
+		for (Map<String, Serializable> requestValues :
+				_getValuesList(
+					companyId, requestObjectDefinition, filterString, search,
+					start, end,
+					new Sort[] {
+						new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, true)
+					},
+					checkPermissions)) {
+
+			requestIds.add(
+				GetterUtil.getLong(
+					requestValues.get(
+						requestObjectDefinition.getPKObjectFieldName())));
+		}
+
+		if (requestIds.isEmpty()) {
+			return dsRequests;
+		}
+
+		Map<Long, DSRequest> dsRequestsByRequestId = _getDSRequestsByRequestId(
+			companyId, recipientObjectDefinition, requestObjectDefinition,
+			requestIds);
+
+		for (long requestId : requestIds) {
+			DSRequest dsRequest = dsRequestsByRequestId.get(requestId);
+
+			if (dsRequest != null) {
+				dsRequests.add(dsRequest);
+			}
+		}
+
+		return dsRequests;
+	}
+
 	private Map<Long, DSRequest> _getDSRequestsByRequestId(
 			long companyId, ObjectDefinition recipientObjectDefinition,
 			ObjectDefinition requestObjectDefinition, Set<Long> requestIds)
@@ -674,6 +848,41 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		return dsRequestsByRequestId;
+	}
+
+	private int _getDSRequestsCount(
+			long companyId, String filterString, String search,
+			boolean checkPermissions)
+		throws Exception {
+
+		if (!_isEnabled(companyId, 0)) {
+			return 0;
+		}
+
+		ObjectDefinition requestObjectDefinition = _fetchObjectDefinition(
+			companyId, "L_DS_REQUEST");
+
+		if (requestObjectDefinition == null) {
+			return 0;
+		}
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		try {
+			if (!checkPermissions) {
+				PermissionThreadLocal.setPermissionChecker(null);
+			}
+
+			return _objectEntryLocalService.getValuesListCount(
+				new Long[] {0L}, companyId, requestObjectDefinition.getUserId(),
+				requestObjectDefinition.getObjectDefinitionId(),
+				_filterFactory.create(filterString, requestObjectDefinition),
+				false, search);
+		}
+		finally {
+			PermissionThreadLocal.setPermissionChecker(permissionChecker);
+		}
 	}
 
 	private String _getEmailBody(
@@ -746,6 +955,28 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				url.substring(0, url.length() - path.length()),
 				_portal.getPathMain(), "/portal/login"),
 			"redirect", path);
+	}
+
+	private String _getRecipientFilterString(long companyId, long userId)
+		throws PortalException {
+
+		User user = _userLocalService.getUser(userId);
+
+		if (user.getCompanyId() != companyId) {
+			throw new NoSuchUserException(
+				"No user exists with the primary key " + userId);
+		}
+
+		String emailAddressFieldName =
+			_RECIPIENTS_RELATIONSHIP_PATH + "emailAddress";
+		String userIdFieldName =
+			_RECIPIENTS_RELATIONSHIP_PATH +
+				"r_userToDSRequestRecipients_userId";
+
+		return StringBundler.concat(
+			"(", userIdFieldName, " eq '", userId, "') or (", userIdFieldName,
+			" eq '0' and ", emailAddressFieldName, " eq '",
+			StringUtil.replace(user.getEmailAddress(), '\'', "''"), "')");
 	}
 
 	private long _getRecipientUserId(long companyId, String emailAddress) {
@@ -886,17 +1117,30 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			String filterString, Sort[] sorts)
 		throws Exception {
 
+		return _getValuesList(
+			companyId, objectDefinition, filterString, null, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, sorts, false);
+	}
+
+	private List<Map<String, Serializable>> _getValuesList(
+			long companyId, ObjectDefinition objectDefinition,
+			String filterString, String search, int start, int end,
+			Sort[] sorts, boolean checkPermissions)
+		throws Exception {
+
 		PermissionChecker permissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
 
 		try {
-			PermissionThreadLocal.setPermissionChecker(null);
+			if (!checkPermissions) {
+				PermissionThreadLocal.setPermissionChecker(null);
+			}
 
 			return _objectEntryLocalService.getValuesList(
 				0, companyId, objectDefinition.getUserId(),
 				objectDefinition.getObjectDefinitionId(),
-				_filterFactory.create(filterString, objectDefinition), null,
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS, sorts);
+				_filterFactory.create(filterString, objectDefinition), search,
+				start, end, sorts);
 		}
 		finally {
 			PermissionThreadLocal.setPermissionChecker(permissionChecker);
@@ -1219,6 +1463,9 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	private static final String[] _DS_RECIPIENT_STATUSES = {
 		"completed", "created", "declined", "sent", "signed"
 	};
+
+	private static final String _RECIPIENTS_RELATIONSHIP_PATH =
+		"dsRequestToDSRequestRecipients/";
 
 	private static final String _STATUS_SENT = "sent";
 
