@@ -27,4 +27,8 @@ public class DSRequestConstants {
 		STATUS_SENT, STATUS_VOIDED
 	};
 
+	public static final String[] STATUSES_TERMINAL = {
+		STATUS_COMPLETED, STATUS_DECLINED, STATUS_EXPIRED, STATUS_VOIDED
+	};
+
 }
