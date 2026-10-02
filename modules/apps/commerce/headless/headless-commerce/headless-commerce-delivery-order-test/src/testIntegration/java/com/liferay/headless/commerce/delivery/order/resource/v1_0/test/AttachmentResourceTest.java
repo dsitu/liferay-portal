@@ -13,8 +13,10 @@ import com.liferay.commerce.constants.CommerceOrderConstants;
 import com.liferay.commerce.currency.model.CommerceCurrency;
 import com.liferay.commerce.currency.service.CommerceCurrencyLocalService;
 import com.liferay.commerce.model.CommerceOrder;
+import com.liferay.commerce.model.CommerceOrderAttachment;
 import com.liferay.commerce.product.constants.CommerceChannelConstants;
 import com.liferay.commerce.product.service.CommerceChannelLocalService;
+import com.liferay.commerce.service.CommerceOrderAttachmentLocalService;
 import com.liferay.commerce.service.CommerceOrderLocalService;
 import com.liferay.commerce.test.util.CommerceOrderAttachmentTestUtil;
 import com.liferay.commerce.test.util.CommerceTestUtil;
@@ -111,15 +113,8 @@ public class AttachmentResourceTest extends BaseAttachmentResourceTestCase {
 	public void testPostPlacedOrderAttachmentByBase64() throws Exception {
 		super.testPostPlacedOrderAttachmentByBase64();
 
-		Attachment postAttachment =
-			testPostPlacedOrderAttachmentByBase64_addAttachment(
-				randomAttachment());
-
-		Assert.assertEquals(
-			"commerce-order-attachment/" + postAttachment.getId(),
-			StringUtil.extractLast(postAttachment.getUrl(), "/o/"));
-		Assert.assertTrue(
-			StringUtil.startsWith(postAttachment.getUrl(), "http"));
+		_testPostPlacedOrderAttachmentByBase64FileEntryId();
+		_testPostPlacedOrderAttachmentByBase64URL();
 	}
 
 	@Override
@@ -261,6 +256,35 @@ public class AttachmentResourceTest extends BaseAttachmentResourceTestCase {
 				_toAttachmentBase64(attachment));
 	}
 
+	private void _testPostPlacedOrderAttachmentByBase64FileEntryId()
+		throws Exception {
+
+		Attachment attachment =
+			attachmentResource.postPlacedOrderAttachmentByBase64(
+				_commerceOrder.getCommerceOrderId(),
+				_toAttachmentBase64(randomAttachment()));
+
+		CommerceOrderAttachment commerceOrderAttachment =
+			_commerceOrderAttachmentLocalService.getCommerceOrderAttachment(
+				attachment.getId());
+
+		Assert.assertEquals(
+			Long.valueOf(commerceOrderAttachment.getFileEntryId()),
+			attachment.getFileEntryId());
+	}
+
+	private void _testPostPlacedOrderAttachmentByBase64URL() throws Exception {
+		Attachment postAttachment =
+			testPostPlacedOrderAttachmentByBase64_addAttachment(
+				randomAttachment());
+
+		Assert.assertEquals(
+			"commerce-order-attachment/" + postAttachment.getId(),
+			StringUtil.extractLast(postAttachment.getUrl(), "/o/"));
+		Assert.assertTrue(
+			StringUtil.startsWith(postAttachment.getUrl(), "http"));
+	}
+
 	private AttachmentBase64 _toAttachmentBase64(Attachment attachment1)
 		throws Exception {
 
@@ -289,6 +313,10 @@ public class AttachmentResourceTest extends BaseAttachmentResourceTestCase {
 	private CommerceCurrencyLocalService _commerceCurrencyLocalService;
 
 	private CommerceOrder _commerceOrder;
+
+	@Inject
+	private CommerceOrderAttachmentLocalService
+		_commerceOrderAttachmentLocalService;
 
 	@Inject
 	private CommerceOrderLocalService _commerceOrderLocalService;
