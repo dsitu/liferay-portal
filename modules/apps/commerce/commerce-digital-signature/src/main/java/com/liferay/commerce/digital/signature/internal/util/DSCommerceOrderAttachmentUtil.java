@@ -9,6 +9,8 @@ import com.liferay.account.model.AccountEntryUserRel;
 import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.commerce.model.CommerceOrder;
 import com.liferay.commerce.model.CommerceOrderAttachment;
+import com.liferay.commerce.product.model.CommerceChannel;
+import com.liferay.commerce.product.service.CommerceChannelLocalService;
 import com.liferay.commerce.service.CommerceOrderAttachmentLocalService;
 import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
 import com.liferay.digital.signature.configuration.DigitalSignatureConfigurationUtil;
@@ -152,6 +154,21 @@ public class DSCommerceOrderAttachmentUtil {
 		return signatureStatuses;
 	}
 
+	public static long getSiteGroupId(CommerceOrder commerceOrder) {
+		CommerceChannelLocalService commerceChannelLocalService =
+			_commerceChannelLocalServiceSnapshot.get();
+
+		CommerceChannel commerceChannel =
+			commerceChannelLocalService.fetchCommerceChannelByGroupClassPK(
+				commerceOrder.getGroupId());
+
+		if (commerceChannel == null) {
+			return 0;
+		}
+
+		return commerceChannel.getSiteGroupId();
+	}
+
 	public static JSONObject getUserJSONObject(User user) {
 		return JSONUtil.put(
 			"emailAddress", user.getEmailAddress()
@@ -165,7 +182,7 @@ public class DSCommerceOrderAttachmentUtil {
 	public static boolean isEnabled(CommerceOrder commerceOrder) {
 		DigitalSignatureConfiguration digitalSignatureConfiguration =
 			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
-				commerceOrder.getCompanyId(), commerceOrder.getGroupId());
+				commerceOrder.getCompanyId(), getSiteGroupId(commerceOrder));
 
 		if (digitalSignatureConfiguration.enabled() &&
 			digitalSignatureConfiguration.enableEmbeddedView()) {
@@ -180,6 +197,10 @@ public class DSCommerceOrderAttachmentUtil {
 		_accountEntryUserRelLocalServiceSnapshot = new Snapshot<>(
 			DSCommerceOrderAttachmentUtil.class,
 			AccountEntryUserRelLocalService.class);
+	private static final Snapshot<CommerceChannelLocalService>
+		_commerceChannelLocalServiceSnapshot = new Snapshot<>(
+			DSCommerceOrderAttachmentUtil.class,
+			CommerceChannelLocalService.class);
 	private static final Snapshot<CommerceOrderAttachmentLocalService>
 		_commerceOrderAttachmentLocalServiceSnapshot = new Snapshot<>(
 			DSCommerceOrderAttachmentUtil.class,
