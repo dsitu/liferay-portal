@@ -558,6 +558,9 @@ public class CommerceOrderEngineImpl implements CommerceOrderEngine {
 		CommerceOrder originalCommerceOrder =
 			commerceOrder.cloneWithOriginalValues();
 
+		long principalUserId =
+			(userId == 0) ? commerceOrder.getUserId() : userId;
+
 		TransactionCallbackUtil.registerCommitCallback(
 			() -> {
 				if ((orderStatus ==
@@ -575,6 +578,9 @@ public class CommerceOrderEngineImpl implements CommerceOrderEngine {
 					commerceOrder);
 
 				Message message = new Message();
+
+				message.put("companyId", commerceOrder.getCompanyId());
+				message.put("principalName", principalUserId);
 
 				DTOConverter<?, ?> commerceOrderDTOConverter =
 					_dtoConverterRegistry.getDTOConverter(
