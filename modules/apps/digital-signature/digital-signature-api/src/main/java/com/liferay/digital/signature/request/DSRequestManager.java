@@ -6,6 +6,7 @@
 package com.liferay.digital.signature.request;
 
 import com.liferay.digital.signature.model.DSEnvelope;
+import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.portal.kernel.exception.PortalException;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -20,6 +21,8 @@ public interface DSRequestManager {
 			long companyId, long groupId, long userId, DSEnvelope dsEnvelope,
 			long[] fileEntryIds)
 		throws PortalException;
+
+	public DSRequest fetchDSRequest(long requestId);
 
 	public void updateDSRequest(
 		long companyId, long groupId, String providerRequestId);
