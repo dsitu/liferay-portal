@@ -25,4 +25,6 @@ public class DSRequestRecipientConstants {
 		STATUS_SIGNED
 	};
 
+	public static final String[] STATUSES_PENDING = {STATUS_SENT};
+
 }
