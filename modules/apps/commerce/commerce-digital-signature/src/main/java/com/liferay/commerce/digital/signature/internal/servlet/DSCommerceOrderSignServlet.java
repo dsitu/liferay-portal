@@ -12,6 +12,7 @@ import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.digital.signature.url.SignDSURLProvider;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -84,9 +85,11 @@ public class DSCommerceOrderSignServlet extends HttpServlet {
 
 			httpServletResponse.sendRedirect(
 				HttpComponentsUtil.addParameter(
-					_signDSURLProvider.getURL(
-						companyId, dsRequest.getSiteGroupId(),
-						dsRequest.getDSRequestId()),
+					HttpComponentsUtil.addParameter(
+						_signDSURLProvider.getURL(
+							companyId, dsRequest.getSiteGroupId(),
+							dsRequest.getDSRequestId()),
+						"p_p_state", LiferayWindowState.POP_UP.toString()),
 					portletNamespace + "backURL", backURL));
 		}
 		catch (Exception exception) {
