@@ -109,13 +109,13 @@ public class DSRequestManagerTest {
 			companyId, _group.getGroupId(), TestPropsValues.getUserId(),
 			_createDSEnvelope(fileEntryId), new long[] {fileEntryId});
 
-		ObjectDefinition requestObjectDefinition =
+		ObjectDefinition dsRequestObjectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
 					"L_DS_REQUEST", companyId);
 
 		List<Map<String, Serializable>> requestValuesList = _getValuesList(
-			companyId, requestObjectDefinition,
+			companyId, dsRequestObjectDefinition,
 			"(fileEntryId eq " + fileEntryId + ")");
 
 		Assert.assertEquals(
@@ -127,24 +127,25 @@ public class DSRequestManagerTest {
 		Assert.assertEquals(
 			"env-" + fileEntryId, requestValues.get("providerRequestId"));
 
-		ObjectDefinition recipientObjectDefinition =
+		ObjectDefinition dsRequestRecipientObjectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
 					"L_DS_REQUEST_RECIPIENT", companyId);
 
 		ObjectRelationship objectRelationship =
 			_objectRelationshipLocalService.fetchObjectRelationship(
-				requestObjectDefinition.getObjectDefinitionId(),
+				dsRequestObjectDefinition.getObjectDefinitionId(),
 				"dsRequestToDSRequestRecipients");
 
 		ObjectField objectField = _objectFieldLocalService.getObjectField(
 			objectRelationship.getObjectFieldId2());
 
 		long requestId = GetterUtil.getLong(
-			requestValues.get(requestObjectDefinition.getPKObjectFieldName()));
+			requestValues.get(
+				dsRequestObjectDefinition.getPKObjectFieldName()));
 
 		List<Map<String, Serializable>> recipientValuesList = _getValuesList(
-			companyId, recipientObjectDefinition,
+			companyId, dsRequestRecipientObjectDefinition,
 			StringBundler.concat(
 				"(", objectField.getName(), " eq '", requestId, "')"));
 
