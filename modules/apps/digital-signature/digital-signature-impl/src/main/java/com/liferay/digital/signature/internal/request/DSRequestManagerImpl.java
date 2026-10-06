@@ -250,21 +250,22 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 			for (Map<String, Serializable> requestValues :
 					_getValuesList(
-						companyId, dsRequestObjectDefinition,
+						companyId,
 						StringBundler.concat(
 							"(providerRequestId eq '", providerRequestId, "')"),
-						null)) {
+						dsRequestObjectDefinition, null)) {
 
 				long requestId = GetterUtil.getLong(
 					requestValues.get(
 						dsRequestObjectDefinition.getPKObjectFieldName()));
 
 				_updateRequestStatus(
-					companyId, groupId, requestId, dsEnvelope, requestStatus);
+					companyId, groupId, dsEnvelope, requestId, requestStatus);
 
 				_updateRecipientStatuses(
-					companyId, groupId, dsRequestRecipientObjectDefinition,
-					recipientFieldName, requestId, dsRecipients);
+					companyId, groupId, dsRecipients,
+					dsRequestRecipientObjectDefinition, recipientFieldName,
+					requestId);
 			}
 		}
 		catch (Exception exception) {
@@ -322,8 +323,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	private List<Map<String, Serializable>> _getValuesList(
-			long companyId, ObjectDefinition objectDefinition,
-			String filterString, Sort[] sorts)
+			long companyId, String filterString,
+			ObjectDefinition objectDefinition, Sort[] sorts)
 		throws Exception {
 
 		PermissionChecker permissionChecker =
@@ -399,18 +400,17 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	private void _updateRecipientStatuses(
-			long companyId, long groupId,
+			long companyId, long groupId, Map<String, DSRecipient> dsRecipients,
 			ObjectDefinition dsRequestRecipientObjectDefinition,
-			String recipientFieldName, long requestId,
-			Map<String, DSRecipient> dsRecipients)
+			String recipientFieldName, long requestId)
 		throws Exception {
 
 		for (Map<String, Serializable> recipientValues :
 				_getValuesList(
-					companyId, dsRequestRecipientObjectDefinition,
+					companyId,
 					StringBundler.concat(
 						"(", recipientFieldName, " eq '", requestId, "')"),
-					null)) {
+					dsRequestRecipientObjectDefinition, null)) {
 
 			DSRecipient dsRecipient = dsRecipients.get(
 				GetterUtil.getString(
@@ -453,7 +453,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	private void _updateRequestStatus(
-			long companyId, long groupId, long requestId, DSEnvelope dsEnvelope,
+			long companyId, long groupId, DSEnvelope dsEnvelope, long requestId,
 			String requestStatus)
 		throws Exception {
 
