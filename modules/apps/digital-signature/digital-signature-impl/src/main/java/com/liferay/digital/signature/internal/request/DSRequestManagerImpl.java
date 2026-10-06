@@ -78,11 +78,17 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		ObjectDefinition dsRequestDocumentObjectDefinition =
-			_fetchObjectDefinition(companyId, "L_DS_REQUEST_DOCUMENT");
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST_DOCUMENT", companyId);
 		ObjectDefinition dsRequestRecipientObjectDefinition =
-			_fetchObjectDefinition(companyId, "L_DS_REQUEST_RECIPIENT");
-		ObjectDefinition dsRequestObjectDefinition = _fetchObjectDefinition(
-			companyId, "L_DS_REQUEST");
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST_RECIPIENT", companyId);
+		ObjectDefinition dsRequestObjectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST", companyId);
 
 		if ((dsRequestDocumentObjectDefinition == null) ||
 			(dsRequestRecipientObjectDefinition == null) ||
@@ -207,11 +213,17 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		ObjectDefinition dsRequestDocumentObjectDefinition =
-			_fetchObjectDefinition(companyId, "L_DS_REQUEST_DOCUMENT");
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST_DOCUMENT", companyId);
 		ObjectDefinition dsRequestRecipientObjectDefinition =
-			_fetchObjectDefinition(companyId, "L_DS_REQUEST_RECIPIENT");
-		ObjectDefinition dsRequestObjectDefinition = _fetchObjectDefinition(
-			companyId, "L_DS_REQUEST");
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST_RECIPIENT", companyId);
+		ObjectDefinition dsRequestObjectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST", companyId);
 
 		if ((dsRequestDocumentObjectDefinition == null) ||
 			(dsRequestRecipientObjectDefinition == null) ||
@@ -284,14 +296,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		serviceContext.setUserId(userId);
 
 		return serviceContext;
-	}
-
-	private ObjectDefinition _fetchObjectDefinition(
-		long companyId, String externalReferenceCode) {
-
-		return _objectDefinitionLocalService.
-			fetchObjectDefinitionByExternalReferenceCode(
-				externalReferenceCode, companyId);
 	}
 
 	private long _getRecipientUserId(long companyId, String emailAddress) {
