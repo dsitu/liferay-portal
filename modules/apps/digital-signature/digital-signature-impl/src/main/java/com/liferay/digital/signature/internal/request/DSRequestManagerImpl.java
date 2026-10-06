@@ -28,8 +28,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.search.Indexer;
-import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
@@ -189,10 +187,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 							serviceContext);
 					}
 
-					for (long fileEntryId : fileEntryIds) {
-						_reindexFileEntry(fileEntryId);
-					}
-
 					return null;
 				});
 		}
@@ -214,10 +208,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return;
 		}
 
-		ObjectDefinition dsRequestDocumentObjectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					"L_DS_REQUEST_DOCUMENT", companyId);
 		ObjectDefinition dsRequestRecipientObjectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
@@ -227,8 +217,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				fetchObjectDefinitionByExternalReferenceCode(
 					"L_DS_REQUEST", companyId);
 
-		if ((dsRequestDocumentObjectDefinition == null) ||
-			(dsRequestRecipientObjectDefinition == null) ||
+		if ((dsRequestRecipientObjectDefinition == null) ||
 			(dsRequestObjectDefinition == null)) {
 
 			return;
@@ -274,10 +263,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				_updateRecipientStatuses(
 					companyId, groupId, dsRequestRecipientObjectDefinition,
 					recipientFieldName, requestId, dsRecipients);
-
-				_reindexRequestDocuments(
-					companyId, dsRequestDocumentObjectDefinition,
-					dsRequestObjectDefinition, requestId);
 			}
 		}
 		catch (Exception exception) {
@@ -366,45 +351,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		return digitalSignatureConfiguration.enabled();
-	}
-
-	private void _reindexFileEntry(long fileEntryId) {
-		try {
-			Indexer<?> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
-				"com.liferay.document.library.kernel.model.DLFileEntry");
-
-			indexer.reindex(
-				"com.liferay.document.library.kernel.model.DLFileEntry",
-				fileEntryId);
-		}
-		catch (Exception exception) {
-			_log.error(
-				"Unable to reindex file entry " + fileEntryId, exception);
-		}
-	}
-
-	private void _reindexRequestDocuments(
-			long companyId, ObjectDefinition dsRequestDocumentObjectDefinition,
-			ObjectDefinition dsRequestObjectDefinition, long requestId)
-		throws Exception {
-
-		String documentFieldName = _getRelationshipFieldName(
-			dsRequestObjectDefinition, "dsRequestToDSRequestDocuments");
-
-		if (documentFieldName == null) {
-			return;
-		}
-
-		for (Map<String, Serializable> documentValues :
-				_getValuesList(
-					companyId, dsRequestDocumentObjectDefinition,
-					StringBundler.concat(
-						"(", documentFieldName, " eq '", requestId, "')"),
-					null)) {
-
-			_reindexFileEntry(
-				GetterUtil.getLong(documentValues.get("fileEntryId")));
-		}
 	}
 
 	private Date _toDate(LocalDateTime localDateTime) {
