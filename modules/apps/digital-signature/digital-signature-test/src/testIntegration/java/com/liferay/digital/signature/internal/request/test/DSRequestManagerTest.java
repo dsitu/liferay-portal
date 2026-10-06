@@ -7,6 +7,7 @@ package com.liferay.digital.signature.internal.request.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
+import com.liferay.digital.signature.constants.DSRequestConstants;
 import com.liferay.digital.signature.model.DSDocument;
 import com.liferay.digital.signature.model.DSEnvelope;
 import com.liferay.digital.signature.model.DSRecipient;
@@ -123,7 +124,8 @@ public class DSRequestManagerTest {
 
 		Map<String, Serializable> requestValues = requestValuesList.get(0);
 
-		Assert.assertEquals("sent", requestValues.get("requestStatus"));
+		Assert.assertEquals(
+			DSRequestConstants.STATUS_SENT, requestValues.get("requestStatus"));
 		Assert.assertEquals(
 			"env-" + fileEntryId, requestValues.get("providerRequestId"));
 

@@ -7,6 +7,8 @@ package com.liferay.digital.signature.internal.request;
 
 import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
 import com.liferay.digital.signature.configuration.DigitalSignatureConfigurationUtil;
+import com.liferay.digital.signature.constants.DSRequestConstants;
+import com.liferay.digital.signature.constants.DSRequestRecipientConstants;
 import com.liferay.digital.signature.manager.DSEnvelopeManager;
 import com.liferay.digital.signature.model.DSEnvelope;
 import com.liferay.digital.signature.model.DSRecipient;
@@ -364,18 +366,18 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	private String _toRecipientStatus(String status) {
 		status = StringUtil.toLowerCase(GetterUtil.getString(status));
 
-		if (ArrayUtil.contains(_DS_RECIPIENT_STATUSES, status)) {
+		if (ArrayUtil.contains(DSRequestRecipientConstants.STATUSES, status)) {
 			return status;
 		}
 
-		return "sent";
+		return DSRequestRecipientConstants.STATUS_SENT;
 	}
 
 	private String _toRequestStatus(DSEnvelope dsEnvelope) {
 		String status = StringUtil.toLowerCase(
 			GetterUtil.getString(dsEnvelope.getStatus()));
 
-		if (Objects.equals(status, "voided")) {
+		if (Objects.equals(status, DSRequestConstants.STATUS_VOIDED)) {
 			LocalDateTime expireLocalDateTime =
 				dsEnvelope.getExpireLocalDateTime();
 			LocalDateTime statusChangedLocalDateTime =
@@ -385,15 +387,15 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				(statusChangedLocalDateTime != null) &&
 				!statusChangedLocalDateTime.isBefore(expireLocalDateTime)) {
 
-				return "expired";
+				return DSRequestConstants.STATUS_EXPIRED;
 			}
 		}
 
-		if (ArrayUtil.contains(_DS_ENVELOPE_STATUSES, status)) {
+		if (ArrayUtil.contains(DSRequestConstants.STATUSES, status)) {
 			return status;
 		}
 
-		return "sent";
+		return DSRequestConstants.STATUS_SENT;
 	}
 
 	private void _updateRecipientStatuses(
@@ -479,14 +481,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			objectEntry.getUserId(), requestId, 0, values,
 			_createServiceContext(companyId, groupId, objectEntry.getUserId()));
 	}
-
-	private static final String[] _DS_ENVELOPE_STATUSES = {
-		"completed", "created", "declined", "expired", "sent", "voided"
-	};
-
-	private static final String[] _DS_RECIPIENT_STATUSES = {
-		"completed", "created", "declined", "sent", "signed"
-	};
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DSRequestManagerImpl.class);
