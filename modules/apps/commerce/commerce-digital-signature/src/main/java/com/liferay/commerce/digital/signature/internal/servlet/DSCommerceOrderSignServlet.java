@@ -55,24 +55,30 @@ public class DSCommerceOrderSignServlet extends HttpServlet {
 		}
 
 		try {
+			User user = _portal.getUser(httpServletRequest);
+
+			if ((user == null) || user.isGuestUser()) {
+				httpServletResponse.sendRedirect(backURL);
+
+				return;
+			}
+
+			long companyId = _portal.getCompanyId(httpServletRequest);
+
+			DSRequest dsRequest = null;
+
 			CommerceOrderAttachment commerceOrderAttachment =
 				_commerceOrderAttachmentLocalService.
 					fetchCommerceOrderAttachment(
 						ParamUtil.getLong(
 							httpServletRequest, "commerceOrderAttachmentId"));
 
-			long companyId = _portal.getCompanyId(httpServletRequest);
-
-			User user = _portal.getUser(httpServletRequest);
-
-			DSRequest dsRequest = null;
-
 			if (commerceOrderAttachment != null) {
 				dsRequest = _dsRequestManager.fetchDSRequest(
 					companyId, commerceOrderAttachment.getFileEntryId());
 			}
 
-			if ((user == null) || (dsRequest == null) ||
+			if ((dsRequest == null) ||
 				!dsRequest.isSignatureRequired(user.getEmailAddress())) {
 
 				httpServletResponse.sendRedirect(backURL);

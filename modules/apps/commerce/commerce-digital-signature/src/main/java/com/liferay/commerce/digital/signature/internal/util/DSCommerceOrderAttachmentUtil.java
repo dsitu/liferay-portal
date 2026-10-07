@@ -74,18 +74,6 @@ public class DSCommerceOrderAttachmentUtil {
 		return url + "&commerceOrderAttachmentId={id}";
 	}
 
-	public static List<CommerceOrderAttachment> getCommerceOrderAttachments(
-		CommerceOrder commerceOrder) {
-
-		CommerceOrderAttachmentLocalService
-			commerceOrderAttachmentLocalService =
-				_commerceOrderAttachmentLocalServiceSnapshot.get();
-
-		return commerceOrderAttachmentLocalService.getCommerceOrderAttachments(
-			commerceOrder.getCommerceOrderId(), QueryUtil.ALL_POS,
-			QueryUtil.ALL_POS, null);
-	}
-
 	public static Map<Long, DSRequest> getDSRequests(
 		CommerceOrder commerceOrder, HttpServletRequest httpServletRequest) {
 
@@ -107,8 +95,14 @@ public class DSCommerceOrderAttachmentUtil {
 		Map<Long, Long> fileEntryIdsByCommerceOrderAttachmentId =
 			new LinkedHashMap<>();
 
+		CommerceOrderAttachmentLocalService
+			commerceOrderAttachmentLocalService =
+				_commerceOrderAttachmentLocalServiceSnapshot.get();
+
 		for (CommerceOrderAttachment commerceOrderAttachment :
-				getCommerceOrderAttachments(commerceOrder)) {
+				commerceOrderAttachmentLocalService.getCommerceOrderAttachments(
+					commerceOrder.getCommerceOrderId(), QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS, null)) {
 
 			fileEntryIdsByCommerceOrderAttachmentId.put(
 				commerceOrderAttachment.getCommerceOrderAttachmentId(),
