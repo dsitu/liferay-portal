@@ -27,7 +27,7 @@ public interface DSRequestManager {
 			long[] fileEntryIds)
 		throws Exception;
 
-	public DSRequest fetchDSRequest(long requestId);
+	public DSRequest fetchDSRequest(long dsRequestId);
 
 	public DSRequest fetchDSRequest(long companyId, long fileEntryId);
 
