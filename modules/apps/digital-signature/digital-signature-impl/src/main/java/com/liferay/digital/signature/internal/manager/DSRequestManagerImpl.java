@@ -1306,19 +1306,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return;
 		}
 
-		long companyId = dsRequest.getCompanyId();
-
 		try {
-			String url = _getLoginURL(
-				_signDSURLProvider.getURL(
-					companyId, dsRequest.getSiteGroupId(),
-					dsRequest.getDSRequestId()));
-
-			String fromAddress = PrefsPropsUtil.getString(
-				companyId, PropsKeys.ADMIN_EMAIL_FROM_ADDRESS);
-			String fromName = PrefsPropsUtil.getString(
-				companyId, PropsKeys.ADMIN_EMAIL_FROM_NAME);
-
 			Locale locale = _getLocale(
 				dsRequestRecipient.getUserId(), dsRequest.getSiteGroupId());
 
@@ -1327,6 +1315,17 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			if (Validator.isNull(subject)) {
 				subject = _language.get(locale, "you-have-a-document-to-sign");
 			}
+
+			long companyId = dsRequest.getCompanyId();
+
+			String fromAddress = PrefsPropsUtil.getString(
+				companyId, PropsKeys.ADMIN_EMAIL_FROM_ADDRESS);
+			String fromName = PrefsPropsUtil.getString(
+				companyId, PropsKeys.ADMIN_EMAIL_FROM_NAME);
+			String url = _getLoginURL(
+				_signDSURLProvider.getURL(
+					companyId, dsRequest.getSiteGroupId(),
+					dsRequest.getDSRequestId()));
 
 			MailMessage mailMessage = new MailMessage(
 				new InternetAddress(fromAddress, fromName),
