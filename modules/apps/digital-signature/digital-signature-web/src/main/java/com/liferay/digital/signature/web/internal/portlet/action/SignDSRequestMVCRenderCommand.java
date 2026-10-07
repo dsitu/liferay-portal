@@ -127,7 +127,8 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 		DSRequest dsRequest, RenderRequest renderRequest,
 		ThemeDisplay themeDisplay) {
 
-		String backURL = ParamUtil.getString(renderRequest, "backURL");
+		String backURL = _portal.escapeRedirect(
+			ParamUtil.getString(renderRequest, "backURL"));
 
 		if (Validator.isNotNull(backURL)) {
 			return backURL;
