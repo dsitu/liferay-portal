@@ -13,7 +13,6 @@ import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSRecipientViewDefinition;
 import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.digital.signature.web.internal.constants.DigitalSignatureWebKeys;
-import com.liferay.digital.signature.web.internal.display.context.SignDigitalSignatureDisplayContext;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -96,11 +95,14 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 			themeDisplay.getCompanyId(), dsRequest.getSiteGroupId(),
 			dsRequest.getProviderRequestId());
 
-		SignDigitalSignatureDisplayContext signDigitalSignatureDisplayContext =
-			new SignDigitalSignatureDisplayContext(
-				_dsRequestManager, renderRequest, renderResponse);
+		dsRequest = _dsRequestManager.fetchDSRequest(
+			dsRequest.getDSRequestId());
 
-		if (!signDigitalSignatureDisplayContext.isSignable()) {
+		User user = themeDisplay.getUser();
+
+		if ((dsRequest == null) ||
+			!dsRequest.isSignatureRequired(user.getEmailAddress())) {
+
 			return "/sign_digital_signature/error.jsp";
 		}
 
