@@ -5,6 +5,8 @@
 
 package com.liferay.digital.signature.web.internal.portlet;
 
+import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
+import com.liferay.digital.signature.configuration.DigitalSignatureConfigurationUtil;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.digital.signature.web.internal.constants.DigitalSignatureWebKeys;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
@@ -92,6 +94,16 @@ public class CollectDigitalSignaturePortlet extends MVCPortlet {
 						"title", fileEntry.getTitle()
 					);
 				});
+
+			DigitalSignatureConfiguration digitalSignatureConfiguration =
+				DigitalSignatureConfigurationUtil.
+					getDigitalSignatureConfiguration(
+						themeDisplay.getCompanyId(),
+						themeDisplay.getSiteGroupId());
+
+			renderRequest.setAttribute(
+				DigitalSignatureWebKeys.DIGITAL_SIGNATURE_ENABLE_EMBEDDED_VIEW,
+				digitalSignatureConfiguration.enableEmbeddedView());
 
 			renderRequest.setAttribute(
 				DigitalSignatureWebKeys.DIGITAL_SIGNATURE_FILE_ENTRIES,
