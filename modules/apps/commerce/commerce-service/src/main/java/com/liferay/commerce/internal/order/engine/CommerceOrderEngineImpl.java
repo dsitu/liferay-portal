@@ -558,9 +558,6 @@ public class CommerceOrderEngineImpl implements CommerceOrderEngine {
 		CommerceOrder originalCommerceOrder =
 			commerceOrder.cloneWithOriginalValues();
 
-		long principalUserId =
-			(userId == 0) ? commerceOrder.getUserId() : userId;
-
 		TransactionCallbackUtil.registerCommitCallback(
 			() -> {
 				if ((orderStatus ==
@@ -576,6 +573,12 @@ public class CommerceOrderEngineImpl implements CommerceOrderEngine {
 					commerceOrder.getGroupId(), commerceOrder.getUserId(),
 					CommerceOrderConstants.getNotificationKey(orderStatus),
 					commerceOrder);
+
+				long principalUserId = userId;
+
+				if (principalUserId == 0) {
+					principalUserId = commerceOrder.getUserId();
+				}
 
 				Message message = new Message();
 
