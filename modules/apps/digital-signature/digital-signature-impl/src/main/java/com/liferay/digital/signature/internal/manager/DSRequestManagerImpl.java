@@ -144,6 +144,17 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		dsEnvelope.setSenderEmailAddress(user.getEmailAddress());
 		dsEnvelope.setStatus(DSRequestConstants.STATUS_SENT);
 
+		for (DSRecipient dsRecipient : dsEnvelope.getDSRecipients()) {
+			User recipientUser = _userLocalService.fetchUserByEmailAddress(
+				companyId, dsRecipient.getEmailAddress());
+
+			if (recipientUser != null) {
+				dsRecipient.setDSClientUserId(
+					String.valueOf(recipientUser.getUserId()));
+				dsRecipient.setName(recipientUser.getFullName());
+			}
+		}
+
 		DSEnvelope sentDSEnvelope = _dsEnvelopeManager.addDSEnvelope(
 			companyId, groupId, dsEnvelope);
 
