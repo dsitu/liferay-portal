@@ -15,6 +15,7 @@ import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
@@ -81,7 +82,10 @@ public class VoidDSRequestMVCResourceCommand extends BaseMVCResourceCommand {
 			_dsRequestManager.voidDSRequest(
 				commerceOrder.getCompanyId(),
 				DSCommerceOrderAttachmentUtil.getSiteGroupId(commerceOrder),
-				dsRequest, "Voided by sender");
+				dsRequest,
+				_language.get(
+					themeDisplay.getLocale(),
+					"the-sender-voided-the-signature-request"));
 		}
 
 		JSONPortletResponseUtil.writeJSON(
@@ -112,5 +116,8 @@ public class VoidDSRequestMVCResourceCommand extends BaseMVCResourceCommand {
 
 	@Reference
 	private JSONFactory _jsonFactory;
+
+	@Reference
+	private Language _language;
 
 }
