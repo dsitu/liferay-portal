@@ -5,11 +5,17 @@
 
 package com.liferay.digital.signature.web.internal.portlet.action;
 
+import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
+import com.liferay.digital.signature.configuration.DigitalSignatureConfigurationUtil;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
+import com.liferay.digital.signature.manager.DSEnvelopeManager;
 import com.liferay.digital.signature.manager.DSRequestManager;
+import com.liferay.digital.signature.model.DSDocument;
 import com.liferay.digital.signature.model.DSEnvelope;
 import com.liferay.digital.signature.model.DSRecipient;
 import com.liferay.digital.signature.model.DSRequest;
+import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -18,7 +24,11 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.Base64;
+import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -69,6 +79,39 @@ public class AddDSEnvelopeMVCResourceCommand extends BaseMVCResourceCommand {
 			resourceRequest, "fileEntryIds");
 		User user = themeDisplay.getUser();
 
+		DigitalSignatureConfiguration digitalSignatureConfiguration =
+			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
+				themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId());
+
+		if (!digitalSignatureConfiguration.enableEmbeddedView()) {
+			DSEnvelope dsEnvelope = _dsEnvelopeManager.addDSEnvelope(
+				themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId(),
+				new DSEnvelope() {
+					{
+						dsDocuments = TransformUtil.transformToList(
+							ArrayUtil.toLongArray(fileEntryIds),
+							fileEntryId -> _toDSDocument(fileEntryId));
+						dsRecipients = _getDSRecipients(resourceRequest);
+						emailBlurb = ParamUtil.getString(
+							resourceRequest, "emailMessage");
+						emailSubject = ParamUtil.getString(
+							resourceRequest, "emailSubject");
+						expireAfter = expireAfterDays;
+						expireWarn = expireWarnDays;
+						name = ParamUtil.getString(
+							resourceRequest, "envelopeName");
+						senderEmailAddress = user.getEmailAddress();
+						status = "sent";
+					}
+				});
+
+			JSONPortletResponseUtil.writeJSON(
+				resourceRequest, resourceResponse,
+				JSONUtil.put("dsEnvelopeId", dsEnvelope.getDSEnvelopeId()));
+
+			return;
+		}
+
 		DSRequest dsRequest = _dsRequestManager.addDSRequest(
 			themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId(),
 			user.getUserId(),
@@ -111,6 +154,26 @@ public class AddDSEnvelopeMVCResourceCommand extends BaseMVCResourceCommand {
 				}
 			});
 	}
+
+	private DSDocument _toDSDocument(long fileEntryId) throws Exception {
+		FileEntry fileEntry = _dlAppLocalService.getFileEntry(fileEntryId);
+
+		return new DSDocument() {
+			{
+				data = Base64.encode(
+					FileUtil.getBytes(fileEntry.getContentStream()));
+				dsDocumentId = String.valueOf(fileEntryId);
+				fileExtension = fileEntry.getExtension();
+				name = fileEntry.getFileName();
+			}
+		};
+	}
+
+	@Reference
+	private DLAppLocalService _dlAppLocalService;
+
+	@Reference
+	private DSEnvelopeManager _dsEnvelopeManager;
 
 	@Reference
 	private DSRequestManager _dsRequestManager;
