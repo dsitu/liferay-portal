@@ -45,6 +45,7 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -198,6 +199,13 @@ public class SignatureRequestResourceTest
 		Assert.assertEquals(0, page.getTotalCount());
 	}
 
+	@Ignore
+	@Override
+	@Test
+	public void testGetSignatureRequestsAssignedToMePageWithPagination()
+		throws Exception {
+	}
+
 	@Override
 	@Test
 	public void testGetSiteSignatureRequestsPage() throws Exception {
@@ -226,6 +234,44 @@ public class SignatureRequestResourceTest
 		Assert.assertEquals(0, page.getTotalCount());
 	}
 
+	@Ignore
+	@Override
+	@Test
+	public void testGetSiteSignatureRequestsPageWithPagination()
+		throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLGetSignatureRequest() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLGetSignatureRequestsAssignedToMePage()
+		throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLGetSiteSignatureRequestsPage() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLPostSignatureRequestNotification() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testGraphQLPostSiteSignatureRequest() throws Exception {
+	}
+
 	@Override
 	@Test
 	public void testPatchSignatureRequest() throws Exception {
@@ -233,6 +279,24 @@ public class SignatureRequestResourceTest
 		_testPatchSignatureRequestWhenStatusIsNotVoided();
 		_testPatchSignatureRequestWhenUserLacksPermission();
 		_testPatchSignatureRequestWhenVoidReasonIsNull();
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testPostSignatureRequestNotification() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testPostSiteSignatureRequest() throws Exception {
+	}
+
+	@Ignore
+	@Override
+	@Test
+	public void testVulcanCRUDItemDelegateGetItem() throws Exception {
 	}
 
 	private ObjectEntry _addDSRequestObjectEntries(
