@@ -653,33 +653,34 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			long[] fileEntryIds)
 		throws Exception {
 
-		ObjectDefinition dsRequestDocumentObjectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					"L_DS_REQUEST_DOCUMENT", companyId);
-		ObjectDefinition dsRequestObjectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					"L_DS_REQUEST", companyId);
-		ObjectDefinition dsRequestRecipientObjectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					"L_DS_REQUEST_RECIPIENT", companyId);
-
-		if ((dsRequestDocumentObjectDefinition == null) ||
-			(dsRequestObjectDefinition == null) ||
-			(dsRequestRecipientObjectDefinition == null)) {
-
-			return null;
-		}
-
-		ServiceContext serviceContext = _getServiceContext(
-			companyId, groupId, userId);
-
 		ObjectEntry dsRequestObjectEntry = null;
 		List<DSRequestRecipient> dsRequestRecipients = new ArrayList<>();
 
 		try {
+			ObjectDefinition dsRequestDocumentObjectDefinition =
+				_objectDefinitionLocalService.
+					fetchObjectDefinitionByExternalReferenceCode(
+						"L_DS_REQUEST_DOCUMENT", companyId);
+			ObjectDefinition dsRequestObjectDefinition =
+				_objectDefinitionLocalService.
+					fetchObjectDefinitionByExternalReferenceCode(
+						"L_DS_REQUEST", companyId);
+			ObjectDefinition dsRequestRecipientObjectDefinition =
+				_objectDefinitionLocalService.
+					fetchObjectDefinitionByExternalReferenceCode(
+						"L_DS_REQUEST_RECIPIENT", companyId);
+
+			if ((dsRequestDocumentObjectDefinition == null) ||
+				(dsRequestObjectDefinition == null) ||
+				(dsRequestRecipientObjectDefinition == null)) {
+
+				throw new PortalException(
+					"Unable to find the signature request object definitions");
+			}
+
+			ServiceContext serviceContext = _getServiceContext(
+				companyId, groupId, userId);
+
 			dsRequestObjectEntry = _objectEntryLocalService.addObjectEntry(
 				0, userId, dsRequestObjectDefinition.getObjectDefinitionId(),
 				ObjectEntryFolderConstants.
