@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -60,7 +61,10 @@ public class CompleteDSRecipientViewMVCActionCommand
 			ParamUtil.getLong(actionRequest, "dsRequestId"));
 
 		if ((dsRequest != null) &&
-			(dsRequest.getCompanyId() == themeDisplay.getCompanyId())) {
+			(dsRequest.getCompanyId() == themeDisplay.getCompanyId()) &&
+			_dsRequestManager.containsPermission(
+				themeDisplay.getPermissionChecker(), dsRequest,
+				ActionKeys.VIEW)) {
 
 			_processDSRequest(actionRequest, dsRequest, themeDisplay);
 		}
