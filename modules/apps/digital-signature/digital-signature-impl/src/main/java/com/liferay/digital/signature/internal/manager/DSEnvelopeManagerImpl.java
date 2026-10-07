@@ -292,9 +292,7 @@ public class DSEnvelopeManagerImpl implements DSEnvelopeManager {
 			return;
 		}
 
-		List<DSRecipient> dsRecipients = dsEnvelope.getDSRecipients();
-
-		for (DSRecipient dsRecipient : dsRecipients) {
+		for (DSRecipient dsRecipient : dsEnvelope.getDSRecipients()) {
 			User user = _userLocalService.fetchUserByEmailAddress(
 				companyId, dsRecipient.getEmailAddress());
 
