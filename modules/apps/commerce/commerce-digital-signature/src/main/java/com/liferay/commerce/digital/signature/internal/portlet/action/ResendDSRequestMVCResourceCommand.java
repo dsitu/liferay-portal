@@ -77,12 +77,17 @@ public class ResendDSRequestMVCResourceCommand extends BaseMVCResourceCommand {
 			commerceOrder.getCompanyId(),
 			commerceOrderAttachment.getFileEntryId());
 
-		if (dsRequest != null) {
-			_dsRequestManager.sendDSRequestNotifications(
-				commerceOrder.getCompanyId(),
-				DSCommerceOrderAttachmentUtil.getSiteGroupId(commerceOrder),
-				dsRequest);
+		if (dsRequest == null) {
+			throw new PortalException(
+				"Commerce order attachment " +
+					commerceOrderAttachment.getCommerceOrderAttachmentId() +
+						" has no signature request");
 		}
+
+		_dsRequestManager.sendDSRequestNotifications(
+			commerceOrder.getCompanyId(),
+			DSCommerceOrderAttachmentUtil.getSiteGroupId(commerceOrder),
+			dsRequest);
 
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse, _jsonFactory.createJSONObject());

@@ -78,15 +78,20 @@ public class VoidDSRequestMVCResourceCommand extends BaseMVCResourceCommand {
 			commerceOrder.getCompanyId(),
 			commerceOrderAttachment.getFileEntryId());
 
-		if (dsRequest != null) {
-			_dsRequestManager.voidDSRequest(
-				commerceOrder.getCompanyId(),
-				DSCommerceOrderAttachmentUtil.getSiteGroupId(commerceOrder),
-				dsRequest,
-				_language.get(
-					themeDisplay.getLocale(),
-					"the-sender-voided-the-signature-request"));
+		if (dsRequest == null) {
+			throw new PortalException(
+				"Commerce order attachment " +
+					commerceOrderAttachment.getCommerceOrderAttachmentId() +
+						" has no signature request");
 		}
+
+		_dsRequestManager.voidDSRequest(
+			commerceOrder.getCompanyId(),
+			DSCommerceOrderAttachmentUtil.getSiteGroupId(commerceOrder),
+			dsRequest,
+			_language.get(
+				themeDisplay.getLocale(),
+				"the-sender-voided-the-signature-request"));
 
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse, _jsonFactory.createJSONObject());

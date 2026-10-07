@@ -9,6 +9,7 @@ import com.liferay.commerce.constants.CommercePortletKeys;
 import com.liferay.commerce.digital.signature.internal.util.DSCommerceOrderAttachmentUtil;
 import com.liferay.commerce.model.CommerceOrder;
 import com.liferay.commerce.service.CommerceOrderLocalService;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.JSONPortletResponseUtil;
@@ -57,6 +58,12 @@ public class SearchDSRequestUsersMVCResourceCommand
 		_commerceOrderModelResourcePermission.check(
 			themeDisplay.getPermissionChecker(), commerceOrder,
 			ActionKeys.UPDATE);
+
+		if (!DSCommerceOrderAttachmentUtil.isEnabled(commerceOrder)) {
+			throw new PortalException(
+				"Digital signature is not enabled for order " +
+					commerceOrder.getCommerceOrderId());
+		}
 
 		JSONPortletResponseUtil.writeJSON(
 			resourceRequest, resourceResponse,
