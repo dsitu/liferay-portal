@@ -12,6 +12,8 @@ import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.digital.signature.model.DSRequestRecipient;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -54,14 +56,16 @@ public class DSCommerceOrderSignatureStatusServlet extends HttpServlet {
 			HttpServletResponse httpServletResponse)
 		throws IOException {
 
-		PermissionChecker permissionChecker =
+		String originalName = PrincipalThreadLocal.getName();
+		PermissionChecker originalPermissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
-		String name = PrincipalThreadLocal.getName();
 
 		try {
 			User user = _portal.getUser(httpServletRequest);
 
-			if (user == null) {
+			if ((user == null) || user.isGuestUser()) {
+				_sendError(httpServletResponse);
+
 				return;
 			}
 
@@ -70,19 +74,13 @@ public class DSCommerceOrderSignatureStatusServlet extends HttpServlet {
 				_permissionCheckerFactory.create(user));
 
 			CommerceOrderAttachment commerceOrderAttachment =
-				_commerceOrderAttachmentService.fetchCommerceOrderAttachment(
+				_commerceOrderAttachmentService.getCommerceOrderAttachment(
 					ParamUtil.getLong(
 						httpServletRequest, "commerceOrderAttachmentId"));
 
 			httpServletResponse.setContentType(ContentTypes.APPLICATION_JSON);
 
 			PrintWriter printWriter = httpServletResponse.getWriter();
-
-			if (commerceOrderAttachment == null) {
-				printWriter.write("{}");
-
-				return;
-			}
 
 			printWriter.write(
 				_getJSONString(
@@ -91,11 +89,14 @@ public class DSCommerceOrderSignatureStatusServlet extends HttpServlet {
 						commerceOrderAttachment.getFileEntryId())));
 		}
 		catch (Exception exception) {
-			throw new IOException(exception);
+			_log.error(exception);
+
+			_sendError(httpServletResponse);
 		}
 		finally {
-			PermissionThreadLocal.setPermissionChecker(permissionChecker);
-			PrincipalThreadLocal.setName(name);
+			PrincipalThreadLocal.setName(originalName);
+			PermissionThreadLocal.setPermissionChecker(
+				originalPermissionChecker);
 		}
 	}
 
@@ -161,6 +162,14 @@ public class DSCommerceOrderSignatureStatusServlet extends HttpServlet {
 		);
 	}
 
+	private void _sendError(HttpServletResponse httpServletResponse)
+		throws IOException {
+
+		if (!httpServletResponse.isCommitted()) {
+			httpServletResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
+		}
+	}
+
 	private Long _toTime(Date date) {
 		if (date == null) {
 			return null;
@@ -168,6 +177,9 @@ public class DSCommerceOrderSignatureStatusServlet extends HttpServlet {
 
 		return date.getTime();
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DSCommerceOrderSignatureStatusServlet.class);
 
 	@Reference
 	private CommerceOrderAttachmentService _commerceOrderAttachmentService;
