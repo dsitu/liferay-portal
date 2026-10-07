@@ -648,6 +648,44 @@ public class DSRequestManagerTest {
 	}
 
 	@Test
+	public void testSendSignatureReminders() throws Exception {
+		try (CompanyConfigurationTemporarySwapper
+				companyConfigurationTemporarySwapper =
+					new CompanyConfigurationTemporarySwapper(
+						TestPropsValues.getCompanyId(),
+						DigitalSignatureConfiguration.class.getName(),
+						HashMapDictionaryBuilder.<String, Object>put(
+							"enabled", true
+						).put(
+							"enableEmbeddedView", true
+						).put(
+							"signatureReminderEnabled", true
+						).put(
+							"siteSettingsStrategy", "always-inherit"
+						).build())) {
+
+			int count = _dsRequestManager.sendSignatureReminders(
+				TestPropsValues.getCompanyId());
+
+			_addDSRequestObjectEntries(
+				RandomTestUtil.randomString() + "@liferay.com",
+				RandomTestUtil.randomInt(),
+				DSRequestRecipientConstants.STATUS_SENT,
+				DSRequestConstants.STATUS_SENT, TestPropsValues.getUserId());
+			_addDSRequestObjectEntries(
+				RandomTestUtil.randomString() + "@liferay.com",
+				RandomTestUtil.randomInt(),
+				DSRequestRecipientConstants.STATUS_SENT,
+				DSRequestConstants.STATUS_VOIDED, TestPropsValues.getUserId());
+
+			Assert.assertEquals(
+				count + 1,
+				_dsRequestManager.sendSignatureReminders(
+					TestPropsValues.getCompanyId()));
+		}
+	}
+
+	@Test
 	public void testUpdateDSRequest() throws Exception {
 		LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(
 			System.currentTimeMillis() / 1000, 0, ZoneOffset.UTC);
