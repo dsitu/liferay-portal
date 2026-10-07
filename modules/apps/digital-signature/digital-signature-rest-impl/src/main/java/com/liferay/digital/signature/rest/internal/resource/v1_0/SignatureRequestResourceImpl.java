@@ -13,12 +13,14 @@ import com.liferay.digital.signature.rest.dto.v1_0.SignatureRequest;
 import com.liferay.digital.signature.rest.dto.v1_0.SignatureRequestRecipient;
 import com.liferay.digital.signature.rest.resource.v1_0.SignatureRequestResource;
 import com.liferay.digital.signature.url.SignDSURLProvider;
+import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -193,6 +195,12 @@ public class SignatureRequestResourceImpl
 				"A signature request must have at least one file entry");
 		}
 
+		_groupService.getGroup(siteId);
+
+		for (Long fileEntryId : fileEntryIds) {
+			_dlAppService.getFileEntry(fileEntryId);
+		}
+
 		DSRequest dsRequest = _dsRequestManager.addDSRequest(
 			contextCompany.getCompanyId(), siteId, contextUser.getUserId(),
 			_toDSEnvelope(signatureRequest), ArrayUtil.toArray(fileEntryIds));
@@ -319,10 +327,16 @@ public class SignatureRequestResourceImpl
 	}
 
 	@Reference
+	private DLAppService _dlAppService;
+
+	@Reference
 	private DSRequestManager _dsRequestManager;
 
 	@Reference
 	private DTOConverterRegistry _dtoConverterRegistry;
+
+	@Reference
+	private GroupService _groupService;
 
 	@Reference
 	private SignDSURLProvider _signDSURLProvider;
