@@ -5,6 +5,7 @@
 
 package com.liferay.digital.signature.web.internal.portlet.action;
 
+import com.liferay.digital.signature.constants.DSRequestRecipientConstants;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.digital.signature.manager.DSEnvelopeManager;
 import com.liferay.digital.signature.manager.DSRequestManager;
@@ -98,7 +99,8 @@ public class CompleteDSRecipientViewMVCActionCommand
 			if (StringUtil.equalsIgnoreCase(
 					emailAddress, dsRecipient.getEmailAddress()) &&
 				StringUtil.equalsIgnoreCase(
-					"completed", dsRecipient.getStatus())) {
+					DSRequestRecipientConstants.STATUS_COMPLETED,
+					dsRecipient.getStatus())) {
 
 				return dsRecipient;
 			}
