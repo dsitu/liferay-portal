@@ -32,7 +32,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian I. Kim
  */
 @Component(service = CommerceOrderAttachmentFDSActionContributor.class)
-public class CommerceOrderAttachmentFDSActionContributorImpl
+public class DSCommerceOrderAttachmentFDSActionContributor
 	implements CommerceOrderAttachmentFDSActionContributor {
 
 	@Override
