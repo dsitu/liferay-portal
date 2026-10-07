@@ -14,6 +14,7 @@ import com.liferay.digital.signature.model.DSRecipientViewDefinition;
 import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.digital.signature.web.internal.constants.DigitalSignatureWebKeys;
 import com.liferay.digital.signature.web.internal.display.context.SignDigitalSignatureDisplayContext;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -22,6 +23,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -30,6 +32,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import jakarta.portlet.PortletException;
 import jakarta.portlet.RenderRequest;
 import jakarta.portlet.RenderResponse;
 
@@ -52,7 +55,8 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 
 	@Override
 	public String render(
-		RenderRequest renderRequest, RenderResponse renderResponse) {
+			RenderRequest renderRequest, RenderResponse renderResponse)
+		throws PortletException {
 
 		ThemeDisplay themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -64,6 +68,18 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 			(dsRequest.getCompanyId() != themeDisplay.getCompanyId())) {
 
 			return "/sign_digital_signature/error.jsp";
+		}
+
+		try {
+			if (!_dsRequestManager.containsPermission(
+					themeDisplay.getPermissionChecker(), dsRequest,
+					ActionKeys.VIEW)) {
+
+				return "/sign_digital_signature/error.jsp";
+			}
+		}
+		catch (PortalException portalException) {
+			throw new PortletException(portalException);
 		}
 
 		DigitalSignatureConfiguration digitalSignatureConfiguration =
