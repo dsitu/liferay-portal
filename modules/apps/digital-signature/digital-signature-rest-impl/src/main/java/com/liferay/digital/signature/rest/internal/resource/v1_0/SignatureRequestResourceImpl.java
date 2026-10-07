@@ -5,6 +5,7 @@
 
 package com.liferay.digital.signature.rest.internal.resource.v1_0;
 
+import com.liferay.digital.signature.constants.DSRequestConstants;
 import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSEnvelope;
 import com.liferay.digital.signature.model.DSRecipient;
@@ -131,7 +132,7 @@ public class SignatureRequestResourceImpl
 			return _toSignatureRequest(dsRequest);
 		}
 
-		if (!Objects.equals(status, "voided")) {
+		if (!Objects.equals(status, DSRequestConstants.STATUS_VOIDED)) {
 			throw new BadRequestException(
 				StringBundler.concat(
 					"Unable to change the status of signature request ",
