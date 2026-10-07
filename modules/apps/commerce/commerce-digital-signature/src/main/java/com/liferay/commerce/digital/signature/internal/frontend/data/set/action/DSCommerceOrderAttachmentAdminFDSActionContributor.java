@@ -44,7 +44,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian I. Kim
  */
 @Component(service = CommerceOrderAttachmentAdminFDSActionContributor.class)
-public class CommerceOrderAttachmentAdminFDSActionContributorImpl
+public class DSCommerceOrderAttachmentAdminFDSActionContributor
 	implements CommerceOrderAttachmentAdminFDSActionContributor {
 
 	@Override
