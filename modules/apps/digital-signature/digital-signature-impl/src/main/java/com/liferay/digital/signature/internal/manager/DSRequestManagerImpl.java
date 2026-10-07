@@ -782,7 +782,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			dsRequestObjectEntry.getCompanyId(),
 			dsRequestObjectEntry.getCreateDate(),
 			dsRequestObjectEntry.getObjectEntryId(), dsRequestRecipients,
-			ListUtil.fromArray(ArrayUtil.toArray(fileEntryIds)),
+			ListUtil.fromArray(fileEntryIds),
 			_getRequesterEmailAddress(dsRequestObjectEntry),
 			_getRequesterName(dsRequestObjectEntry),
 			dsRequestObjectEntry.getUserId(), dsRequestObjectEntry.getValues());
