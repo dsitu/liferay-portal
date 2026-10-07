@@ -27,11 +27,6 @@ public interface DSRequestManager {
 			long[] fileEntryIds)
 		throws Exception;
 
-	public boolean containsPermission(
-			PermissionChecker permissionChecker, DSRequest dsRequest,
-			String actionId)
-		throws PortalException;
-
 	public DSRequest fetchDSRequest(long requestId);
 
 	public DSRequest fetchDSRequest(long companyId, long fileEntryId);
@@ -53,6 +48,11 @@ public interface DSRequestManager {
 
 	public int getSiteDSRequestsCount(
 		long companyId, long siteGroupId, String search);
+
+	public boolean hasPermission(
+			PermissionChecker permissionChecker, DSRequest dsRequest,
+			String actionId)
+		throws PortalException;
 
 	public void sendDSRequestNotifications(
 		long companyId, long groupId, DSRequest dsRequest);

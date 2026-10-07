@@ -278,43 +278,6 @@ public class DSRequestManagerTest {
 	}
 
 	@Test
-	public void testContainsPermission() throws Exception {
-		_user = UserTestUtil.addUser();
-
-		_addDSRequestObjectEntries(
-			_user.getEmailAddress(), RandomTestUtil.randomInt(),
-			DSRequestRecipientConstants.STATUS_SENT,
-			DSRequestConstants.STATUS_SENT, _user.getUserId());
-
-		List<DSRequest> dsRequests = _dsRequestManager.getRecipientDSRequests(
-			TestPropsValues.getCompanyId(), _user.getUserId(), null,
-			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-
-		DSRequest dsRequest = dsRequests.get(0);
-
-		PermissionChecker permissionChecker =
-			PermissionCheckerFactoryUtil.create(_user);
-
-		Assert.assertTrue(
-			_dsRequestManager.containsPermission(
-				permissionChecker, dsRequest, ActionKeys.UPDATE));
-		Assert.assertTrue(
-			_dsRequestManager.containsPermission(
-				permissionChecker, dsRequest, ActionKeys.VIEW));
-
-		_otherUser = UserTestUtil.addUser();
-
-		permissionChecker = PermissionCheckerFactoryUtil.create(_otherUser);
-
-		Assert.assertFalse(
-			_dsRequestManager.containsPermission(
-				permissionChecker, dsRequest, ActionKeys.UPDATE));
-		Assert.assertFalse(
-			_dsRequestManager.containsPermission(
-				permissionChecker, dsRequest, ActionKeys.VIEW));
-	}
-
-	@Test
 	public void testFetchDSRequest() throws Exception {
 		long fileEntryId1 = RandomTestUtil.randomInt();
 
@@ -569,6 +532,43 @@ public class DSRequestManagerTest {
 			_dsRequestManager.getRecipientDSRequestsCount(
 				TestPropsValues.getCompanyId(), _user.getUserId(),
 				RandomTestUtil.randomString()));
+	}
+
+	@Test
+	public void testHasPermission() throws Exception {
+		_user = UserTestUtil.addUser();
+
+		_addDSRequestObjectEntries(
+			_user.getEmailAddress(), RandomTestUtil.randomInt(),
+			DSRequestRecipientConstants.STATUS_SENT,
+			DSRequestConstants.STATUS_SENT, _user.getUserId());
+
+		List<DSRequest> dsRequests = _dsRequestManager.getRecipientDSRequests(
+			TestPropsValues.getCompanyId(), _user.getUserId(), null,
+			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
+
+		DSRequest dsRequest = dsRequests.get(0);
+
+		PermissionChecker permissionChecker =
+			PermissionCheckerFactoryUtil.create(_user);
+
+		Assert.assertTrue(
+			_dsRequestManager.hasPermission(
+				permissionChecker, dsRequest, ActionKeys.UPDATE));
+		Assert.assertTrue(
+			_dsRequestManager.hasPermission(
+				permissionChecker, dsRequest, ActionKeys.VIEW));
+
+		_otherUser = UserTestUtil.addUser();
+
+		permissionChecker = PermissionCheckerFactoryUtil.create(_otherUser);
+
+		Assert.assertFalse(
+			_dsRequestManager.hasPermission(
+				permissionChecker, dsRequest, ActionKeys.UPDATE));
+		Assert.assertFalse(
+			_dsRequestManager.hasPermission(
+				permissionChecker, dsRequest, ActionKeys.VIEW));
 	}
 
 	@Test

@@ -62,7 +62,7 @@ public class SignatureRequestResourceImpl
 
 		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
 
-		if (!_dsRequestManager.containsPermission(
+		if (!_dsRequestManager.hasPermission(
 				PermissionThreadLocal.getPermissionChecker(), dsRequest,
 				ActionKeys.VIEW)) {
 
@@ -115,7 +115,7 @@ public class SignatureRequestResourceImpl
 
 		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
 
-		if (!_dsRequestManager.containsPermission(
+		if (!_dsRequestManager.hasPermission(
 				PermissionThreadLocal.getPermissionChecker(), dsRequest,
 				ActionKeys.UPDATE)) {
 
@@ -168,7 +168,7 @@ public class SignatureRequestResourceImpl
 
 		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
 
-		if (!_dsRequestManager.containsPermission(
+		if (!_dsRequestManager.hasPermission(
 				PermissionThreadLocal.getPermissionChecker(), dsRequest,
 				ActionKeys.UPDATE)) {
 

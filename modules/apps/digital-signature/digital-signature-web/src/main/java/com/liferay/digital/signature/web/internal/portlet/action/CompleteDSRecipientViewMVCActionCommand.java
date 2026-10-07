@@ -63,7 +63,7 @@ public class CompleteDSRecipientViewMVCActionCommand
 
 		if ((dsRequest != null) &&
 			(dsRequest.getCompanyId() == themeDisplay.getCompanyId()) &&
-			_dsRequestManager.containsPermission(
+			_dsRequestManager.hasPermission(
 				themeDisplay.getPermissionChecker(), dsRequest,
 				ActionKeys.VIEW)) {
 
