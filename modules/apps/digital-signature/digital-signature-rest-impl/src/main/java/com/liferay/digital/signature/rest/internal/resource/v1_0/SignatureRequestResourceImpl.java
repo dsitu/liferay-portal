@@ -62,14 +62,7 @@ public class SignatureRequestResourceImpl
 
 		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
 
-		if (!_dsRequestManager.hasPermission(
-				PermissionThreadLocal.getPermissionChecker(), dsRequest,
-				ActionKeys.VIEW)) {
-
-			throw new PrincipalException.MustHavePermission(
-				contextUser.getUserId(), DSRequest.class.getName(),
-				signatureRequestId, ActionKeys.VIEW);
-		}
+		_checkPermission(dsRequest, ActionKeys.VIEW);
 
 		return _toSignatureRequest(dsRequest);
 	}
@@ -115,14 +108,7 @@ public class SignatureRequestResourceImpl
 
 		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
 
-		if (!_dsRequestManager.hasPermission(
-				PermissionThreadLocal.getPermissionChecker(), dsRequest,
-				ActionKeys.UPDATE)) {
-
-			throw new PrincipalException.MustHavePermission(
-				contextUser.getUserId(), DSRequest.class.getName(),
-				signatureRequestId, ActionKeys.UPDATE);
-		}
+		_checkPermission(dsRequest, ActionKeys.UPDATE);
 
 		String status = signatureRequest.getStatus();
 
@@ -168,14 +154,7 @@ public class SignatureRequestResourceImpl
 
 		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
 
-		if (!_dsRequestManager.hasPermission(
-				PermissionThreadLocal.getPermissionChecker(), dsRequest,
-				ActionKeys.UPDATE)) {
-
-			throw new PrincipalException.MustHavePermission(
-				contextUser.getUserId(), DSRequest.class.getName(),
-				signatureRequestId, ActionKeys.UPDATE);
-		}
+		_checkPermission(dsRequest, ActionKeys.UPDATE);
 
 		_dsRequestManager.sendDSRequestNotifications(
 			contextCompany.getCompanyId(), dsRequest.getSiteGroupId(),
@@ -214,6 +193,19 @@ public class SignatureRequestResourceImpl
 		}
 
 		return _toSignatureRequest(dsRequest);
+	}
+
+	private void _checkPermission(DSRequest dsRequest, String actionId)
+		throws Exception {
+
+		if (!_dsRequestManager.hasPermission(
+				PermissionThreadLocal.getPermissionChecker(), dsRequest,
+				actionId)) {
+
+			throw new PrincipalException.MustHavePermission(
+				contextUser.getUserId(), DSRequest.class.getName(),
+				dsRequest.getDSRequestId(), actionId);
+		}
 	}
 
 	private DSRequest _fetchDSRequest(Long signatureRequestId) {
