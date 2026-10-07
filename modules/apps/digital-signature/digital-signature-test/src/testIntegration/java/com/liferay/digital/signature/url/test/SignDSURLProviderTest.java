@@ -49,9 +49,9 @@ public class SignDSURLProviderTest {
 		long dsRequestId = RandomTestUtil.randomLong();
 
 		_assertPersonalAreaURL(
-			"/-/digital_signature/sign/" + dsRequestId,
 			_groupLocalService.getGroup(
 				TestPropsValues.getCompanyId(), GroupConstants.GUEST),
+			"/-/digital_signature/sign/" + dsRequestId,
 			_signDSURLProvider.getURL(
 				TestPropsValues.getCompanyId(), 0, dsRequestId));
 	}
@@ -63,7 +63,7 @@ public class SignDSURLProviderTest {
 		long dsRequestId = RandomTestUtil.randomLong();
 
 		_assertPersonalAreaURL(
-			"/-/digital_signature/sign/" + dsRequestId, _group,
+			_group, "/-/digital_signature/sign/" + dsRequestId,
 			_signDSURLProvider.getURL(
 				TestPropsValues.getCompanyId(), _group.getGroupId(),
 				dsRequestId));
@@ -91,7 +91,7 @@ public class SignDSURLProviderTest {
 					"/-/digital_signature/sign/", dsRequestId)));
 	}
 
-	private void _assertPersonalAreaURL(String path, Group group, String url) {
+	private void _assertPersonalAreaURL(Group group, String path, String url) {
 		Assert.assertTrue(
 			url,
 			url.endsWith(
