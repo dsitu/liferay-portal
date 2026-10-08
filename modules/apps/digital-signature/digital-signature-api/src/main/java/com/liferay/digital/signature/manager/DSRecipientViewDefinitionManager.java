@@ -20,4 +20,9 @@ public interface DSRecipientViewDefinitionManager {
 			DSRecipientViewDefinition dsRecipientViewDefinition)
 		throws Exception;
 
+	public String addDSRecipientViewDefinition(
+			long companyId, long groupId, long userId, String dsEnvelopeId,
+			String portalURL)
+		throws Exception;
+
 }

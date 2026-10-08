@@ -5,6 +5,9 @@
 
 package com.liferay.digital.signature.internal.manager;
 
+import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
+import com.liferay.digital.signature.configuration.DigitalSignatureConfigurationUtil;
+import com.liferay.digital.signature.configuration.DigitalSignatureSystemConfigurationUtil;
 import com.liferay.digital.signature.internal.http.DSHttp;
 import com.liferay.digital.signature.manager.DSRecipientViewDefinitionManager;
 import com.liferay.digital.signature.model.DSRecipientViewDefinition;
@@ -14,6 +17,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import org.osgi.service.component.annotations.Component;
@@ -41,6 +45,39 @@ public class DSRecipientViewDefinitionManagerImpl
 			dsRecipientViewDefinition.toJSONObject());
 
 		return jsonObject.getString("url");
+	}
+
+	@Override
+	public String addDSRecipientViewDefinition(
+			long companyId, long groupId, long userId, String dsEnvelopeId,
+			String portalURL)
+		throws Exception {
+
+		DigitalSignatureConfiguration digitalSignatureConfiguration =
+			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
+				companyId, groupId);
+
+		String appOriginURL =
+			DigitalSignatureSystemConfigurationUtil.getAppOriginURL(
+				digitalSignatureConfiguration.environment());
+
+		User user = _userLocalService.getUser(userId);
+
+		DSRecipientViewDefinition dsRecipientViewDefinition =
+			new DSRecipientViewDefinition();
+
+		dsRecipientViewDefinition.setAuthenticationMethod("none");
+		dsRecipientViewDefinition.setDSClientUserId(String.valueOf(userId));
+		dsRecipientViewDefinition.setEmailAddress(user.getEmailAddress());
+		dsRecipientViewDefinition.setFrameAncestors(
+			new String[] {portalURL, appOriginURL});
+		dsRecipientViewDefinition.setMessageOrigins(
+			new String[] {appOriginURL});
+		dsRecipientViewDefinition.setReturnURL(appOriginURL);
+		dsRecipientViewDefinition.setUserName(user.getFullName());
+
+		return addDSRecipientViewDefinition(
+			companyId, groupId, dsEnvelopeId, dsRecipientViewDefinition);
 	}
 
 	private void _checkPermission(
@@ -73,5 +110,8 @@ public class DSRecipientViewDefinitionManagerImpl
 
 	@Reference
 	private DSHttp _dsHttp;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

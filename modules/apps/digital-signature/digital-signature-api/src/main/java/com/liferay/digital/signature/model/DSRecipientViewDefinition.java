@@ -8,17 +8,10 @@ package com.liferay.digital.signature.model;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * @author José Abelenda
  */
 public class DSRecipientViewDefinition {
-
-	public Map<String, Object> getAdditionalProps() {
-		return additionalProps;
-	}
 
 	public String getAuthenticationMethod() {
 		return authenticationMethod;
@@ -32,16 +25,20 @@ public class DSRecipientViewDefinition {
 		return emailAddress;
 	}
 
+	public String[] getFrameAncestors() {
+		return frameAncestors;
+	}
+
+	public String[] getMessageOrigins() {
+		return messageOrigins;
+	}
+
 	public String getReturnURL() {
 		return returnURL;
 	}
 
 	public String getUserName() {
 		return userName;
-	}
-
-	public void setAdditionalProps(Map<String, Object> additionalProps) {
-		this.additionalProps = additionalProps;
 	}
 
 	public void setAuthenticationMethod(String authenticationMethod) {
@@ -54,6 +51,14 @@ public class DSRecipientViewDefinition {
 
 	public void setEmailAddress(String emailAddress) {
 		this.emailAddress = emailAddress;
+	}
+
+	public void setFrameAncestors(String[] frameAncestors) {
+		this.frameAncestors = frameAncestors;
+	}
+
+	public void setMessageOrigins(String[] messageOrigins) {
+		this.messageOrigins = messageOrigins;
 	}
 
 	public void setReturnURL(String returnURL) {
@@ -77,16 +82,12 @@ public class DSRecipientViewDefinition {
 			"userName", getUserName()
 		);
 
-		for (Map.Entry<String, Object> entry : additionalProps.entrySet()) {
-			Object value = entry.getValue();
+		if (frameAncestors != null) {
+			jsonObject.put("frameAncestors", JSONUtil.putAll(frameAncestors));
+		}
 
-			if (value instanceof Object[]) {
-				jsonObject.put(
-					entry.getKey(), JSONUtil.putAll((Object[])value));
-			}
-			else {
-				jsonObject.put(entry.getKey(), value);
-			}
+		if (messageOrigins != null) {
+			jsonObject.put("messageOrigins", JSONUtil.putAll(messageOrigins));
 		}
 
 		return jsonObject;
@@ -97,10 +98,11 @@ public class DSRecipientViewDefinition {
 		return toJSONObject().toString();
 	}
 
-	protected Map<String, Object> additionalProps = new LinkedHashMap<>();
 	protected String authenticationMethod;
 	protected String dsClientUserId;
 	protected String emailAddress;
+	protected String[] frameAncestors;
+	protected String[] messageOrigins;
 	protected String returnURL;
 	protected String userName;
 

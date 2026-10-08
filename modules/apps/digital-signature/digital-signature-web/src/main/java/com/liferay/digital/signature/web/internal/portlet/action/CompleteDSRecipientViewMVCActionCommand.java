@@ -116,14 +116,15 @@ public class CompleteDSRecipientViewMVCActionCommand
 		long companyId = themeDisplay.getCompanyId();
 		long groupId = dsRequest.getSiteGroupId();
 
-		String dsEnvelopeId = dsRequest.getProviderRequestId();
+		String providerRequestId = dsRequest.getProviderRequestId();
 
 		try {
-			_dsRequestManager.updateDSRequest(companyId, groupId, dsEnvelopeId);
+			_dsRequestManager.updateDSRequest(
+				companyId, groupId, providerRequestId);
 
 			DSRecipient dsRecipient = _getSignedDSRecipient(
 				_dsEnvelopeManager.getDSEnvelope(
-					companyId, groupId, dsEnvelopeId,
+					companyId, groupId, providerRequestId,
 					"custom_fields,recipients"),
 				themeDisplay.getUser());
 
@@ -141,7 +142,7 @@ public class CompleteDSRecipientViewMVCActionCommand
 		}
 		catch (Exception exception) {
 			_log.error(
-				"Unable to verify signing for envelope " + dsEnvelopeId,
+				"Unable to verify signing for envelope " + providerRequestId,
 				exception);
 		}
 	}
