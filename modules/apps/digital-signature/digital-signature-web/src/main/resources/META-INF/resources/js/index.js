@@ -6,3 +6,4 @@
 export {default as CollectDigitalSignature} from './pages/CollectDigitalSignature';
 export {default as DigitalSignature} from './pages/DigitalSignature';
 export {default as mountSigning} from './sign/mountSigning';
+export {default as openSigningModal} from './sign/openSigningModal';
