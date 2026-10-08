@@ -7,13 +7,10 @@ package com.liferay.commerce.digital.signature.internal.servlet;
 
 import com.liferay.commerce.model.CommerceOrderAttachment;
 import com.liferay.commerce.service.CommerceOrderAttachmentLocalService;
-import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.digital.signature.url.SignDSURLProvider;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.portlet.LiferayWindowState;
-import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -86,17 +83,10 @@ public class DSCommerceOrderSignServlet extends HttpServlet {
 				return;
 			}
 
-			String portletNamespace = _portal.getPortletNamespace(
-				DigitalSignaturePortletKeys.SIGN_DIGITAL_SIGNATURE);
-
 			httpServletResponse.sendRedirect(
-				HttpComponentsUtil.addParameter(
-					HttpComponentsUtil.addParameter(
-						_signDSURLProvider.getURL(
-							companyId, dsRequest.getSiteGroupId(),
-							dsRequest.getDSRequestId()),
-						"p_p_state", LiferayWindowState.POP_UP.toString()),
-					portletNamespace + "backURL", backURL));
+				_signDSURLProvider.getModalURL(
+					companyId, dsRequest.getSiteGroupId(), backURL,
+					dsRequest.getDSRequestId()));
 		}
 		catch (Exception exception) {
 			throw new IOException(exception);
