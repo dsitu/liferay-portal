@@ -46,14 +46,12 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
-import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
-import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -440,29 +438,6 @@ public class DSRequestManagerTest {
 
 		Assert.assertEquals(
 			DSRequestConstants.STATUS_VOIDED, dsRequest2.getStatus());
-	}
-
-	@Test
-	public void testGetLoginURL() throws Exception {
-		String path = StringBundler.concat(
-			"/web/", RandomTestUtil.randomString(),
-			"/manage/-/digital_signature/sign/", RandomTestUtil.randomLong());
-		String portalURL = StringBundler.concat(
-			"http://", RandomTestUtil.randomString(), ".com");
-
-		String url = ReflectionTestUtil.invoke(
-			_dsRequestManager, "_getLoginURL", new Class<?>[] {String.class},
-			portalURL + path);
-
-		Assert.assertTrue(
-			url,
-			url.startsWith(
-				StringBundler.concat(
-					portalURL, PortalUtil.getPathMain(), "/portal/login?")));
-		Assert.assertEquals(
-			path,
-			URLCodec.decodeURL(
-				HttpComponentsUtil.getParameter(url, "redirect", false)));
 	}
 
 	@Test

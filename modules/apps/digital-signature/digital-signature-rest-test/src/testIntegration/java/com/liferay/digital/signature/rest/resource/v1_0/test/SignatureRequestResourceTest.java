@@ -16,16 +16,13 @@ import com.liferay.digital.signature.rest.client.problem.Problem;
 import com.liferay.digital.signature.rest.client.resource.v1_0.SignatureRequestResource;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
-import com.liferay.object.model.ObjectField;
-import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
-import com.liferay.object.service.ObjectFieldLocalService;
-import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.petra.function.UnsafeRunnable;
 import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -37,6 +34,8 @@ import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 
 import java.io.Serializable;
@@ -166,11 +165,15 @@ public class SignatureRequestResourceTest
 
 		Map<String, String> signAction = actions.get("sign");
 
+		Assert.assertEquals(
+			String.valueOf(signatureRequest.getId()),
+			HttpComponentsUtil.getParameter(
+				signAction.get("href"), "dsRequestId", false));
 		Assert.assertTrue(
 			signAction.get("href"),
 			StringUtil.endsWith(
 				HttpComponentsUtil.getPath(signAction.get("href")),
-				"/-/digital_signature/sign/" + signatureRequest.getId()));
+				"/digital_signature/open_ds_request"));
 		Assert.assertEquals("GET", signAction.get("method"));
 
 		page =
@@ -338,10 +341,10 @@ public class SignatureRequestResourceTest
 			dsRequestDocumentObjectDefinition.getObjectDefinitionId(), 0,
 			languageId,
 			HashMapBuilder.<String, Serializable>put(
-				_getRelationshipFieldName("dsRequestToDSRequestDocuments"),
-				dsRequestObjectEntry.getObjectEntryId()
+				"fileEntryId", RandomTestUtil.randomInt()
 			).put(
-				"fileEntryId", RandomTestUtil.randomLong()
+				"r_dsRequestToDSRequestDocuments_l_dsRequestId",
+				dsRequestObjectEntry.getObjectEntryId()
 			).build(),
 			serviceContext);
 
@@ -353,14 +356,14 @@ public class SignatureRequestResourceTest
 			dsRequestRecipientObjectDefinition.getObjectDefinitionId(), 0,
 			languageId,
 			HashMapBuilder.<String, Serializable>put(
-				_getRelationshipFieldName("dsRequestToDSRequestRecipients"),
-				dsRequestObjectEntry.getObjectEntryId()
-			).put(
 				"emailAddress", emailAddress
 			).put(
 				"name", RandomTestUtil.randomString()
 			).put(
 				"providerRecipientId", "1"
+			).put(
+				"r_dsRequestToDSRequestRecipients_l_dsRequestId",
+				dsRequestObjectEntry.getObjectEntryId()
 			).put(
 				"requestRecipientStatus",
 				DSRequestRecipientConstants.STATUS_SENT
@@ -376,7 +379,11 @@ public class SignatureRequestResourceTest
 			String expectedStatus, UnsafeRunnable<Exception> unsafeRunnable)
 		throws Exception {
 
-		try {
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portal.vulcan.internal.jaxrs.exception.mapper." +
+					"WebApplicationExceptionMapper",
+				LoggerTestUtil.WARN)) {
+
 			unsafeRunnable.run();
 
 			Assert.fail();
@@ -396,24 +403,17 @@ public class SignatureRequestResourceTest
 				externalReferenceCode, testCompany.getCompanyId());
 	}
 
-	private String _getRelationshipFieldName(String name) throws Exception {
-		ObjectDefinition dsRequestObjectDefinition = _getObjectDefinition(
-			"L_DS_REQUEST");
+	private SignatureRequestResource _getSignatureRequestResource(User user)
+		throws Exception {
 
-		ObjectRelationship objectRelationship =
-			_objectRelationshipLocalService.getObjectRelationship(
-				dsRequestObjectDefinition.getObjectDefinitionId(), name);
+		String password = RandomTestUtil.randomString();
 
-		ObjectField objectField = _objectFieldLocalService.getObjectField(
-			objectRelationship.getObjectFieldId2());
+		_userLocalService.updatePassword(
+			user.getUserId(), password, password, false, true);
 
-		return objectField.getName();
-	}
-
-	private SignatureRequestResource _getSignatureRequestResource(User user) {
 		return SignatureRequestResource.builder(
 		).authentication(
-			user.getEmailAddress(), "test"
+			user.getEmailAddress(), password
 		).endpoint(
 			testCompany.getVirtualHostname(),
 			PortalUtil.getPortalServerPort(false), "http"
@@ -484,7 +484,7 @@ public class SignatureRequestResourceTest
 			_getSignatureRequestResource(_user1);
 
 		_assertProblemStatus(
-			"NOT_FOUND",
+			"FORBIDDEN",
 			() -> userSignatureRequestResource.patchSignatureRequest(
 				dsRequestObjectEntry.getObjectEntryId(),
 				new SignatureRequest() {
@@ -522,16 +522,13 @@ public class SignatureRequestResourceTest
 	@Inject
 	private ObjectEntryLocalService _objectEntryLocalService;
 
-	@Inject
-	private ObjectFieldLocalService _objectFieldLocalService;
-
-	@Inject
-	private ObjectRelationshipLocalService _objectRelationshipLocalService;
-
 	@DeleteAfterTestRun
 	private User _user1;
 
 	@DeleteAfterTestRun
 	private User _user2;
+
+	@Inject
+	private UserLocalService _userLocalService;
 
 }
