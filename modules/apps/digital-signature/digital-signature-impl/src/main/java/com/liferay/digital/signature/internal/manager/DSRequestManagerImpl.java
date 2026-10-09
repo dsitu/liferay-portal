@@ -245,21 +245,18 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		try {
-			Map<Long, Long> dsRequestIdsByFileEntryId =
-				_getDSRequestIdsByFileEntryId(
-					companyId, dsRequestDocumentObjectDefinition, fileEntryIds);
+			Map<Long, Long> dsRequestIdsMap = _getDSRequestIdsMap(
+				companyId, dsRequestDocumentObjectDefinition, fileEntryIds);
 
-			if (dsRequestIdsByFileEntryId.isEmpty()) {
+			if (dsRequestIdsMap.isEmpty()) {
 				return dsRequests;
 			}
 
 			Map<Long, DSRequest> dsRequestsMap = _getDSRequestsMap(
-				companyId, new HashSet<>(dsRequestIdsByFileEntryId.values()),
+				companyId, new HashSet<>(dsRequestIdsMap.values()),
 				dsRequestRecipientObjectDefinition);
 
-			for (Map.Entry<Long, Long> entry :
-					dsRequestIdsByFileEntryId.entrySet()) {
-
+			for (Map.Entry<Long, Long> entry : dsRequestIdsMap.entrySet()) {
 				DSRequest dsRequest = dsRequestsMap.get(entry.getValue());
 
 				if (dsRequest != null) {
@@ -841,12 +838,12 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				documentValues.get("fileEntryId")));
 	}
 
-	private Map<Long, Long> _getDSRequestIdsByFileEntryId(
+	private Map<Long, Long> _getDSRequestIdsMap(
 			long companyId, ObjectDefinition dsRequestDocumentObjectDefinition,
 			Collection<Long> fileEntryIds)
 		throws Exception {
 
-		Map<Long, Long> dsRequestIdsByFileEntryId = new HashMap<>();
+		Map<Long, Long> dsRequestIdsMap = new HashMap<>();
 
 		for (Map<String, Serializable> documentValues :
 				_getValuesList(
@@ -859,14 +856,14 @@ public class DSRequestManagerImpl implements DSRequestManager {
 						new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, true)
 					})) {
 
-			dsRequestIdsByFileEntryId.putIfAbsent(
+			dsRequestIdsMap.putIfAbsent(
 				MapUtil.getLong(documentValues, "fileEntryId"),
 				GetterUtil.getLong(
 					documentValues.get(
 						"r_dsRequestToDSRequestDocuments_l_dsRequestId")));
 		}
 
-		return dsRequestIdsByFileEntryId;
+		return dsRequestIdsMap;
 	}
 
 	private List<DSRequest> _getDSRequests(
