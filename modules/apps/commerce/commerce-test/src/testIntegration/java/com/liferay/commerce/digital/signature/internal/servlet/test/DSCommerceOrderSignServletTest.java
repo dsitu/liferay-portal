@@ -30,6 +30,7 @@ import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporaryS
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.servlet.HttpMethods;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -225,6 +226,7 @@ public class DSCommerceOrderSignServletTest {
 			mockHttpServletRequest.setAttribute(WebKeys.USER, user);
 		}
 
+		mockHttpServletRequest.setMethod(HttpMethods.GET);
 		mockHttpServletRequest.setParameter("backURL", backURL);
 		mockHttpServletRequest.setParameter(
 			"commerceOrderAttachmentId",
