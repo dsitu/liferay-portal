@@ -65,11 +65,7 @@ public class SignatureRequestResourceImpl
 	public SignatureRequest getSignatureRequest(Long signatureRequestId)
 		throws Exception {
 
-		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
-
-		_checkPermission(dsRequest, ActionKeys.VIEW);
-
-		return _toSignatureRequest(dsRequest);
+		return _toSignatureRequest(_fetchDSRequest(signatureRequestId));
 	}
 
 	@Override
@@ -226,12 +222,17 @@ public class SignatureRequestResourceImpl
 		}
 	}
 
-	private DSRequest _fetchDSRequest(Long signatureRequestId) {
+	private DSRequest _fetchDSRequest(Long signatureRequestId)
+		throws Exception {
+
 		DSRequest dsRequest = _dsRequestManager.fetchDSRequest(
 			signatureRequestId);
 
 		if ((dsRequest == null) ||
-			(dsRequest.getCompanyId() != contextCompany.getCompanyId())) {
+			(dsRequest.getCompanyId() != contextCompany.getCompanyId()) ||
+			!_dsRequestManager.hasPermission(
+				PermissionThreadLocal.getPermissionChecker(), dsRequest,
+				ActionKeys.VIEW)) {
 
 			throw new NotFoundException(
 				"Unable to find signature request " + signatureRequestId);
