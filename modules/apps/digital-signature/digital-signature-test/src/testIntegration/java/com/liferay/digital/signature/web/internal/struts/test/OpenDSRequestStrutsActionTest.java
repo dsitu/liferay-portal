@@ -6,6 +6,7 @@
 package com.liferay.digital.signature.web.internal.struts.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
@@ -20,6 +21,7 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
@@ -42,6 +44,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.test.rule.Inject;
@@ -89,6 +92,7 @@ public class OpenDSRequestStrutsActionTest {
 		_testExecuteWithoutDSRequest();
 		_testExecuteWithoutSite();
 		_testExecuteWithoutViewPermission();
+		_testExecuteWithParameters();
 	}
 
 	private long _addDSRequest(long siteGroupId) throws Exception {
@@ -251,6 +255,47 @@ public class OpenDSRequestStrutsActionTest {
 			_execute(dsRequestId, Collections.emptyMap(), _user));
 	}
 
+	private void _testExecuteWithParameters() throws Exception {
+		Group group = GroupTestUtil.addGroup();
+
+		Layout layout = LayoutTestUtil.addTypePortletLayout(group);
+
+		long dsRequestId = _addDSRequest(group.getGroupId());
+
+		String backURL = "/" + RandomTestUtil.randomString();
+		String portletNamespace = _portal.getPortletNamespace(
+			DigitalSignaturePortletKeys.SIGN_DIGITAL_SIGNATURE);
+
+		MockHttpServletResponse mockHttpServletResponse = _execute(
+			dsRequestId,
+			HashMapBuilder.put(
+				portletNamespace + "backURL", backURL
+			).put(
+				"p_p_state", LiferayWindowState.POP_UP.toString()
+			).build(),
+			_user);
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_MOVED_TEMPORARILY,
+			mockHttpServletResponse.getStatus());
+
+		String redirectedURL = mockHttpServletResponse.getRedirectedUrl();
+
+		Assert.assertTrue(
+			redirectedURL,
+			redirectedURL.contains(
+				layout.getFriendlyURL() + "/-/digital_signature/sign/" +
+					dsRequestId));
+		Assert.assertEquals(
+			LiferayWindowState.POP_UP.toString(),
+			HttpComponentsUtil.getParameter(redirectedURL, "p_p_state", false));
+		Assert.assertEquals(
+			backURL,
+			URLCodec.decodeURL(
+				HttpComponentsUtil.getParameter(
+					redirectedURL, portletNamespace + "backURL", false)));
+	}
+
 	@Inject
 	private CompanyLocalService _companyLocalService;
 
@@ -271,6 +316,9 @@ public class OpenDSRequestStrutsActionTest {
 
 	@Inject(filter = "path=/digital_signature/open_ds_request")
 	private StrutsAction _openDSRequestStrutsAction;
+
+	@Inject
+	private Portal _portal;
 
 	@Inject
 	private ResourcePermissionLocalService _resourcePermissionLocalService;

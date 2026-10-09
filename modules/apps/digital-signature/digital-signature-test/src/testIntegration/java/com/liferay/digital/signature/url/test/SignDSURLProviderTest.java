@@ -8,24 +8,22 @@ package com.liferay.digital.signature.url.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.digital.signature.url.SignDSURLProvider;
-import com.liferay.layout.test.util.LayoutTestUtil;
-import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.GroupConstants;
-import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,68 +42,58 @@ public class SignDSURLProviderTest {
 			new LiferayIntegrationTestRule(),
 			PermissionCheckerMethodTestRule.INSTANCE);
 
+	@Before
+	public void setUp() throws Exception {
+		_group = GroupTestUtil.addGroup();
+	}
+
+	@Test
+	public void testGetModalURL() throws Exception {
+		String backURL = "/" + RandomTestUtil.randomString();
+
+		String url = _signDSURLProvider.getModalURL(
+			TestPropsValues.getCompanyId(), _group.getGroupId(), backURL,
+			RandomTestUtil.randomLong());
+
+		String portletNamespace = _portal.getPortletNamespace(
+			DigitalSignaturePortletKeys.SIGN_DIGITAL_SIGNATURE);
+
+		Assert.assertEquals(
+			backURL,
+			URLCodec.decodeURL(
+				HttpComponentsUtil.getParameter(
+					url, portletNamespace + "backURL", false)));
+
+		Assert.assertEquals(
+			LiferayWindowState.POP_UP.toString(),
+			HttpComponentsUtil.getParameter(url, "p_p_state", false));
+	}
+
 	@Test
 	public void testGetURL() throws Exception {
-		long dsRequestId = RandomTestUtil.randomLong();
-
-		_assertPersonalAreaURL(
-			_groupLocalService.getGroup(
-				TestPropsValues.getCompanyId(), GroupConstants.GUEST),
-			"/-/digital_signature/sign/" + dsRequestId,
-			_signDSURLProvider.getURL(
-				TestPropsValues.getCompanyId(), 0, dsRequestId));
+		_testGetURL(0);
+		_testGetURL(RandomTestUtil.randomLong());
+		_testGetURL(_group.getGroupId());
 	}
 
-	@Test
-	public void testGetURLWhenSignPageIsMissing() throws Exception {
-		_group = GroupTestUtil.addGroup();
-
-		long dsRequestId = RandomTestUtil.randomLong();
-
-		_assertPersonalAreaURL(
-			_group, "/-/digital_signature/sign/" + dsRequestId,
-			_signDSURLProvider.getURL(
-				TestPropsValues.getCompanyId(), _group.getGroupId(),
-				dsRequestId));
-	}
-
-	@Test
-	public void testGetURLWhenSignPageIsPresent() throws Exception {
-		_group = GroupTestUtil.addGroup();
-
-		Layout layout = LayoutTestUtil.addTypePortletLayout(_group);
-
-		LayoutTestUtil.addPortletToLayout(
-			layout, DigitalSignaturePortletKeys.SIGN_DIGITAL_SIGNATURE);
-
+	private void _testGetURL(long groupId) throws Exception {
 		long dsRequestId = RandomTestUtil.randomLong();
 
 		String url = _signDSURLProvider.getURL(
-			TestPropsValues.getCompanyId(), _group.getGroupId(), dsRequestId);
+			TestPropsValues.getCompanyId(), groupId, dsRequestId);
 
 		Assert.assertTrue(
 			url,
 			url.endsWith(
-				StringBundler.concat(
-					_group.getFriendlyURL(), layout.getFriendlyURL(),
-					"/-/digital_signature/sign/", dsRequestId)));
-	}
-
-	private void _assertPersonalAreaURL(Group group, String path, String url) {
-		Assert.assertTrue(
-			url,
-			url.endsWith(
-				StringBundler.concat(
-					group.getFriendlyURL(),
-					PropsUtil.get(PropsKeys.CONTROL_PANEL_LAYOUT_FRIENDLY_URL),
-					path)));
+				"/c/digital_signature/open_ds_request?dsRequestId=" +
+					dsRequestId));
 	}
 
 	@DeleteAfterTestRun
 	private Group _group;
 
 	@Inject
-	private GroupLocalService _groupLocalService;
+	private Portal _portal;
 
 	@Inject
 	private SignDSURLProvider _signDSURLProvider;
