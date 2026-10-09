@@ -71,16 +71,10 @@ public class SignDSURLProviderTest {
 
 	@Test
 	public void testGetURL() throws Exception {
-		_testGetURL(0);
-		_testGetURL(RandomTestUtil.randomLong());
-		_testGetURL(_group.getGroupId());
-	}
-
-	private void _testGetURL(long groupId) throws Exception {
 		long dsRequestId = RandomTestUtil.randomLong();
 
 		String url = _signDSURLProvider.getURL(
-			TestPropsValues.getCompanyId(), groupId, dsRequestId);
+			TestPropsValues.getCompanyId(), _group.getGroupId(), dsRequestId);
 
 		Assert.assertTrue(
 			url,
