@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutService;
@@ -68,7 +69,10 @@ public class OpenDSRequestStrutsAction implements StrutsAction {
 			ParamUtil.getLong(httpServletRequest, "dsRequestId"));
 
 		if ((dsRequest == null) ||
-			(dsRequest.getCompanyId() != themeDisplay.getCompanyId())) {
+			(dsRequest.getCompanyId() != themeDisplay.getCompanyId()) ||
+			!_dsRequestManager.hasPermission(
+				themeDisplay.getPermissionChecker(), dsRequest,
+				ActionKeys.VIEW)) {
 
 			_portal.sendError(
 				HttpServletResponse.SC_NOT_FOUND, new NoSuchModelException(),
