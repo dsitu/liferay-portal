@@ -90,9 +90,9 @@ public class DSCommerceOrderSignatureStatusServletTest {
 				).put(
 					"apiUsername", RandomTestUtil.randomString()
 				).put(
-					"enabled", true
+					"embeddedViewEnabled", true
 				).put(
-					"enableEmbeddedView", true
+					"enabled", true
 				).put(
 					"environment", "sandbox"
 				).put(

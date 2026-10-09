@@ -1255,8 +1255,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
 				companyId, groupId);
 
-		if (digitalSignatureConfiguration.enabled() &&
-			digitalSignatureConfiguration.enableEmbeddedView()) {
+		if (digitalSignatureConfiguration.embeddedViewEnabled() &&
+			digitalSignatureConfiguration.enabled()) {
 
 			return true;
 		}

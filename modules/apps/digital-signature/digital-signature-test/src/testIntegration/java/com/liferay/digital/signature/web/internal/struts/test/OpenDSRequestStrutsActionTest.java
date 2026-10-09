@@ -94,9 +94,9 @@ public class OpenDSRequestStrutsActionTest {
 				TestPropsValues.getCompanyId(),
 				DigitalSignatureConfiguration.class.getName(),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"enabled", true
+					"embeddedViewEnabled", true
 				).put(
-					"enableEmbeddedView", true
+					"enabled", true
 				).put(
 					"siteSettingsStrategy", "always-inherit"
 				).build());

@@ -83,7 +83,7 @@ public class AddDSEnvelopeMVCResourceCommand extends BaseMVCResourceCommand {
 			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
 				themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId());
 
-		if (!digitalSignatureConfiguration.enableEmbeddedView()) {
+		if (!digitalSignatureConfiguration.embeddedViewEnabled()) {
 			DSEnvelope dsEnvelope = _dsEnvelopeManager.addDSEnvelope(
 				themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId(),
 				new DSEnvelope() {

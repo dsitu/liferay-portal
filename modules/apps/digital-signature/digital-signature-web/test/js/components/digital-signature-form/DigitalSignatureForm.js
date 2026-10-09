@@ -88,7 +88,7 @@ describe('DigitalSignatureForm', () => {
 
 	it('Restricts recipients to existing users when embedded signing is enabled', () => {
 		const {getByPlaceholderText, queryByPlaceholderText} = render(
-			<AppContext.Provider value={{enableEmbeddedView: true}}>
+			<AppContext.Provider value={{embeddedViewEnabled: true}}>
 				<DigitalSignatureForm />
 			</AppContext.Provider>
 		);

@@ -81,8 +81,8 @@ public class SignDigitalSignatureBottomJSDynamicInclude
 			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
 				themeDisplay.getCompanyId(), dsRequest.getSiteGroupId());
 
-		if (!digitalSignatureConfiguration.enabled() ||
-			!digitalSignatureConfiguration.enableEmbeddedView()) {
+		if (!digitalSignatureConfiguration.embeddedViewEnabled() ||
+			!digitalSignatureConfiguration.enabled()) {
 
 			return;
 		}

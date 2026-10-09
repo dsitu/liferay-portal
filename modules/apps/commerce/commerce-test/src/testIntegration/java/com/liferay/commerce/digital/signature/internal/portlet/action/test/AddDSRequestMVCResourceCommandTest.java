@@ -219,9 +219,9 @@ public class AddDSRequestMVCResourceCommandTest {
 				).put(
 					"apiUsername", RandomTestUtil.randomString()
 				).put(
-					"enabled", enabled
+					"embeddedViewEnabled", true
 				).put(
-					"enableEmbeddedView", true
+					"enabled", enabled
 				).put(
 					"environment", "sandbox"
 				).put(

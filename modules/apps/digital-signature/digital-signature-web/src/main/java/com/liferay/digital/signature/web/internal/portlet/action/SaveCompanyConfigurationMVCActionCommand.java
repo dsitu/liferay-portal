@@ -73,10 +73,10 @@ public class SaveCompanyConfigurationMVCActionCommand
 			).put(
 				"apiUsername", ParamUtil.getString(actionRequest, "apiUsername")
 			).put(
-				"enabled", ParamUtil.getBoolean(actionRequest, "enabled")
+				"embeddedViewEnabled",
+				ParamUtil.getBoolean(actionRequest, "embeddedViewEnabled")
 			).put(
-				"enableEmbeddedView",
-				ParamUtil.getBoolean(actionRequest, "enableEmbeddedView")
+				"enabled", ParamUtil.getBoolean(actionRequest, "enabled")
 			).put(
 				"environment", ParamUtil.getString(actionRequest, "environment")
 			).put(

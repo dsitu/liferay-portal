@@ -174,8 +174,8 @@ public class DSCommerceOrderAttachmentUtil {
 			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
 				commerceOrder.getCompanyId(), getSiteGroupId(commerceOrder));
 
-		if (digitalSignatureConfiguration.enabled() &&
-			digitalSignatureConfiguration.enableEmbeddedView()) {
+		if (digitalSignatureConfiguration.embeddedViewEnabled() &&
+			digitalSignatureConfiguration.enabled()) {
 
 			return true;
 		}

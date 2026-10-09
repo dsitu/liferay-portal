@@ -93,8 +93,8 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
 				themeDisplay.getCompanyId(), dsRequest.getSiteGroupId());
 
-		if (!digitalSignatureConfiguration.enabled() ||
-			!digitalSignatureConfiguration.enableEmbeddedView()) {
+		if (!digitalSignatureConfiguration.embeddedViewEnabled() ||
+			!digitalSignatureConfiguration.enabled()) {
 
 			return "/sign_digital_signature/error.jsp";
 		}
