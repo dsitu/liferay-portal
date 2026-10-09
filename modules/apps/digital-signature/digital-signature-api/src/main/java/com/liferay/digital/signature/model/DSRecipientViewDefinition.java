@@ -70,27 +70,35 @@ public class DSRecipientViewDefinition {
 	}
 
 	public JSONObject toJSONObject() {
-		JSONObject jsonObject = JSONUtil.put(
+		return JSONUtil.put(
 			"authenticationMethod", getAuthenticationMethod()
 		).put(
 			"clientUserId", getDSClientUserId()
 		).put(
 			"email", getEmailAddress()
 		).put(
+			"frameAncestors",
+			() -> {
+				if (frameAncestors == null) {
+					return null;
+				}
+
+				return JSONUtil.putAll(frameAncestors);
+			}
+		).put(
+			"messageOrigins",
+			() -> {
+				if (messageOrigins == null) {
+					return null;
+				}
+
+				return JSONUtil.putAll(messageOrigins);
+			}
+		).put(
 			"returnUrl", getReturnURL()
 		).put(
 			"userName", getUserName()
 		);
-
-		if (frameAncestors != null) {
-			jsonObject.put("frameAncestors", JSONUtil.putAll(frameAncestors));
-		}
-
-		if (messageOrigins != null) {
-			jsonObject.put("messageOrigins", JSONUtil.putAll(messageOrigins));
-		}
-
-		return jsonObject;
 	}
 
 	@Override
