@@ -92,8 +92,7 @@ public class DSCommerceOrderAttachmentUtil {
 			return dsRequests;
 		}
 
-		Map<Long, Long> fileEntryIdsByCommerceOrderAttachmentId =
-			new LinkedHashMap<>();
+		Map<Long, Long> fileEntryIdsMap = new LinkedHashMap<>();
 
 		CommerceOrderAttachmentLocalService
 			commerceOrderAttachmentLocalService =
@@ -104,24 +103,21 @@ public class DSCommerceOrderAttachmentUtil {
 					commerceOrder.getCommerceOrderId(), QueryUtil.ALL_POS,
 					QueryUtil.ALL_POS, null)) {
 
-			fileEntryIdsByCommerceOrderAttachmentId.put(
+			fileEntryIdsMap.put(
 				commerceOrderAttachment.getCommerceOrderAttachmentId(),
 				commerceOrderAttachment.getFileEntryId());
 		}
 
 		DSRequestManager dsRequestManager = _dsRequestManagerSnapshot.get();
 
-		Map<Long, DSRequest> dsRequestsByFileEntryId =
+		Map<Long, DSRequest> fileEntryDSRequests =
 			dsRequestManager.getDSRequests(
-				commerceOrder.getCompanyId(),
-				fileEntryIdsByCommerceOrderAttachmentId.values());
+				commerceOrder.getCompanyId(), fileEntryIdsMap.values());
 
 		dsRequests = new LinkedHashMap<>();
 
-		for (Map.Entry<Long, Long> entry :
-				fileEntryIdsByCommerceOrderAttachmentId.entrySet()) {
-
-			DSRequest dsRequest = dsRequestsByFileEntryId.get(entry.getValue());
+		for (Map.Entry<Long, Long> entry : fileEntryIdsMap.entrySet()) {
+			DSRequest dsRequest = fileEntryDSRequests.get(entry.getValue());
 
 			if (dsRequest != null) {
 				dsRequests.put(entry.getKey(), dsRequest);
