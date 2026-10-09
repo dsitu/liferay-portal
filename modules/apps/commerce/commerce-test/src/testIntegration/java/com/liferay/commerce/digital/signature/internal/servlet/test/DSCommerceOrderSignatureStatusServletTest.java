@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.servlet.HttpMethods;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -272,6 +273,7 @@ public class DSCommerceOrderSignatureStatusServletTest {
 			mockHttpServletRequest.setAttribute(WebKeys.USER, user);
 		}
 
+		mockHttpServletRequest.setMethod(HttpMethods.GET);
 		mockHttpServletRequest.setParameter(
 			"commerceOrderAttachmentId",
 			String.valueOf(commerceOrderAttachmentId));
