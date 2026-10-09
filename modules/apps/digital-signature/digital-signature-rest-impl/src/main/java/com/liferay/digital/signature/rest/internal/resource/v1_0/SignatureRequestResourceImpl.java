@@ -65,7 +65,7 @@ public class SignatureRequestResourceImpl
 	public SignatureRequest getSignatureRequest(Long signatureRequestId)
 		throws Exception {
 
-		return _toSignatureRequest(_fetchDSRequest(signatureRequestId));
+		return _toSignatureRequest(_getDSRequest(signatureRequestId));
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class SignatureRequestResourceImpl
 			Long signatureRequestId, SignatureRequest signatureRequest)
 		throws Exception {
 
-		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
+		DSRequest dsRequest = _getDSRequest(signatureRequestId);
 
 		_checkPermission(dsRequest, ActionKeys.UPDATE);
 
@@ -153,7 +153,7 @@ public class SignatureRequestResourceImpl
 			Long signatureRequestId)
 		throws Exception {
 
-		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
+		DSRequest dsRequest = _getDSRequest(signatureRequestId);
 
 		_checkPermission(dsRequest, ActionKeys.UPDATE);
 
@@ -222,9 +222,7 @@ public class SignatureRequestResourceImpl
 		}
 	}
 
-	private DSRequest _fetchDSRequest(Long signatureRequestId)
-		throws Exception {
-
+	private DSRequest _getDSRequest(Long signatureRequestId) throws Exception {
 		DSRequest dsRequest = _dsRequestManager.fetchDSRequest(
 			signatureRequestId);
 
