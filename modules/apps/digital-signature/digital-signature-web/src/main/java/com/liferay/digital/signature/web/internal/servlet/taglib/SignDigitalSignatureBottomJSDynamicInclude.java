@@ -62,13 +62,13 @@ public class SignDigitalSignatureBottomJSDynamicInclude
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		if (themeDisplay.isStatePopUp() || !themeDisplay.isSignedIn()) {
+		if (!themeDisplay.isSignedIn() || themeDisplay.isStatePopUp()) {
 			return;
 		}
 
-		DSRequest dsRequest = _dsRequestManager.fetchDSRequest(dsRequestId);
-
 		User user = themeDisplay.getUser();
+
+		DSRequest dsRequest = _dsRequestManager.fetchDSRequest(dsRequestId);
 
 		if ((dsRequest == null) ||
 			(dsRequest.getCompanyId() != themeDisplay.getCompanyId()) ||
