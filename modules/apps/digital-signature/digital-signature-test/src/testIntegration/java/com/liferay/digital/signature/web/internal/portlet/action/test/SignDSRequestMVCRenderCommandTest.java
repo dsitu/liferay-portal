@@ -99,8 +99,8 @@ public class SignDSRequestMVCRenderCommandTest {
 
 	@Test
 	public void testRender() throws Exception {
-		_testRenderWithoutViewInContext();
 		_testRenderWithViewInContext();
+		_testRenderWithoutViewInContext();
 	}
 
 	private long _addDSRequest(long fileEntryId) throws Exception {

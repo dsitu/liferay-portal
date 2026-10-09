@@ -7,6 +7,8 @@ package com.liferay.digital.signature.web.internal.struts.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
+import com.liferay.digital.signature.constants.DSRequestConstants;
+import com.liferay.digital.signature.constants.DSRequestRecipientConstants;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.object.model.ObjectDefinition;
@@ -32,6 +34,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
@@ -110,22 +113,20 @@ public class OpenDSRequestStrutsActionTest {
 	@Test
 	public void testExecute() throws Exception {
 		_testExecuteAsGuest();
-		_testExecuteWithoutDSRequest();
-		_testExecuteWithoutSite();
-		_testExecuteWithoutViewPermission();
 		_testExecuteWithParameters();
+		_testExecuteWithoutDSRequest();
+		_testExecuteWithoutDSRequestViewPermission();
+		_testExecuteWithoutLayoutViewPermission();
+		_testExecuteWithoutSite();
 	}
 
 	private long _addDSRequest(long siteGroupId) throws Exception {
-		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					"L_DS_REQUEST", TestPropsValues.getCompanyId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
 
-		ObjectEntry objectEntry = _objectEntryLocalService.addObjectEntry(
-			0, TestPropsValues.getUserId(),
-			objectDefinition.getObjectDefinitionId(), 0,
-			LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault()),
+		ObjectEntry dsRequestObjectEntry = _addObjectEntry(
+			"L_DS_REQUEST",
 			HashMapBuilder.<String, Serializable>put(
 				"emailSubject", RandomTestUtil.randomString()
 			).put(
@@ -133,14 +134,49 @@ public class OpenDSRequestStrutsActionTest {
 			).put(
 				"providerRequestId", RandomTestUtil.randomString()
 			).put(
-				"requestStatus", "sent"
+				"requestStatus", DSRequestConstants.STATUS_SENT
 			).put(
 				"siteGroupId", siteGroupId
 			).build(),
-			ServiceContextTestUtil.getServiceContext(
-				_group.getGroupId(), TestPropsValues.getUserId()));
+			serviceContext);
 
-		return objectEntry.getObjectEntryId();
+		_addObjectEntry(
+			"L_DS_REQUEST_RECIPIENT",
+			HashMapBuilder.<String, Serializable>put(
+				"emailAddress", _user.getEmailAddress()
+			).put(
+				"name", _user.getFullName()
+			).put(
+				"providerRecipientId", RandomTestUtil.randomString()
+			).put(
+				"r_dsRequestToDSRequestRecipients_l_dsRequestId",
+				dsRequestObjectEntry.getObjectEntryId()
+			).put(
+				"r_userToDSRequestRecipients_userId", _user.getUserId()
+			).put(
+				"requestRecipientStatus",
+				DSRequestRecipientConstants.STATUS_SENT
+			).build(),
+			serviceContext);
+
+		return dsRequestObjectEntry.getObjectEntryId();
+	}
+
+	private ObjectEntry _addObjectEntry(
+			String externalReferenceCode, Map<String, Serializable> values,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					externalReferenceCode, TestPropsValues.getCompanyId());
+
+		return _objectEntryLocalService.addObjectEntry(
+			0, TestPropsValues.getUserId(),
+			objectDefinition.getObjectDefinitionId(), 0,
+			LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault()), values,
+			serviceContext);
 	}
 
 	private void _assertRedirectedToLayout(
@@ -283,21 +319,18 @@ public class OpenDSRequestStrutsActionTest {
 			mockHttpServletResponse.getStatus());
 	}
 
-	private void _testExecuteWithoutSite() throws Exception {
-		long dsRequestId = _addDSRequest(RandomTestUtil.randomInt());
+	private void _testExecuteWithoutDSRequestViewPermission() throws Exception {
+		long dsRequestId = _addDSRequest(_group.getGroupId());
 
-		Group group = _groupLocalService.getGroup(
-			TestPropsValues.getCompanyId(), GroupConstants.GUEST);
+		MockHttpServletResponse mockHttpServletResponse = _execute(
+			dsRequestId, Collections.emptyMap(), UserTestUtil.addUser());
 
-		_assertRedirectedToLayout(
-			dsRequestId,
-			_layoutLocalService.fetchFirstLayout(
-				group.getGroupId(), false,
-				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, false),
-			_execute(dsRequestId, Collections.emptyMap(), _user));
+		Assert.assertEquals(
+			HttpServletResponse.SC_NOT_FOUND,
+			mockHttpServletResponse.getStatus());
 	}
 
-	private void _testExecuteWithoutViewPermission() throws Exception {
+	private void _testExecuteWithoutLayoutViewPermission() throws Exception {
 		Layout layout1 = LayoutTestUtil.addTypePortletLayout(_group);
 		Layout layout2 = LayoutTestUtil.addTypePortletLayout(_group);
 
@@ -314,6 +347,20 @@ public class OpenDSRequestStrutsActionTest {
 
 		_assertRedirectedToLayout(
 			dsRequestId, layout2,
+			_execute(dsRequestId, Collections.emptyMap(), _user));
+	}
+
+	private void _testExecuteWithoutSite() throws Exception {
+		long dsRequestId = _addDSRequest(RandomTestUtil.randomInt());
+
+		Group group = _groupLocalService.getGroup(
+			TestPropsValues.getCompanyId(), GroupConstants.GUEST);
+
+		_assertRedirectedToLayout(
+			dsRequestId,
+			_layoutLocalService.fetchFirstLayout(
+				group.getGroupId(), false,
+				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, false),
 			_execute(dsRequestId, Collections.emptyMap(), _user));
 	}
 
