@@ -226,13 +226,6 @@ public class SignDSRequestMVCRenderCommandTest {
 				redirectedURL, "dsRequestId", false));
 	}
 
-	private void _testRenderWithoutViewInContext() throws Exception {
-		FileEntry fileEntry = _addFileEntry(RandomTestUtil.randomLong());
-
-		_assertRedirectedToLayout(
-			_addDSRequest(fileEntry.getFileEntryId()), _layout);
-	}
-
 	private void _testRenderWithViewInContext() throws Exception {
 		Layout layout = LayoutTestUtil.addTypePortletLayout(_group);
 
@@ -240,6 +233,13 @@ public class SignDSRequestMVCRenderCommandTest {
 
 		_assertRedirectedToLayout(
 			_addDSRequest(fileEntry.getFileEntryId()), layout);
+	}
+
+	private void _testRenderWithoutViewInContext() throws Exception {
+		FileEntry fileEntry = _addFileEntry(RandomTestUtil.randomLong());
+
+		_assertRedirectedToLayout(
+			_addDSRequest(fileEntry.getFileEntryId()), _layout);
 	}
 
 	private CompanyConfigurationTemporarySwapper

@@ -16,13 +16,13 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface DSRecipientViewDefinitionManager {
 
 	public String addDSRecipientViewDefinition(
-			long companyId, long groupId, String dsEnvelopeId,
-			DSRecipientViewDefinition dsRecipientViewDefinition)
+			long companyId, long groupId, long userId, String dsEnvelopeId,
+			String portalURL)
 		throws Exception;
 
 	public String addDSRecipientViewDefinition(
-			long companyId, long groupId, long userId, String dsEnvelopeId,
-			String portalURL)
+			long companyId, long groupId, String dsEnvelopeId,
+			DSRecipientViewDefinition dsRecipientViewDefinition)
 		throws Exception;
 
 }

@@ -212,6 +212,47 @@ public class OpenDSRequestStrutsActionTest {
 				URLCodec.encodeURL("dsRequestId=" + dsRequestId)));
 	}
 
+	private void _testExecuteWithParameters() throws Exception {
+		Group group = GroupTestUtil.addGroup();
+
+		Layout layout = LayoutTestUtil.addTypePortletLayout(group);
+
+		long dsRequestId = _addDSRequest(group.getGroupId());
+
+		String backURL = "/" + RandomTestUtil.randomString();
+		String portletNamespace = _portal.getPortletNamespace(
+			DigitalSignaturePortletKeys.SIGN_DIGITAL_SIGNATURE);
+
+		MockHttpServletResponse mockHttpServletResponse = _execute(
+			dsRequestId,
+			HashMapBuilder.put(
+				portletNamespace + "backURL", backURL
+			).put(
+				"p_p_state", LiferayWindowState.POP_UP.toString()
+			).build(),
+			_user);
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_MOVED_TEMPORARILY,
+			mockHttpServletResponse.getStatus());
+
+		String redirectedURL = mockHttpServletResponse.getRedirectedUrl();
+
+		Assert.assertTrue(
+			redirectedURL,
+			redirectedURL.contains(
+				layout.getFriendlyURL() + "/-/digital_signature/sign/" +
+					dsRequestId));
+		Assert.assertEquals(
+			LiferayWindowState.POP_UP.toString(),
+			HttpComponentsUtil.getParameter(redirectedURL, "p_p_state", false));
+		Assert.assertEquals(
+			backURL,
+			URLCodec.decodeURL(
+				HttpComponentsUtil.getParameter(
+					redirectedURL, portletNamespace + "backURL", false)));
+	}
+
 	private void _testExecuteWithoutDSRequest() throws Exception {
 		MockHttpServletResponse mockHttpServletResponse = _execute(
 			RandomTestUtil.randomLong(), Collections.emptyMap(), _user);
@@ -253,47 +294,6 @@ public class OpenDSRequestStrutsActionTest {
 		_assertRedirectedToLayout(
 			dsRequestId, layout2,
 			_execute(dsRequestId, Collections.emptyMap(), _user));
-	}
-
-	private void _testExecuteWithParameters() throws Exception {
-		Group group = GroupTestUtil.addGroup();
-
-		Layout layout = LayoutTestUtil.addTypePortletLayout(group);
-
-		long dsRequestId = _addDSRequest(group.getGroupId());
-
-		String backURL = "/" + RandomTestUtil.randomString();
-		String portletNamespace = _portal.getPortletNamespace(
-			DigitalSignaturePortletKeys.SIGN_DIGITAL_SIGNATURE);
-
-		MockHttpServletResponse mockHttpServletResponse = _execute(
-			dsRequestId,
-			HashMapBuilder.put(
-				portletNamespace + "backURL", backURL
-			).put(
-				"p_p_state", LiferayWindowState.POP_UP.toString()
-			).build(),
-			_user);
-
-		Assert.assertEquals(
-			HttpServletResponse.SC_MOVED_TEMPORARILY,
-			mockHttpServletResponse.getStatus());
-
-		String redirectedURL = mockHttpServletResponse.getRedirectedUrl();
-
-		Assert.assertTrue(
-			redirectedURL,
-			redirectedURL.contains(
-				layout.getFriendlyURL() + "/-/digital_signature/sign/" +
-					dsRequestId));
-		Assert.assertEquals(
-			LiferayWindowState.POP_UP.toString(),
-			HttpComponentsUtil.getParameter(redirectedURL, "p_p_state", false));
-		Assert.assertEquals(
-			backURL,
-			URLCodec.decodeURL(
-				HttpComponentsUtil.getParameter(
-					redirectedURL, portletNamespace + "backURL", false)));
 	}
 
 	@Inject

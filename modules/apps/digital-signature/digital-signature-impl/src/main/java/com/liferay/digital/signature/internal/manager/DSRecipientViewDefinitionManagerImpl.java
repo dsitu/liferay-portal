@@ -32,23 +32,6 @@ public class DSRecipientViewDefinitionManagerImpl
 
 	@Override
 	public String addDSRecipientViewDefinition(
-			long companyId, long groupId, String dsEnvelopeId,
-			DSRecipientViewDefinition dsRecipientViewDefinition)
-		throws Exception {
-
-		_checkPermission(companyId, dsRecipientViewDefinition);
-
-		JSONObject jsonObject = _dsHttp.post(
-			companyId, groupId,
-			StringBundler.concat(
-				"envelopes/", dsEnvelopeId, "/views/recipient"),
-			dsRecipientViewDefinition.toJSONObject());
-
-		return jsonObject.getString("url");
-	}
-
-	@Override
-	public String addDSRecipientViewDefinition(
 			long companyId, long groupId, long userId, String dsEnvelopeId,
 			String portalURL)
 		throws Exception {
@@ -78,6 +61,23 @@ public class DSRecipientViewDefinitionManagerImpl
 
 		return addDSRecipientViewDefinition(
 			companyId, groupId, dsEnvelopeId, dsRecipientViewDefinition);
+	}
+
+	@Override
+	public String addDSRecipientViewDefinition(
+			long companyId, long groupId, String dsEnvelopeId,
+			DSRecipientViewDefinition dsRecipientViewDefinition)
+		throws Exception {
+
+		_checkPermission(companyId, dsRecipientViewDefinition);
+
+		JSONObject jsonObject = _dsHttp.post(
+			companyId, groupId,
+			StringBundler.concat(
+				"envelopes/", dsEnvelopeId, "/views/recipient"),
+			dsRecipientViewDefinition.toJSONObject());
+
+		return jsonObject.getString("url");
 	}
 
 	private void _checkPermission(

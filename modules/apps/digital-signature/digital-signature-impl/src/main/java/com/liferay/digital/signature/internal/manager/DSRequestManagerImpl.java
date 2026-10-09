@@ -562,6 +562,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		try {
+			Map<String, DSRecipient> dsRecipientsMap = new HashMap<>();
+
 			DSEnvelope dsEnvelope = _dsEnvelopeManager.getDSEnvelope(
 				companyId, groupId, providerRequestId);
 
@@ -585,8 +587,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 				List<DSRequestRecipient> sentDSRequestRecipients =
 					_updateRecipientStatuses(
-						companyId, groupId, dsRecipientsMap,
-						dsRequestId, dsRequestRecipientObjectDefinition);
+						companyId, groupId, dsRecipientsMap, dsRequestId,
+						dsRequestRecipientObjectDefinition);
 
 				if (!sentDSRequestRecipients.isEmpty()) {
 					_sendDSRequestNotifications(
@@ -928,6 +930,44 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		return dsRequests;
 	}
 
+	private int _getDSRequestsCount(
+			long companyId, String filterString, String search,
+			boolean checkPermissions)
+		throws Exception {
+
+		if (!_isEnabled(companyId, 0)) {
+			return 0;
+		}
+
+		ObjectDefinition dsRequestObjectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST", companyId);
+
+		if (dsRequestObjectDefinition == null) {
+			return 0;
+		}
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		try {
+			if (!checkPermissions) {
+				PermissionThreadLocal.setPermissionChecker(null);
+			}
+
+			return _objectEntryLocalService.getValuesListCount(
+				new Long[] {0L}, companyId,
+				dsRequestObjectDefinition.getUserId(),
+				dsRequestObjectDefinition.getObjectDefinitionId(),
+				_filterFactory.create(filterString, dsRequestObjectDefinition),
+				false, search);
+		}
+		finally {
+			PermissionThreadLocal.setPermissionChecker(permissionChecker);
+		}
+	}
+
 	private Map<Long, DSRequest> _getDSRequestsMap(
 			long companyId, Set<Long> dsRequestIds,
 			ObjectDefinition dsRequestRecipientObjectDefinition)
@@ -990,44 +1030,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		return dsRequestsMap;
-	}
-
-	private int _getDSRequestsCount(
-			long companyId, String filterString, String search,
-			boolean checkPermissions)
-		throws Exception {
-
-		if (!_isEnabled(companyId, 0)) {
-			return 0;
-		}
-
-		ObjectDefinition dsRequestObjectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					"L_DS_REQUEST", companyId);
-
-		if (dsRequestObjectDefinition == null) {
-			return 0;
-		}
-
-		PermissionChecker permissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
-		try {
-			if (!checkPermissions) {
-				PermissionThreadLocal.setPermissionChecker(null);
-			}
-
-			return _objectEntryLocalService.getValuesListCount(
-				new Long[] {0L}, companyId,
-				dsRequestObjectDefinition.getUserId(),
-				dsRequestObjectDefinition.getObjectDefinitionId(),
-				_filterFactory.create(filterString, dsRequestObjectDefinition),
-				false, search);
-		}
-		finally {
-			PermissionThreadLocal.setPermissionChecker(permissionChecker);
-		}
 	}
 
 	private String _getEmailBody(
@@ -1387,8 +1389,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 	private List<DSRequestRecipient> _updateRecipientStatuses(
 			long companyId, long groupId,
-			Map<String, DSRecipient> dsRecipientsMap,
-			long dsRequestId, ObjectDefinition objectDefinition)
+			Map<String, DSRecipient> dsRecipientsMap, long dsRequestId,
+			ObjectDefinition objectDefinition)
 		throws Exception {
 
 		List<DSRequestRecipient> sentDSRequestRecipients = new ArrayList<>();
