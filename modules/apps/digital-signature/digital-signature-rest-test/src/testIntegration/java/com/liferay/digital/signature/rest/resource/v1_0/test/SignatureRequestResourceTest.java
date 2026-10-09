@@ -279,8 +279,9 @@ public class SignatureRequestResourceTest
 	public void testPatchSignatureRequest() throws Exception {
 		_testPatchSignatureRequestWhenRequestIsTerminal();
 		_testPatchSignatureRequestWhenStatusIsNotVoided();
-		_testPatchSignatureRequestWhenUserLacksPermission();
 		_testPatchSignatureRequestWhenVoidReasonIsNull();
+		_testPatchSignatureRequestWithoutUpdatePermission();
+		_testPatchSignatureRequestWithoutViewPermission();
 	}
 
 	@Ignore
@@ -479,14 +480,31 @@ public class SignatureRequestResourceTest
 			DSRequestConstants.STATUS_SENT, signatureRequest.getStatus());
 	}
 
-	private void _testPatchSignatureRequestWhenUserLacksPermission()
+	private void _testPatchSignatureRequestWhenVoidReasonIsNull()
 		throws Exception {
 
 		ObjectEntry dsRequestObjectEntry = _addDSRequestObjectEntries(
 			RandomTestUtil.randomString() + "@liferay.com",
 			DSRequestConstants.STATUS_SENT);
 
+		_assertProblemStatus(
+			"BAD_REQUEST",
+			() -> signatureRequestResource.patchSignatureRequest(
+				dsRequestObjectEntry.getObjectEntryId(),
+				new SignatureRequest() {
+					{
+						setStatus(DSRequestConstants.STATUS_VOIDED);
+					}
+				}));
+	}
+
+	private void _testPatchSignatureRequestWithoutUpdatePermission()
+		throws Exception {
+
 		_user1 = UserTestUtil.addUser();
+
+		ObjectEntry dsRequestObjectEntry = _addDSRequestObjectEntries(
+			_user1.getEmailAddress(), DSRequestConstants.STATUS_SENT);
 
 		SignatureRequestResource userSignatureRequestResource =
 			_getSignatureRequestResource(_user1);
@@ -503,20 +521,26 @@ public class SignatureRequestResourceTest
 				}));
 	}
 
-	private void _testPatchSignatureRequestWhenVoidReasonIsNull()
+	private void _testPatchSignatureRequestWithoutViewPermission()
 		throws Exception {
 
 		ObjectEntry dsRequestObjectEntry = _addDSRequestObjectEntries(
 			RandomTestUtil.randomString() + "@liferay.com",
 			DSRequestConstants.STATUS_SENT);
 
+		_user1 = UserTestUtil.addUser();
+
+		SignatureRequestResource userSignatureRequestResource =
+			_getSignatureRequestResource(_user1);
+
 		_assertProblemStatus(
-			"BAD_REQUEST",
-			() -> signatureRequestResource.patchSignatureRequest(
+			"NOT_FOUND",
+			() -> userSignatureRequestResource.patchSignatureRequest(
 				dsRequestObjectEntry.getObjectEntryId(),
 				new SignatureRequest() {
 					{
 						setStatus(DSRequestConstants.STATUS_VOIDED);
+						setVoidReason(RandomTestUtil.randomString());
 					}
 				}));
 	}
