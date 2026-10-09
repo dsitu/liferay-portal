@@ -6,12 +6,14 @@
 package com.liferay.digital.signature.web.internal.struts.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -42,6 +44,7 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -59,6 +62,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -82,8 +86,25 @@ public class OpenDSRequestStrutsActionTest {
 
 	@Before
 	public void setUp() throws Exception {
+		_companyConfigurationTemporarySwapper =
+			new CompanyConfigurationTemporarySwapper(
+				TestPropsValues.getCompanyId(),
+				DigitalSignatureConfiguration.class.getName(),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"enabled", true
+				).put(
+					"enableEmbeddedView", true
+				).put(
+					"siteSettingsStrategy", "always-inherit"
+				).build());
+
 		_group = GroupTestUtil.addGroup();
 		_user = UserTestUtil.addUser();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		_companyConfigurationTemporarySwapper.close();
 	}
 
 	@Test
@@ -295,6 +316,9 @@ public class OpenDSRequestStrutsActionTest {
 			dsRequestId, layout2,
 			_execute(dsRequestId, Collections.emptyMap(), _user));
 	}
+
+	private CompanyConfigurationTemporarySwapper
+		_companyConfigurationTemporarySwapper;
 
 	@Inject
 	private CompanyLocalService _companyLocalService;
