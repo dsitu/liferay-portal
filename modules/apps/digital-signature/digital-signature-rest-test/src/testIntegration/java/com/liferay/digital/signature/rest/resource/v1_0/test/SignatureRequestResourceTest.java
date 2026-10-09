@@ -289,10 +289,18 @@ public class SignatureRequestResourceTest
 	public void testPostSignatureRequestNotification() throws Exception {
 	}
 
-	@Ignore
 	@Override
 	@Test
 	public void testPostSiteSignatureRequest() throws Exception {
+		_user1 = UserTestUtil.addUser(testGroup.getGroupId());
+
+		SignatureRequestResource userSignatureRequestResource =
+			_getSignatureRequestResource(_user1);
+
+		_assertProblemStatus(
+			"FORBIDDEN",
+			() -> userSignatureRequestResource.postSiteSignatureRequest(
+				testGroup.getGroupId(), randomSignatureRequest()));
 	}
 
 	@Ignore
