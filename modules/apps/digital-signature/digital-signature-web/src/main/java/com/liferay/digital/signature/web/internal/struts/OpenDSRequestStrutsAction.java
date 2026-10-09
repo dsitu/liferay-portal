@@ -9,6 +9,7 @@ import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
@@ -81,11 +82,19 @@ public class OpenDSRequestStrutsAction implements StrutsAction {
 			return null;
 		}
 
+		Layout layout = _getLayout(
+			themeDisplay.getCompanyId(), dsRequest.getSiteGroupId());
+
+		if (layout == null) {
+			_portal.sendError(
+				HttpServletResponse.SC_NOT_FOUND, new NoSuchLayoutException(),
+				httpServletRequest, httpServletResponse);
+
+			return null;
+		}
+
 		String url = StringBundler.concat(
-			_portal.getLayoutFullURL(
-				_getLayout(
-					themeDisplay.getCompanyId(), dsRequest.getSiteGroupId()),
-				themeDisplay),
+			_portal.getLayoutFullURL(layout, themeDisplay),
 			"/-/digital_signature/sign/", dsRequest.getDSRequestId());
 
 		String windowState = WindowState.MAXIMIZED.toString();
