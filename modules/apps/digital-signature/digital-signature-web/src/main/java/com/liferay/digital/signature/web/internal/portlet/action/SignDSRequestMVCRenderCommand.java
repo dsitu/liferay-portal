@@ -143,10 +143,10 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 			return "/sign_digital_signature/error.jsp";
 		}
 
-		String portalURL = _portal.getPortalURL(
-			_portal.getHttpServletRequest(renderRequest));
-
 		try {
+			String portalURL = _portal.getPortalURL(
+				_portal.getHttpServletRequest(renderRequest));
+
 			renderRequest.setAttribute(
 				WebKeys.PORTLET_DISPLAY_CONTEXT,
 				new SignDSRequestDisplayContext(
