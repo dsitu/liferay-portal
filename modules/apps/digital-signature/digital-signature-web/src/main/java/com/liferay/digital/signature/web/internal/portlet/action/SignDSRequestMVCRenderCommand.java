@@ -71,7 +71,7 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 		}
 
 		try {
-			if (!_dsRequestManager.containsPermission(
+			if (!_dsRequestManager.hasPermission(
 					themeDisplay.getPermissionChecker(), dsRequest,
 					ActionKeys.VIEW)) {
 

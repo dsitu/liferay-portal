@@ -5,6 +5,7 @@
 
 package com.liferay.digital.signature.rest.internal.resource.v1_0;
 
+import com.liferay.digital.signature.constants.DSRequestConstants;
 import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSEnvelope;
 import com.liferay.digital.signature.model.DSRecipient;
@@ -13,12 +14,14 @@ import com.liferay.digital.signature.rest.dto.v1_0.SignatureRequest;
 import com.liferay.digital.signature.rest.dto.v1_0.SignatureRequestRecipient;
 import com.liferay.digital.signature.rest.resource.v1_0.SignatureRequestResource;
 import com.liferay.digital.signature.url.SignDSURLProvider;
+import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -59,14 +62,7 @@ public class SignatureRequestResourceImpl
 
 		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
 
-		if (!_dsRequestManager.containsPermission(
-				PermissionThreadLocal.getPermissionChecker(), dsRequest,
-				ActionKeys.VIEW)) {
-
-			throw new PrincipalException.MustHavePermission(
-				contextUser.getUserId(), DSRequest.class.getName(),
-				signatureRequestId, ActionKeys.VIEW);
-		}
+		_checkPermission(dsRequest, ActionKeys.VIEW);
 
 		return _toSignatureRequest(dsRequest);
 	}
@@ -112,14 +108,7 @@ public class SignatureRequestResourceImpl
 
 		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
 
-		if (!_dsRequestManager.containsPermission(
-				PermissionThreadLocal.getPermissionChecker(), dsRequest,
-				ActionKeys.UPDATE)) {
-
-			throw new PrincipalException.MustHavePermission(
-				contextUser.getUserId(), DSRequest.class.getName(),
-				signatureRequestId, ActionKeys.UPDATE);
-		}
+		_checkPermission(dsRequest, ActionKeys.UPDATE);
 
 		String status = signatureRequest.getStatus();
 
@@ -129,7 +118,7 @@ public class SignatureRequestResourceImpl
 			return _toSignatureRequest(dsRequest);
 		}
 
-		if (!Objects.equals(status, "voided")) {
+		if (!Objects.equals(status, DSRequestConstants.STATUS_VOIDED)) {
 			throw new BadRequestException(
 				StringBundler.concat(
 					"Unable to change the status of signature request ",
@@ -165,14 +154,7 @@ public class SignatureRequestResourceImpl
 
 		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
 
-		if (!_dsRequestManager.containsPermission(
-				PermissionThreadLocal.getPermissionChecker(), dsRequest,
-				ActionKeys.UPDATE)) {
-
-			throw new PrincipalException.MustHavePermission(
-				contextUser.getUserId(), DSRequest.class.getName(),
-				signatureRequestId, ActionKeys.UPDATE);
-		}
+		_checkPermission(dsRequest, ActionKeys.UPDATE);
 
 		_dsRequestManager.sendDSRequestNotifications(
 			contextCompany.getCompanyId(), dsRequest.getSiteGroupId(),
@@ -193,6 +175,12 @@ public class SignatureRequestResourceImpl
 				"A signature request must have at least one file entry");
 		}
 
+		_groupService.getGroup(siteId);
+
+		for (Long fileEntryId : fileEntryIds) {
+			_dlAppService.getFileEntry(fileEntryId);
+		}
+
 		DSRequest dsRequest = _dsRequestManager.addDSRequest(
 			contextCompany.getCompanyId(), siteId, contextUser.getUserId(),
 			_toDSEnvelope(signatureRequest), ArrayUtil.toArray(fileEntryIds));
@@ -205,6 +193,19 @@ public class SignatureRequestResourceImpl
 		}
 
 		return _toSignatureRequest(dsRequest);
+	}
+
+	private void _checkPermission(DSRequest dsRequest, String actionId)
+		throws Exception {
+
+		if (!_dsRequestManager.hasPermission(
+				PermissionThreadLocal.getPermissionChecker(), dsRequest,
+				actionId)) {
+
+			throw new PrincipalException.MustHavePermission(
+				contextUser.getUserId(), DSRequest.class.getName(),
+				dsRequest.getDSRequestId(), actionId);
+		}
 	}
 
 	private DSRequest _fetchDSRequest(Long signatureRequestId) {
@@ -319,10 +320,16 @@ public class SignatureRequestResourceImpl
 	}
 
 	@Reference
+	private DLAppService _dlAppService;
+
+	@Reference
 	private DSRequestManager _dsRequestManager;
 
 	@Reference
 	private DTOConverterRegistry _dtoConverterRegistry;
+
+	@Reference
+	private GroupService _groupService;
 
 	@Reference
 	private SignDSURLProvider _signDSURLProvider;

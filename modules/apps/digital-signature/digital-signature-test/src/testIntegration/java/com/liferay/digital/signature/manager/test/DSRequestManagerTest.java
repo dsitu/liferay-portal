@@ -321,35 +321,6 @@ public class DSRequestManagerTest {
 	}
 
 	@Test
-	public void testContainsPermission() throws Exception {
-		_user = UserTestUtil.addUser();
-
-		DSRequest dsRequest = _addDSRequest(
-			_user.getEmailAddress(), DSRequestConstants.STATUS_SENT);
-
-		PermissionChecker permissionChecker =
-			PermissionCheckerFactoryUtil.create(_user);
-
-		Assert.assertTrue(
-			_dsRequestManager.containsPermission(
-				permissionChecker, dsRequest, ActionKeys.UPDATE));
-		Assert.assertTrue(
-			_dsRequestManager.containsPermission(
-				permissionChecker, dsRequest, ActionKeys.VIEW));
-
-		_otherUser = UserTestUtil.addUser();
-
-		permissionChecker = PermissionCheckerFactoryUtil.create(_otherUser);
-
-		Assert.assertFalse(
-			_dsRequestManager.containsPermission(
-				permissionChecker, dsRequest, ActionKeys.UPDATE));
-		Assert.assertFalse(
-			_dsRequestManager.containsPermission(
-				permissionChecker, dsRequest, ActionKeys.VIEW));
-	}
-
-	@Test
 	public void testFetchDSRequest() throws Exception {
 		DSRequest dsRequest1 = _addDSRequest(
 			_createDSEnvelope(), RandomTestUtil.randomInt());
@@ -448,6 +419,35 @@ public class DSRequestManagerTest {
 			_dsRequestManager.getRecipientDSRequestsCount(
 				TestPropsValues.getCompanyId(), _user.getUserId(),
 				RandomTestUtil.randomString()));
+	}
+
+	@Test
+	public void testHasPermission() throws Exception {
+		_user = UserTestUtil.addUser();
+
+		DSRequest dsRequest = _addDSRequest(
+			_user.getEmailAddress(), DSRequestConstants.STATUS_SENT);
+
+		PermissionChecker permissionChecker =
+			PermissionCheckerFactoryUtil.create(_user);
+
+		Assert.assertTrue(
+			_dsRequestManager.hasPermission(
+				permissionChecker, dsRequest, ActionKeys.UPDATE));
+		Assert.assertTrue(
+			_dsRequestManager.hasPermission(
+				permissionChecker, dsRequest, ActionKeys.VIEW));
+
+		_otherUser = UserTestUtil.addUser();
+
+		permissionChecker = PermissionCheckerFactoryUtil.create(_otherUser);
+
+		Assert.assertFalse(
+			_dsRequestManager.hasPermission(
+				permissionChecker, dsRequest, ActionKeys.UPDATE));
+		Assert.assertFalse(
+			_dsRequestManager.hasPermission(
+				permissionChecker, dsRequest, ActionKeys.VIEW));
 	}
 
 	@Test
