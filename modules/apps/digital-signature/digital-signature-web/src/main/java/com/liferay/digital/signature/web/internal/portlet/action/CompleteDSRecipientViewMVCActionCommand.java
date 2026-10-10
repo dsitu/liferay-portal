@@ -5,6 +5,7 @@
 
 package com.liferay.digital.signature.web.internal.portlet.action;
 
+import com.liferay.digital.signature.constants.DSRequestRecipientConstants;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.digital.signature.manager.DSEnvelopeManager;
 import com.liferay.digital.signature.manager.DSRequestManager;
@@ -17,6 +18,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -60,7 +62,10 @@ public class CompleteDSRecipientViewMVCActionCommand
 			ParamUtil.getLong(actionRequest, "dsRequestId"));
 
 		if ((dsRequest != null) &&
-			(dsRequest.getCompanyId() == themeDisplay.getCompanyId())) {
+			(dsRequest.getCompanyId() == themeDisplay.getCompanyId()) &&
+			_dsRequestManager.hasPermission(
+				themeDisplay.getPermissionChecker(), dsRequest,
+				ActionKeys.VIEW)) {
 
 			_processDSRequest(actionRequest, dsRequest, themeDisplay);
 		}
@@ -94,7 +99,8 @@ public class CompleteDSRecipientViewMVCActionCommand
 			if (StringUtil.equalsIgnoreCase(
 					emailAddress, dsRecipient.getEmailAddress()) &&
 				StringUtil.equalsIgnoreCase(
-					"completed", dsRecipient.getStatus())) {
+					DSRequestRecipientConstants.STATUS_COMPLETED,
+					dsRecipient.getStatus())) {
 
 				return dsRecipient;
 			}
