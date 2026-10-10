@@ -1,0 +1,420 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+package com.liferay.digital.signature.web.internal.struts.test;
+
+import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.batch.engine.test.util.BatchEngineTestUtil;
+import com.liferay.digital.signature.configuration.DigitalSignatureConfiguration;
+import com.liferay.digital.signature.constants.DSRequestConstants;
+import com.liferay.digital.signature.constants.DSRequestRecipientConstants;
+import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
+import com.liferay.layout.test.util.LayoutTestUtil;
+import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.portal.configuration.test.util.CompanyConfigurationTemporarySwapper;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
+import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.LayoutLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.struts.StrutsAction;
+import com.liferay.portal.kernel.test.context.ContextUserReplace;
+import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
+import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.URLCodec;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.test.rule.FeatureFlag;
+import com.liferay.portal.test.rule.Inject;
+import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+
+import jakarta.portlet.WindowState;
+
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.Serializable;
+
+import java.util.Collections;
+import java.util.Map;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+/**
+ * @author Danny Situ
+ */
+@FeatureFlag("LPD-69290")
+@RunWith(Arquillian.class)
+public class OpenDSRequestStrutsActionTest {
+
+	@ClassRule
+	@Rule
+	public static final AggregateTestRule aggregateTestRule =
+		new LiferayIntegrationTestRule();
+
+	@Before
+	public void setUp() throws Exception {
+		String prefix = ".com.liferay.digital.signature.internal.batch.";
+
+		BatchEngineTestUtil.processBatchEngineUnits(
+			"com.liferay.digital.signature.impl",
+			OpenDSRequestStrutsActionTest.class,
+			new String[] {
+				prefix + "00.list.type.definition",
+				prefix + "01.object.definition"
+			});
+
+		_companyConfigurationTemporarySwapper =
+			new CompanyConfigurationTemporarySwapper(
+				TestPropsValues.getCompanyId(),
+				DigitalSignatureConfiguration.class.getName(),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"embeddedViewEnabled", true
+				).put(
+					"enabled", true
+				).put(
+					"siteSettingsStrategy", "always-inherit"
+				).build());
+
+		_group = GroupTestUtil.addGroup();
+		_user = UserTestUtil.addUser();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		_companyConfigurationTemporarySwapper.close();
+	}
+
+	@Test
+	public void testExecute() throws Exception {
+		_testExecuteWithGuestUser();
+		_testExecuteWithParameters();
+		_testExecuteWithoutDSRequest();
+		_testExecuteWithoutDSRequestViewPermission();
+		_testExecuteWithoutLayoutViewPermission();
+		_testExecuteWithoutSite();
+	}
+
+	private long _addDSRequest(long siteGroupId) throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), TestPropsValues.getUserId());
+
+		ObjectEntry dsRequestObjectEntry = _addObjectEntry(
+			"L_DS_REQUEST",
+			HashMapBuilder.<String, Serializable>put(
+				"emailSubject", RandomTestUtil.randomString()
+			).put(
+				"providerKey", "docusign"
+			).put(
+				"providerRequestId", RandomTestUtil.randomString()
+			).put(
+				"requestStatus", DSRequestConstants.STATUS_SENT
+			).put(
+				"siteGroupId", siteGroupId
+			).build(),
+			serviceContext);
+
+		_addObjectEntry(
+			"L_DS_REQUEST_RECIPIENT",
+			HashMapBuilder.<String, Serializable>put(
+				"emailAddress", _user.getEmailAddress()
+			).put(
+				"name", _user.getFullName()
+			).put(
+				"providerRecipientId", RandomTestUtil.randomString()
+			).put(
+				"r_dsRequestToDSRequestRecipients_l_dsRequestId",
+				dsRequestObjectEntry.getObjectEntryId()
+			).put(
+				"r_userToDSRequestRecipients_userId", _user.getUserId()
+			).put(
+				"requestRecipientStatus",
+				DSRequestRecipientConstants.STATUS_SENT
+			).build(),
+			serviceContext);
+
+		return dsRequestObjectEntry.getObjectEntryId();
+	}
+
+	private ObjectEntry _addObjectEntry(
+			String externalReferenceCode, Map<String, Serializable> values,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.
+				getObjectDefinitionByExternalReferenceCode(
+					externalReferenceCode, TestPropsValues.getCompanyId());
+
+		return _objectEntryLocalService.addObjectEntry(
+			0, TestPropsValues.getUserId(),
+			objectDefinition.getObjectDefinitionId(), 0,
+			LocaleUtil.toLanguageId(LocaleUtil.getSiteDefault()), values,
+			serviceContext);
+	}
+
+	private void _assertRedirectedToLayout(
+		long dsRequestId, Layout layout,
+		MockHttpServletResponse mockHttpServletResponse) {
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_MOVED_TEMPORARILY,
+			mockHttpServletResponse.getStatus());
+
+		String redirectedURL = mockHttpServletResponse.getRedirectedUrl();
+
+		Assert.assertTrue(
+			redirectedURL,
+			redirectedURL.contains(
+				layout.getFriendlyURL() + "/-/digital_signature/sign/" +
+					dsRequestId));
+		Assert.assertEquals(
+			WindowState.MAXIMIZED.toString(),
+			HttpComponentsUtil.getParameter(redirectedURL, "p_p_state", false));
+	}
+
+	private MockHttpServletResponse _execute(
+			long dsRequestId, Map<String, String> parameters, User user)
+		throws Exception {
+
+		PermissionChecker permissionChecker =
+			PermissionCheckerFactoryUtil.create(user);
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				user, permissionChecker)) {
+
+			MockHttpServletRequest mockHttpServletRequest =
+				new MockHttpServletRequest();
+
+			mockHttpServletRequest.setParameter(
+				"dsRequestId", String.valueOf(dsRequestId));
+			mockHttpServletRequest.setQueryString("dsRequestId=" + dsRequestId);
+			mockHttpServletRequest.setRequestURI(
+				"/c/digital_signature/open_ds_request");
+
+			for (Map.Entry<String, String> entry : parameters.entrySet()) {
+				mockHttpServletRequest.setParameter(
+					entry.getKey(), entry.getValue());
+			}
+
+			Company company = _companyLocalService.getCompany(
+				TestPropsValues.getCompanyId());
+
+			Group group = _groupLocalService.getGroup(
+				company.getCompanyId(), GroupConstants.GUEST);
+
+			ThemeDisplay themeDisplay = new ThemeDisplay();
+
+			themeDisplay.setCompany(company);
+			themeDisplay.setLocale(LocaleUtil.getSiteDefault());
+			themeDisplay.setPermissionChecker(permissionChecker);
+			themeDisplay.setPortalURL(company.getPortalURL(0));
+			themeDisplay.setSignedIn(!user.isGuestUser());
+			themeDisplay.setSiteGroupId(group.getGroupId());
+			themeDisplay.setUser(user);
+
+			mockHttpServletRequest.setAttribute(
+				WebKeys.THEME_DISPLAY, themeDisplay);
+
+			MockHttpServletResponse mockHttpServletResponse =
+				new MockHttpServletResponse();
+
+			_openDSRequestStrutsAction.execute(
+				mockHttpServletRequest, mockHttpServletResponse);
+
+			return mockHttpServletResponse;
+		}
+	}
+
+	private void _testExecuteWithGuestUser() throws Exception {
+		long dsRequestId = _addDSRequest(_group.getGroupId());
+
+		MockHttpServletResponse mockHttpServletResponse = _execute(
+			dsRequestId, Collections.emptyMap(),
+			_userLocalService.getGuestUser(TestPropsValues.getCompanyId()));
+
+		String redirectedURL = mockHttpServletResponse.getRedirectedUrl();
+
+		Assert.assertTrue(
+			redirectedURL, redirectedURL.contains("/portal/login"));
+		Assert.assertTrue(
+			redirectedURL,
+			redirectedURL.contains(
+				URLCodec.encodeURL("dsRequestId=" + dsRequestId)));
+	}
+
+	private void _testExecuteWithParameters() throws Exception {
+		Group group = GroupTestUtil.addGroup();
+
+		Layout layout = LayoutTestUtil.addTypePortletLayout(group);
+
+		long dsRequestId = _addDSRequest(group.getGroupId());
+
+		String backURL = "/" + RandomTestUtil.randomString();
+		String portletNamespace = _portal.getPortletNamespace(
+			DigitalSignaturePortletKeys.SIGN_DIGITAL_SIGNATURE);
+
+		MockHttpServletResponse mockHttpServletResponse = _execute(
+			dsRequestId,
+			HashMapBuilder.put(
+				portletNamespace + "backURL", backURL
+			).put(
+				"p_p_state", LiferayWindowState.POP_UP.toString()
+			).build(),
+			_user);
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_MOVED_TEMPORARILY,
+			mockHttpServletResponse.getStatus());
+
+		String redirectedURL = mockHttpServletResponse.getRedirectedUrl();
+
+		Assert.assertTrue(
+			redirectedURL,
+			redirectedURL.contains(
+				layout.getFriendlyURL() + "/-/digital_signature/sign/" +
+					dsRequestId));
+		Assert.assertEquals(
+			LiferayWindowState.POP_UP.toString(),
+			HttpComponentsUtil.getParameter(redirectedURL, "p_p_state", false));
+		Assert.assertEquals(
+			backURL,
+			URLCodec.decodeURL(
+				HttpComponentsUtil.getParameter(
+					redirectedURL, portletNamespace + "backURL", false)));
+	}
+
+	private void _testExecuteWithoutDSRequest() throws Exception {
+		MockHttpServletResponse mockHttpServletResponse = _execute(
+			RandomTestUtil.randomLong(), Collections.emptyMap(), _user);
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_NOT_FOUND,
+			mockHttpServletResponse.getStatus());
+	}
+
+	private void _testExecuteWithoutDSRequestViewPermission() throws Exception {
+		long dsRequestId = _addDSRequest(_group.getGroupId());
+
+		MockHttpServletResponse mockHttpServletResponse = _execute(
+			dsRequestId, Collections.emptyMap(), UserTestUtil.addUser());
+
+		Assert.assertEquals(
+			HttpServletResponse.SC_NOT_FOUND,
+			mockHttpServletResponse.getStatus());
+	}
+
+	private void _testExecuteWithoutLayoutViewPermission() throws Exception {
+		Layout layout1 = LayoutTestUtil.addTypePortletLayout(_group);
+
+		Role role = _roleLocalService.getRole(
+			TestPropsValues.getCompanyId(), RoleConstants.GUEST);
+
+		_resourcePermissionLocalService.removeResourcePermission(
+			TestPropsValues.getCompanyId(), Layout.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(layout1.getPlid()), role.getRoleId(),
+			ActionKeys.VIEW);
+
+		long dsRequestId = _addDSRequest(_group.getGroupId());
+
+		Layout layout2 = LayoutTestUtil.addTypePortletLayout(_group);
+
+		_assertRedirectedToLayout(
+			dsRequestId, layout2,
+			_execute(dsRequestId, Collections.emptyMap(), _user));
+	}
+
+	private void _testExecuteWithoutSite() throws Exception {
+		long dsRequestId = _addDSRequest(RandomTestUtil.randomInt());
+
+		Group group = _groupLocalService.getGroup(
+			TestPropsValues.getCompanyId(), GroupConstants.GUEST);
+
+		_assertRedirectedToLayout(
+			dsRequestId,
+			_layoutLocalService.fetchFirstLayout(
+				group.getGroupId(), false,
+				LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, false),
+			_execute(dsRequestId, Collections.emptyMap(), _user));
+	}
+
+	private CompanyConfigurationTemporarySwapper
+		_companyConfigurationTemporarySwapper;
+
+	@Inject
+	private CompanyLocalService _companyLocalService;
+
+	@DeleteAfterTestRun
+	private Group _group;
+
+	@Inject
+	private GroupLocalService _groupLocalService;
+
+	@Inject
+	private LayoutLocalService _layoutLocalService;
+
+	@Inject
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Inject
+	private ObjectEntryLocalService _objectEntryLocalService;
+
+	@Inject(filter = "path=/digital_signature/open_ds_request")
+	private StrutsAction _openDSRequestStrutsAction;
+
+	@Inject
+	private Portal _portal;
+
+	@Inject
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Inject
+	private RoleLocalService _roleLocalService;
+
+	@DeleteAfterTestRun
+	private User _user;
+
+	@Inject
+	private UserLocalService _userLocalService;
+
+}
