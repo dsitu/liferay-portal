@@ -147,6 +147,17 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		dsEnvelope.setSenderEmailAddress(user.getEmailAddress());
 		dsEnvelope.setStatus(DSRequestConstants.STATUS_SENT);
 
+		for (DSRecipient dsRecipient : dsEnvelope.getDSRecipients()) {
+			User recipientUser = _userLocalService.fetchUserByEmailAddress(
+				companyId, dsRecipient.getEmailAddress());
+
+			if (recipientUser != null) {
+				dsRecipient.setDSClientUserId(
+					String.valueOf(recipientUser.getUserId()));
+				dsRecipient.setName(recipientUser.getFullName());
+			}
+		}
+
 		DSEnvelope sentDSEnvelope = _dsEnvelopeManager.addDSEnvelope(
 			companyId, groupId, dsEnvelope);
 
@@ -1145,19 +1156,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return;
 		}
 
-		long companyId = dsRequest.getCompanyId();
-
 		try {
-			String url = _getLoginURL(
-				_signDSURLProvider.getURL(
-					companyId, dsRequest.getSiteGroupId(),
-					dsRequest.getDSRequestId()));
-
-			String fromAddress = PrefsPropsUtil.getString(
-				companyId, PropsKeys.ADMIN_EMAIL_FROM_ADDRESS);
-			String fromName = PrefsPropsUtil.getString(
-				companyId, PropsKeys.ADMIN_EMAIL_FROM_NAME);
-
 			Locale locale = _getLocale(
 				dsRequestRecipient.getUserId(), dsRequest.getSiteGroupId());
 
@@ -1166,6 +1165,17 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			if (Validator.isNull(subject)) {
 				subject = _language.get(locale, "you-have-a-document-to-sign");
 			}
+
+			long companyId = dsRequest.getCompanyId();
+
+			String fromAddress = PrefsPropsUtil.getString(
+				companyId, PropsKeys.ADMIN_EMAIL_FROM_ADDRESS);
+			String fromName = PrefsPropsUtil.getString(
+				companyId, PropsKeys.ADMIN_EMAIL_FROM_NAME);
+			String url = _getLoginURL(
+				_signDSURLProvider.getURL(
+					companyId, dsRequest.getSiteGroupId(),
+					dsRequest.getDSRequestId()));
 
 			MailMessage mailMessage = new MailMessage(
 				new InternetAddress(fromAddress, fromName),
