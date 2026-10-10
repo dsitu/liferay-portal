@@ -103,7 +103,8 @@ public class AddDSEnvelopeMVCResourceCommand extends BaseMVCResourceCommand {
 
 		if (!FeatureFlagManagerUtil.isEnabled(
 				themeDisplay.getCompanyId(), "LPD-69290") ||
-			!digitalSignatureConfiguration.enableEmbeddedView()) {
+			!digitalSignatureConfiguration.embeddedViewEnabled()) {
+
 			dsEnvelope.setDSDocuments(
 				TransformUtil.transformToList(
 					ArrayUtil.toLongArray(fileEntryIds),

@@ -9,12 +9,14 @@ import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
 import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutService;
@@ -66,7 +68,10 @@ public class OpenDSRequestStrutsAction implements StrutsAction {
 			ParamUtil.getLong(httpServletRequest, "dsRequestId"));
 
 		if ((dsRequest == null) ||
-			(dsRequest.getCompanyId() != themeDisplay.getCompanyId())) {
+			(dsRequest.getCompanyId() != themeDisplay.getCompanyId()) ||
+			!_dsRequestManager.hasPermission(
+				themeDisplay.getPermissionChecker(), dsRequest,
+				ActionKeys.VIEW)) {
 
 			_portal.sendError(
 				HttpServletResponse.SC_NOT_FOUND, new NoSuchModelException(),
@@ -75,11 +80,19 @@ public class OpenDSRequestStrutsAction implements StrutsAction {
 			return null;
 		}
 
+		Layout layout = _getLayout(
+			themeDisplay.getCompanyId(), dsRequest.getSiteGroupId());
+
+		if (layout == null) {
+			_portal.sendError(
+				HttpServletResponse.SC_NOT_FOUND, new NoSuchLayoutException(),
+				httpServletRequest, httpServletResponse);
+
+			return null;
+		}
+
 		String url = StringBundler.concat(
-			_portal.getLayoutFullURL(
-				_getLayout(
-					themeDisplay.getCompanyId(), dsRequest.getSiteGroupId()),
-				themeDisplay),
+			_portal.getLayoutFullURL(layout, themeDisplay),
 			"/-/digital_signature/sign/", dsRequest.getDSRequestId());
 
 		String windowState = WindowState.MAXIMIZED.toString();

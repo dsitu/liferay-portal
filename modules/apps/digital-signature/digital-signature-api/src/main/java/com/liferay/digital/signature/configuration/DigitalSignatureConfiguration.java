@@ -32,7 +32,7 @@ public interface DigitalSignatureConfiguration {
 
 	public String apiUsername();
 
-	public boolean enableEmbeddedView();
+	public boolean embeddedViewEnabled();
 
 	public boolean enabled();
 

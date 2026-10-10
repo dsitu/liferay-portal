@@ -119,8 +119,8 @@ public class DigitalSignatureSiteSettingsConfigurationScreenWrapper
 				DigitalSignatureWebKeys.DIGITAL_SIGNATURE_API_USERNAME,
 				digitalSignatureConfiguration.apiUsername());
 			httpServletRequest.setAttribute(
-				DigitalSignatureWebKeys.DIGITAL_SIGNATURE_ENABLE_EMBEDDED_VIEW,
-				digitalSignatureConfiguration.enableEmbeddedView());
+				DigitalSignatureWebKeys.DIGITAL_SIGNATURE_EMBEDDED_VIEW_ENABLED,
+				digitalSignatureConfiguration.embeddedViewEnabled());
 			httpServletRequest.setAttribute(
 				DigitalSignatureWebKeys.DIGITAL_SIGNATURE_ENABLED,
 				digitalSignatureConfiguration.enabled());

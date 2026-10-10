@@ -94,17 +94,19 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
 				themeDisplay.getCompanyId(), dsRequest.getSiteGroupId());
 
-		if (!digitalSignatureConfiguration.enabled() ||
-			!digitalSignatureConfiguration.enableEmbeddedView()) {
+		if (!digitalSignatureConfiguration.embeddedViewEnabled() ||
+			!digitalSignatureConfiguration.enabled()) {
 
 			return "/sign_digital_signature/error.jsp";
 		}
 
 		User user = themeDisplay.getUser();
 
-		if (!themeDisplay.isStatePopUp() &&
-			dsRequest.isSignatureRequired(user.getEmailAddress())) {
+		if (!dsRequest.isSignatureRequired(user.getEmailAddress())) {
+			return "/sign_digital_signature/error.jsp";
+		}
 
+		if (!themeDisplay.isStatePopUp()) {
 			try {
 				String urlViewInContext = _getURLViewInContext(
 					dsRequest, renderRequest, renderResponse, themeDisplay);
@@ -142,10 +144,10 @@ public class SignDSRequestMVCRenderCommand implements MVCRenderCommand {
 			return "/sign_digital_signature/error.jsp";
 		}
 
-		String portalURL = _portal.getPortalURL(
-			_portal.getHttpServletRequest(renderRequest));
-
 		try {
+			String portalURL = _portal.getPortalURL(
+				_portal.getHttpServletRequest(renderRequest));
+
 			renderRequest.setAttribute(
 				WebKeys.PORTLET_DISPLAY_CONTEXT,
 				new SignDSRequestDisplayContext(

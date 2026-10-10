@@ -23,7 +23,7 @@ const MAX_LENGTH = {
 
 const DigitalSignatureFormBase = ({
 	defaultRecipient,
-	enableEmbeddedView,
+	embeddedViewEnabled,
 	errors,
 	handleChange,
 	setFieldValue,
@@ -106,9 +106,9 @@ const DigitalSignatureFormBase = ({
 						<ClayInput.GroupItem>
 							<Input
 								className="mb-0"
-								disabled={enableEmbeddedView}
+								disabled={embeddedViewEnabled}
 								error={
-									enableEmbeddedView
+									embeddedViewEnabled
 										? undefined
 										: errors?.recipients?.[index]?.fullName
 								}
@@ -126,7 +126,7 @@ const DigitalSignatureFormBase = ({
 						</ClayInput.GroupItem>
 
 						<ClayInput.GroupItem>
-							{enableEmbeddedView ? (
+							{embeddedViewEnabled ? (
 								<RecipientUserAutocomplete
 									error={errors?.recipients?.[index]?.email}
 									id={`recipients[${index}].email`}

@@ -263,21 +263,18 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		try {
-			Map<Long, Long> dsRequestIdsByFileEntryId =
-				_getDSRequestIdsByFileEntryId(
-					companyId, dsRequestDocumentObjectDefinition, fileEntryIds);
+			Map<Long, Long> dsRequestIdsMap = _getDSRequestIdsMap(
+				companyId, dsRequestDocumentObjectDefinition, fileEntryIds);
 
-			if (dsRequestIdsByFileEntryId.isEmpty()) {
+			if (dsRequestIdsMap.isEmpty()) {
 				return dsRequests;
 			}
 
 			Map<Long, DSRequest> dsRequestsMap = _getDSRequestsMap(
-				companyId, new HashSet<>(dsRequestIdsByFileEntryId.values()),
+				companyId, new HashSet<>(dsRequestIdsMap.values()),
 				dsRequestRecipientObjectDefinition);
 
-			for (Map.Entry<Long, Long> entry :
-					dsRequestIdsByFileEntryId.entrySet()) {
-
+			for (Map.Entry<Long, Long> entry : dsRequestIdsMap.entrySet()) {
 				DSRequest dsRequest = dsRequestsMap.get(entry.getValue());
 
 				if (dsRequest != null) {
@@ -688,17 +685,17 @@ public class DSRequestManagerImpl implements DSRequestManager {
 					"(r_dsRequestToDSRequestDocuments_l_dsRequestId eq '",
 					dsRequestId, "')"),
 				dsRequestDocumentObjectDefinition, null),
-			documentValues -> MapUtil.getLong(documentValues, "fileEntryId"));
+			values -> MapUtil.getLong(values, "fileEntryId"));
 	}
 
-	private Map<Long, Long> _getDSRequestIdsByFileEntryId(
+	private Map<Long, Long> _getDSRequestIdsMap(
 			long companyId, ObjectDefinition dsRequestDocumentObjectDefinition,
 			Collection<Long> fileEntryIds)
 		throws Exception {
 
-		Map<Long, Long> dsRequestIdsByFileEntryId = new HashMap<>();
+		Map<Long, Long> dsRequestIdsMap = new HashMap<>();
 
-		for (Map<String, Serializable> documentValues :
+		for (Map<String, Serializable> values :
 				_getValuesList(
 					companyId,
 					StringBundler.concat(
@@ -709,14 +706,13 @@ public class DSRequestManagerImpl implements DSRequestManager {
 						new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, true)
 					})) {
 
-			dsRequestIdsByFileEntryId.putIfAbsent(
-				MapUtil.getLong(documentValues, "fileEntryId"),
+			dsRequestIdsMap.putIfAbsent(
+				MapUtil.getLong(values, "fileEntryId"),
 				MapUtil.getLong(
-					documentValues,
-					"r_dsRequestToDSRequestDocuments_l_dsRequestId"));
+					values, "r_dsRequestToDSRequestDocuments_l_dsRequestId"));
 		}
 
-		return dsRequestIdsByFileEntryId;
+		return dsRequestIdsMap;
 	}
 
 	private List<DSRequest> _getDSRequests(
@@ -779,70 +775,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		return dsRequests;
 	}
 
-	private Map<Long, DSRequest> _getDSRequestsMap(
-			long companyId, Set<Long> dsRequestIds,
-			ObjectDefinition dsRequestRecipientObjectDefinition)
-		throws Exception {
-
-		Map<Long, DSRequest> dsRequestsMap = new HashMap<>();
-
-		Map<Long, List<DSRequestRecipient>> dsRequestRecipientsMap =
-			new HashMap<>();
-
-		for (Map<String, Serializable> recipientValues :
-				_getValuesList(
-					companyId,
-					StringBundler.concat(
-						"(r_dsRequestToDSRequestRecipients_l_dsRequestId in ('",
-						StringUtil.merge(dsRequestIds, "', '"), "'))"),
-					dsRequestRecipientObjectDefinition, null)) {
-
-			List<DSRequestRecipient> dsRequestRecipients =
-				dsRequestRecipientsMap.computeIfAbsent(
-					MapUtil.getLong(
-						recipientValues,
-						"r_dsRequestToDSRequestRecipients_l_dsRequestId"),
-					dsRequestId -> new ArrayList<>());
-
-			dsRequestRecipients.add(new DSRequestRecipient(recipientValues));
-		}
-
-		for (List<DSRequestRecipient> dsRequestRecipients :
-				dsRequestRecipientsMap.values()) {
-
-			dsRequestRecipients.sort(
-				Comparator.comparingInt(DSRequestRecipient::getSigningOrder));
-		}
-
-		Map<Long, List<Long>> fileEntryIdsMap = _getFileEntryIdsMap(
-			companyId, dsRequestIds);
-
-		for (long dsRequestId : dsRequestIds) {
-			ObjectEntry dsRequestObjectEntry =
-				_objectEntryLocalService.fetchObjectEntry(dsRequestId);
-
-			if (dsRequestObjectEntry == null) {
-				continue;
-			}
-
-			dsRequestsMap.put(
-				dsRequestId,
-				new DSRequest(
-					dsRequestObjectEntry.getCompanyId(),
-					dsRequestObjectEntry.getCreateDate(), dsRequestId,
-					dsRequestRecipientsMap.getOrDefault(
-						dsRequestId, Collections.emptyList()),
-					fileEntryIdsMap.getOrDefault(
-						dsRequestId, Collections.emptyList()),
-					_getRequesterEmailAddress(dsRequestObjectEntry),
-					_getRequesterName(dsRequestObjectEntry),
-					dsRequestObjectEntry.getUserId(),
-					dsRequestObjectEntry.getValues()));
-		}
-
-		return dsRequestsMap;
-	}
-
 	private int _getDSRequestsCount(
 			long companyId, String filterString, String search,
 			boolean checkPermissions)
@@ -881,6 +813,70 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 	}
 
+	private Map<Long, DSRequest> _getDSRequestsMap(
+			long companyId, Set<Long> dsRequestIds,
+			ObjectDefinition dsRequestRecipientObjectDefinition)
+		throws Exception {
+
+		Map<Long, DSRequest> dsRequestsMap = new HashMap<>();
+
+		Map<Long, List<DSRequestRecipient>> dsRequestRecipientsMap =
+			new HashMap<>();
+
+		for (Map<String, Serializable> values :
+				_getValuesList(
+					companyId,
+					StringBundler.concat(
+						"(r_dsRequestToDSRequestRecipients_l_dsRequestId in ('",
+						StringUtil.merge(dsRequestIds, "', '"), "'))"),
+					dsRequestRecipientObjectDefinition, null)) {
+
+			List<DSRequestRecipient> dsRequestRecipients =
+				dsRequestRecipientsMap.computeIfAbsent(
+					MapUtil.getLong(
+						values,
+						"r_dsRequestToDSRequestRecipients_l_dsRequestId"),
+					dsRequestId -> new ArrayList<>());
+
+			dsRequestRecipients.add(new DSRequestRecipient(values));
+		}
+
+		for (List<DSRequestRecipient> dsRequestRecipients :
+				dsRequestRecipientsMap.values()) {
+
+			dsRequestRecipients.sort(
+				Comparator.comparingInt(DSRequestRecipient::getSigningOrder));
+		}
+
+		Map<Long, List<Long>> fileEntryIdsMap = _getFileEntryIdsMap(
+			companyId, dsRequestIds);
+
+		for (long dsRequestId : dsRequestIds) {
+			ObjectEntry dsRequestObjectEntry =
+				_objectEntryLocalService.fetchObjectEntry(dsRequestId);
+
+			if (dsRequestObjectEntry == null) {
+				continue;
+			}
+
+			dsRequestsMap.put(
+				dsRequestId,
+				new DSRequest(
+					dsRequestObjectEntry.getCompanyId(),
+					dsRequestObjectEntry.getCreateDate(), dsRequestId,
+					dsRequestRecipientsMap.getOrDefault(
+						dsRequestId, Collections.emptyList()),
+					fileEntryIdsMap.getOrDefault(
+						dsRequestId, Collections.emptyList()),
+					_getRequesterEmailAddress(dsRequestObjectEntry),
+					_getRequesterName(dsRequestObjectEntry),
+					dsRequestObjectEntry.getUserId(),
+					dsRequestObjectEntry.getValues()));
+		}
+
+		return dsRequestsMap;
+	}
+
 	private String _getEmailBody(String emailBody, Locale locale, String url) {
 		String message = emailBody;
 
@@ -911,7 +907,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return fileEntryIdsMap;
 		}
 
-		for (Map<String, Serializable> documentValues :
+		for (Map<String, Serializable> values :
 				_getValuesList(
 					companyId,
 					StringBundler.concat(
@@ -921,11 +917,10 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 			List<Long> fileEntryIds = fileEntryIdsMap.computeIfAbsent(
 				MapUtil.getLong(
-					documentValues,
-					"r_dsRequestToDSRequestDocuments_l_dsRequestId"),
+					values, "r_dsRequestToDSRequestDocuments_l_dsRequestId"),
 				dsRequestId -> new ArrayList<>());
 
-			fileEntryIds.add(MapUtil.getLong(documentValues, "fileEntryId"));
+			fileEntryIds.add(MapUtil.getLong(values, "fileEntryId"));
 		}
 
 		return fileEntryIdsMap;
@@ -1108,8 +1103,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
 				companyId, groupId);
 
-		if (digitalSignatureConfiguration.enabled() &&
-			digitalSignatureConfiguration.enableEmbeddedView()) {
+		if (digitalSignatureConfiguration.embeddedViewEnabled() &&
+			digitalSignatureConfiguration.enabled()) {
 
 			return true;
 		}

@@ -115,9 +115,9 @@ public class DSRequestManagerTest {
 				).put(
 					"apiUsername", RandomTestUtil.randomString()
 				).put(
-					"enabled", true
+					"embeddedViewEnabled", true
 				).put(
-					"enableEmbeddedView", true
+					"enabled", true
 				).put(
 					"environment", RandomTestUtil.randomString()
 				).put(
@@ -253,9 +253,9 @@ public class DSRequestManagerTest {
 						TestPropsValues.getCompanyId(),
 						DigitalSignatureConfiguration.class.getName(),
 						HashMapDictionaryBuilder.<String, Object>put(
-							"enabled", true
+							"embeddedViewEnabled", false
 						).put(
-							"enableEmbeddedView", false
+							"enabled", true
 						).put(
 							"siteSettingsStrategy", "always-inherit"
 						).build())) {
