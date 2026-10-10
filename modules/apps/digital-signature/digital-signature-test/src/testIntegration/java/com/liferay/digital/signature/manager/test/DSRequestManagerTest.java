@@ -48,13 +48,10 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
-import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
-import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -357,26 +354,30 @@ public class DSRequestManagerTest {
 	}
 
 	@Test
-	public void testGetLoginURL() throws Exception {
-		String path = StringBundler.concat(
-			"/web/", RandomTestUtil.randomString(),
-			"/manage/-/digital_signature/sign/", RandomTestUtil.randomLong());
-		String portalURL = StringBundler.concat(
-			"http://", RandomTestUtil.randomString(), ".com");
+	public void testGetDSRequests() throws Exception {
+		long fileEntryId1 = RandomTestUtil.randomInt();
+		long fileEntryId2 = RandomTestUtil.randomInt();
 
-		String url = ReflectionTestUtil.invoke(
-			_dsRequestManager, "_getLoginURL", new Class<?>[] {String.class},
-			portalURL + path);
+		_addDSRequest(_createDSEnvelope(), fileEntryId1, fileEntryId2);
 
-		Assert.assertTrue(
-			url,
-			url.startsWith(
-				StringBundler.concat(
-					portalURL, PortalUtil.getPathMain(), "/portal/login?")));
+		Map<Long, DSRequest> dsRequests = _dsRequestManager.getDSRequests(
+			TestPropsValues.getCompanyId(),
+			ListUtil.fromArray(fileEntryId1, fileEntryId2));
+
+		Assert.assertEquals(dsRequests.toString(), 2, dsRequests.size());
+
+		DSRequest dsRequest1 = dsRequests.get(fileEntryId1);
+		DSRequest dsRequest2 = dsRequests.get(fileEntryId2);
+
 		Assert.assertEquals(
-			path,
-			URLCodec.decodeURL(
-				HttpComponentsUtil.getParameter(url, "redirect", false)));
+			dsRequest1.getProviderRequestId(),
+			dsRequest2.getProviderRequestId());
+
+		dsRequests = _dsRequestManager.getDSRequests(
+			TestPropsValues.getCompanyId(),
+			Collections.singletonList(RandomTestUtil.randomLong()));
+
+		Assert.assertTrue(dsRequests.isEmpty());
 	}
 
 	@Test
@@ -486,7 +487,7 @@ public class DSRequestManagerTest {
 			localDateTime);
 	}
 
-	private DSRequest _addDSRequest(DSEnvelope dsEnvelope, long fileEntryId)
+	private DSRequest _addDSRequest(DSEnvelope dsEnvelope, long... fileEntryIds)
 		throws Exception {
 
 		return ReflectionTestUtil.invoke(
@@ -496,7 +497,7 @@ public class DSRequestManagerTest {
 				long[].class
 			},
 			TestPropsValues.getCompanyId(), TestPropsValues.getGroupId(),
-			TestPropsValues.getUserId(), dsEnvelope, new long[] {fileEntryId});
+			TestPropsValues.getUserId(), dsEnvelope, fileEntryIds);
 	}
 
 	private DSRequest _addDSRequest(String emailAddress, String status)
