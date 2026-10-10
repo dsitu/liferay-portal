@@ -15,12 +15,17 @@ import com.liferay.digital.signature.rest.dto.v1_0.SignatureRequestRecipient;
 import com.liferay.digital.signature.rest.resource.v1_0.SignatureRequestResource;
 import com.liferay.digital.signature.url.SignDSURLProvider;
 import com.liferay.document.library.kernel.service.DLAppService;
+import com.liferay.object.constants.ObjectActionKeys;
+import com.liferay.object.definition.security.permission.resource.ObjectDefinitionPortletResourcePermissionRegistryUtil;
+import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -60,11 +65,7 @@ public class SignatureRequestResourceImpl
 	public SignatureRequest getSignatureRequest(Long signatureRequestId)
 		throws Exception {
 
-		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
-
-		_checkPermission(dsRequest, ActionKeys.VIEW);
-
-		return _toSignatureRequest(dsRequest);
+		return _toSignatureRequest(_getDSRequest(signatureRequestId));
 	}
 
 	@Override
@@ -106,7 +107,7 @@ public class SignatureRequestResourceImpl
 			Long signatureRequestId, SignatureRequest signatureRequest)
 		throws Exception {
 
-		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
+		DSRequest dsRequest = _getDSRequest(signatureRequestId);
 
 		_checkPermission(dsRequest, ActionKeys.UPDATE);
 
@@ -152,7 +153,7 @@ public class SignatureRequestResourceImpl
 			Long signatureRequestId)
 		throws Exception {
 
-		DSRequest dsRequest = _fetchDSRequest(signatureRequestId);
+		DSRequest dsRequest = _getDSRequest(signatureRequestId);
 
 		_checkPermission(dsRequest, ActionKeys.UPDATE);
 
@@ -167,6 +168,19 @@ public class SignatureRequestResourceImpl
 	public SignatureRequest postSiteSignatureRequest(
 			Long siteId, SignatureRequest signatureRequest)
 		throws Exception {
+
+		ObjectDefinition dsRequestObjectDefinition =
+			_objectDefinitionLocalService.
+				getObjectDefinitionByExternalReferenceCode(
+					"L_DS_REQUEST", contextCompany.getCompanyId());
+
+		PortletResourcePermission portletResourcePermission =
+			ObjectDefinitionPortletResourcePermissionRegistryUtil.getService(
+				dsRequestObjectDefinition.getResourceName());
+
+		portletResourcePermission.check(
+			PermissionThreadLocal.getPermissionChecker(), 0,
+			ObjectActionKeys.ADD_OBJECT_ENTRY);
 
 		Long[] fileEntryIds = signatureRequest.getFileEntryIds();
 
@@ -208,20 +222,6 @@ public class SignatureRequestResourceImpl
 		}
 	}
 
-	private DSRequest _fetchDSRequest(Long signatureRequestId) {
-		DSRequest dsRequest = _dsRequestManager.fetchDSRequest(
-			signatureRequestId);
-
-		if ((dsRequest == null) ||
-			(dsRequest.getCompanyId() != contextCompany.getCompanyId())) {
-
-			throw new NotFoundException(
-				"Unable to find signature request " + signatureRequestId);
-		}
-
-		return dsRequest;
-	}
-
 	private Map<String, Map<String, String>> _getActions(DSRequest dsRequest)
 		throws Exception {
 
@@ -240,6 +240,23 @@ public class SignatureRequestResourceImpl
 				"method", "GET"
 			).build()
 		).build();
+	}
+
+	private DSRequest _getDSRequest(Long signatureRequestId) throws Exception {
+		DSRequest dsRequest = _dsRequestManager.fetchDSRequest(
+			signatureRequestId);
+
+		if ((dsRequest == null) ||
+			(dsRequest.getCompanyId() != contextCompany.getCompanyId()) ||
+			!_dsRequestManager.hasPermission(
+				PermissionThreadLocal.getPermissionChecker(), dsRequest,
+				ActionKeys.VIEW)) {
+
+			throw new NotFoundException(
+				"Unable to find signature request " + signatureRequestId);
+		}
+
+		return dsRequest;
 	}
 
 	private DSEnvelope _toDSEnvelope(SignatureRequest signatureRequest)
@@ -330,6 +347,9 @@ public class SignatureRequestResourceImpl
 
 	@Reference
 	private GroupService _groupService;
+
+	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	@Reference
 	private SignDSURLProvider _signDSURLProvider;
