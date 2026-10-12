@@ -84,7 +84,7 @@ components:
                     type: string
         SignatureRequest:
             description:
-                A request for one or more documents to be signed, as Liferay records it. Read from local records, so reading one costs no call to the signature provider.
+                A request for one or more documents to be signed.
             properties:
                 actions:
                     additionalProperties:
