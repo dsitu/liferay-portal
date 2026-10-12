@@ -17,11 +17,13 @@ DigitalSignatureConfiguration digitalSignatureConfiguration = (DigitalSignatureC
 	</div>
 </div>
 
-<div class="row">
-	<div class="col-md-12">
-		<aui:input checked="<%= digitalSignatureConfiguration.embeddedViewEnabled() %>" inlineLabel="right" label='<%= LanguageUtil.get(resourceBundle, "enable-embedded-view") %>' labelCssClass="simple-toggle-switch" name="embeddedViewEnabled" type="toggle-switch" value="<%= digitalSignatureConfiguration.embeddedViewEnabled() %>" />
+<c:if test='<%= FeatureFlagManagerUtil.isEnabled(themeDisplay.getCompanyId(), "LPD-69290") %>'>
+	<div class="row">
+		<div class="col-md-12">
+			<aui:input checked="<%= digitalSignatureConfiguration.embeddedViewEnabled() %>" inlineLabel="right" label='<%= LanguageUtil.get(resourceBundle, "enable-embedded-view") %>' labelCssClass="simple-toggle-switch" name="embeddedViewEnabled" type="toggle-switch" value="<%= digitalSignatureConfiguration.embeddedViewEnabled() %>" />
+		</div>
 	</div>
-</div>
+</c:if>
 
 <div class="form-group row">
 	<div class="col-md-12">
