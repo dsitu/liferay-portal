@@ -5,7 +5,6 @@
 
 package com.liferay.digital.signature.rest.internal.resource.v1_0;
 
-import com.liferay.digital.signature.constants.DSRequestConstants;
 import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSEnvelope;
 import com.liferay.digital.signature.model.DSRecipient;
@@ -45,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -85,52 +83,6 @@ public class SignatureRequestResourceImpl
 	}
 
 	@Override
-	public SignatureRequest patchSignatureRequest(
-			Long signatureRequestId, SignatureRequest signatureRequest)
-		throws Exception {
-
-		DSRequest dsRequest = _getDSRequest(signatureRequestId);
-
-		_checkPermission(dsRequest, ActionKeys.UPDATE);
-
-		String status = signatureRequest.getStatus();
-
-		if (Validator.isNull(status) ||
-			Objects.equals(status, dsRequest.getStatus())) {
-
-			return _toSignatureRequest(dsRequest);
-		}
-
-		if (!Objects.equals(status, DSRequestConstants.STATUS_VOIDED)) {
-			throw new BadRequestException(
-				StringBundler.concat(
-					"Unable to change the status of signature request ",
-					signatureRequestId, " to \"", status, "\""));
-		}
-
-		if (dsRequest.isTerminal()) {
-			throw new BadRequestException(
-				StringBundler.concat(
-					"Unable to void signature request ", signatureRequestId,
-					" with status \"", dsRequest.getStatus(), "\""));
-		}
-
-		String voidReason = signatureRequest.getVoidReason();
-
-		if (Validator.isNull(voidReason)) {
-			throw new BadRequestException(
-				"A reason is required to void a signature request");
-		}
-
-		_dsRequestManager.voidDSRequest(
-			contextCompany.getCompanyId(), dsRequest.getSiteGroupId(),
-			dsRequest.getProviderRequestId(), voidReason);
-
-		return _toSignatureRequest(
-			_dsRequestManager.fetchDSRequest(signatureRequestId));
-	}
-
-	@Override
 	public SignatureRequest postSignatureRequestNotification(
 			Long signatureRequestId)
 		throws Exception {
@@ -144,6 +96,35 @@ public class SignatureRequestResourceImpl
 			dsRequest);
 
 		return _toSignatureRequest(dsRequest);
+	}
+
+	@Override
+	public SignatureRequest postSignatureRequestVoid(
+			Long signatureRequestId, String voidReason)
+		throws Exception {
+
+		DSRequest dsRequest = _getDSRequest(signatureRequestId);
+
+		_checkPermission(dsRequest, ActionKeys.UPDATE);
+
+		if (dsRequest.isTerminal()) {
+			throw new BadRequestException(
+				StringBundler.concat(
+					"Unable to void signature request ", signatureRequestId,
+					" with status \"", dsRequest.getStatus(), "\""));
+		}
+
+		if (Validator.isNull(voidReason)) {
+			throw new BadRequestException(
+				"A reason is required to void a signature request");
+		}
+
+		_dsRequestManager.voidDSRequest(
+			contextCompany.getCompanyId(), dsRequest.getSiteGroupId(),
+			dsRequest.getProviderRequestId(), voidReason);
+
+		return _toSignatureRequest(
+			_dsRequestManager.fetchDSRequest(signatureRequestId));
 	}
 
 	@Override

@@ -215,23 +215,28 @@ public class SignatureRequestResourceTest
 	@Ignore
 	@Override
 	@Test
-	public void testGraphQLPostSiteSignatureRequest() throws Exception {
+	public void testGraphQLPostSignatureRequestVoid() throws Exception {
 	}
 
+	@Ignore
 	@Override
 	@Test
-	public void testPatchSignatureRequest() throws Exception {
-		_testPatchSignatureRequestWhenRequestIsTerminal();
-		_testPatchSignatureRequestWhenStatusIsNotVoided();
-		_testPatchSignatureRequestWhenVoidReasonIsNull();
-		_testPatchSignatureRequestWithoutUpdatePermission();
-		_testPatchSignatureRequestWithoutViewPermission();
+	public void testGraphQLPostSiteSignatureRequest() throws Exception {
 	}
 
 	@Ignore
 	@Override
 	@Test
 	public void testPostSignatureRequestNotification() throws Exception {
+	}
+
+	@Override
+	@Test
+	public void testPostSignatureRequestVoid() throws Exception {
+		_testPostSignatureRequestVoidWhenRequestIsTerminal();
+		_testPostSignatureRequestVoidWhenVoidReasonIsNull();
+		_testPostSignatureRequestVoidWithoutUpdatePermission();
+		_testPostSignatureRequestVoidWithoutViewPermission();
 	}
 
 	@Override
@@ -375,7 +380,7 @@ public class SignatureRequestResourceTest
 		).build();
 	}
 
-	private void _testPatchSignatureRequestWhenRequestIsTerminal()
+	private void _testPostSignatureRequestVoidWhenRequestIsTerminal()
 		throws Exception {
 
 		ObjectEntry dsRequestObjectEntry = _addDSRequestObjectEntries(
@@ -384,17 +389,12 @@ public class SignatureRequestResourceTest
 
 		_assertProblemStatus(
 			"BAD_REQUEST",
-			() -> signatureRequestResource.patchSignatureRequest(
+			() -> signatureRequestResource.postSignatureRequestVoid(
 				dsRequestObjectEntry.getObjectEntryId(),
-				new SignatureRequest() {
-					{
-						setStatus(DSRequestConstants.STATUS_VOIDED);
-						setVoidReason(RandomTestUtil.randomString());
-					}
-				}));
+				RandomTestUtil.randomString()));
 	}
 
-	private void _testPatchSignatureRequestWhenStatusIsNotVoided()
+	private void _testPostSignatureRequestVoidWhenVoidReasonIsNull()
 		throws Exception {
 
 		ObjectEntry dsRequestObjectEntry = _addDSRequestObjectEntries(
@@ -403,46 +403,11 @@ public class SignatureRequestResourceTest
 
 		_assertProblemStatus(
 			"BAD_REQUEST",
-			() -> signatureRequestResource.patchSignatureRequest(
-				dsRequestObjectEntry.getObjectEntryId(),
-				new SignatureRequest() {
-					{
-						setStatus(DSRequestConstants.STATUS_COMPLETED);
-					}
-				}));
-
-		SignatureRequest signatureRequest =
-			signatureRequestResource.patchSignatureRequest(
-				dsRequestObjectEntry.getObjectEntryId(),
-				new SignatureRequest() {
-					{
-						setStatus(DSRequestConstants.STATUS_SENT);
-					}
-				});
-
-		Assert.assertEquals(
-			DSRequestConstants.STATUS_SENT, signatureRequest.getStatus());
+			() -> signatureRequestResource.postSignatureRequestVoid(
+				dsRequestObjectEntry.getObjectEntryId(), null));
 	}
 
-	private void _testPatchSignatureRequestWhenVoidReasonIsNull()
-		throws Exception {
-
-		ObjectEntry dsRequestObjectEntry = _addDSRequestObjectEntries(
-			RandomTestUtil.randomString() + "@liferay.com",
-			DSRequestConstants.STATUS_SENT);
-
-		_assertProblemStatus(
-			"BAD_REQUEST",
-			() -> signatureRequestResource.patchSignatureRequest(
-				dsRequestObjectEntry.getObjectEntryId(),
-				new SignatureRequest() {
-					{
-						setStatus(DSRequestConstants.STATUS_VOIDED);
-					}
-				}));
-	}
-
-	private void _testPatchSignatureRequestWithoutUpdatePermission()
+	private void _testPostSignatureRequestVoidWithoutUpdatePermission()
 		throws Exception {
 
 		_user1 = UserTestUtil.addUser();
@@ -455,17 +420,12 @@ public class SignatureRequestResourceTest
 
 		_assertProblemStatus(
 			"FORBIDDEN",
-			() -> userSignatureRequestResource.patchSignatureRequest(
+			() -> userSignatureRequestResource.postSignatureRequestVoid(
 				dsRequestObjectEntry.getObjectEntryId(),
-				new SignatureRequest() {
-					{
-						setStatus(DSRequestConstants.STATUS_VOIDED);
-						setVoidReason(RandomTestUtil.randomString());
-					}
-				}));
+				RandomTestUtil.randomString()));
 	}
 
-	private void _testPatchSignatureRequestWithoutViewPermission()
+	private void _testPostSignatureRequestVoidWithoutViewPermission()
 		throws Exception {
 
 		ObjectEntry dsRequestObjectEntry = _addDSRequestObjectEntries(
@@ -479,14 +439,9 @@ public class SignatureRequestResourceTest
 
 		_assertProblemStatus(
 			"NOT_FOUND",
-			() -> userSignatureRequestResource.patchSignatureRequest(
+			() -> userSignatureRequestResource.postSignatureRequestVoid(
 				dsRequestObjectEntry.getObjectEntryId(),
-				new SignatureRequest() {
-					{
-						setStatus(DSRequestConstants.STATUS_VOIDED);
-						setVoidReason(RandomTestUtil.randomString());
-					}
-				}));
+				RandomTestUtil.randomString()));
 	}
 
 	private CompanyConfigurationTemporarySwapper

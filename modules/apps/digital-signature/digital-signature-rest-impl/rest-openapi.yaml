@@ -183,7 +183,8 @@ components:
                     type: array
                 status:
                     description:
-                        Status of the request as Liferay last recorded it. Set it to "voided" with a PATCH to cancel the request; no other status can be set.
+                        Status of the request as Liferay last recorded it. Read-only.
+                    readOnly: true
                     type: string
                 statusDate:
                     description:
@@ -191,11 +192,6 @@ components:
                     format: date-time
                     readOnly: true
                     type: string
-                voidReason:
-                    description:
-                        Why the request is being canceled, sent to the signature provider when the status is set to "voided". Write-only.
-                    type: string
-                    writeOnly: true
             type: object
         SignatureRequestRecipient:
             description:
@@ -269,33 +265,6 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/SignatureRequest"
             tags: ["SignatureRequest"]
-        patch:
-            operationId: patchSignatureRequest
-            parameters:
-                -   in: path
-                    name: signatureRequestId
-                    required: true
-                    schema:
-                        format: int64
-                        type: integer
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/SignatureRequest"
-                    application/xml:
-                        schema:
-                            $ref: "#/components/schemas/SignatureRequest"
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/SignatureRequest"
-                        application/xml:
-                            schema:
-                                $ref: "#/components/schemas/SignatureRequest"
-            tags: ["SignatureRequest"]
     "/signature-requests/{signatureRequestId}/notifications":
         post:
             operationId: postSignatureRequestNotification
@@ -306,6 +275,31 @@ paths:
                     schema:
                         format: int64
                         type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/SignatureRequest"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/SignatureRequest"
+            tags: ["SignatureRequest"]
+    "/signature-requests/{signatureRequestId}/void":
+        post:
+            operationId: postSignatureRequestVoid
+            parameters:
+                -   in: path
+                    name: signatureRequestId
+                    required: true
+                    schema:
+                        format: int64
+                        type: integer
+                -   in: query
+                    name: voidReason
+                    required: true
+                    schema:
+                        type: string
             responses:
                 200:
                     content:
