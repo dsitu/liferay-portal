@@ -116,11 +116,11 @@ public class SignatureRequestResourceTest
 		ObjectEntry dsRequestObjectEntry = _addDSRequestObjectEntries(
 			_user1.getEmailAddress(), DSRequestConstants.STATUS_SENT);
 
-		SignatureRequestResource userSignatureRequestResource =
+		SignatureRequestResource user1SignatureRequestResource =
 			_getSignatureRequestResource(_user1);
 
 		Page<SignatureRequest> page =
-			userSignatureRequestResource.getSignatureRequestsAssignedToMePage(
+			user1SignatureRequestResource.getSignatureRequestsAssignedToMePage(
 				null, Pagination.of(1, 10));
 
 		List<SignatureRequest> signatureRequests =
@@ -129,7 +129,7 @@ public class SignatureRequestResourceTest
 		SignatureRequest signatureRequest = signatureRequests.get(0);
 
 		SignatureRequest userSignatureRequest =
-			userSignatureRequestResource.getSignatureRequest(
+			user1SignatureRequestResource.getSignatureRequest(
 				signatureRequest.getId());
 
 		Map<String, Serializable> values = dsRequestObjectEntry.getValues();
@@ -159,11 +159,11 @@ public class SignatureRequestResourceTest
 		_addDSRequestObjectEntries(
 			_user1.getEmailAddress(), DSRequestConstants.STATUS_SENT);
 
-		SignatureRequestResource userSignatureRequestResource =
+		SignatureRequestResource user1SignatureRequestResource =
 			_getSignatureRequestResource(_user1);
 
 		Page<SignatureRequest> page =
-			userSignatureRequestResource.getSignatureRequestsAssignedToMePage(
+			user1SignatureRequestResource.getSignatureRequestsAssignedToMePage(
 				null, Pagination.of(1, 10));
 
 		Assert.assertEquals(1, page.getTotalCount());
@@ -190,24 +190,25 @@ public class SignatureRequestResourceTest
 		Assert.assertEquals("GET", signAction.get("method"));
 
 		page =
-			userSignatureRequestResource.getSignatureRequestsAssignedToMePage(
+			user1SignatureRequestResource.getSignatureRequestsAssignedToMePage(
 				StringUtil.toUpperCase(signatureRequest.getEmailSubject()),
 				Pagination.of(1, 10));
 
 		Assert.assertEquals(1, page.getTotalCount());
 
 		page =
-			userSignatureRequestResource.getSignatureRequestsAssignedToMePage(
+			user1SignatureRequestResource.getSignatureRequestsAssignedToMePage(
 				RandomTestUtil.randomString(), Pagination.of(1, 10));
 
 		Assert.assertEquals(0, page.getTotalCount());
 
 		_user2 = UserTestUtil.addUser();
 
-		userSignatureRequestResource = _getSignatureRequestResource(_user2);
+		SignatureRequestResource user2SignatureRequestResource =
+			_getSignatureRequestResource(_user2);
 
 		page =
-			userSignatureRequestResource.getSignatureRequestsAssignedToMePage(
+			user2SignatureRequestResource.getSignatureRequestsAssignedToMePage(
 				null, Pagination.of(1, 10));
 
 		Assert.assertEquals(0, page.getTotalCount());
