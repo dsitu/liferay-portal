@@ -334,11 +334,9 @@ public class DSRequestManagerTest {
 	public void testFetchDSRequestWhenExpirationDateIsPast() throws Exception {
 		DSEnvelope dsEnvelope = _createDSEnvelope();
 
-		dsEnvelope.setExpireLocalDateTime(
-			LocalDateTime.now(
-			).minusDays(
-				1
-			));
+		LocalDateTime localDateTime = LocalDateTime.now();
+
+		dsEnvelope.setExpireLocalDateTime(localDateTime.minusDays(1));
 
 		DSRequest dsRequest = _addDSRequest(
 			dsEnvelope, RandomTestUtil.randomInt());
