@@ -42,7 +42,6 @@ import com.liferay.portal.test.rule.Inject;
 
 import java.io.Serializable;
 
-import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
@@ -119,59 +118,18 @@ public class SignatureRequestResourceTest
 		SignatureRequestResource user1SignatureRequestResource =
 			_getSignatureRequestResource(_user1);
 
-		Page<SignatureRequest> page =
-			user1SignatureRequestResource.getSignatureRequestsAssignedToMePage(
-				null, Pagination.of(1, 10));
-
-		List<SignatureRequest> signatureRequests =
-			(List<SignatureRequest>)page.getItems();
-
-		SignatureRequest signatureRequest = signatureRequests.get(0);
-
-		SignatureRequest userSignatureRequest =
+		SignatureRequest signatureRequest =
 			user1SignatureRequestResource.getSignatureRequest(
-				signatureRequest.getId());
+				dsRequestObjectEntry.getObjectEntryId());
 
 		Map<String, Serializable> values = dsRequestObjectEntry.getValues();
 
 		Assert.assertEquals(
-			values.get("emailBody"), userSignatureRequest.getEmailBody());
+			values.get("emailBody"), signatureRequest.getEmailBody());
 
 		Assert.assertEquals(
-			signatureRequest.getId(), userSignatureRequest.getId());
-
-		_user2 = UserTestUtil.addUser();
-
-		SignatureRequestResource user2SignatureRequestResource =
-			_getSignatureRequestResource(_user2);
-
-		_assertProblemStatus(
-			"NOT_FOUND",
-			() -> user2SignatureRequestResource.getSignatureRequest(
-				signatureRequest.getId()));
-	}
-
-	@Override
-	@Test
-	public void testGetSignatureRequestsAssignedToMePage() throws Exception {
-		_user1 = UserTestUtil.addUser();
-
-		_addDSRequestObjectEntries(
-			_user1.getEmailAddress(), DSRequestConstants.STATUS_SENT);
-
-		SignatureRequestResource user1SignatureRequestResource =
-			_getSignatureRequestResource(_user1);
-
-		Page<SignatureRequest> page =
-			user1SignatureRequestResource.getSignatureRequestsAssignedToMePage(
-				null, Pagination.of(1, 10));
-
-		Assert.assertEquals(1, page.getTotalCount());
-
-		List<SignatureRequest> signatureRequests =
-			(List<SignatureRequest>)page.getItems();
-
-		SignatureRequest signatureRequest = signatureRequests.get(0);
+			Long.valueOf(dsRequestObjectEntry.getObjectEntryId()),
+			signatureRequest.getId());
 
 		Map<String, Map<String, String>> actions =
 			signatureRequest.getActions();
@@ -189,36 +147,15 @@ public class SignatureRequestResourceTest
 				"/digital_signature/open_ds_request"));
 		Assert.assertEquals("GET", signAction.get("method"));
 
-		page =
-			user1SignatureRequestResource.getSignatureRequestsAssignedToMePage(
-				StringUtil.toUpperCase(signatureRequest.getEmailSubject()),
-				Pagination.of(1, 10));
-
-		Assert.assertEquals(1, page.getTotalCount());
-
-		page =
-			user1SignatureRequestResource.getSignatureRequestsAssignedToMePage(
-				RandomTestUtil.randomString(), Pagination.of(1, 10));
-
-		Assert.assertEquals(0, page.getTotalCount());
-
 		_user2 = UserTestUtil.addUser();
 
 		SignatureRequestResource user2SignatureRequestResource =
 			_getSignatureRequestResource(_user2);
 
-		page =
-			user2SignatureRequestResource.getSignatureRequestsAssignedToMePage(
-				null, Pagination.of(1, 10));
-
-		Assert.assertEquals(0, page.getTotalCount());
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetSignatureRequestsAssignedToMePageWithPagination()
-		throws Exception {
+		_assertProblemStatus(
+			"NOT_FOUND",
+			() -> user2SignatureRequestResource.getSignatureRequest(
+				dsRequestObjectEntry.getObjectEntryId()));
 	}
 
 	@Override
@@ -261,13 +198,6 @@ public class SignatureRequestResourceTest
 	@Override
 	@Test
 	public void testGraphQLGetSignatureRequest() throws Exception {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGraphQLGetSignatureRequestsAssignedToMePage()
-		throws Exception {
 	}
 
 	@Ignore

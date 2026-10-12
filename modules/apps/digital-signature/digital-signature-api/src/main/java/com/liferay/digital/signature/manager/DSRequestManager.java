@@ -32,12 +32,6 @@ public interface DSRequestManager {
 	public Map<Long, DSRequest> getDSRequests(
 		long companyId, Collection<Long> fileEntryIds);
 
-	public List<DSRequest> getRecipientDSRequests(
-		long companyId, long userId, String search, int start, int end);
-
-	public int getRecipientDSRequestsCount(
-		long companyId, long userId, String search);
-
 	public List<DSRequest> getSiteDSRequests(
 		long companyId, long siteGroupId, String search, int start, int end);
 

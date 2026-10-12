@@ -51,7 +51,6 @@ import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
-import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -378,48 +377,6 @@ public class DSRequestManagerTest {
 			Collections.singletonList(RandomTestUtil.randomLong()));
 
 		Assert.assertTrue(dsRequests.isEmpty());
-	}
-
-	@Test
-	public void testGetRecipientDSRequests() throws Exception {
-		_user = UserTestUtil.addUser();
-
-		DSRequest dsRequest1 = _addDSRequest(
-			_user.getEmailAddress(), DSRequestConstants.STATUS_VOIDED);
-		DSRequest dsRequest2 = _addDSRequest(
-			_user.getEmailAddress(), DSRequestConstants.STATUS_SENT);
-
-		Assert.assertEquals(
-			SetUtil.fromArray(
-				new Long[] {
-					dsRequest1.getDSRequestId(), dsRequest2.getDSRequestId()
-				}),
-			new HashSet<>(
-				TransformUtil.transform(
-					_dsRequestManager.getRecipientDSRequests(
-						TestPropsValues.getCompanyId(), _user.getUserId(), null,
-						QueryUtil.ALL_POS, QueryUtil.ALL_POS),
-					DSRequest::getDSRequestId)));
-
-		List<DSRequest> dsRequests = _dsRequestManager.getRecipientDSRequests(
-			TestPropsValues.getCompanyId(), _user.getUserId(), null, 0, 1);
-
-		Assert.assertEquals(dsRequests.toString(), 1, dsRequests.size());
-
-		Assert.assertEquals(
-			2,
-			_dsRequestManager.getRecipientDSRequestsCount(
-				TestPropsValues.getCompanyId(), _user.getUserId(), null));
-		Assert.assertEquals(
-			1,
-			_dsRequestManager.getRecipientDSRequestsCount(
-				TestPropsValues.getCompanyId(), _user.getUserId(),
-				dsRequest1.getEmailSubject()));
-		Assert.assertEquals(
-			0,
-			_dsRequestManager.getRecipientDSRequestsCount(
-				TestPropsValues.getCompanyId(), _user.getUserId(),
-				RandomTestUtil.randomString()));
 	}
 
 	@Test

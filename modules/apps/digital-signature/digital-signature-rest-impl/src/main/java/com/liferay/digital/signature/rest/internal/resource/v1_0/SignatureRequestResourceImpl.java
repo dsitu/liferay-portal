@@ -69,24 +69,6 @@ public class SignatureRequestResourceImpl
 	}
 
 	@Override
-	public Page<SignatureRequest> getSignatureRequestsAssignedToMePage(
-			String search, Pagination pagination)
-		throws Exception {
-
-		return Page.of(
-			transform(
-				_dsRequestManager.getRecipientDSRequests(
-					contextCompany.getCompanyId(), contextUser.getUserId(),
-					search, pagination.getStartPosition(),
-					pagination.getEndPosition()),
-				this::_toSignatureRequest),
-			pagination,
-			_dsRequestManager.getRecipientDSRequestsCount(
-				contextCompany.getCompanyId(), contextUser.getUserId(),
-				search));
-	}
-
-	@Override
 	public Page<SignatureRequest> getSiteSignatureRequestsPage(
 			Long siteId, String search, Pagination pagination)
 		throws Exception {

@@ -32,7 +32,6 @@ import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
-import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -293,49 +292,12 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	@Override
-	public List<DSRequest> getRecipientDSRequests(
-		long companyId, long userId, String search, int start, int end) {
-
-		try {
-			return _getDSRequests(
-				companyId, _getRecipientFilterString(companyId, userId), search,
-				start, end, false);
-		}
-		catch (Exception exception) {
-			_log.error(
-				"Unable to load the signature requests for user " + userId,
-				exception);
-
-			return new ArrayList<>();
-		}
-	}
-
-	@Override
-	public int getRecipientDSRequestsCount(
-		long companyId, long userId, String search) {
-
-		try {
-			return _getDSRequestsCount(
-				companyId, _getRecipientFilterString(companyId, userId), search,
-				false);
-		}
-		catch (Exception exception) {
-			_log.error(
-				"Unable to count the signature requests for user " + userId,
-				exception);
-
-			return 0;
-		}
-	}
-
-	@Override
 	public List<DSRequest> getSiteDSRequests(
 		long companyId, long siteGroupId, String search, int start, int end) {
 
 		try {
 			return _getDSRequests(
-				companyId, "siteGroupId eq " + siteGroupId, search, start, end,
-				true);
+				companyId, "siteGroupId eq " + siteGroupId, search, start, end);
 		}
 		catch (Exception exception) {
 			_log.error(
@@ -352,7 +314,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 		try {
 			return _getDSRequestsCount(
-				companyId, "siteGroupId eq " + siteGroupId, search, true);
+				companyId, "siteGroupId eq " + siteGroupId, search);
 		}
 		catch (Exception exception) {
 			_log.error(
@@ -717,7 +679,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 	private List<DSRequest> _getDSRequests(
 			long companyId, String filterString, String search, int start,
-			int end, boolean checkPermissions)
+			int end)
 		throws Exception {
 
 		List<DSRequest> dsRequests = new ArrayList<>();
@@ -750,7 +712,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 					new Sort[] {
 						new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, true)
 					},
-					checkPermissions)) {
+					true)) {
 
 			dsRequestIds.add(
 				MapUtil.getLong(
@@ -776,8 +738,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	}
 
 	private int _getDSRequestsCount(
-			long companyId, String filterString, String search,
-			boolean checkPermissions)
+			long companyId, String filterString, String search)
 		throws Exception {
 
 		if (!_isEnabled(companyId, 0)) {
@@ -793,24 +754,11 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return 0;
 		}
 
-		PermissionChecker permissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
-
-		try {
-			if (!checkPermissions) {
-				PermissionThreadLocal.setPermissionChecker(null);
-			}
-
-			return _objectEntryLocalService.getValuesListCount(
-				new Long[] {0L}, companyId,
-				dsRequestObjectDefinition.getUserId(),
-				dsRequestObjectDefinition.getObjectDefinitionId(),
-				_filterFactory.create(filterString, dsRequestObjectDefinition),
-				false, search);
-		}
-		finally {
-			PermissionThreadLocal.setPermissionChecker(permissionChecker);
-		}
+		return _objectEntryLocalService.getValuesListCount(
+			new Long[] {0L}, companyId, dsRequestObjectDefinition.getUserId(),
+			dsRequestObjectDefinition.getObjectDefinitionId(),
+			_filterFactory.create(filterString, dsRequestObjectDefinition),
+			false, search);
 	}
 
 	private Map<Long, DSRequest> _getDSRequestsMap(
@@ -934,27 +882,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		return _portal.getSiteDefaultLocale(siteGroupId);
-	}
-
-	private String _getRecipientFilterString(long companyId, long userId)
-		throws PortalException {
-
-		User user = _userLocalService.getUser(userId);
-
-		if (user.getCompanyId() != companyId) {
-			throw new NoSuchUserException(
-				"No user exists with the primary key " + userId);
-		}
-
-		String emailAddressFieldName =
-			"dsRequestToDSRequestRecipients/emailAddress";
-		String userIdFieldName =
-			"dsRequestToDSRequestRecipients/r_userToDSRequestRecipients_userId";
-
-		return StringBundler.concat(
-			"(", userIdFieldName, " eq '", userId, "') or (", userIdFieldName,
-			" eq '0' and ", emailAddressFieldName, " eq '",
-			StringUtil.replace(user.getEmailAddress(), '\'', "''"), "')");
 	}
 
 	private long _getRecipientUserId(long companyId, String emailAddress) {
