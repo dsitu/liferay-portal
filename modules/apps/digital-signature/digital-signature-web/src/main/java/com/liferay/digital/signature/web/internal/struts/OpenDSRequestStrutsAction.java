@@ -17,9 +17,11 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutService;
+import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HttpComponentsUtil;
@@ -81,7 +83,8 @@ public class OpenDSRequestStrutsAction implements StrutsAction {
 		}
 
 		Layout layout = _getLayout(
-			themeDisplay.getCompanyId(), dsRequest.getSiteGroupId());
+			themeDisplay.getCompanyId(), dsRequest.getSiteGroupId(),
+			themeDisplay.getPermissionChecker());
 
 		if (layout == null) {
 			_portal.sendError(
@@ -119,7 +122,28 @@ public class OpenDSRequestStrutsAction implements StrutsAction {
 		return null;
 	}
 
-	private Layout _getLayout(long companyId, long groupId) throws Exception {
+	private Layout _fetchFirstLayout(long groupId, boolean privateLayout)
+		throws Exception {
+
+		for (Layout layout :
+				_layoutService.getLayouts(
+					groupId, privateLayout,
+					LayoutConstants.DEFAULT_PARENT_LAYOUT_ID)) {
+
+			if (!layout.isHidden() && layout.isPublished() &&
+				(layout.isTypeContent() || layout.isTypePortlet())) {
+
+				return layout;
+			}
+		}
+
+		return null;
+	}
+
+	private Layout _getLayout(
+			long companyId, long groupId, PermissionChecker permissionChecker)
+		throws Exception {
+
 		Group group = _groupLocalService.fetchGroup(groupId);
 
 		if (group == null) {
@@ -132,15 +156,19 @@ public class OpenDSRequestStrutsAction implements StrutsAction {
 			DigitalSignaturePortletKeys.SIGN_DIGITAL_SIGNATURE);
 
 		if (plid != LayoutConstants.DEFAULT_PLID) {
-			return _layoutLocalService.getLayout(plid);
+			Layout layout = _layoutLocalService.getLayout(plid);
+
+			if (LayoutPermissionUtil.contains(
+					permissionChecker, layout, ActionKeys.VIEW)) {
+
+				return layout;
+			}
 		}
 
-		Layout layout = _layoutService.fetchFirstLayout(
-			group.getGroupId(), false, true);
+		Layout layout = _fetchFirstLayout(group.getGroupId(), false);
 
 		if (layout == null) {
-			layout = _layoutService.fetchFirstLayout(
-				group.getGroupId(), true, true);
+			layout = _fetchFirstLayout(group.getGroupId(), true);
 		}
 
 		if (layout != null) {
