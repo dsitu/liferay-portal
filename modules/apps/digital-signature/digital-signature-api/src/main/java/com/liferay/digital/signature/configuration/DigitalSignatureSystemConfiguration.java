@@ -15,7 +15,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @author Danny Situ
  */
 @ExtendedObjectClassDefinition(
-	category = "digital-signature",
+	category = "digital-signature", featureFlagKey = "LPD-69290",
 	scope = ExtendedObjectClassDefinition.Scope.SYSTEM
 )
 @Meta.OCD(
