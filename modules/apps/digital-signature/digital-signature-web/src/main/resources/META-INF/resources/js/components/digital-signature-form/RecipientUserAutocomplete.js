@@ -7,13 +7,27 @@ import ClayAutocomplete from '@clayui/autocomplete';
 import ClayForm from '@clayui/form';
 import classNames from 'classnames';
 import {fetch} from 'frontend-js-web';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 import {ErrorFeedback} from '../form/FormBase';
 
 const RecipientUserAutocomplete = ({error, id, label, onSelectUser, value}) => {
 	const [query, setQuery] = useState(value || '');
 	const [userAccounts, setUserAccounts] = useState([]);
+
+	const selectedEmailAddressRef = useRef(value || '');
+
+	useEffect(() => {
+		const emailAddress = value || '';
+
+		if (emailAddress === selectedEmailAddressRef.current) {
+			return;
+		}
+
+		selectedEmailAddressRef.current = emailAddress;
+
+		setQuery(emailAddress);
+	}, [value]);
 
 	useEffect(() => {
 		if (!query) {
@@ -46,10 +60,12 @@ const RecipientUserAutocomplete = ({error, id, label, onSelectUser, value}) => {
 				id={id}
 				items={userAccounts}
 				menuTrigger="focus"
-				onChange={(value) => {
-					setQuery(value);
+				onChange={(newQuery) => {
+					setQuery(newQuery);
 
-					if (!value) {
+					if (selectedEmailAddressRef.current) {
+						selectedEmailAddressRef.current = '';
+
 						onSelectUser({emailAddress: '', name: ''});
 					}
 				}}
@@ -60,6 +76,9 @@ const RecipientUserAutocomplete = ({error, id, label, onSelectUser, value}) => {
 					<ClayAutocomplete.Item
 						key={userAccount.id}
 						onClick={() => {
+							selectedEmailAddressRef.current =
+								userAccount.emailAddress;
+
 							setQuery(userAccount.emailAddress);
 							onSelectUser(userAccount);
 						}}
