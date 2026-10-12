@@ -74,8 +74,13 @@ public class AddDSEnvelopeMVCResourceCommand extends BaseMVCResourceCommand {
 			}
 		};
 
+		DigitalSignatureConfiguration digitalSignatureConfiguration =
+			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
+				themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId());
+
 		if (FeatureFlagManagerUtil.isEnabled(
-				themeDisplay.getCompanyId(), "LPD-69290")) {
+				themeDisplay.getCompanyId(), "LPD-69290") &&
+			digitalSignatureConfiguration.embeddedViewEnabled()) {
 
 			int expireAfter = ParamUtil.getInteger(
 				resourceRequest, "expireAfter");
@@ -94,9 +99,6 @@ public class AddDSEnvelopeMVCResourceCommand extends BaseMVCResourceCommand {
 			dsEnvelope.setExpireWarn(expireWarn);
 		}
 
-		DigitalSignatureConfiguration digitalSignatureConfiguration =
-			DigitalSignatureConfigurationUtil.getDigitalSignatureConfiguration(
-				themeDisplay.getCompanyId(), themeDisplay.getSiteGroupId());
 		long[] fileEntryIds = ParamUtil.getLongValues(
 			resourceRequest, "fileEntryIds");
 		User user = themeDisplay.getUser();

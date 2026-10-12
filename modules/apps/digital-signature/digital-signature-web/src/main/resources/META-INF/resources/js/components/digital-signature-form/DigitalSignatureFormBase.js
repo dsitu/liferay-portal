@@ -208,7 +208,7 @@ const DigitalSignatureFormBase = ({
 				value={values.emailMessage}
 			/>
 
-			{Liferay.FeatureFlags['LPD-69290'] && (
+			{embeddedViewEnabled && (
 				<>
 					<Input
 						label={Liferay.Language.get('days-until-expiration')}

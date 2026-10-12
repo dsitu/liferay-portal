@@ -67,33 +67,25 @@ describe('DigitalSignatureForm', () => {
 		expect(asFragment()).toMatchSnapshot();
 	});
 
-	describe('With the LPD-69290 feature flag enabled', () => {
-		beforeAll(() => {
-			Liferay.FeatureFlags['LPD-69290'] = true;
-		});
+	it('Validates the expiration warning period when embedded signing is enabled', async () => {
+		const {getByLabelText, getByText} = render(
+			<AppContext.Provider value={{embeddedViewEnabled: true}}>
+				<DigitalSignatureForm />
+			</AppContext.Provider>
+		);
 
-		afterAll(() => {
-			delete Liferay.FeatureFlags['LPD-69290'];
-		});
+		const inputExpireWarn = getByLabelText(
+			'days-to-warn-signers-before-expiration'
+		);
 
-		it('Validates the expiration warning period', async () => {
-			const {getByLabelText, getByText} = render(
-				<DigitalSignatureFormWithProvider />
-			);
+		await userEvent.clear(inputExpireWarn);
+		await userEvent.type(inputExpireWarn, '120');
 
-			const inputExpireWarn = getByLabelText(
-				'days-to-warn-signers-before-expiration'
-			);
-
-			await userEvent.clear(inputExpireWarn);
-			await userEvent.type(inputExpireWarn, '120');
-
-			expect(
-				getByText(
-					'days-to-warn-signers-must-be-fewer-than-days-until-expiration'
-				)
-			).toBeInTheDocument();
-		});
+		expect(
+			getByText(
+				'days-to-warn-signers-must-be-fewer-than-days-until-expiration'
+			)
+		).toBeInTheDocument();
 	});
 
 	it('Restricts recipients to existing users when embedded signing is enabled', () => {
