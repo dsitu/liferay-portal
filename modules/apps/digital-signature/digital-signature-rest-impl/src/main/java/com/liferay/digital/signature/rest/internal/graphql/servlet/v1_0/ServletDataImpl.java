@@ -111,15 +111,15 @@ public class ServletDataImpl implements ServletData {
 							DSRecipientViewDefinitionResourceImpl.class,
 							"postSiteDSRecipientViewDefinitionBatch"));
 					put(
-						"mutation#patchSignatureRequest",
-						new ObjectValuePair<>(
-							SignatureRequestResourceImpl.class,
-							"patchSignatureRequest"));
-					put(
 						"mutation#createSignatureRequestNotification",
 						new ObjectValuePair<>(
 							SignatureRequestResourceImpl.class,
 							"postSignatureRequestNotification"));
+					put(
+						"mutation#createSignatureRequestVoid",
+						new ObjectValuePair<>(
+							SignatureRequestResourceImpl.class,
+							"postSignatureRequestVoid"));
 					put(
 						"mutation#createSiteSignatureRequest",
 						new ObjectValuePair<>(
@@ -151,11 +151,6 @@ public class ServletDataImpl implements ServletData {
 							SignatureRequestResourceImpl.class,
 							"getSignatureRequest"));
 					put(
-						"query#signatureRequestsAssignedToMe",
-						new ObjectValuePair<>(
-							SignatureRequestResourceImpl.class,
-							"getSignatureRequestsAssignedToMePage"));
-					put(
 						"query#signatureRequests",
 						new ObjectValuePair<>(
 							SignatureRequestResourceImpl.class,
@@ -176,4 +171,4 @@ public class ServletDataImpl implements ServletData {
 		_signatureRequestResourceComponentServiceObjects;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1111279331
+// LIFERAY-REST-BUILDER-HASH:1897743718

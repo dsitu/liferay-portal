@@ -210,7 +210,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 		signatureRequest.setRequesterEmailAddress(regex);
 		signatureRequest.setRequesterName(regex);
 		signatureRequest.setStatus(regex);
-		signatureRequest.setVoidReason(regex);
 
 		String json = SignatureRequestSerDes.toJSON(signatureRequest);
 
@@ -227,7 +226,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 		Assert.assertEquals(regex, signatureRequest.getRequesterEmailAddress());
 		Assert.assertEquals(regex, signatureRequest.getRequesterName());
 		Assert.assertEquals(regex, signatureRequest.getStatus());
-		Assert.assertEquals(regex, signatureRequest.getVoidReason());
 	}
 
 	@Test
@@ -551,249 +549,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 	}
 
 	@Test
-	public void testGetSignatureRequestsAssignedToMePage() throws Exception {
-		Page<SignatureRequest> page =
-			signatureRequestResource.getSignatureRequestsAssignedToMePage(
-				null, Pagination.of(1, 10));
-
-		long totalCount = page.getTotalCount();
-
-		SignatureRequest signatureRequest1 =
-			testGetSignatureRequestsAssignedToMePage_addSignatureRequest(
-				randomSignatureRequest());
-
-		SignatureRequest signatureRequest2 =
-			testGetSignatureRequestsAssignedToMePage_addSignatureRequest(
-				randomSignatureRequest());
-
-		page = signatureRequestResource.getSignatureRequestsAssignedToMePage(
-			null, Pagination.of(1, (int)totalCount + 2));
-
-		Assert.assertEquals(totalCount + 2, page.getTotalCount());
-
-		assertContains(
-			signatureRequest1, (List<SignatureRequest>)page.getItems());
-		assertContains(
-			signatureRequest2, (List<SignatureRequest>)page.getItems());
-		assertValid(
-			page,
-			testGetSignatureRequestsAssignedToMePage_getExpectedActions());
-	}
-
-	protected Map<String, Map<String, String>>
-			testGetSignatureRequestsAssignedToMePage_getExpectedActions()
-		throws Exception {
-
-		Map<String, Map<String, String>> expectedActions = new HashMap<>();
-
-		return expectedActions;
-	}
-
-	@Test
-	public void testGetSignatureRequestsAssignedToMePageWithPagination()
-		throws Exception {
-
-		Page<SignatureRequest> signatureRequestsPage =
-			signatureRequestResource.getSignatureRequestsAssignedToMePage(
-				null, null);
-
-		int totalCount = GetterUtil.getInteger(
-			signatureRequestsPage.getTotalCount());
-
-		SignatureRequest signatureRequest1 =
-			testGetSignatureRequestsAssignedToMePage_addSignatureRequest(
-				randomSignatureRequest());
-
-		SignatureRequest signatureRequest2 =
-			testGetSignatureRequestsAssignedToMePage_addSignatureRequest(
-				randomSignatureRequest());
-
-		SignatureRequest signatureRequest3 =
-			testGetSignatureRequestsAssignedToMePage_addSignatureRequest(
-				randomSignatureRequest());
-
-		// See com.liferay.portal.vulcan.internal.configuration.HeadlessAPICompanyConfiguration#pageSizeLimit
-
-		int pageSizeLimit = 500;
-
-		if (totalCount >= (pageSizeLimit - 2)) {
-			Page<SignatureRequest> page1 =
-				signatureRequestResource.getSignatureRequestsAssignedToMePage(
-					null,
-					Pagination.of(
-						(int)Math.ceil((totalCount + 1.0) / pageSizeLimit),
-						pageSizeLimit));
-
-			Assert.assertEquals(totalCount + 3, page1.getTotalCount());
-
-			assertContains(
-				signatureRequest1, (List<SignatureRequest>)page1.getItems());
-
-			Page<SignatureRequest> page2 =
-				signatureRequestResource.getSignatureRequestsAssignedToMePage(
-					null,
-					Pagination.of(
-						(int)Math.ceil((totalCount + 2.0) / pageSizeLimit),
-						pageSizeLimit));
-
-			assertContains(
-				signatureRequest2, (List<SignatureRequest>)page2.getItems());
-
-			Page<SignatureRequest> page3 =
-				signatureRequestResource.getSignatureRequestsAssignedToMePage(
-					null,
-					Pagination.of(
-						(int)Math.ceil((totalCount + 3.0) / pageSizeLimit),
-						pageSizeLimit));
-
-			assertContains(
-				signatureRequest3, (List<SignatureRequest>)page3.getItems());
-		}
-		else {
-			Page<SignatureRequest> page1 =
-				signatureRequestResource.getSignatureRequestsAssignedToMePage(
-					null, Pagination.of(1, totalCount + 2));
-
-			List<SignatureRequest> signatureRequests1 =
-				(List<SignatureRequest>)page1.getItems();
-
-			Assert.assertEquals(
-				signatureRequests1.toString(), totalCount + 2,
-				signatureRequests1.size());
-
-			Page<SignatureRequest> page2 =
-				signatureRequestResource.getSignatureRequestsAssignedToMePage(
-					null, Pagination.of(2, totalCount + 2));
-
-			Assert.assertEquals(totalCount + 3, page2.getTotalCount());
-
-			List<SignatureRequest> signatureRequests2 =
-				(List<SignatureRequest>)page2.getItems();
-
-			Assert.assertEquals(
-				signatureRequests2.toString(), 1, signatureRequests2.size());
-
-			Page<SignatureRequest> page3 =
-				signatureRequestResource.getSignatureRequestsAssignedToMePage(
-					null, Pagination.of(1, (int)totalCount + 3));
-
-			assertContains(
-				signatureRequest1, (List<SignatureRequest>)page3.getItems());
-			assertContains(
-				signatureRequest2, (List<SignatureRequest>)page3.getItems());
-			assertContains(
-				signatureRequest3, (List<SignatureRequest>)page3.getItems());
-		}
-	}
-
-	protected SignatureRequest
-			testGetSignatureRequestsAssignedToMePage_addSignatureRequest(
-				SignatureRequest signatureRequest)
-		throws Exception {
-
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
-	}
-
-	@Test
-	public void testGraphQLGetSignatureRequestsAssignedToMePage()
-		throws Exception {
-
-		GraphQLField graphQLField =
-			testGraphQLGetSignatureRequestsAssignedToMePageSignatureRequest_getGraphQLField();
-
-		// No namespace
-
-		JSONObject signatureRequestsAssignedToMeJSONObject =
-			JSONUtil.getValueAsJSONObject(
-				invokeGraphQLQuery(graphQLField), "JSONObject/data",
-				"JSONObject/signatureRequestsAssignedToMe");
-
-		long totalCount = signatureRequestsAssignedToMeJSONObject.getLong(
-			"totalCount");
-
-		SignatureRequest signatureRequest1 =
-			testGraphQLGetSignatureRequestsAssignedToMePageSignatureRequest_addSignatureRequest(
-				randomSignatureRequest());
-
-		SignatureRequest signatureRequest2 =
-			testGraphQLGetSignatureRequestsAssignedToMePageSignatureRequest_addSignatureRequest(
-				randomSignatureRequest());
-
-		signatureRequestsAssignedToMeJSONObject = JSONUtil.getValueAsJSONObject(
-			invokeGraphQLQuery(graphQLField), "JSONObject/data",
-			"JSONObject/signatureRequestsAssignedToMe");
-
-		Assert.assertEquals(
-			totalCount + 2,
-			signatureRequestsAssignedToMeJSONObject.getLong("totalCount"));
-
-		assertContains(
-			signatureRequest1,
-			Arrays.asList(
-				SignatureRequestSerDes.toDTOs(
-					signatureRequestsAssignedToMeJSONObject.getString(
-						"items"))));
-		assertContains(
-			signatureRequest2,
-			Arrays.asList(
-				SignatureRequestSerDes.toDTOs(
-					signatureRequestsAssignedToMeJSONObject.getString(
-						"items"))));
-
-		// Using the namespace digitalSignature_v1_0
-
-		signatureRequestsAssignedToMeJSONObject = JSONUtil.getValueAsJSONObject(
-			invokeGraphQLQuery(
-				new GraphQLField("digitalSignature_v1_0", graphQLField)),
-			"JSONObject/data", "JSONObject/digitalSignature_v1_0",
-			"JSONObject/signatureRequestsAssignedToMe");
-
-		Assert.assertEquals(
-			totalCount + 2,
-			signatureRequestsAssignedToMeJSONObject.getLong("totalCount"));
-
-		assertContains(
-			signatureRequest1,
-			Arrays.asList(
-				SignatureRequestSerDes.toDTOs(
-					signatureRequestsAssignedToMeJSONObject.getString(
-						"items"))));
-		assertContains(
-			signatureRequest2,
-			Arrays.asList(
-				SignatureRequestSerDes.toDTOs(
-					signatureRequestsAssignedToMeJSONObject.getString(
-						"items"))));
-	}
-
-	protected GraphQLField
-			testGraphQLGetSignatureRequestsAssignedToMePageSignatureRequest_getGraphQLField()
-		throws Exception {
-
-		return new GraphQLField(
-			"signatureRequestsAssignedToMe",
-			new HashMap<String, Object>() {
-				{
-					put("search", null);
-					put("page", 1);
-					put("pageSize", 10);
-				}
-			},
-			new GraphQLField("items", getGraphQLFields()),
-			new GraphQLField("page"), new GraphQLField("totalCount"));
-	}
-
-	protected SignatureRequest
-			testGraphQLGetSignatureRequestsAssignedToMePageSignatureRequest_addSignatureRequest(
-				SignatureRequest signatureRequest)
-		throws Exception {
-
-		throw new UnsupportedOperationException(
-			"This method needs to be implemented");
-	}
-
-	@Test
 	public void testGetSiteSignatureRequestsPage() throws Exception {
 		Long siteId = testGetSiteSignatureRequestsPage_getSiteId();
 		Long irrelevantSiteId =
@@ -1069,40 +824,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 	}
 
 	@Test
-	public void testPatchSignatureRequest() throws Exception {
-		SignatureRequest postSignatureRequest =
-			testPatchSignatureRequest_addSignatureRequest();
-
-		SignatureRequest randomPatchSignatureRequest =
-			randomPatchSignatureRequest();
-
-		@SuppressWarnings("PMD.UnusedLocalVariable")
-		SignatureRequest patchSignatureRequest =
-			signatureRequestResource.patchSignatureRequest(
-				postSignatureRequest.getId(), randomPatchSignatureRequest);
-
-		SignatureRequest expectedPatchSignatureRequest =
-			postSignatureRequest.clone();
-
-		BeanTestUtil.copyProperties(
-			randomPatchSignatureRequest, expectedPatchSignatureRequest);
-
-		SignatureRequest getSignatureRequest =
-			signatureRequestResource.getSignatureRequest(
-				patchSignatureRequest.getId());
-
-		assertEquals(expectedPatchSignatureRequest, getSignatureRequest);
-		assertValid(getSignatureRequest);
-	}
-
-	protected SignatureRequest testPatchSignatureRequest_addSignatureRequest()
-		throws Exception {
-
-		return signatureRequestResource.postSiteSignatureRequest(
-			testGroup.getGroupId(), randomSignatureRequest());
-	}
-
-	@Test
 	public void testPostSignatureRequestNotification() throws Exception {
 		SignatureRequest randomSignatureRequest = randomSignatureRequest();
 
@@ -1125,6 +846,37 @@ public abstract class BaseSignatureRequestResourceTestCase {
 
 	@Test
 	public void testGraphQLPostSignatureRequestNotification() throws Exception {
+		SignatureRequest randomSignatureRequest = randomSignatureRequest();
+
+		SignatureRequest signatureRequest =
+			testGraphQLSignatureRequest_addSignatureRequest(
+				testGroup.getGroupId(), randomSignatureRequest);
+
+		Assert.assertTrue(equals(randomSignatureRequest, signatureRequest));
+	}
+
+	@Test
+	public void testPostSignatureRequestVoid() throws Exception {
+		SignatureRequest randomSignatureRequest = randomSignatureRequest();
+
+		SignatureRequest postSignatureRequest =
+			testPostSignatureRequestVoid_addSignatureRequest(
+				randomSignatureRequest);
+
+		assertEquals(randomSignatureRequest, postSignatureRequest);
+		assertValid(postSignatureRequest);
+	}
+
+	protected SignatureRequest testPostSignatureRequestVoid_addSignatureRequest(
+			SignatureRequest signatureRequest)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testGraphQLPostSignatureRequestVoid() throws Exception {
 		SignatureRequest randomSignatureRequest = randomSignatureRequest();
 
 		SignatureRequest signatureRequest =
@@ -1590,14 +1342,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 				continue;
 			}
 
-			if (Objects.equals("voidReason", additionalAssertFieldName)) {
-				if (signatureRequest.getVoidReason() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
 			throw new IllegalArgumentException(
 				"Invalid additional assert field name " +
 					additionalAssertFieldName);
@@ -1941,17 +1685,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 				if (!Objects.deepEquals(
 						signatureRequest1.getStatusDate(),
 						signatureRequest2.getStatusDate())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("voidReason", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						signatureRequest1.getVoidReason(),
-						signatureRequest2.getVoidReason())) {
 
 					return false;
 				}
@@ -2610,52 +2343,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 			return sb.toString();
 		}
 
-		if (entityFieldName.equals("voidReason")) {
-			Object object = signatureRequest.getVoidReason();
-
-			String value = String.valueOf(object);
-
-			if (operator.equals("contains")) {
-				sb = new StringBundler();
-
-				sb.append("contains(");
-				sb.append(entityFieldName);
-				sb.append(",'");
-
-				if ((object != null) && (value.length() > 2)) {
-					sb.append(value.substring(1, value.length() - 1));
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append("')");
-			}
-			else if (operator.equals("startswith")) {
-				sb = new StringBundler();
-
-				sb.append("startswith(");
-				sb.append(entityFieldName);
-				sb.append(",'");
-
-				if ((object != null) && (value.length() > 1)) {
-					sb.append(value.substring(0, value.length() - 1));
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append("')");
-			}
-			else {
-				sb.append("'");
-				sb.append(value);
-				sb.append("'");
-			}
-
-			return sb.toString();
-		}
-
 		throw new IllegalArgumentException(
 			"Invalid entity field " + entityFieldName);
 	}
@@ -2729,8 +2416,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 				sendNotifications = RandomTestUtil.randomBoolean();
 				status = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				statusDate = RandomTestUtil.nextDate();
-				voidReason = StringUtil.toLowerCase(
-					RandomTestUtil.randomString());
 			}
 		};
 	}
@@ -2981,4 +2666,4 @@ public abstract class BaseSignatureRequestResourceTestCase {
 		_vulcanCRUDItemDelegateBuilderRegistry;
 
 }
-// LIFERAY-REST-BUILDER-HASH:174094626
+// LIFERAY-REST-BUILDER-HASH:1694768862

@@ -43,11 +43,11 @@ import java.util.function.Supplier;
  */
 @Generated("")
 @GraphQLName(
-	description = "A request for one or more documents to be signed, as Liferay records it. Read from local records, so reading one costs no call to the signature provider.",
+	description = "A request for one or more documents to be signed.",
 	value = "SignatureRequest"
 )
 @io.swagger.v3.oas.annotations.media.Schema(
-	description = "A request for one or more documents to be signed, as Liferay records it. Read from local records, so reading one costs no call to the signature provider."
+	description = "A request for one or more documents to be signed."
 )
 @JsonFilter("Liferay.Vulcan")
 @XmlRootElement(name = "SignatureRequest")
@@ -870,7 +870,7 @@ public class SignatureRequest implements Serializable {
 		_signatureRequestRecipientsSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "Status of the request as Liferay last recorded it. Set it to \"voided\" with a PATCH to cancel the request; no other status can be set."
+		description = "Status of the request as Liferay last recorded it. Read-only."
 	)
 	public String getStatus() {
 		if (_statusSupplier != null) {
@@ -906,9 +906,9 @@ public class SignatureRequest implements Serializable {
 	}
 
 	@GraphQLField(
-		description = "Status of the request as Liferay last recorded it. Set it to \"voided\" with a PATCH to cancel the request; no other status can be set."
+		description = "Status of the request as Liferay last recorded it. Read-only."
 	)
-	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected String status;
 
 	@JsonIgnore
@@ -956,51 +956,6 @@ public class SignatureRequest implements Serializable {
 
 	@JsonIgnore
 	private Supplier<Date> _statusDateSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "Why the request is being canceled, sent to the signature provider when the status is set to \"voided\". Write-only."
-	)
-	public String getVoidReason() {
-		if (_voidReasonSupplier != null) {
-			voidReason = _voidReasonSupplier.get();
-
-			_voidReasonSupplier = null;
-		}
-
-		return voidReason;
-	}
-
-	public void setVoidReason(String voidReason) {
-		this.voidReason = voidReason;
-
-		_voidReasonSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setVoidReason(
-		UnsafeSupplier<String, Exception> voidReasonUnsafeSupplier) {
-
-		_voidReasonSupplier = () -> {
-			try {
-				return voidReasonUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField(
-		description = "Why the request is being canceled, sent to the signature provider when the status is set to \"voided\". Write-only."
-	)
-	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	protected String voidReason;
-
-	@JsonIgnore
-	private Supplier<String> _voidReasonSupplier;
 
 	@Override
 	public boolean equals(Object object) {
@@ -1341,22 +1296,6 @@ public class SignatureRequest implements Serializable {
 			sb.append("\"");
 		}
 
-		String voidReason = getVoidReason();
-
-		if (voidReason != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"voidReason\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(voidReason));
-
-			sb.append("\"");
-		}
-
 		sb.append("}");
 
 		return sb.toString();
@@ -1479,4 +1418,4 @@ public class SignatureRequest implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1306308391
+// LIFERAY-REST-BUILDER-HASH:371616922

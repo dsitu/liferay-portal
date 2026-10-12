@@ -49,20 +49,16 @@ public interface SignatureRequestResource {
 	public SignatureRequest getSignatureRequest(Long signatureRequestId)
 		throws Exception;
 
-	public Page<SignatureRequest> getSignatureRequestsAssignedToMePage(
-			String search, Pagination pagination)
-		throws Exception;
-
 	public Page<SignatureRequest> getSiteSignatureRequestsPage(
 			Long siteId, String search, Pagination pagination)
 		throws Exception;
 
-	public SignatureRequest patchSignatureRequest(
-			Long signatureRequestId, SignatureRequest signatureRequest)
-		throws Exception;
-
 	public SignatureRequest postSignatureRequestNotification(
 			Long signatureRequestId)
+		throws Exception;
+
+	public SignatureRequest postSignatureRequestVoid(
+			Long signatureRequestId, String voidReason)
 		throws Exception;
 
 	public SignatureRequest postSiteSignatureRequest(
@@ -174,4 +170,4 @@ public interface SignatureRequestResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-895750096
+// LIFERAY-REST-BUILDER-HASH:1851950137

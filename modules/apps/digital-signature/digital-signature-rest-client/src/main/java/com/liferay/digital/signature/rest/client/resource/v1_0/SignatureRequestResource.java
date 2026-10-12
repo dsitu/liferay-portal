@@ -41,29 +41,12 @@ public interface SignatureRequestResource {
 			Long signatureRequestId)
 		throws Exception;
 
-	public Page<SignatureRequest> getSignatureRequestsAssignedToMePage(
-			String search, Pagination pagination)
-		throws Exception;
-
-	public HttpInvoker.HttpResponse
-			getSignatureRequestsAssignedToMePageHttpResponse(
-				String search, Pagination pagination)
-		throws Exception;
-
 	public Page<SignatureRequest> getSiteSignatureRequestsPage(
 			Long siteId, String search, Pagination pagination)
 		throws Exception;
 
 	public HttpInvoker.HttpResponse getSiteSignatureRequestsPageHttpResponse(
 			Long siteId, String search, Pagination pagination)
-		throws Exception;
-
-	public SignatureRequest patchSignatureRequest(
-			Long signatureRequestId, SignatureRequest signatureRequest)
-		throws Exception;
-
-	public HttpInvoker.HttpResponse patchSignatureRequestHttpResponse(
-			Long signatureRequestId, SignatureRequest signatureRequest)
 		throws Exception;
 
 	public SignatureRequest postSignatureRequestNotification(
@@ -73,6 +56,14 @@ public interface SignatureRequestResource {
 	public HttpInvoker.HttpResponse
 			postSignatureRequestNotificationHttpResponse(
 				Long signatureRequestId)
+		throws Exception;
+
+	public SignatureRequest postSignatureRequestVoid(
+			Long signatureRequestId, String voidReason)
+		throws Exception;
+
+	public HttpInvoker.HttpResponse postSignatureRequestVoidHttpResponse(
+			Long signatureRequestId, String voidReason)
 		throws Exception;
 
 	public SignatureRequest postSiteSignatureRequest(
@@ -316,123 +307,6 @@ public interface SignatureRequestResource {
 			return httpInvoker.invoke();
 		}
 
-		public Page<SignatureRequest> getSignatureRequestsAssignedToMePage(
-				String search, Pagination pagination)
-			throws Exception {
-
-			HttpInvoker.HttpResponse httpResponse =
-				getSignatureRequestsAssignedToMePageHttpResponse(
-					search, pagination);
-
-			String content = httpResponse.getContent();
-
-			if ((httpResponse.getStatusCode() / 100) != 2) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response content: " + content);
-				_logger.log(
-					Level.WARNING,
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.log(
-					Level.WARNING,
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-
-				Problem.ProblemException problemException = null;
-
-				if (Objects.equals(
-						httpResponse.getContentType(), "application/json")) {
-
-					problemException = new Problem.ProblemException(
-						Problem.toDTO(content));
-				}
-				else {
-					_logger.log(
-						Level.WARNING,
-						"Unable to process content type: " +
-							httpResponse.getContentType());
-
-					Problem problem = new Problem();
-
-					problem.setStatus(
-						String.valueOf(httpResponse.getStatusCode()));
-
-					problemException = new Problem.ProblemException(problem);
-				}
-
-				throw problemException;
-			}
-			else {
-				_logger.fine("HTTP response content: " + content);
-				_logger.fine(
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.fine(
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-			}
-
-			try {
-				return Page.of(content, SignatureRequestSerDes::toDTO);
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-		}
-
-		public HttpInvoker.HttpResponse
-				getSignatureRequestsAssignedToMePageHttpResponse(
-					String search, Pagination pagination)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.GET);
-
-			if (search != null) {
-				httpInvoker.parameter("search", String.valueOf(search));
-			}
-
-			if (pagination != null) {
-				httpInvoker.parameter(
-					"page", String.valueOf(pagination.getPage()));
-				httpInvoker.parameter(
-					"pageSize", String.valueOf(pagination.getPageSize()));
-			}
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port + _builder._contextPath +
-						"/o/digital-signature-rest/v1.0/signature-requests/assigned-to-me");
-
-			if ((_builder._login != null) && (_builder._password != null)) {
-				httpInvoker.userNameAndPassword(
-					_builder._login + ":" + _builder._password);
-			}
-
-			return httpInvoker.invoke();
-		}
-
 		public Page<SignatureRequest> getSiteSignatureRequestsPage(
 				Long siteId, String search, Pagination pagination)
 			throws Exception {
@@ -552,115 +426,6 @@ public interface SignatureRequestResource {
 			return httpInvoker.invoke();
 		}
 
-		public SignatureRequest patchSignatureRequest(
-				Long signatureRequestId, SignatureRequest signatureRequest)
-			throws Exception {
-
-			HttpInvoker.HttpResponse httpResponse =
-				patchSignatureRequestHttpResponse(
-					signatureRequestId, signatureRequest);
-
-			String content = httpResponse.getContent();
-
-			if ((httpResponse.getStatusCode() / 100) != 2) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response content: " + content);
-				_logger.log(
-					Level.WARNING,
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.log(
-					Level.WARNING,
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-
-				Problem.ProblemException problemException = null;
-
-				if (Objects.equals(
-						httpResponse.getContentType(), "application/json")) {
-
-					problemException = new Problem.ProblemException(
-						Problem.toDTO(content));
-				}
-				else {
-					_logger.log(
-						Level.WARNING,
-						"Unable to process content type: " +
-							httpResponse.getContentType());
-
-					Problem problem = new Problem();
-
-					problem.setStatus(
-						String.valueOf(httpResponse.getStatusCode()));
-
-					problemException = new Problem.ProblemException(problem);
-				}
-
-				throw problemException;
-			}
-			else {
-				_logger.fine("HTTP response content: " + content);
-				_logger.fine(
-					"HTTP response message: " + httpResponse.getMessage());
-				_logger.fine(
-					"HTTP response status code: " +
-						httpResponse.getStatusCode());
-			}
-
-			try {
-				return SignatureRequestSerDes.toDTO(content);
-			}
-			catch (Exception e) {
-				_logger.log(
-					Level.WARNING,
-					"Unable to process HTTP response: " + content, e);
-
-				throw new Problem.ProblemException(Problem.toDTO(content));
-			}
-		}
-
-		public HttpInvoker.HttpResponse patchSignatureRequestHttpResponse(
-				Long signatureRequestId, SignatureRequest signatureRequest)
-			throws Exception {
-
-			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
-
-			httpInvoker.body(signatureRequest.toString(), "application/json");
-
-			if (_builder._locale != null) {
-				httpInvoker.header(
-					"Accept-Language", _builder._locale.toLanguageTag());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._headers.entrySet()) {
-
-				httpInvoker.header(entry.getKey(), entry.getValue());
-			}
-
-			for (Map.Entry<String, String> entry :
-					_builder._parameters.entrySet()) {
-
-				httpInvoker.parameter(entry.getKey(), entry.getValue());
-			}
-
-			httpInvoker.httpMethod(HttpInvoker.HttpMethod.PATCH);
-
-			httpInvoker.path(
-				_builder._scheme + "://" + _builder._host + ":" +
-					_builder._port + _builder._contextPath +
-						"/o/digital-signature-rest/v1.0/signature-requests/{signatureRequestId}");
-
-			httpInvoker.path("signatureRequestId", signatureRequestId);
-
-			if ((_builder._login != null) && (_builder._password != null)) {
-				httpInvoker.userNameAndPassword(
-					_builder._login + ":" + _builder._password);
-			}
-
-			return httpInvoker.invoke();
-		}
-
 		public SignatureRequest postSignatureRequestNotification(
 				Long signatureRequestId)
 			throws Exception {
@@ -760,6 +525,119 @@ public interface SignatureRequestResource {
 				_builder._scheme + "://" + _builder._host + ":" +
 					_builder._port + _builder._contextPath +
 						"/o/digital-signature-rest/v1.0/signature-requests/{signatureRequestId}/notifications");
+
+			httpInvoker.path("signatureRequestId", signatureRequestId);
+
+			if ((_builder._login != null) && (_builder._password != null)) {
+				httpInvoker.userNameAndPassword(
+					_builder._login + ":" + _builder._password);
+			}
+
+			return httpInvoker.invoke();
+		}
+
+		public SignatureRequest postSignatureRequestVoid(
+				Long signatureRequestId, String voidReason)
+			throws Exception {
+
+			HttpInvoker.HttpResponse httpResponse =
+				postSignatureRequestVoidHttpResponse(
+					signatureRequestId, voidReason);
+
+			String content = httpResponse.getContent();
+
+			if ((httpResponse.getStatusCode() / 100) != 2) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response content: " + content);
+				_logger.log(
+					Level.WARNING,
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.log(
+					Level.WARNING,
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+
+				Problem.ProblemException problemException = null;
+
+				if (Objects.equals(
+						httpResponse.getContentType(), "application/json")) {
+
+					problemException = new Problem.ProblemException(
+						Problem.toDTO(content));
+				}
+				else {
+					_logger.log(
+						Level.WARNING,
+						"Unable to process content type: " +
+							httpResponse.getContentType());
+
+					Problem problem = new Problem();
+
+					problem.setStatus(
+						String.valueOf(httpResponse.getStatusCode()));
+
+					problemException = new Problem.ProblemException(problem);
+				}
+
+				throw problemException;
+			}
+			else {
+				_logger.fine("HTTP response content: " + content);
+				_logger.fine(
+					"HTTP response message: " + httpResponse.getMessage());
+				_logger.fine(
+					"HTTP response status code: " +
+						httpResponse.getStatusCode());
+			}
+
+			try {
+				return SignatureRequestSerDes.toDTO(content);
+			}
+			catch (Exception e) {
+				_logger.log(
+					Level.WARNING,
+					"Unable to process HTTP response: " + content, e);
+
+				throw new Problem.ProblemException(Problem.toDTO(content));
+			}
+		}
+
+		public HttpInvoker.HttpResponse postSignatureRequestVoidHttpResponse(
+				Long signatureRequestId, String voidReason)
+			throws Exception {
+
+			HttpInvoker httpInvoker = HttpInvoker.newHttpInvoker();
+
+			httpInvoker.body("[]", "application/json");
+
+			if (_builder._locale != null) {
+				httpInvoker.header(
+					"Accept-Language", _builder._locale.toLanguageTag());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._headers.entrySet()) {
+
+				httpInvoker.header(entry.getKey(), entry.getValue());
+			}
+
+			for (Map.Entry<String, String> entry :
+					_builder._parameters.entrySet()) {
+
+				httpInvoker.parameter(entry.getKey(), entry.getValue());
+			}
+
+			httpInvoker.httpMethod(HttpInvoker.HttpMethod.POST);
+
+			if (voidReason != null) {
+				httpInvoker.parameter("voidReason", String.valueOf(voidReason));
+			}
+
+			httpInvoker.path(
+				_builder._scheme + "://" + _builder._host + ":" +
+					_builder._port + _builder._contextPath +
+						"/o/digital-signature-rest/v1.0/signature-requests/{signatureRequestId}/void");
 
 			httpInvoker.path("signatureRequestId", signatureRequestId);
 
@@ -1114,4 +992,4 @@ public interface SignatureRequestResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-493989919
+// LIFERAY-REST-BUILDER-HASH:-1068810469

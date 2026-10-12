@@ -448,27 +448,6 @@ public class SignatureRequest implements Cloneable, Serializable {
 
 	protected Date statusDate;
 
-	public String getVoidReason() {
-		return voidReason;
-	}
-
-	public void setVoidReason(String voidReason) {
-		this.voidReason = voidReason;
-	}
-
-	public void setVoidReason(
-		UnsafeSupplier<String, Exception> voidReasonUnsafeSupplier) {
-
-		try {
-			voidReason = voidReasonUnsafeSupplier.get();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	protected String voidReason;
-
 	@Override
 	public SignatureRequest clone() throws CloneNotSupportedException {
 		return (SignatureRequest)super.clone();
@@ -501,4 +480,4 @@ public class SignatureRequest implements Cloneable, Serializable {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1656723825
+// LIFERAY-REST-BUILDER-HASH:1085517230

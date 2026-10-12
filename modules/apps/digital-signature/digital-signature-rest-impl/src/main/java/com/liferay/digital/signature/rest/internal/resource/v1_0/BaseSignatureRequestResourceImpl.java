@@ -106,46 +106,6 @@ public abstract class BaseSignatureRequestResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'GET' 'http://localhost:8080/o/digital-signature-rest/v1.0/signature-requests/assigned-to-me'  -u 'test@liferay.com:test'
-	 */
-	@io.swagger.v3.oas.annotations.Parameters(
-		value = {
-			@io.swagger.v3.oas.annotations.Parameter(
-				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-				name = "page"
-			),
-			@io.swagger.v3.oas.annotations.Parameter(
-				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-				name = "pageSize"
-			),
-			@io.swagger.v3.oas.annotations.Parameter(
-				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
-				name = "search"
-			)
-		}
-	)
-	@io.swagger.v3.oas.annotations.tags.Tags(
-		value = {
-			@io.swagger.v3.oas.annotations.tags.Tag(name = "SignatureRequest")
-		}
-	)
-	@jakarta.ws.rs.GET
-	@jakarta.ws.rs.Path("/signature-requests/assigned-to-me")
-	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
-	@Override
-	public Page<SignatureRequest> getSignatureRequestsAssignedToMePage(
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@jakarta.ws.rs.QueryParam("search")
-			String search,
-			@jakarta.ws.rs.core.Context Pagination pagination)
-		throws Exception {
-
-		return Page.of(Collections.emptyList());
-	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
 	 * curl -X 'GET' 'http://localhost:8080/o/digital-signature-rest/v1.0/sites/{siteId}/signature-requests'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
@@ -194,40 +154,6 @@ public abstract class BaseSignatureRequestResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PATCH' 'http://localhost:8080/o/digital-signature-rest/v1.0/signature-requests/{signatureRequestId}' -d $'{"emailBody": ___, "emailSubject": ___, "expireAfter": ___, "expireWarn": ___, "fileEntryIds": ___, "name": ___, "sendNotifications": ___, "signatureRequestRecipients": ___, "status": ___, "voidReason": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
-	 */
-	@io.swagger.v3.oas.annotations.Parameters(
-		value = {
-			@io.swagger.v3.oas.annotations.Parameter(
-				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
-				name = "signatureRequestId", required = true
-			)
-		}
-	)
-	@io.swagger.v3.oas.annotations.tags.Tags(
-		value = {
-			@io.swagger.v3.oas.annotations.tags.Tag(name = "SignatureRequest")
-		}
-	)
-	@jakarta.ws.rs.Consumes({"application/json", "application/xml"})
-	@jakarta.ws.rs.PATCH
-	@jakarta.ws.rs.Path("/signature-requests/{signatureRequestId}")
-	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
-	@Override
-	public SignatureRequest patchSignatureRequest(
-			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
-			@jakarta.validation.constraints.NotNull
-			@jakarta.ws.rs.PathParam("signatureRequestId")
-			Long signatureRequestId,
-			SignatureRequest signatureRequest)
-		throws Exception {
-
-		return new SignatureRequest();
-	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
 	 * curl -X 'POST' 'http://localhost:8080/o/digital-signature-rest/v1.0/signature-requests/{signatureRequestId}/notifications'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
@@ -262,7 +188,47 @@ public abstract class BaseSignatureRequestResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/digital-signature-rest/v1.0/sites/{siteId}/signature-requests' -d $'{"emailBody": ___, "emailSubject": ___, "expireAfter": ___, "expireWarn": ___, "fileEntryIds": ___, "name": ___, "sendNotifications": ___, "signatureRequestRecipients": ___, "status": ___, "voidReason": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/digital-signature-rest/v1.0/signature-requests/{signatureRequestId}/void'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "signatureRequestId", required = true
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "voidReason", required = true
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "SignatureRequest")
+		}
+	)
+	@jakarta.ws.rs.Path("/signature-requests/{signatureRequestId}/void")
+	@jakarta.ws.rs.POST
+	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public SignatureRequest postSignatureRequestVoid(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam("signatureRequestId")
+			Long signatureRequestId,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.QueryParam("voidReason")
+			String voidReason)
+		throws Exception {
+
+		return new SignatureRequest();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'POST' 'http://localhost:8080/o/digital-signature-rest/v1.0/sites/{siteId}/signature-requests' -d $'{"emailBody": ___, "emailSubject": ___, "expireAfter": ___, "expireWarn": ___, "fileEntryIds": ___, "name": ___, "sendNotifications": ___, "signatureRequestRecipients": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
 		value = {
@@ -486,7 +452,7 @@ public abstract class BaseSignatureRequestResourceImpl
 	}
 
 	public Set<String> getAvailableUpdateStrategies() {
-		return SetUtil.fromArray("PARTIAL_UPDATE");
+		return SetUtil.fromArray();
 	}
 
 	@Override
@@ -560,37 +526,8 @@ public abstract class BaseSignatureRequestResourceImpl
 			Map<String, Serializable> parameters)
 		throws Exception {
 
-		UnsafeFunction<SignatureRequest, SignatureRequest, Exception>
-			signatureRequestUnsafeFunction = null;
-
-		String updateStrategy = (String)parameters.getOrDefault(
-			"updateStrategy", "UPDATE");
-
-		if (StringUtil.equalsIgnoreCase(updateStrategy, "PARTIAL_UPDATE")) {
-			signatureRequestUnsafeFunction =
-				signatureRequest -> patchSignatureRequest(
-					signatureRequest.getId(), signatureRequest);
-		}
-
-		if (signatureRequestUnsafeFunction == null) {
-			throw new NotSupportedException(
-				"Update strategy \"" + updateStrategy +
-					"\" is not supported for SignatureRequest");
-		}
-
-		if (contextBatchUnsafeBiConsumer != null) {
-			contextBatchUnsafeBiConsumer.accept(
-				signatureRequests, signatureRequestUnsafeFunction);
-		}
-		else if (contextBatchUnsafeConsumer != null) {
-			contextBatchUnsafeConsumer.accept(
-				signatureRequests, signatureRequestUnsafeFunction::apply);
-		}
-		else {
-			for (SignatureRequest signatureRequest : signatureRequests) {
-				signatureRequestUnsafeFunction.apply(signatureRequest);
-			}
-		}
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
 	}
 
 	@Override
@@ -1161,4 +1098,4 @@ public abstract class BaseSignatureRequestResourceImpl
 		LogFactoryUtil.getLog(BaseSignatureRequestResourceImpl.class);
 
 }
-// LIFERAY-REST-BUILDER-HASH:-335218307
+// LIFERAY-REST-BUILDER-HASH:1280050256

@@ -153,20 +153,6 @@ public class Mutation {
 	}
 
 	@GraphQLField
-	public SignatureRequest patchSignatureRequest(
-			@GraphQLName("signatureRequestId") Long signatureRequestId,
-			@GraphQLName("signatureRequest") SignatureRequest signatureRequest)
-		throws Exception {
-
-		return _applyComponentServiceObjects(
-			_signatureRequestResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			signatureRequestResource ->
-				signatureRequestResource.patchSignatureRequest(
-					signatureRequestId, signatureRequest));
-	}
-
-	@GraphQLField
 	public SignatureRequest createSignatureRequestNotification(
 			@GraphQLName("signatureRequestId") Long signatureRequestId)
 		throws Exception {
@@ -177,6 +163,20 @@ public class Mutation {
 			signatureRequestResource ->
 				signatureRequestResource.postSignatureRequestNotification(
 					signatureRequestId));
+	}
+
+	@GraphQLField
+	public SignatureRequest createSignatureRequestVoid(
+			@GraphQLName("signatureRequestId") Long signatureRequestId,
+			@GraphQLName("voidReason") String voidReason)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_signatureRequestResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			signatureRequestResource ->
+				signatureRequestResource.postSignatureRequestVoid(
+					signatureRequestId, voidReason));
 	}
 
 	@GraphQLField
@@ -356,4 +356,4 @@ public class Mutation {
 		_vulcanBatchEngineImportTaskResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:231442061
+// LIFERAY-REST-BUILDER-HASH:-1372599820

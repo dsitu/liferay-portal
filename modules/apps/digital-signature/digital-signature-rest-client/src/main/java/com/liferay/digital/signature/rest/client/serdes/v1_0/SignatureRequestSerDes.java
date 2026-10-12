@@ -338,20 +338,6 @@ public class SignatureRequestSerDes {
 			sb.append("\"");
 		}
 
-		if (signatureRequest.getVoidReason() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"voidReason\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(signatureRequest.getVoidReason()));
-
-			sb.append("\"");
-		}
-
 		sb.append("}");
 
 		return sb.toString();
@@ -548,14 +534,6 @@ public class SignatureRequestSerDes {
 					signatureRequest.getStatusDate()));
 		}
 
-		if (signatureRequest.getVoidReason() == null) {
-			map.put("voidReason", null);
-		}
-		else {
-			map.put(
-				"voidReason", String.valueOf(signatureRequest.getVoidReason()));
-		}
-
 		return map;
 	}
 
@@ -636,9 +614,6 @@ public class SignatureRequestSerDes {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "statusDate")) {
-				return false;
-			}
-			else if (Objects.equals(jsonParserFieldName, "voidReason")) {
 				return false;
 			}
 
@@ -787,12 +762,6 @@ public class SignatureRequestSerDes {
 						toDate((String)jsonParserFieldValue));
 				}
 			}
-			else if (Objects.equals(jsonParserFieldName, "voidReason")) {
-				if (jsonParserFieldValue != null) {
-					signatureRequest.setVoidReason(
-						(String)jsonParserFieldValue);
-				}
-			}
 		}
 
 	}
@@ -880,4 +849,4 @@ public class SignatureRequestSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1261548049
+// LIFERAY-REST-BUILDER-HASH:-1166774062

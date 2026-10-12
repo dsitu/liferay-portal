@@ -104,7 +104,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {signatureRequest(signatureRequestId: ___){actions, dateCreated, documentTitles, emailBody, emailSubject, expirationDate, expireAfter, expireWarn, fileEntryIds, id, name, providerKey, providerRequestId, requesterEmailAddress, requesterName, requesterUserId, sendNotifications, signatureRequestRecipients, status, statusDate, voidReason}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {signatureRequest(signatureRequestId: ___){actions, dateCreated, documentTitles, emailBody, emailSubject, expirationDate, expireAfter, expireWarn, fileEntryIds, id, name, providerKey, providerRequestId, requesterEmailAddress, requesterName, requesterUserId, sendNotifications, signatureRequestRecipients, status, statusDate}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public SignatureRequest signatureRequest(
@@ -117,26 +117,6 @@ public class Query {
 			signatureRequestResource ->
 				signatureRequestResource.getSignatureRequest(
 					signatureRequestId));
-	}
-
-	/**
-	 * Invoke this method with the command line:
-	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {signatureRequestsAssignedToMe(page: ___, pageSize: ___, search: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
-	 */
-	@GraphQLField
-	public SignatureRequestPage signatureRequestsAssignedToMe(
-			@GraphQLName("search") String search,
-			@GraphQLName("pageSize") int pageSize,
-			@GraphQLName("page") int page)
-		throws Exception {
-
-		return _applyComponentServiceObjects(
-			_signatureRequestResourceComponentServiceObjects,
-			this::_populateResourceContext,
-			signatureRequestResource -> new SignatureRequestPage(
-				signatureRequestResource.getSignatureRequestsAssignedToMePage(
-					search, Pagination.of(page, pageSize))));
 	}
 
 	/**
@@ -305,4 +285,4 @@ public class Query {
 	private com.liferay.portal.kernel.model.User _user;
 
 }
-// LIFERAY-REST-BUILDER-HASH:2060660759
+// LIFERAY-REST-BUILDER-HASH:-876462951
