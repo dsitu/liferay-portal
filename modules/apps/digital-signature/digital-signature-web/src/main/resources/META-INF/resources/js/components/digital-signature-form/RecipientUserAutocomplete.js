@@ -57,10 +57,16 @@ const RecipientUserAutocomplete = ({error, id, label, onSelectUser, value}) => {
 			<label htmlFor={id}>{label}</label>
 
 			<ClayAutocomplete
+				allowsCustomValue
 				filterKey="emailAddress"
 				id={id}
 				items={userAccounts}
 				menuTrigger="focus"
+				onActiveChange={(active) => {
+					if (!active && !selectedEmailAddressRef.current) {
+						setQuery('');
+					}
+				}}
 				onChange={(newQuery) => {
 					setQuery(newQuery);
 

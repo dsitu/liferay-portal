@@ -26,6 +26,45 @@ describe('RecipientUserAutocomplete', () => {
 		fetch.mockResponse(JSON.stringify({items: []}));
 	});
 
+	it('clears an email that matches no user when the field is left', async () => {
+		const onSelectUser = jest.fn();
+
+		fetch.mockResponse(
+			JSON.stringify({
+				items: [
+					{
+						emailAddress: 'test1@liferay.com',
+						id: 1,
+						name: 'Test Test',
+					},
+				],
+			})
+		);
+
+		render(
+			<RecipientUserAutocomplete
+				id="recipients[0].email"
+				label="recipient-email"
+				onSelectUser={onSelectUser}
+			/>
+		);
+
+		const input = screen.getByLabelText('recipient-email');
+
+		await userEvent.type(input, 'test');
+		await userEvent.click(
+			await screen.findByText('Test Test (test1@liferay.com)')
+		);
+		await userEvent.type(input, 'x');
+		await userEvent.tab();
+
+		expect(onSelectUser).toHaveBeenLastCalledWith({
+			emailAddress: '',
+			name: '',
+		});
+		expect(input).toHaveValue('');
+	});
+
 	it('clears the selected user when the email is edited', async () => {
 		const onSelectUser = jest.fn();
 
@@ -69,6 +108,40 @@ describe('RecipientUserAutocomplete', () => {
 		await userEvent.click(
 			await screen.findByText('Test Test (test1@liferay.com)')
 		);
+
+		expect(onSelectUser).toHaveBeenCalledTimes(1);
+		expect(onSelectUser).toHaveBeenCalledWith(
+			expect.objectContaining({
+				emailAddress: userAccount.emailAddress,
+				name: userAccount.name,
+			})
+		);
+		expect(screen.getByLabelText('recipient-email')).toHaveValue(
+			'test1@liferay.com'
+		);
+	});
+
+	it('keeps the user chosen with the keyboard', async () => {
+		const onSelectUser = jest.fn();
+		const userAccount = {
+			emailAddress: 'test1@liferay.com',
+			id: 1,
+			name: 'Test Test',
+		};
+
+		fetch.mockResponse(JSON.stringify({items: [userAccount]}));
+
+		render(
+			<RecipientUserAutocomplete
+				id="recipients[0].email"
+				label="recipient-email"
+				onSelectUser={onSelectUser}
+			/>
+		);
+
+		await userEvent.type(screen.getByLabelText('recipient-email'), 'test');
+		await screen.findByText('Test Test (test1@liferay.com)');
+		await userEvent.keyboard('{ArrowDown}{Enter}');
 
 		expect(onSelectUser).toHaveBeenCalledTimes(1);
 		expect(onSelectUser).toHaveBeenCalledWith(
