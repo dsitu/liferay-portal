@@ -64,7 +64,10 @@ const RecipientUserAutocomplete = ({error, id, label, onSelectUser, value}) => {
 				onChange={(newQuery) => {
 					setQuery(newQuery);
 
-					if (selectedEmailAddressRef.current) {
+					if (
+						selectedEmailAddressRef.current &&
+						newQuery !== selectedEmailAddressRef.current
+					) {
 						selectedEmailAddressRef.current = '';
 
 						onSelectUser({emailAddress: '', name: ''});

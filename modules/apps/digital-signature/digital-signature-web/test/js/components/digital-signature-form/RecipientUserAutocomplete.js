@@ -47,6 +47,41 @@ describe('RecipientUserAutocomplete', () => {
 		);
 	});
 
+	it('keeps the user chosen from the list', async () => {
+		const onSelectUser = jest.fn();
+		const userAccount = {
+			emailAddress: 'test1@liferay.com',
+			id: 1,
+			name: 'Test Test',
+		};
+
+		fetch.mockResponse(JSON.stringify({items: [userAccount]}));
+
+		render(
+			<RecipientUserAutocomplete
+				id="recipients[0].email"
+				label="recipient-email"
+				onSelectUser={onSelectUser}
+			/>
+		);
+
+		await userEvent.type(screen.getByLabelText('recipient-email'), 'test');
+		await userEvent.click(
+			await screen.findByText('Test Test (test1@liferay.com)')
+		);
+
+		expect(onSelectUser).toHaveBeenCalledTimes(1);
+		expect(onSelectUser).toHaveBeenCalledWith(
+			expect.objectContaining({
+				emailAddress: userAccount.emailAddress,
+				name: userAccount.name,
+			})
+		);
+		expect(screen.getByLabelText('recipient-email')).toHaveValue(
+			'test1@liferay.com'
+		);
+	});
+
 	it('shows the email of the recipient in its row', () => {
 		const {rerender} = render(
 			<RecipientUserAutocomplete
