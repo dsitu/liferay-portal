@@ -57,6 +57,7 @@ const RecipientUserAutocomplete = ({error, id, label, onSelectUser, value}) => {
 			<label htmlFor={id}>{label}</label>
 
 			<ClayAutocomplete
+				filterKey="emailAddress"
 				id={id}
 				items={userAccounts}
 				menuTrigger="focus"
