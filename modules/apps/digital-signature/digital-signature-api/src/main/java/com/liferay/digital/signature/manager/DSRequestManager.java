@@ -10,7 +10,6 @@ import com.liferay.digital.signature.model.DSRequest;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public interface DSRequestManager {
 	public DSRequest fetchFileEntryDSRequest(long companyId, long fileEntryId);
 
 	public Map<Long, DSRequest> getDSRequests(
-		long companyId, Collection<Long> fileEntryIds);
+		long companyId, long[] fileEntryIds);
 
 	public List<DSRequest> getFileEntryDSRequests(
 		long companyId, long fileEntryId);

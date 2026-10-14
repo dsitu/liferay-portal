@@ -79,7 +79,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -132,7 +131,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		Map<Long, DSRequest> dsRequests = getDSRequests(
-			companyId, ListUtil.fromArray(fileEntryIds));
+			companyId, fileEntryIds);
 
 		for (DSRequest dsRequest : dsRequests.values()) {
 			if (dsRequest.isRequestable()) {
@@ -253,48 +252,28 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 	@Override
 	public Map<Long, DSRequest> getDSRequests(
-		long companyId, Collection<Long> fileEntryIds) {
+		long companyId, long[] fileEntryIds) {
 
 		Map<Long, DSRequest> dsRequests = new HashMap<>();
 
-		if ((fileEntryIds == null) || fileEntryIds.isEmpty() ||
+		if (ArrayUtil.isEmpty(fileEntryIds) ||
 			!FeatureFlagManagerUtil.isEnabled(companyId, "LPD-69290")) {
 
 			return dsRequests;
 		}
 
-		ObjectDefinition dsRequestDocumentObjectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					DSObjectDefinitionConstants.
-						EXTERNAL_REFERENCE_CODE_REQUEST_DOCUMENT,
-					companyId);
-		ObjectDefinition dsRequestRecipientObjectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					DSObjectDefinitionConstants.
-						EXTERNAL_REFERENCE_CODE_REQUEST_RECIPIENT,
-					companyId);
-
-		if ((dsRequestDocumentObjectDefinition == null) ||
-			(dsRequestRecipientObjectDefinition == null)) {
-
-			return dsRequests;
-		}
-
 		try {
-			Map<Long, Long> dsRequestIdsMap = _getDSRequestIdsMap(
-				companyId, dsRequestDocumentObjectDefinition, fileEntryIds);
+			Map<Long, Long> dsRequestIds = _getDSRequestIds(
+				companyId, fileEntryIds);
 
-			if (dsRequestIdsMap.isEmpty()) {
+			if (dsRequestIds.isEmpty()) {
 				return dsRequests;
 			}
 
-			Map<Long, DSRequest> dsRequestsMap = _getDSRequestsMap(
-				companyId, new HashSet<>(dsRequestIdsMap.values()),
-				dsRequestRecipientObjectDefinition);
+			Map<Long, DSRequest> dsRequestsMap = _getDSRequests(
+				companyId, new HashSet<>(dsRequestIds.values()));
 
-			for (Map.Entry<Long, Long> entry : dsRequestIdsMap.entrySet()) {
+			for (Map.Entry<Long, Long> entry : dsRequestIds.entrySet()) {
 				DSRequest dsRequest = dsRequestsMap.get(entry.getValue());
 
 				if ((dsRequest != null) &&
@@ -1375,8 +1354,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 	private void _updateFileEntries(
 			long companyId, long groupId, DSEnvelope dsEnvelope,
-			ObjectDefinition dsRequestDocumentObjectDefinition,
-			long dsRequestId)
+			ObjectDefinition objectDefinition, long dsRequestId)
 		throws Exception {
 
 		List<Long> fileEntryIds = TransformUtil.transform(
@@ -1385,21 +1363,21 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				StringBundler.concat(
 					"(r_dsRequestToDSRequestDocuments_l_dsRequestId eq '",
 					dsRequestId, "')"),
-				dsRequestDocumentObjectDefinition, null),
+				objectDefinition, null),
 			values -> MapUtil.getLong(values, "fileEntryId"));
 
 		if (fileEntryIds.isEmpty()) {
 			return;
 		}
 
-		ObjectEntry dsRequestObjectEntry =
-			_objectEntryLocalService.fetchObjectEntry(dsRequestId);
+		ObjectEntry objectEntry = _objectEntryLocalService.fetchObjectEntry(
+			dsRequestId);
 
-		if (dsRequestObjectEntry == null) {
+		if (objectEntry == null) {
 			return;
 		}
 
-		long userId = dsRequestObjectEntry.getUserId();
+		long userId = objectEntry.getUserId();
 
 		for (long fileEntryId : fileEntryIds) {
 			byte[] bytes = _dsEnvelopeManager.getSignedDocument(
