@@ -301,25 +301,23 @@ public class SignatureRequestResourceTest
 			ServiceContextTestUtil.getServiceContext(
 				testGroup.getGroupId(), TestPropsValues.getUserId());
 
-		ObjectEntry dsRequestObjectEntry =
-			_objectEntryLocalService.addObjectEntry(
-				0, TestPropsValues.getUserId(),
-				_dsRequestObjectDefinition.getObjectDefinitionId(), 0,
-				languageId,
-				HashMapBuilder.<String, Serializable>put(
-					"emailBody", RandomTestUtil.randomString()
-				).put(
-					"emailSubject", RandomTestUtil.randomString()
-				).put(
-					"providerKey", "docusign"
-				).put(
-					"providerRequestId", RandomTestUtil.randomString()
-				).put(
-					"requestStatus", requestStatus
-				).put(
-					"siteGroupId", testGroup.getGroupId()
-				).build(),
-				serviceContext);
+		ObjectEntry objectEntry = _objectEntryLocalService.addObjectEntry(
+			0, TestPropsValues.getUserId(),
+			_dsRequestObjectDefinition.getObjectDefinitionId(), 0, languageId,
+			HashMapBuilder.<String, Serializable>put(
+				"emailBody", RandomTestUtil.randomString()
+			).put(
+				"emailSubject", RandomTestUtil.randomString()
+			).put(
+				"providerKey", "docusign"
+			).put(
+				"providerRequestId", RandomTestUtil.randomString()
+			).put(
+				"requestStatus", requestStatus
+			).put(
+				"siteGroupId", testGroup.getGroupId()
+			).build(),
+			serviceContext);
 
 		_objectEntryLocalService.addObjectEntry(
 			0, TestPropsValues.getUserId(),
@@ -329,7 +327,7 @@ public class SignatureRequestResourceTest
 				"fileEntryId", RandomTestUtil.randomInt()
 			).put(
 				"r_dsRequestToDSRequestDocuments_l_dsRequestId",
-				dsRequestObjectEntry.getObjectEntryId()
+				objectEntry.getObjectEntryId()
 			).build(),
 			serviceContext);
 
@@ -345,7 +343,7 @@ public class SignatureRequestResourceTest
 				"providerRecipientId", RandomTestUtil.randomString()
 			).put(
 				"r_dsRequestToDSRequestRecipients_l_dsRequestId",
-				dsRequestObjectEntry.getObjectEntryId()
+				objectEntry.getObjectEntryId()
 			).put(
 				"r_userToDSRequestRecipients_userId",
 				() -> {
@@ -365,7 +363,7 @@ public class SignatureRequestResourceTest
 			).build(),
 			serviceContext);
 
-		return dsRequestObjectEntry;
+		return objectEntry;
 	}
 
 	private void _assertProblemStatus(
