@@ -136,7 +136,7 @@ public class OpenDSRequestStrutsActionTest {
 			ServiceContextTestUtil.getServiceContext(
 				_group.getGroupId(), TestPropsValues.getUserId());
 
-		ObjectEntry dsRequestObjectEntry = _addObjectEntry(
+		ObjectEntry objectEntry = _addObjectEntry(
 			DSObjectDefinitionConstants.EXTERNAL_REFERENCE_CODE_REQUEST,
 			HashMapBuilder.<String, Serializable>put(
 				"emailSubject", RandomTestUtil.randomString()
@@ -162,7 +162,7 @@ public class OpenDSRequestStrutsActionTest {
 				"providerRecipientId", RandomTestUtil.randomString()
 			).put(
 				"r_dsRequestToDSRequestRecipients_l_dsRequestId",
-				dsRequestObjectEntry.getObjectEntryId()
+				objectEntry.getObjectEntryId()
 			).put(
 				"r_userToDSRequestRecipients_userId", _user.getUserId()
 			).put(
@@ -170,7 +170,7 @@ public class OpenDSRequestStrutsActionTest {
 			).build(),
 			serviceContext);
 
-		return dsRequestObjectEntry.getObjectEntryId();
+		return objectEntry.getObjectEntryId();
 	}
 
 	private ObjectEntry _addObjectEntry(
