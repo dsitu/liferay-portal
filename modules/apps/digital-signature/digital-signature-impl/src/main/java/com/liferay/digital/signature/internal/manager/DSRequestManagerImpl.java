@@ -374,31 +374,22 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return new ArrayList<>();
 		}
 
-		ObjectDefinition dsRequestObjectDefinition =
+		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
 					DSObjectDefinitionConstants.EXTERNAL_REFERENCE_CODE_REQUEST,
 					companyId);
-		ObjectDefinition dsRequestRecipientObjectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					DSObjectDefinitionConstants.
-						EXTERNAL_REFERENCE_CODE_REQUEST_RECIPIENT,
-					companyId);
 
-		if ((dsRequestObjectDefinition == null) ||
-			(dsRequestRecipientObjectDefinition == null)) {
-
+		if (objectDefinition == null) {
 			return new ArrayList<>();
 		}
 
 		try {
 			List<Long> dsRequestIds = _objectEntryLocalService.getPrimaryKeys(
-				new Long[] {0L}, companyId,
-				dsRequestObjectDefinition.getUserId(),
-				dsRequestObjectDefinition.getObjectDefinitionId(),
+				new Long[] {0L}, companyId, objectDefinition.getUserId(),
+				objectDefinition.getObjectDefinitionId(),
 				_filterFactory.create(
-					"siteGroupId eq " + siteGroupId, dsRequestObjectDefinition),
+					"siteGroupId eq " + siteGroupId, objectDefinition),
 				false, search, start, end,
 				new Sort[] {new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, true)});
 
@@ -406,11 +397,10 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				return new ArrayList<>();
 			}
 
-			Map<Long, DSRequest> dsRequestsMap = _getDSRequestsMap(
-				companyId, new HashSet<>(dsRequestIds),
-				dsRequestRecipientObjectDefinition);
+			Map<Long, DSRequest> dsRequests = _getDSRequests(
+				companyId, new HashSet<>(dsRequestIds));
 
-			return TransformUtil.transform(dsRequestIds, dsRequestsMap::get);
+			return TransformUtil.transform(dsRequestIds, dsRequests::get);
 		}
 		catch (Exception exception) {
 			_log.error(
