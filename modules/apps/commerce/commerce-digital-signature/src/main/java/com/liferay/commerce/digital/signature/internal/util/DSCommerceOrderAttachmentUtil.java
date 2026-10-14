@@ -115,7 +115,8 @@ public class DSCommerceOrderAttachmentUtil {
 
 		Map<Long, DSRequest> fileEntryDSRequests =
 			dsRequestManager.getDSRequests(
-				commerceOrder.getCompanyId(), fileEntryIds.values());
+				commerceOrder.getCompanyId(),
+				ArrayUtil.toLongArray(fileEntryIds.values()));
 
 		dsRequests = new LinkedHashMap<>();
 

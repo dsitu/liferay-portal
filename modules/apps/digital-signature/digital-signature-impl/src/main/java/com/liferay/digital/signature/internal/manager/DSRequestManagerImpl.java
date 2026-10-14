@@ -245,7 +245,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 	@Override
 	public DSRequest fetchFileEntryDSRequest(long companyId, long fileEntryId) {
 		Map<Long, DSRequest> dsRequests = getDSRequests(
-			companyId, Collections.singleton(fileEntryId));
+			companyId, new long[] {fileEntryId});
 
 		return dsRequests.get(fileEntryId);
 	}
@@ -303,22 +303,14 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return dsRequests;
 		}
 
-		ObjectDefinition dsRequestDocumentObjectDefinition =
+		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
 					DSObjectDefinitionConstants.
 						EXTERNAL_REFERENCE_CODE_REQUEST_DOCUMENT,
 					companyId);
-		ObjectDefinition dsRequestRecipientObjectDefinition =
-			_objectDefinitionLocalService.
-				fetchObjectDefinitionByExternalReferenceCode(
-					DSObjectDefinitionConstants.
-						EXTERNAL_REFERENCE_CODE_REQUEST_RECIPIENT,
-					companyId);
 
-		if ((dsRequestDocumentObjectDefinition == null) ||
-			(dsRequestRecipientObjectDefinition == null)) {
-
+		if (objectDefinition == null) {
 			return dsRequests;
 		}
 
@@ -328,7 +320,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			for (Map<String, Serializable> values :
 					_getValuesList(
 						companyId, "(fileEntryId eq " + fileEntryId + ")",
-						dsRequestDocumentObjectDefinition,
+						objectDefinition,
 						new Sort[] {
 							new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, true)
 						})) {
@@ -343,8 +335,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				return dsRequests;
 			}
 
-			Map<Long, DSRequest> dsRequestsMap = _getDSRequestsMap(
-				companyId, dsRequestIds, dsRequestRecipientObjectDefinition);
+			Map<Long, DSRequest> dsRequestsMap = _getDSRequests(
+				companyId, dsRequestIds);
 
 			for (long dsRequestId : dsRequestIds) {
 				DSRequest dsRequest = dsRequestsMap.get(dsRequestId);
