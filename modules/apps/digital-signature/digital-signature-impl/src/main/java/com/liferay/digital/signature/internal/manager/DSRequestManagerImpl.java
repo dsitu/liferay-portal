@@ -803,46 +803,47 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				serviceContext);
 		}
 
-		List<DSRequestRecipient> dsRequestRecipients = new ArrayList<>();
+		List<DSRequestRecipient> dsRequestRecipients = TransformUtil.transform(
+			dsEnvelope.getDSRecipients(),
+			dsRecipient -> {
+				ObjectEntry dsRequestRecipientObjectEntry =
+					_objectEntryLocalService.addObjectEntry(
+						0, userId,
+						dsRequestRecipientObjectDefinition.
+							getObjectDefinitionId(),
+						ObjectEntryFolderConstants.
+							PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
+						null,
+						HashMapBuilder.<String, Serializable>put(
+							"emailAddress", dsRecipient.getEmailAddress()
+						).put(
+							"name", dsRecipient.getName()
+						).put(
+							"providerRecipientId",
+							dsRecipient.getDSRecipientId()
+						).put(
+							"r_dsRequestToDSRequestRecipients_l_dsRequestId",
+							dsRequestObjectEntry.getObjectEntryId()
+						).put(
+							"r_userToDSRequestRecipients_userId",
+							_getRecipientUserId(
+								companyId, dsRecipient.getEmailAddress())
+						).put(
+							"requestRecipientStatus",
+							() -> _getRequestRecipientStatus(
+								dsRecipient, _getRequestStatus(dsEnvelope))
+						).put(
+							"sentDate",
+							() -> _toDate(dsRecipient.getSentLocalDateTime())
+						).put(
+							"signingOrder",
+							Math.max(1, dsRecipient.getRoutingOrder())
+						).build(),
+						serviceContext);
 
-		for (DSRecipient dsRecipient : dsEnvelope.getDSRecipients()) {
-			ObjectEntry dsRequestRecipientObjectEntry =
-				_objectEntryLocalService.addObjectEntry(
-					0, userId,
-					dsRequestRecipientObjectDefinition.getObjectDefinitionId(),
-					ObjectEntryFolderConstants.
-						PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
-					null,
-					HashMapBuilder.<String, Serializable>put(
-						"emailAddress", dsRecipient.getEmailAddress()
-					).put(
-						"name", dsRecipient.getName()
-					).put(
-						"providerRecipientId", dsRecipient.getDSRecipientId()
-					).put(
-						"r_dsRequestToDSRequestRecipients_l_dsRequestId",
-						dsRequestObjectEntry.getObjectEntryId()
-					).put(
-						"r_userToDSRequestRecipients_userId",
-						_getRecipientUserId(
-							companyId, dsRecipient.getEmailAddress())
-					).put(
-						"requestRecipientStatus",
-						() -> _getRequestRecipientStatus(
-							dsRecipient, _getRequestStatus(dsEnvelope))
-					).put(
-						"sentDate",
-						() -> _toDate(dsRecipient.getSentLocalDateTime())
-					).put(
-						"signingOrder",
-						Math.max(1, dsRecipient.getRoutingOrder())
-					).build(),
-					serviceContext);
-
-			dsRequestRecipients.add(
-				new DSRequestRecipient(
-					dsRequestRecipientObjectEntry.getValues()));
-		}
+				return new DSRequestRecipient(
+					dsRequestRecipientObjectEntry.getValues());
+			});
 
 		return new DSRequest(
 			dsRequestObjectEntry.getCompanyId(),
