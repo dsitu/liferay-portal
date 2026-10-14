@@ -342,21 +342,7 @@ public class DSRequestManagerTest {
 
 	@Test
 	public void testFetchDSRequest() throws Exception {
-		DSRequest dsRequest1 = _addDSRequest(
-			_createDSEnvelope(), RandomTestUtil.randomInt());
-
-		DSRequest dsRequest2 = _dsRequestManager.fetchDSRequest(
-			TestPropsValues.getCompanyId(), dsRequest1.getDSRequestId());
-
-		Assert.assertEquals(
-			dsRequest1.getDSRequestId(), dsRequest2.getDSRequestId());
-		Assert.assertEquals(
-			DSRequestConstants.STATUS_SENT, dsRequest2.getStatus());
-
-		Assert.assertNull(
-			_dsRequestManager.fetchDSRequest(
-				RandomTestUtil.randomLong(), dsRequest1.getDSRequestId()));
-
+		_testFetchDSRequest();
 		_testFetchDSRequestWhenExpirationDateIsPast();
 		_testFetchDSRequestWhenSiteOverridesInstanceSettings();
 	}
@@ -848,6 +834,23 @@ public class DSRequestManagerTest {
 				TestPropsValues.getCompanyId(), TestPropsValues.getGroupId(),
 				TestPropsValues.getUserId(), dsEnvelope,
 				new long[] {RandomTestUtil.randomInt()}));
+	}
+
+	private void _testFetchDSRequest() throws Exception {
+		DSRequest dsRequest1 = _addDSRequest(
+			_createDSEnvelope(), RandomTestUtil.randomInt());
+
+		DSRequest dsRequest2 = _dsRequestManager.fetchDSRequest(
+			TestPropsValues.getCompanyId(), dsRequest1.getDSRequestId());
+
+		Assert.assertEquals(
+			dsRequest1.getDSRequestId(), dsRequest2.getDSRequestId());
+		Assert.assertEquals(
+			DSRequestConstants.STATUS_SENT, dsRequest2.getStatus());
+
+		Assert.assertNull(
+			_dsRequestManager.fetchDSRequest(
+				RandomTestUtil.randomLong(), dsRequest1.getDSRequestId()));
 	}
 
 	private void _testFetchDSRequestWhenExpirationDateIsPast()
