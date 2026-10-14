@@ -30,6 +30,7 @@ export default function mountSigning({
 
 			signing.on('sessionEnd', () => {
 				window.removeEventListener('pagehide', onPageHide);
+				Liferay.detach('beforeNavigate', onPageHide);
 
 				const opener = getOpener();
 
@@ -47,6 +48,7 @@ export default function mountSigning({
 			signing.mount(`#${containerId}`);
 
 			window.addEventListener('pagehide', onPageHide);
+			Liferay.on('beforeNavigate', onPageHide);
 		});
 	};
 
