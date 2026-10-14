@@ -356,7 +356,7 @@ public class DSRequestManagerTest {
 
 		Map<Long, DSRequest> dsRequests = _dsRequestManager.getDSRequests(
 			TestPropsValues.getCompanyId(),
-			ListUtil.fromArray(fileEntryId1, fileEntryId2));
+			new long[] {fileEntryId1, fileEntryId2});
 
 		Assert.assertEquals(dsRequests.toString(), 2, dsRequests.size());
 
@@ -369,7 +369,7 @@ public class DSRequestManagerTest {
 
 		dsRequests = _dsRequestManager.getDSRequests(
 			TestPropsValues.getCompanyId(),
-			Collections.singletonList(RandomTestUtil.randomLong()));
+			new long[] {RandomTestUtil.randomLong()});
 
 		Assert.assertTrue(dsRequests.isEmpty());
 	}
