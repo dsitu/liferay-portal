@@ -141,7 +141,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			}
 		}
 
-		dsRequests = getDSRequests(companyId, ListUtil.fromArray(fileEntryIds));
+		dsRequests = getDSRequests(companyId, fileEntryIds);
 
 		for (Map.Entry<Long, DSRequest> entry : dsRequests.entrySet()) {
 			DSRequest dsRequest = entry.getValue();
