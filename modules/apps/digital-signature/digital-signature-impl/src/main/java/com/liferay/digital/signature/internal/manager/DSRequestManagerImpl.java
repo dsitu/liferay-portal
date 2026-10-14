@@ -520,14 +520,14 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return 0;
 		}
 
-		ObjectDefinition dsRequestRecipientObjectDefinition =
+		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
 					DSObjectDefinitionConstants.
 						EXTERNAL_REFERENCE_CODE_REQUEST_RECIPIENT,
 					companyId);
 
-		if (dsRequestRecipientObjectDefinition == null) {
+		if (objectDefinition == null) {
 			return 0;
 		}
 
@@ -542,7 +542,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 						StringBundler.concat(
 							"(requestRecipientStatus eq '",
 							DSRequestConstants.STATUS_SENT, "')"),
-						dsRequestRecipientObjectDefinition, null)) {
+						objectDefinition, null)) {
 
 				dsRequestIds.add(
 					MapUtil.getLong(
@@ -554,10 +554,10 @@ public class DSRequestManagerImpl implements DSRequestManager {
 				return 0;
 			}
 
-			Map<Long, DSRequest> dsRequestsMap = _getDSRequestsMap(
-				companyId, dsRequestIds, dsRequestRecipientObjectDefinition);
+			Map<Long, DSRequest> dsRequests = _getDSRequests(
+				companyId, dsRequestIds);
 
-			for (DSRequest dsRequest : dsRequestsMap.values()) {
+			for (DSRequest dsRequest : dsRequests.values()) {
 				if (dsRequest.isTerminal() ||
 					!_isEnabled(companyId, dsRequest.getSiteGroupId())) {
 
