@@ -7,11 +7,9 @@ package com.liferay.digital.signature.web.internal.portlet.action;
 
 import com.liferay.digital.signature.constants.DSRequestConstants;
 import com.liferay.digital.signature.constants.DigitalSignaturePortletKeys;
-import com.liferay.digital.signature.manager.DSEnvelopeManager;
 import com.liferay.digital.signature.manager.DSRequestManager;
-import com.liferay.digital.signature.model.DSEnvelope;
-import com.liferay.digital.signature.model.DSRecipient;
 import com.liferay.digital.signature.model.DSRequest;
+import com.liferay.digital.signature.model.DSRequestRecipient;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -31,8 +29,6 @@ import jakarta.portlet.ActionRequest;
 import jakarta.portlet.ActionResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
-
-import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -84,19 +80,20 @@ public class CompleteDSRecipientViewMVCActionCommand
 		actionResponse.sendRedirect(backURL);
 	}
 
-	private boolean _isSigned(DSEnvelope dsEnvelope, User user) {
-		List<DSRecipient> dsRecipients = dsEnvelope.getDSRecipients();
-
-		if (dsRecipients == null) {
+	private boolean _isSigned(DSRequest dsRequest, User user) {
+		if (dsRequest == null) {
 			return false;
 		}
 
-		for (DSRecipient dsRecipient : dsRecipients) {
+		for (DSRequestRecipient dsRequestRecipient :
+				dsRequest.getDSRequestRecipients()) {
+
 			if (StringUtil.equalsIgnoreCase(
-					user.getEmailAddress(), dsRecipient.getEmailAddress()) &&
+					user.getEmailAddress(),
+					dsRequestRecipient.getEmailAddress()) &&
 				StringUtil.equalsIgnoreCase(
 					DSRequestConstants.STATUS_COMPLETED,
-					dsRecipient.getStatus())) {
+					dsRequestRecipient.getStatus())) {
 
 				return true;
 			}
@@ -118,9 +115,8 @@ public class CompleteDSRecipientViewMVCActionCommand
 				companyId, groupId, providerRequestId);
 
 			if (!_isSigned(
-					_dsEnvelopeManager.getDSEnvelope(
-						companyId, groupId, providerRequestId,
-						"custom_fields,recipients"),
+					_dsRequestManager.fetchDSRequest(
+						companyId, dsRequest.getDSRequestId()),
 					themeDisplay.getUser())) {
 
 				return;
@@ -143,9 +139,6 @@ public class CompleteDSRecipientViewMVCActionCommand
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CompleteDSRecipientViewMVCActionCommand.class);
-
-	@Reference
-	private DSEnvelopeManager _dsEnvelopeManager;
 
 	@Reference
 	private DSRequestManager _dsRequestManager;
