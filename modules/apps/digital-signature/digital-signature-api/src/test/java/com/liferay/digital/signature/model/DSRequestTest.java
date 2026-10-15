@@ -69,7 +69,7 @@ public class DSRequestTest {
 						"requestRecipientStatus", recipientStatus
 					).build())),
 			Collections.emptyList(), RandomTestUtil.randomString(),
-			RandomTestUtil.randomString(), RandomTestUtil.randomLong(),
+			RandomTestUtil.randomLong(), RandomTestUtil.randomString(),
 			HashMapBuilder.<String, Serializable>put(
 				"requestStatus", requestStatus
 			).build());

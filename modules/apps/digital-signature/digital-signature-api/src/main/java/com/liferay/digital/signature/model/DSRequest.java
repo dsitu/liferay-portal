@@ -26,17 +26,17 @@ public class DSRequest {
 	public DSRequest(
 		long companyId, Date createDate, long dsRequestId,
 		List<DSRequestRecipient> dsRequestRecipients, List<Long> fileEntryIds,
-		String requesterEmailAddress, String requesterName,
-		long requesterUserId, Map<String, Serializable> values) {
+		String userEmailAddress, long userId, String userName,
+		Map<String, Serializable> values) {
 
 		_companyId = companyId;
 		_createDate = createDate;
 		_dsRequestId = dsRequestId;
 		_dsRequestRecipients = dsRequestRecipients;
 		_fileEntryIds = fileEntryIds;
-		_requesterEmailAddress = requesterEmailAddress;
-		_requesterName = requesterName;
-		_requesterUserId = requesterUserId;
+		_userEmailAddress = userEmailAddress;
+		_userId = userId;
+		_userName = userName;
 
 		_emailBody = MapUtil.getString(values, "emailBody");
 		_emailSubject = MapUtil.getString(values, "emailSubject");
@@ -104,18 +104,6 @@ public class DSRequest {
 		return _providerRequestId;
 	}
 
-	public String getRequesterEmailAddress() {
-		return _requesterEmailAddress;
-	}
-
-	public String getRequesterName() {
-		return _requesterName;
-	}
-
-	public long getRequesterUserId() {
-		return _requesterUserId;
-	}
-
 	public long getSiteGroupId() {
 		return _siteGroupId;
 	}
@@ -137,6 +125,18 @@ public class DSRequest {
 		}
 
 		return new Date(_statusDate.getTime());
+	}
+
+	public String getUserEmailAddress() {
+		return _userEmailAddress;
+	}
+
+	public long getUserId() {
+		return _userId;
+	}
+
+	public String getUserName() {
+		return _userName;
 	}
 
 	public boolean isRequestable() {
@@ -193,11 +193,11 @@ public class DSRequest {
 	private final List<Long> _fileEntryIds;
 	private final String _providerKey;
 	private final String _providerRequestId;
-	private final String _requesterEmailAddress;
-	private final String _requesterName;
-	private final long _requesterUserId;
 	private final long _siteGroupId;
 	private final String _status;
 	private final Date _statusDate;
+	private final String _userEmailAddress;
+	private final long _userId;
+	private final String _userName;
 
 }

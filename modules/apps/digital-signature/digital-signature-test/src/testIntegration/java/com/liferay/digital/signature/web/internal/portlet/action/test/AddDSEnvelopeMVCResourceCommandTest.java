@@ -156,7 +156,7 @@ public class AddDSEnvelopeMVCResourceCommandTest {
 							return new DSRequest(
 								TestPropsValues.getCompanyId(), null, 0,
 								Collections.emptyList(),
-								Collections.emptyList(), null, null, 0,
+								Collections.emptyList(), null, 0, null,
 								HashMapBuilder.<String, Serializable>put(
 									"providerRequestId", providerRequestId
 								).build());
@@ -373,7 +373,7 @@ public class AddDSEnvelopeMVCResourceCommandTest {
 							return new DSRequest(
 								TestPropsValues.getCompanyId(), null, 0,
 								Collections.emptyList(),
-								Collections.emptyList(), null, null, 0,
+								Collections.emptyList(), null, 0, null,
 								HashMapBuilder.<String, Serializable>put(
 									"providerRequestId", providerRequestId
 								).build());

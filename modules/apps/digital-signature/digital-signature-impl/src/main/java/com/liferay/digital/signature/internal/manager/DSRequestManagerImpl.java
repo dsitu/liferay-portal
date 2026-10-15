@@ -286,7 +286,7 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		if (Objects.equals(actionId, ActionKeys.VIEW)) {
 			User user = permissionChecker.getUser();
 
-			if (dsRequest.getRequesterUserId() == user.getUserId()) {
+			if (dsRequest.getUserId() == user.getUserId()) {
 				return true;
 			}
 
@@ -551,9 +551,10 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			dsRequestObjectEntry.getCreateDate(),
 			dsRequestObjectEntry.getObjectEntryId(), dsRequestRecipients,
 			ListUtil.fromArray(fileEntryIds),
-			_getRequesterEmailAddress(dsRequestObjectEntry),
-			_getRequesterName(dsRequestObjectEntry),
-			dsRequestObjectEntry.getUserId(), dsRequestObjectEntry.getValues());
+			_getUserEmailAddress(dsRequestObjectEntry),
+			dsRequestObjectEntry.getUserId(),
+			dsRequestObjectEntry.getUserName(),
+			dsRequestObjectEntry.getValues());
 	}
 
 	private Map<Long, Long> _getDSRequestIds(
@@ -653,9 +654,8 @@ public class DSRequestManagerImpl implements DSRequestManager {
 						dsRequestId, Collections.emptyList()),
 					fileEntryIdsMap.getOrDefault(
 						dsRequestId, Collections.emptyList()),
-					_getRequesterEmailAddress(objectEntry),
-					_getRequesterName(objectEntry), objectEntry.getUserId(),
-					objectEntry.getValues()));
+					_getUserEmailAddress(objectEntry), objectEntry.getUserId(),
+					objectEntry.getUserName(), objectEntry.getValues()));
 		}
 
 		return dsRequests;
@@ -837,26 +837,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		return null;
 	}
 
-	private String _getRequesterEmailAddress(ObjectEntry objectEntry) {
-		User user = _userLocalService.fetchUser(objectEntry.getUserId());
-
-		if (user == null) {
-			return null;
-		}
-
-		return user.getEmailAddress();
-	}
-
-	private String _getRequesterName(ObjectEntry objectEntry) {
-		User user = _userLocalService.fetchUser(objectEntry.getUserId());
-
-		if (user == null) {
-			return objectEntry.getUserName();
-		}
-
-		return user.getFullName();
-	}
-
 	private ServiceContext _getServiceContext(
 		long companyId, long groupId, long userId) {
 
@@ -899,6 +879,16 @@ public class DSRequestManagerImpl implements DSRequestManager {
 		}
 
 		return groupId;
+	}
+
+	private String _getUserEmailAddress(ObjectEntry objectEntry) {
+		User user = _userLocalService.fetchUser(objectEntry.getUserId());
+
+		if (user == null) {
+			return null;
+		}
+
+		return user.getEmailAddress();
 	}
 
 	private List<Map<String, Serializable>> _getValuesList(
