@@ -14,6 +14,7 @@ import com.liferay.digital.signature.manager.DSEnvelopeManager;
 import com.liferay.digital.signature.manager.DSRequestManager;
 import com.liferay.digital.signature.model.DSEnvelope;
 import com.liferay.digital.signature.model.DSRequest;
+import com.liferay.digital.signature.rest.client.dto.v1_0.Creator;
 import com.liferay.digital.signature.rest.client.dto.v1_0.SignatureRequest;
 import com.liferay.digital.signature.rest.client.dto.v1_0.SignatureRequestRecipient;
 import com.liferay.digital.signature.rest.client.pagination.Page;
@@ -167,6 +168,11 @@ public class SignatureRequestResourceTest
 		SignatureRequest signatureRequest =
 			user1SignatureRequestResource.getSignatureRequest(
 				dsRequestObjectEntry.getObjectEntryId());
+
+		Creator creator = signatureRequest.getCreator();
+
+		Assert.assertEquals(
+			Long.valueOf(TestPropsValues.getUserId()), creator.getId());
 
 		Assert.assertEquals(
 			MapUtil.getString(dsRequestObjectEntry.getValues(), "emailBody"),
