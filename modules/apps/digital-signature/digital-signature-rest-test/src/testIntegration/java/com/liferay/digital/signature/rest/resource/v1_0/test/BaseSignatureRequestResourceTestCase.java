@@ -207,8 +207,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 		signatureRequest.setName(regex);
 		signatureRequest.setProviderKey(regex);
 		signatureRequest.setProviderRequestId(regex);
-		signatureRequest.setRequesterEmailAddress(regex);
-		signatureRequest.setRequesterName(regex);
 		signatureRequest.setStatus(regex);
 
 		String json = SignatureRequestSerDes.toJSON(signatureRequest);
@@ -223,8 +221,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 		Assert.assertEquals(regex, signatureRequest.getName());
 		Assert.assertEquals(regex, signatureRequest.getProviderKey());
 		Assert.assertEquals(regex, signatureRequest.getProviderRequestId());
-		Assert.assertEquals(regex, signatureRequest.getRequesterEmailAddress());
-		Assert.assertEquals(regex, signatureRequest.getRequesterName());
 		Assert.assertEquals(regex, signatureRequest.getStatus());
 	}
 
@@ -1198,6 +1194,14 @@ public abstract class BaseSignatureRequestResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("creator", additionalAssertFieldName)) {
+				if (signatureRequest.getCreator() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("documentTitles", additionalAssertFieldName)) {
 				if (signatureRequest.getDocumentTitles() == null) {
 					valid = false;
@@ -1274,32 +1278,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 					"providerRequestId", additionalAssertFieldName)) {
 
 				if (signatureRequest.getProviderRequestId() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals(
-					"requesterEmailAddress", additionalAssertFieldName)) {
-
-				if (signatureRequest.getRequesterEmailAddress() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("requesterName", additionalAssertFieldName)) {
-				if (signatureRequest.getRequesterName() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("requesterUserId", additionalAssertFieldName)) {
-				if (signatureRequest.getRequesterUserId() == null) {
 					valid = false;
 				}
 
@@ -1476,6 +1454,17 @@ public abstract class BaseSignatureRequestResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("creator", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						signatureRequest1.getCreator(),
+						signatureRequest2.getCreator())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("dateCreated", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						signatureRequest1.getDateCreated(),
@@ -1602,41 +1591,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 				if (!Objects.deepEquals(
 						signatureRequest1.getProviderRequestId(),
 						signatureRequest2.getProviderRequestId())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals(
-					"requesterEmailAddress", additionalAssertFieldName)) {
-
-				if (!Objects.deepEquals(
-						signatureRequest1.getRequesterEmailAddress(),
-						signatureRequest2.getRequesterEmailAddress())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("requesterName", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						signatureRequest1.getRequesterName(),
-						signatureRequest2.getRequesterName())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("requesterUserId", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						signatureRequest1.getRequesterUserId(),
-						signatureRequest2.getRequesterUserId())) {
 
 					return false;
 				}
@@ -1801,6 +1755,11 @@ public abstract class BaseSignatureRequestResourceTestCase {
 		sb.append(" ");
 
 		if (entityFieldName.equals("actions")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("creator")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
@@ -2161,103 +2120,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 			return sb.toString();
 		}
 
-		if (entityFieldName.equals("requesterEmailAddress")) {
-			Object object = signatureRequest.getRequesterEmailAddress();
-
-			String value = String.valueOf(object);
-
-			if (operator.equals("contains")) {
-				sb = new StringBundler();
-
-				sb.append("contains(");
-				sb.append(entityFieldName);
-				sb.append(",'");
-
-				if ((object != null) && (value.length() > 2)) {
-					sb.append(value.substring(1, value.length() - 1));
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append("')");
-			}
-			else if (operator.equals("startswith")) {
-				sb = new StringBundler();
-
-				sb.append("startswith(");
-				sb.append(entityFieldName);
-				sb.append(",'");
-
-				if ((object != null) && (value.length() > 1)) {
-					sb.append(value.substring(0, value.length() - 1));
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append("')");
-			}
-			else {
-				sb.append("'");
-				sb.append(value);
-				sb.append("'");
-			}
-
-			return sb.toString();
-		}
-
-		if (entityFieldName.equals("requesterName")) {
-			Object object = signatureRequest.getRequesterName();
-
-			String value = String.valueOf(object);
-
-			if (operator.equals("contains")) {
-				sb = new StringBundler();
-
-				sb.append("contains(");
-				sb.append(entityFieldName);
-				sb.append(",'");
-
-				if ((object != null) && (value.length() > 2)) {
-					sb.append(value.substring(1, value.length() - 1));
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append("')");
-			}
-			else if (operator.equals("startswith")) {
-				sb = new StringBundler();
-
-				sb.append("startswith(");
-				sb.append(entityFieldName);
-				sb.append(",'");
-
-				if ((object != null) && (value.length() > 1)) {
-					sb.append(value.substring(0, value.length() - 1));
-				}
-				else {
-					sb.append(value);
-				}
-
-				sb.append("')");
-			}
-			else {
-				sb.append("'");
-				sb.append(value);
-				sb.append("'");
-			}
-
-			return sb.toString();
-		}
-
-		if (entityFieldName.equals("requesterUserId")) {
-			throw new IllegalArgumentException(
-				"Invalid entity field " + entityFieldName);
-		}
-
 		if (entityFieldName.equals("sendNotifications")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -2408,11 +2270,6 @@ public abstract class BaseSignatureRequestResourceTestCase {
 					RandomTestUtil.randomString());
 				providerRequestId = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
-				requesterEmailAddress = StringUtil.toLowerCase(
-					RandomTestUtil.randomString());
-				requesterName = StringUtil.toLowerCase(
-					RandomTestUtil.randomString());
-				requesterUserId = RandomTestUtil.randomLong();
 				sendNotifications = RandomTestUtil.randomBoolean();
 				status = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				statusDate = RandomTestUtil.nextDate();
@@ -2666,4 +2523,4 @@ public abstract class BaseSignatureRequestResourceTestCase {
 		_vulcanCRUDItemDelegateBuilderRegistry;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1694768862
+// LIFERAY-REST-BUILDER-HASH:2144924385

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.liferay.headless.delivery.dto.v1_0.Creator;
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -107,6 +108,50 @@ public class SignatureRequest implements Serializable {
 
 	@JsonIgnore
 	private Supplier<Map<String, Map<String, String>>> _actionsSupplier;
+
+	@io.swagger.v3.oas.annotations.media.Schema(
+		description = "The user who created the request. Read-only."
+	)
+	@Valid
+	public Creator getCreator() {
+		if (_creatorSupplier != null) {
+			creator = _creatorSupplier.get();
+
+			_creatorSupplier = null;
+		}
+
+		return creator;
+	}
+
+	public void setCreator(Creator creator) {
+		this.creator = creator;
+
+		_creatorSupplier = null;
+	}
+
+	@JsonIgnore
+	public void setCreator(
+		UnsafeSupplier<Creator, Exception> creatorUnsafeSupplier) {
+
+		_creatorSupplier = () -> {
+			try {
+				return creatorUnsafeSupplier.get();
+			}
+			catch (RuntimeException runtimeException) {
+				throw runtimeException;
+			}
+			catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		};
+	}
+
+	@GraphQLField(description = "The user who created the request. Read-only.")
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Creator creator;
+
+	@JsonIgnore
+	private Supplier<Creator> _creatorSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "When the request was created. Read-only."
@@ -641,141 +686,6 @@ public class SignatureRequest implements Serializable {
 	private Supplier<String> _providerRequestIdSupplier;
 
 	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "Email address of the user who sent the request. Read-only."
-	)
-	public String getRequesterEmailAddress() {
-		if (_requesterEmailAddressSupplier != null) {
-			requesterEmailAddress = _requesterEmailAddressSupplier.get();
-
-			_requesterEmailAddressSupplier = null;
-		}
-
-		return requesterEmailAddress;
-	}
-
-	public void setRequesterEmailAddress(String requesterEmailAddress) {
-		this.requesterEmailAddress = requesterEmailAddress;
-
-		_requesterEmailAddressSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setRequesterEmailAddress(
-		UnsafeSupplier<String, Exception> requesterEmailAddressUnsafeSupplier) {
-
-		_requesterEmailAddressSupplier = () -> {
-			try {
-				return requesterEmailAddressUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField(
-		description = "Email address of the user who sent the request. Read-only."
-	)
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	protected String requesterEmailAddress;
-
-	@JsonIgnore
-	private Supplier<String> _requesterEmailAddressSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "Name of the user who sent the request. Read-only."
-	)
-	public String getRequesterName() {
-		if (_requesterNameSupplier != null) {
-			requesterName = _requesterNameSupplier.get();
-
-			_requesterNameSupplier = null;
-		}
-
-		return requesterName;
-	}
-
-	public void setRequesterName(String requesterName) {
-		this.requesterName = requesterName;
-
-		_requesterNameSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setRequesterName(
-		UnsafeSupplier<String, Exception> requesterNameUnsafeSupplier) {
-
-		_requesterNameSupplier = () -> {
-			try {
-				return requesterNameUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField(
-		description = "Name of the user who sent the request. Read-only."
-	)
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	protected String requesterName;
-
-	@JsonIgnore
-	private Supplier<String> _requesterNameSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema(
-		description = "Identifier of the user who sent the request. Read-only."
-	)
-	public Long getRequesterUserId() {
-		if (_requesterUserIdSupplier != null) {
-			requesterUserId = _requesterUserIdSupplier.get();
-
-			_requesterUserIdSupplier = null;
-		}
-
-		return requesterUserId;
-	}
-
-	public void setRequesterUserId(Long requesterUserId) {
-		this.requesterUserId = requesterUserId;
-
-		_requesterUserIdSupplier = null;
-	}
-
-	@JsonIgnore
-	public void setRequesterUserId(
-		UnsafeSupplier<Long, Exception> requesterUserIdUnsafeSupplier) {
-
-		_requesterUserIdSupplier = () -> {
-			try {
-				return requesterUserIdUnsafeSupplier.get();
-			}
-			catch (RuntimeException runtimeException) {
-				throw runtimeException;
-			}
-			catch (Exception exception) {
-				throw new RuntimeException(exception);
-			}
-		};
-	}
-
-	@GraphQLField(
-		description = "Identifier of the user who sent the request. Read-only."
-	)
-	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
-	protected Long requesterUserId;
-
-	@JsonIgnore
-	private Supplier<Long> _requesterUserIdSupplier;
-
-	@io.swagger.v3.oas.annotations.media.Schema(
 		description = "Whether Liferay emails each signer a link to sign. Defaults to true. Supplied on creation; not returned on read."
 	)
 	public Boolean getSendNotifications() {
@@ -1001,6 +911,18 @@ public class SignatureRequest implements Serializable {
 			sb.append(_toJSON(actions));
 		}
 
+		Creator creator = getCreator();
+
+		if (creator != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"creator\": ");
+
+			sb.append(creator);
+		}
+
 		Date dateCreated = getDateCreated();
 
 		if (dateCreated != null) {
@@ -1185,50 +1107,6 @@ public class SignatureRequest implements Serializable {
 			sb.append(_escape(providerRequestId));
 
 			sb.append("\"");
-		}
-
-		String requesterEmailAddress = getRequesterEmailAddress();
-
-		if (requesterEmailAddress != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"requesterEmailAddress\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(requesterEmailAddress));
-
-			sb.append("\"");
-		}
-
-		String requesterName = getRequesterName();
-
-		if (requesterName != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"requesterName\": ");
-
-			sb.append("\"");
-
-			sb.append(_escape(requesterName));
-
-			sb.append("\"");
-		}
-
-		Long requesterUserId = getRequesterUserId();
-
-		if (requesterUserId != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"requesterUserId\": ");
-
-			sb.append(requesterUserId);
 		}
 
 		Boolean sendNotifications = getSendNotifications();
@@ -1420,4 +1298,4 @@ public class SignatureRequest implements Serializable {
 	private Map<String, Serializable> _extendedProperties;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-1037993126
+// LIFERAY-REST-BUILDER-HASH:-273553442
