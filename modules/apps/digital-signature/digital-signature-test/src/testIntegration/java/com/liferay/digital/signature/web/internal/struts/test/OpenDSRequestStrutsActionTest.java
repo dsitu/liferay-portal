@@ -110,10 +110,6 @@ public class OpenDSRequestStrutsActionTest {
 				).put(
 					"siteSettingsStrategy", "always-inherit"
 				).build());
-
-		_group = GroupTestUtil.addGroup();
-		_user = UserTestUtil.addUser();
-
 		_dsRequestObjectDefinition =
 			_objectDefinitionLocalService.
 				getObjectDefinitionByExternalReferenceCode(
@@ -125,6 +121,8 @@ public class OpenDSRequestStrutsActionTest {
 					DSObjectDefinitionConstants.
 						EXTERNAL_REFERENCE_CODE_REQUEST_RECIPIENT,
 					TestPropsValues.getCompanyId());
+		_group = GroupTestUtil.addGroup();
+		_user = UserTestUtil.addUser();
 	}
 
 	@After

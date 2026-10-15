@@ -99,9 +99,6 @@ public class CompleteDSRecipientViewMVCActionCommandTest {
 				).put(
 					"siteSettingsStrategy", "always-inherit"
 				).build());
-
-		_group = GroupTestUtil.addGroup();
-
 		_dsRequestObjectDefinition =
 			_objectDefinitionLocalService.
 				getObjectDefinitionByExternalReferenceCode(
@@ -113,6 +110,7 @@ public class CompleteDSRecipientViewMVCActionCommandTest {
 					DSObjectDefinitionConstants.
 						EXTERNAL_REFERENCE_CODE_REQUEST_RECIPIENT,
 					TestPropsValues.getCompanyId());
+		_group = GroupTestUtil.addGroup();
 	}
 
 	@After
