@@ -250,13 +250,6 @@ public class DSRequestManagerTest {
 
 		Group group = GroupTestUtil.addGroup();
 
-		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
-			null, TestPropsValues.getUserId(), group.getGroupId(),
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			RandomTestUtil.randomString() + ".txt", ContentTypes.TEXT_PLAIN,
-			TestDataConstants.TEST_BYTE_ARRAY, null, null, null,
-			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
-
 		MockLiferayResourceRequest mockLiferayResourceRequest =
 			new MockLiferayResourceRequest();
 
@@ -272,8 +265,16 @@ public class DSRequestManagerTest {
 		mockLiferayResourceRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, themeDisplay);
 
+		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
+			null, TestPropsValues.getUserId(), group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString() + ".txt", ContentTypes.TEXT_PLAIN,
+			TestDataConstants.TEST_BYTE_ARRAY, null, null, null,
+			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+
 		mockLiferayResourceRequest.setParameter(
 			"fileEntryIds", String.valueOf(fileEntry.getFileEntryId()));
+
 		mockLiferayResourceRequest.setParameter(
 			"recipients",
 			JSONUtil.putAll(

@@ -262,20 +262,6 @@ public class AddDSEnvelopeMVCResourceCommandTest {
 		throws Exception {
 
 		_group = GroupTestUtil.addGroup();
-
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
-
-		serviceContext.setAddGroupPermissions(false);
-		serviceContext.setAddGuestPermissions(true);
-
-		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
-			null, TestPropsValues.getUserId(), _group.getGroupId(),
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			RandomTestUtil.randomString() + ".pdf",
-			ContentTypes.APPLICATION_PDF, TestDataConstants.TEST_BYTE_ARRAY,
-			null, null, null, serviceContext);
-
 		_user = UserTestUtil.addUser();
 
 		MockLiferayResourceRequest mockLiferayResourceRequest =
@@ -293,8 +279,22 @@ public class AddDSEnvelopeMVCResourceCommandTest {
 		mockLiferayResourceRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, themeDisplay);
 
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		serviceContext.setAddGroupPermissions(false);
+		serviceContext.setAddGuestPermissions(true);
+
+		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
+			null, TestPropsValues.getUserId(), _group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString() + ".pdf",
+			ContentTypes.APPLICATION_PDF, TestDataConstants.TEST_BYTE_ARRAY,
+			null, null, null, serviceContext);
+
 		mockLiferayResourceRequest.setParameter(
 			"fileEntryIds", String.valueOf(fileEntry.getFileEntryId()));
+
 		mockLiferayResourceRequest.setParameter("recipients", "[]");
 
 		PermissionThreadLocal.setPermissionChecker(
@@ -326,20 +326,6 @@ public class AddDSEnvelopeMVCResourceCommandTest {
 		throws Exception {
 
 		_group = GroupTestUtil.addGroup();
-
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
-
-		serviceContext.setAddGroupPermissions(false);
-		serviceContext.setAddGuestPermissions(false);
-
-		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
-			null, TestPropsValues.getUserId(), _group.getGroupId(),
-			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-			RandomTestUtil.randomString() + ".pdf",
-			ContentTypes.APPLICATION_PDF, TestDataConstants.TEST_BYTE_ARRAY,
-			null, null, null, serviceContext);
-
 		_user = UserTestUtil.addUser();
 
 		MockLiferayResourceRequest mockLiferayResourceRequest =
@@ -354,8 +340,22 @@ public class AddDSEnvelopeMVCResourceCommandTest {
 		mockLiferayResourceRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, themeDisplay);
 
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		serviceContext.setAddGroupPermissions(false);
+		serviceContext.setAddGuestPermissions(false);
+
+		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
+			null, TestPropsValues.getUserId(), _group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString() + ".pdf",
+			ContentTypes.APPLICATION_PDF, TestDataConstants.TEST_BYTE_ARRAY,
+			null, null, null, serviceContext);
+
 		mockLiferayResourceRequest.setParameter(
 			"fileEntryIds", String.valueOf(fileEntry.getFileEntryId()));
+
 		mockLiferayResourceRequest.setParameter("recipients", "[]");
 
 		PermissionThreadLocal.setPermissionChecker(
