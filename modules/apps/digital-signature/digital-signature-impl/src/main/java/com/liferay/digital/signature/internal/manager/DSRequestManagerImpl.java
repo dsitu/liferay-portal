@@ -106,6 +106,11 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			long[] fileEntryIds)
 		throws PortalException {
 
+		if (!_isEnabled(companyId, groupId)) {
+			throw new PortalException(
+				"Digital signatures are not enabled for group " + groupId);
+		}
+
 		if (ArrayUtil.isEmpty(fileEntryIds)) {
 			throw new PortalException(
 				"A signature request must have at least one file entry");
@@ -123,11 +128,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			throw new PortalException(
 				"Days to warn signers must be fewer than days until " +
 					"expiration");
-		}
-
-		if (!_isEnabled(companyId, groupId)) {
-			throw new PortalException(
-				"Digital signatures are not enabled for group " + groupId);
 		}
 
 		Map<Long, DSRequest> dsRequests = _getFileEntryDSRequests(
