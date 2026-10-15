@@ -95,6 +95,11 @@ components:
                         Actions the current user can take on the request, such as signing it when it is their turn. Read-only.
                     readOnly: true
                     type: object
+                creator:
+                    $ref: ../../headless/headless-delivery/headless-delivery-impl/rest-openapi.yaml#Creator
+                    description:
+                        The user who created the request. Read-only.
+                    readOnly: true
                 dateCreated:
                     description:
                         When the request was created. Read-only.
@@ -155,22 +160,6 @@ components:
                         Identifier the provider assigned to the request. Read-only.
                     readOnly: true
                     type: string
-                requesterEmailAddress:
-                    description:
-                        Email address of the user who sent the request. Read-only.
-                    readOnly: true
-                    type: string
-                requesterName:
-                    description:
-                        Name of the user who sent the request. Read-only.
-                    readOnly: true
-                    type: string
-                requesterUserId:
-                    description:
-                        Identifier of the user who sent the request. Read-only.
-                    format: int64
-                    readOnly: true
-                    type: integer
                 sendNotifications:
                     description:
                         Whether Liferay emails each signer a link to sign. Defaults to true. Supplied on creation; not returned on read.
