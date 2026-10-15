@@ -96,11 +96,6 @@ public class SignDSRequestMVCRenderCommandTest {
 				).put(
 					"siteSettingsStrategy", "always-inherit"
 				).build());
-
-		_group = GroupTestUtil.addGroup();
-
-		_layout = LayoutTestUtil.addTypePortletLayout(_group);
-
 		_dsRequestDocumentObjectDefinition =
 			_objectDefinitionLocalService.
 				getObjectDefinitionByExternalReferenceCode(
@@ -118,6 +113,10 @@ public class SignDSRequestMVCRenderCommandTest {
 					DSObjectDefinitionConstants.
 						EXTERNAL_REFERENCE_CODE_REQUEST_RECIPIENT,
 					TestPropsValues.getCompanyId());
+
+		_group = GroupTestUtil.addGroup();
+
+		_layout = LayoutTestUtil.addTypePortletLayout(_group);
 	}
 
 	@After
