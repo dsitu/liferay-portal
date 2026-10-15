@@ -44,7 +44,6 @@ import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
@@ -57,7 +56,6 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionRegistryUtil;
-import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -846,11 +844,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 			return null;
 		}
 
-		if (_isServiceAccount(user)) {
-			return PrefsPropsUtil.getString(
-				user.getCompanyId(), PropsKeys.ADMIN_EMAIL_FROM_ADDRESS);
-		}
-
 		return user.getEmailAddress();
 	}
 
@@ -859,15 +852,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 		if (user == null) {
 			return objectEntry.getUserName();
-		}
-
-		if (_isServiceAccount(user)) {
-			Company company = _companyLocalService.fetchCompany(
-				user.getCompanyId());
-
-			if (company != null) {
-				return company.getName();
-			}
 		}
 
 		return user.getFullName();
@@ -983,16 +967,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 		if (digitalSignatureConfiguration.embeddedViewEnabled() &&
 			digitalSignatureConfiguration.enabled()) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean _isServiceAccount(User user) {
-		if ((user.getType() == UserConstants.TYPE_DEFAULT_SERVICE_ACCOUNT) ||
-			(user.getType() == UserConstants.TYPE_SERVICE_ACCOUNT)) {
 
 			return true;
 		}
@@ -1264,9 +1238,6 @@ public class DSRequestManagerImpl implements DSRequestManager {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DSRequestManagerImpl.class);
-
-	@Reference
-	private CompanyLocalService _companyLocalService;
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;
